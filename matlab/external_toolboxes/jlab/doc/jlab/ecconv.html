@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ecconv</title>
+  <meta name="keywords" content="ecconv">
+  <meta name="description" content="ECCONV  Converts between eccentricity measures.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ecconv.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ecconv
+</h1>
+
+<div class="fragment"><pre class="comment">ECCONV  Converts between eccentricity measures.
+  
+   Y=ECCONV(X,STR) converts the eccentricity measure X into eccentricity
+   measure Y as specified by the string STR. 
+  
+   STR is of the form 'in2out' where the names 'in' and 'out' may be
+   chosen from the following table.
+
+       STR        Name                    Definition  
+       ----------------------------------------------------------------
+      'ecc'       Eccentricity            sgn(b)*sqrt(1-b^2/a^2)
+      'ell'       Ellipticity             b/a
+      'lin'       Linearity               sgn(b)*(a^2-b^2)/(a^2+b^2)
+      'circ'      Circularity             2ab/(a^2+b^2) 
+      'nu'        Eccentricity angle      asin(b/sqrt(a^2 + b^2))
+      'rot'       Rotary ratio            sgn(b)*(a-abs(b))/(a+abs(b))
+ 
+   where &quot;a&quot; and &quot;b&quot; are the semi-major and semi-minor axes respective. 
+   For example, ECC=ECCONV(L,'lin2ecc') converts the ellipse linearity L
+   into eccentricity ECC.  
+
+   All quantities are positive for mathematically positive rotation
+   and negative for mathematically negative rotation.  Note the linearity
+   is undefined for the case of purely circular rotation a=abs(b);
+
+   For further details, see Lilly and Gascard (2006).
+   ____________________________________________________________________
+   
+   Cell array input/output
+
+   If ECCONV is given cell array input, it returns cell array output.
+
+   Thus X may be a cell arrays of numerical arrays, and the output Y will
+   also be a cell array having an identical size as X.
+   ____________________________________________________________________
+
+   See also ELLCONV, <a href="elldiff.html" class="code" title="function[k2,l2,theta2,phi2]=elldiff(varargin)">ELLDIFF</a>, TRANSCONV.
+
+   Usage:   lin=ecconv(b./a,'ell2lin');
+            ecc=ecconv(lin,'lin2ecc');
+
+   'ecconv --t' runs a test.
+   'ecconv --f' generates a sample figure.
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2005--2012 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="ecconv.html" class="code" title="function[varargout]=ecconv(varargin)">ecconv</a>	ECCONV  Converts between eccentricity measures.</li><li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ab2kl.html" class="code" title="function[K,L]=ab2kl(A,B)">ab2kl</a>	AB2KL  Converts A and B to ellipse parameters Kappa and Lambda.</li><li><a href="ecconv.html" class="code" title="function[varargout]=ecconv(varargin)">ecconv</a>	ECCONV  Converts between eccentricity measures.</li><li><a href="ellrad.html" class="code" title="function[r]=ellrad(varargin)">ellrad</a>	ELLRAD  Average and instantaneous ellipse radius.</li><li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

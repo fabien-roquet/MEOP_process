@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vstd</title>
+  <meta name="keywords" content="vstd">
+  <meta name="description" content="VSTD Standard deviation over finite elements along a specfied dimension.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; vstd.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>vstd
+</h1>
+
+<div class="fragment"><pre class="comment">VSTD Standard deviation over finite elements along a specfied dimension.
+
+   Y=VSTD(X,DIM) takes the standard deviation of all finite elements of X 
+   along dimension DIM.
+                                                                         
+   [Y,NUM]=VSTD(X,DIM) also outputs the number of good data points NUM, 
+   which is the same size as X.
+                                                                         
+   VSTD uses the &quot;1/N&quot; normalization, where N is the number of data points,
+   rather than the &quot;1/(N-1)&quot; normalization.
+
+   [Y1,Y2,...YN]=VSTD(X1,X2,...XN,DIM) also works.
+
+   VSTD(X1,X2,...XN,DIM);  with no arguments overwrites the original 
+   input variables.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2001--2012 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vmoment.html" class="code" title="function[varargout] = vmoment(varargin)">vmoment</a>	VMOMENT Central moment over finite elements along a specfied dimension.</li><li><a href="vstd.html" class="code" title="function[varargout] = vstd(varargin)">vstd</a>	VSTD Standard deviation over finite elements along a specfied dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="maternoise.html" class="code" title="function[varargout]=maternoise(varargin)">maternoise</a>	MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li><li><a href="periodize.html" class="code" title="function[varargout]=periodize(varargin)">periodize</a>	PERIODIZE  Returns a doubly periodic version of an input array.</li><li><a href="sampletimes.html" class="code" title="function[meandt,sigdt,meddt,maxdt]=sampletimes(num)">sampletimes</a>	SAMPLETIMES  Computes mean sampling intervals and their statistics.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li><li><a href="vstd.html" class="code" title="function[varargout] = vstd(varargin)">vstd</a>	VSTD Standard deviation over finite elements along a specfied dimension.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

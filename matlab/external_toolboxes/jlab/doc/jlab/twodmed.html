@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of twodmed</title>
+  <meta name="keywords" content="twodmed">
+  <meta name="description" content="TWODMED  Median value of a function of two variables.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; twodmed.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>twodmed
+</h1>
+
+<div class="fragment"><pre class="comment">TWODMED  Median value of a function of two variables.
+   __________________________________________________________________
+
+   <img src='drifters_med.png'>
+   __________________________________________________________________
+
+   MED=TWODMED(X,Y,Z,XBIN,YBIN) where X, Y and Z are arrays of the same
+   length, forms the median of Z over the XY plane.
+
+   If XBIN and YBIN are length N and M, respectively, then MED is of 
+   size M-1 x N-1.  Bins with no data are assigned a value of NAN.
+
+   XBIN and YBIN must be monotonically increasing. 
+
+   MED=TWODMED(X,Y,Z,N) uses N bins in the X and Y directions, linearly
+   spaced between the minimum and maximum values.  MED is N-1 x N-1.
+
+   MED=TWODMED(X,Y,Z,[XMIN XMAX],[YMIN YMAX],N) uses N bins, linearly
+   spaced between the designated X and Y values.  MED is N-1 x N-1. 
+
+   [MED,XMID,YMID]=TWODMED(...) optionally returns the midpoints XMID
+   and YMID of the bins.
+
+   X, Y, and Z can also be cell arrays of numerical arrays, in which case 
+   all data values are concatented prior to finding the histogram.
+
+   TWODMED, TWODSTATS, and TWODHIST are three related functions for 
+   computing statistics as a function two variables using very fast
+   algorithms that avoid any loops through efficient use of indexing. 
+   __________________________________________________________________
+
+   Algorithms
+
+   TWODMED uses a fast (exact) algorithm which is particularly efficient 
+   for large arrays.
+
+   The values of Z are sorted into bins according to the associated (X,Y)
+   value, with bin edges specified by XBIN and YBIN, and the median of 
+   finite values of Z in each bin is computed looplessly using indexing.
+
+   TWODMED(...,'slow') uses a slow algorithm which uses less memory.  
+   By default, TWODMED uses a fast but memory-intensive algorithm.  
+   Use this flag if you get an out-of-memory error.
+   __________________________________________________________________
+
+   See also <a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">TWODHIST</a>, <a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">TWODSTATS</a>.
+
+   'twodmed --f' generates the sample figure shown above.
+   'twodmed --t' runs a test.
+
+   Usage: med=twodmed(x,y,z,N);
+          med=twodmed(x,y,z,[xmin xmax],[xmin xmax],N);
+          med=twodmed(x,y,z,xbin,ybin);
+          [med,xmid,ymid]=twodmed(x,y,z,xbin,ybin);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="bindata.html" class="code" title="function[xnum,xi,xmid]=bindata(xbin,xdata,str)">bindata</a>	BINDATA  Rapidly sort data into adjacent bins.</li><li><a href="blocklen.html" class="code" title="function[L,ia,ib,num]=blocklen(x,delta)">blocklen</a>	BLOCKLEN Counts the lengths of 'blocks' in an array.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="cellabs.html" class="code" title="function[x]=cellabs(x)">cellabs</a>	CELLABS  Absolute value of each element in a cell array.</li><li><a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">col2mat</a>	COL2MAT  Expands 'column-appended' data into a matrix.</li><li><a href="colbreaks.html" class="code" title="function[varargout]=colbreaks(varargin)">colbreaks</a>	COLBREAKS  Insert NANs into discontinuties in a vector.</li><li><a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>	CROP  Gets rid of whitespace around an image. [by A. Bliss]</li><li><a href="iseven.html" class="code" title="function[bool]=iseven(x)">iseven</a>	ISEVEN  True for even integer values; false otherwise.</li><li><a href="isodd.html" class="code" title="function[bool]=isodd(x)">isodd</a>	ISODD  True for odd integer values; false otherwise.</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="nonnan.html" class="code" title="function[x]=nonnan(x)">nonnan</a>	NONNAN  Return all non-NAN elements of an array.</li><li><a href="oprod.html" class="code" title="function[z]=oprod(x,y)">oprod</a>	OPROD  Outer product:  OPROD(X,Y)=X*CONJ(Y')</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="topoplot.html" class="code" title="function[h,hc]=topoplot(varargin)">topoplot</a>	TOPOPLOT  Plot regional or global topography at one-sixth degree resolution.</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li><li><a href="whichdir.html" class="code" title="function[dir]=whichdir(name)">whichdir</a>	WHICHDIR  Returns directory name containing file in search path.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jstats.html" class="code" title="">jstats</a>	jStats:  Fast statistical analysis of large datasets in two dimensions</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of spherelap</title>
+  <meta name="keywords" content="spherelap">
+  <meta name="description" content="SPHERELAP  Laplacian of a field on the surface of a sphere.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; spherelap.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>spherelap
+</h1>
+
+<div class="fragment"><pre class="comment">SPHERELAP  Laplacian of a field on the surface of a sphere.
+
+   DEL2=SPHERELAT(LAT,LON,F) computes the Laplacian of the scalar field F
+   on the surface of the sphere.
+
+   DEL2 has units of F per inverse meter squared.
+
+   LAT and LON are vectors specifing an evenly-spaced grid, and F is an 
+   array of size LENGTH(LON) x LENGTH(LAT) x M, where M is greater than
+   or equal to one.  LAT and LON are in degrees.
+
+   The radius of the Earth as specified by RADEARTH is used by default.
+   SPHERELAP(...,R) uses a sphere of radius R, in kilometers, instead.
+
+   Derivatives are computed using the second central difference.
+   ___________________________________________________________________
+
+   First and last points
+
+   SPHERELAP can use different boundary conditions in the numerical
+   computation of derivatives for the first and last points.
+ 
+   SPHERELAP(...,'periodic') uses a periodic derivative with respect
+   to longitude.  This is the default behavior.  
+
+   SPHERELAP(...,'endpoint') uses the forwards / second backwards 
+   difference at the first and last longitude, respectively. 
+
+   For both of these options, the endpoint condition is used for 
+   differentiation with respect to latitude.
+
+   SPHERELAP(...,'nans')  fills in the first and last values on all four
+   sides of the region with NANs. 
+
+   See VDIFF for more information.  
+   ___________________________________________________________________
+
+   See also <a href="spherediv.html" class="code" title="function[div,ux,vy]=spherediv(varargin)">SPHEREDIV</a>, <a href="spheregrad.html" class="code" title="function[gradx,grady]=spheregrad(varargin)">SPHEREGRAD</a>, <a href="spherecurl.html" class="code" title="function[curl,uy,vx]=spherecurl(varargin)">SPHERECURL</a>, <a href="jsphere.html" class="code" title="">JSPHERE</a>.
+
+   'spherelap --t' runs a test.
+
+   Usage: del2=spherelap(lat,lon,f);
+          del2=spherelap(lat,lon,f,R);
+          del2=spherelap(lat,lon,f,'endpoint');
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2009 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="jdeg2rad.html" class="code" title="function[varargout]=jdeg2rad(varargin)">jdeg2rad</a>	JDEG2RAD  Converts degrees to radians.</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="spherediv.html" class="code" title="function[div,ux,vy]=spherediv(varargin)">spherediv</a>	SPHEREDIV  Divergence of a vector field on the surface of a sphere.</li><li><a href="spheregrad.html" class="code" title="function[gradx,grady]=spheregrad(varargin)">spheregrad</a>	SPHEREGRAD  Gradient of a field on the surface of a sphere.</li><li><a href="spherelap.html" class="code" title="function[lap]=spherelap(varargin)">spherelap</a>	SPHERELAP  Laplacian of a field on the surface of a sphere.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jsphere.html" class="code" title="">jsphere</a>	jSphere:  Tools for latitude, longitude, and spherical geometry</li><li><a href="spherelap.html" class="code" title="function[lap]=spherelap(varargin)">spherelap</a>	SPHERELAP  Laplacian of a field on the surface of a sphere.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fminsearchbnd</title>
+  <meta name="keywords" content="fminsearchbnd">
+  <meta name="description" content="FMINSEARCHBND: FMINSEARCH, but with bound constraints by transformation. [By J. D'Errico]">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; fminsearchbnd.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>fminsearchbnd
+</h1>
+
+<div class="fragment"><pre class="comment"> FMINSEARCHBND: FMINSEARCH, but with bound constraints by transformation. [By J. D'Errico]
+
+ usage: x=FMINSEARCHBND(fun,x0)
+ usage: x=FMINSEARCHBND(fun,x0,LB)
+ usage: x=FMINSEARCHBND(fun,x0,LB,UB)
+ usage: x=FMINSEARCHBND(fun,x0,LB,UB,options)
+ usage: x=FMINSEARCHBND(fun,x0,LB,UB,options,p1,p2,...)
+ usage: [x,fval,exitflag,output]=FMINSEARCHBND(fun,x0,...)
+ 
+ arguments:
+  fun, x0, options - see the help for FMINSEARCH
+
+  LB - lower bound vector or array, must be the same size as x0
+
+       If no lower bounds exist for one of the variables, then
+       supply -inf for that variable.
+
+       If no lower bounds at all, then LB may be left empty.
+
+       Variables may be fixed in value by setting the corresponding
+       lower and upper bounds to exactly the same value.
+
+  UB - upper bound vector or array, must be the same size as x0
+
+       If no upper bounds exist for one of the variables, then
+       supply +inf for that variable.
+
+       If no upper bounds at all, then UB may be left empty.
+
+       Variables may be fixed in value by setting the corresponding
+       lower and upper bounds to exactly the same value.
+
+ Notes:
+
+  If options is supplied, then TolX will apply to the transformed
+  variables. All other FMINSEARCH parameters should be unaffected.
+
+  Variables which are constrained by both a lower and an upper
+  bound will use a sin transformation. Those constrained by
+  only a lower or an upper bound will use a quadratic
+  transformation, and unconstrained variables will be left alone.
+
+  Variables may be fixed by setting their respective bounds equal.
+  In this case, the problem will be reduced in size for FMINSEARCH.
+
+  The bounds are inclusive inequalities, which admit the
+  boundary values themselves, but will not permit ANY function
+  evaluations outside the bounds. These constraints are strictly
+  followed.
+
+  If your problem has an EXCLUSIVE (strict) constraint which will
+  not admit evaluation at the bound itself, then you must provide
+  a slightly offset bound. An example of this is a function which
+  contains the log of one of its parameters. If you constrain the
+  variable to have a lower bound of zero, then FMINSEARCHBND may
+  try to evaluate the function exactly at zero.
+
+
+ Example usage:
+ rosen = @(x) (1-x(1)).^2 + 105*(x(2)-x(1).^2).^2;
+
+ fminsearch(rosen,[3 3])     % unconstrained
+ ans =
+    1.0000    1.0000
+
+ fminsearchbnd(rosen,[3 3],[2 2],[])     % constrained
+ ans =
+    2.0000    4.0000
+
+ See test_main.m for other examples of use.
+
+
+ See also: fminsearch, fminspleas
+
+ Author: John D'Errico
+ E-mail: woodchips@rochester.rr.com
+ Release: 4
+ Release date: 7/23/06
+
+ Available for download from
+ http://www.mathworks.com/matlabcentral/fileexchange/8277-fminsearchbnd--fminsearchcon
+ _______________________________________________________________________
+
+ License Statement
+
+ Copyright (c) 2006, John D'Errico
+ All rights reserved.
+
+ Redistribution and <a href="use.html" class="code" title="function[]=use(x)">use</a> in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are
+ met:
+
+     * Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+     * Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in
+       the documentation and/or other materials provided with the distribution
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF <a href="use.html" class="code" title="function[]=use(x)">USE</a>, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE <a href="use.html" class="code" title="function[]=use(x)">USE</a> OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+ _______________________________________________________________________
+
+ This is part of JLAB --- type 'help jlab' for more information</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jmatern.html" class="code" title="">jmatern</a>	jMatern:  Parametric spectral analysis based on the Matern process</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

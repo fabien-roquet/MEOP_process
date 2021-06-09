@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of wavespecplot</title>
+  <meta name="keywords" content="wavespecplot">
+  <meta name="description" content="WAVESPECPLOT  Plot of wavelet spectra together with time series.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; wavespecplot.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>wavespecplot
+</h1>
+
+<div class="fragment"><pre class="comment">WAVESPECPLOT  Plot of wavelet spectra together with time series.
+
+   WAVESPECPLOT(T,X,P,W) where T is the time, X is a time series, and W is 
+   the wavelet transform at periods P, makes a two-component plot.  The 
+   upper subplot has the time series X plotted against its time axis T.
+   The lower subplot has the transform W, or its modulus ABS(W) if W is 
+   complex-valued, plotted versus the time axis T and the periods P.
+
+   WAVESPECPLOT(T,X,P,W,R) optionally plots ABS(W).^R instead of W.
+  
+   WAVESPECPLOT(T,X,P,W,R,CI) makes a filled contour plot with contour
+   intervals CI.  If CI is not input, then the spectrum is plotted using 
+   PCOLOR, which is faster to render but slow to print. For making final 
+   figures, it is better to use the contouring option.
+
+   WAVESPECPLOT(T,X,P,W1,W2,...WN,...) makes an N+1 component plot, with
+   W1 in the second subplot, W2 in the third, etc.
+
+   After plotting, all subplots are packed together using PACKROWS.
+   H=WAVESPECPLOT(...) returns the handles to the subplots. 
+
+   [H,HL]=WAVESPECPLOT(...) also returns the handles to the lines plotted
+   in the first panel.
+   
+   If X is complex-valued, both the real and imaginary parts are plotted 
+   in the uppermost subplot.
+
+   Usage: h=wavespecplot(t,x,p,w);
+          h=wavespecplot(t,x,p,w,r);
+          [h,hl]=wavespecplot(t,x,p,w,r,ci);
+ 
+   'wavespecplot --f' generates a sample figure.
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2004--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="flipy.html" class="code" title="function[]=flipy">flipy</a>	FLIPY    Flips the direction of the y-axis</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="oprod.html" class="code" title="function[z]=oprod(x,y)">oprod</a>	OPROD  Outer product:  OPROD(X,Y)=X*CONJ(Y')</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="tmat.html" class="code" title="function[x]=tmat()">tmat</a>	TMAT  2x2 complex grouping matrix.  TMAT = [1  i; 1 -i] / SQRT(2)</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="uvplot.html" class="code" title="function[h1,h2]=uvplot(varargin)">uvplot</a>	UVPLOT  Plots the real and imaginary parts of a signal on the same axis.</li><li><a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">vectmult</a>	VECTMULT  Matrix multiplication for arrays of vectors.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li><li><a href="ylog.html" class="code" title="function[]=ylog">ylog</a>	YLOG  Sets y-axis scale to log.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jwavelet.html" class="code" title="">jwavelet</a>	jWavelet: Continuous wavelet analysis using generalized Morse wavelets</li><li><a href="msvd.html" class="code" title="function[d,u1,v1,trS,u2,v2]=msvd(mmat,i2,i3)">msvd</a>	MSVD  Singular value decomposition for polarization analysis.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="slidetrans.html" class="code" title="function[y,ystack]=slidetrans(x,w,fs,str)">slidetrans</a>	SLIDETRANS  Sliding-window ('moving-window') Fourier transform.</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

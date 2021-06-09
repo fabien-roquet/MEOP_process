@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of mat2col</title>
+  <meta name="keywords" content="mat2col">
+  <meta name="description" content="MAT2COL  Compress NAN-padded matrix data into long columns.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; mat2col.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>mat2col
+</h1>
+
+<div class="fragment"><pre class="comment">MAT2COL  Compress NAN-padded matrix data into long columns.
+
+   C=MAT2COL(M), where the columns of matrix M are data vectors of
+   nonuniform length with NANs filling out the gaps in each column,
+   appends together all the columns into a vector C in which isolated
+   NANs mark the transitions between columns.
+
+   [C1,C2,...]=MAT2COL(M1,M2,...) also works for multiple input 
+   matrices of the same size.  In this case the locations of NANs in 
+   M1 are used as the key for appending all the MI into columns.  
+  
+   MAT2COL, COL2MAT, and COLBREAKS together form a system for moving
+   data with segments of nonuniform length rapidly back and forth
+   between a column format and a padded-matrix format. CTD or float
+   data, for instance, can be stored in the (usually much smaller)
+   column format and converted into the matrix format upon loading.
+
+   MAT2COL(M1,M2,...); with no output arguments overwrites the
+   original input variables.
+
+   See also <a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">COL2MAT</a>, <a href="colbreaks.html" class="code" title="function[varargout]=colbreaks(varargin)">COLBREAKS</a>, <a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">COL2CELL</a>, <a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">CELL2COL</a>
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2013 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="cellplot.html" class="code" title="function[h]=cellplot(varargin)">cellplot</a>	CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

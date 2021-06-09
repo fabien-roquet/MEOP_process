@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vfilt</title>
+  <meta name="keywords" content="vfilt">
+  <meta name="description" content="VFILT  Filtering along rows without change in length.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; vfilt.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>vfilt
+</h1>
+
+<div class="fragment"><pre class="comment">VFILT  Filtering along rows without change in length.
+
+   Y=VFILT(X,FILTER) convolves FILTER with X along their rows and crops 
+   the result Y to be the same length as X. If FILTER is a number, a 
+   Hanning filter of that length is used.  
+                                                                         
+   [Y1,Y2,...YN]=VFILT(X1,X2,...XN,FILTER) also works.
+
+   The input arrays XI may have any dimensionality.
+
+   VFILT(X1,X2,...XN,FILTER); with no output arguments overwrites the
+   original input variables.
+   ___________________________________________________________________
+
+   Median filter
+
+   VFILT can also be used to implement a sliding-window median filter.
+
+   Y=VFILT(...,N,'median') returns the median in a window of length N
+   centered on the current point.  If N is even, N+1 is used for the
+   window length.  Y will be the same length as X.
+   
+   The median filter is sensibly defined with an implicit &quot;boxcar&quot; filter. 
+   VFILT(...,FILTER,'median') with some other filter input will therefore
+   use a sliding window of length LENGTH(FILTER), ignoring FILTER itself.
+   ___________________________________________________________________
+
+   Boundary conditions
+
+   Y=VFILT(..., STR), where STR is a string, optionally specifies
+   the boundary condition to be imposed at the edges of the time
+   series.  Valid options for STR are 
+
+         STR = 'zeros' or 'nonans' for zero-padding beyond endpoints 
+         STR = 'nan' for zero-padding beyond the endpoints, setting 
+                contaminated points near the edges to NaNs
+         STR = 'periodic' for periodic boundary conditions 
+         STR = 'mirror' for reflecting the time series at both ends
+
+   By default, STR='nan', implying that the roughly length(FILTER)/2 
+   data points on each end of Y which are contaminated by edge effects
+   are replaced with NANs.
+
+   All boundary conditions take into account potential blocks of 
+   missing data, marked by NaNs, at beginning and end of each column.  
+   ___________________________________________________________________
+
+  'vfilt --t' runs a test.
+
+   Usage: y=vfilt(x,filter);
+          y=vfilt(x,filter,'zeros');
+          y=vfilt(x,N,'median,'zeros');
+          [y1,y2,y3]=vfilt(x1,x2,x3,filter);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="iseven.html" class="code" title="function[bool]=iseven(x)">iseven</a>	ISEVEN  True for even integer values; false otherwise.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li><li><a href="vmedian.html" class="code" title="function[varargout] = vmedian(varargin)">vmedian</a>	VMEDIAN  Median over finite elements along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="doublen.html" class="code" title="function[y]=doublen(x)">doublen</a>	DOUBLEN  Interpolates a time series to double its length.</li><li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li><li><a href="stickvect.html" class="code" title="function[h]=stickvect(arg1,arg2,arg3,arg4,arg5,arg6)">stickvect</a>	STICKVECT Plots "stick vectors" for multicomponent velocity time series.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

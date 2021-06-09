@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of bindata</title>
+  <meta name="keywords" content="bindata">
+  <meta name="description" content="BINDATA  Rapidly sort data into adjacent bins.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; bindata.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>bindata
+</h1>
+
+<div class="fragment"><pre class="comment">BINDATA  Rapidly sort data into adjacent bins.
+
+   BINDATA is a low-level function called by the TWOD* functions.
+ 
+   [NUM,XI]=BINDATA(BIN,X) sorts the array X by its values into adjactent
+   bins, with bin edges given by BIN. 
+
+   NUM and XI are arrays of the same size as X.  NUM gives the bin 
+   number to which the corresponding elements of X are assigned, and 
+   XI is the midpoint value of that bin.
+
+   [NUM,XI,MID]=BINDATA(BIN,X) also returns an array MID of the bin
+   midpoints, which has length LENGTH(BIN)-1.
+  
+   BINDATA uses a clever algorithm to run amazingly fast. 
+ 
+   BINDATA is useful for making histograms of large datasets.
+
+   'bindata --t' runs a test.
+
+   See also <a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">TWODHIST</a>, <a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">TWODSTATS</a>, <a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">TWODMED</a>.
+
+   Usage: [num,xi]=bindata(bin,x);
+          [num,xi,xmid]=bindata(bin,x);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2008--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="bindata.html" class="code" title="function[xnum,xi,xmid]=bindata(xbin,xdata,str)">bindata</a>	BINDATA  Rapidly sort data into adjacent bins.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="bindata.html" class="code" title="function[xnum,xi,xmid]=bindata(xbin,xdata,str)">bindata</a>	BINDATA  Rapidly sort data into adjacent bins.</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

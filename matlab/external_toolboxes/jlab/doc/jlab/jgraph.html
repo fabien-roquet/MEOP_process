@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of jgraph</title>
+  <meta name="keywords" content="jgraph">
+  <meta name="description" content="jGraph:  Plotting tools and refinements for making high-quality figures">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; jgraph.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>jgraph
+</h1>
+
+<div class="fragment"><pre class="comment"> jGraph:  Plotting tools and refinements for making high-quality figures
+
+ High-level graphical post-processing
+   fixlabels    - Specify precision of axes labels. 
+   fontsize     - Rapidly set title, axes, label, and text fontsizes.              
+   letterlabels - For automatically putting letter labels on subplots.           
+   linecolor    - Set line colors based on a property value within a colormap.                    
+   linestyle    - Rapidly set color, style, and width properties of lines.
+   linering     - Moves lines through the current line style order. 
+   packfig      - Squeeze together rows and/or columns of the current figure. 
+
+  Oceanography-specific plotting tools
+   hodograph  - Generate hodograph plots (simple and fancy).                                   
+   provec     - Generate progressive vector diagrams (simple and fancy).             
+   stickvect  - Plots &quot;stick vectors&quot; for multicomponent velocity time series.  
+   [See also <a href="cellplot.html" class="code" title="function[h]=cellplot(varargin)">CELLPLOT</a>, <a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">REGIONPLOT</a>, TOPOPLOT]
+
+ Modified plotting functions
+   <a href="discretecolorbar.html" class="code" title="function[hc]=discretecolorbar(hc,cax,ci,str)">discretecolorbar</a> - Plots a colorbar with discrete variation.
+   <a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>          - Modified version of PCOLOR appropriate for cell-centered grids.
+   <a href="patchcontourf.html" class="code" title="function[varargout]=patchcontourf(varargin)">patchcontourf</a>    - Generate filled contours using patches, with specified colors.
+   <a href="uvplot.html" class="code" title="function[h1,h2]=uvplot(varargin)">uvplot</a>           - Plots the real and imaginary parts of a signal on the same axis.
+
+ Figure tweaking
+   <a href="dlines.html" class="code" title="function[h]=dlines(varargin)">dlines</a>     - Add diagonal lines to a plot.
+   <a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>     - Add horizontal lines to a plot.
+   <a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>     - Add vertical lines to a plot.
+   <a href="nocontours.html" class="code" title="function[h]=nocontours(h)">nocontours</a> - Removes contours from a CONTOURF plot.
+   <a href="noxlabels.html" class="code" title="function[]=noxlabels(str)">noxlabels</a>  - Remove some or all x-axis tick mark labels.
+   <a href="noylabels.html" class="code" title="function[]=noylabels(str)">noylabels</a>  - Remove some or all y-axis tick mark labels.
+   <a href="xoffset.html" class="code" title="function[]=xoffset(i1,i2)">xoffset</a>    - Offsets lines in the x-direction after plotting.
+   <a href="yoffset.html" class="code" title="function[]=yoffset(i1,i2)">yoffset</a>    - Offsets lines in the y-direction after plotting.
+   <a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>      - Sets locations of x-axis tick marks.
+   <a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>      - Sets locations of y-axis tick marks.
+   <a href="ztick.html" class="code" title="function[]=ztick(varargin)">ztick</a>      - Sets locations of z-axis tick marks.
+
+ Graphics aliases
+   <a href="boxon.html" class="code" title="function[]=boxon">boxon</a>      - Sets 'box' property to 'off'.
+   <a href="boxon.html" class="code" title="function[]=boxon">boxon</a>      - Sets 'box' property to 'on'.
+   <a href="flipmap.html" class="code" title="function[]=flipmap">flipmap</a>    - Flips the current colormap upside-down.
+   <a href="flipx.html" class="code" title="function[]=flipx">flipx</a>      - Flips the direction of the x-axis
+   <a href="flipy.html" class="code" title="function[]=flipy">flipy</a>      - Flips the direction of the y-axis
+   <a href="inticks.html" class="code" title="function[]=inticks">inticks</a>    - Sets the 'tickdir' property of the current axis to 'in'.
+   <a href="outticks.html" class="code" title="function[]=outticks">outticks</a>   - Sets the 'tickdir' property of the current axis to 'out'.
+   <a href="xlin.html" class="code" title="function[]=xlin">xlin</a>       - Sets x-axis scale to linear.
+   <a href="xlog.html" class="code" title="function[]=xlog">xlog</a>       - Sets x-axis scale to logarithm.
+   <a href="ylin.html" class="code" title="function[]=ylin">ylin</a>       - Sets y-axis scale to linear.
+   <a href="ylog.html" class="code" title="function[]=ylog">ylog</a>       - Sets y-axis scale to log.
+
+ Low-level functions
+   <a href="axeshandles.html" class="code" title="function[h]=axeshandles(fignum)">axeshandles</a> - Returns handles to all axes children.
+   <a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>        - Gets rid of whitespace around an image. [by A. Bliss]
+   <a href="linehandles.html" class="code" title="function[h]=linehandles(axh)">linehandles</a> - Finds all line and patch handles from a given set of axes.</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="axeshandles.html" class="code" title="function[h]=axeshandles(fignum)">axeshandles</a>	AXESHANDLES  Returns handles to all axes children.</li><li><a href="boxon.html" class="code" title="function[]=boxon">boxon</a>	BOXON  Sets 'box' property to 'on'.</li><li><a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>	CROP  Gets rid of whitespace around an image. [by A. Bliss]</li><li><a href="discretecolorbar.html" class="code" title="function[hc]=discretecolorbar(hc,cax,ci,str)">discretecolorbar</a>	DISCRETECOLORBAR  Plots a colorbar with discrete variation.</li><li><a href="dlines.html" class="code" title="function[h]=dlines(varargin)">dlines</a>	DLINES   Add diagonal lines to a plot.</li><li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="flipmap.html" class="code" title="function[]=flipmap">flipmap</a>	FLIPMAP Flips the current colormap upside-down.</li><li><a href="flipx.html" class="code" title="function[]=flipx">flipx</a>	FLIPX    Flips the direction of the x-axis</li><li><a href="flipy.html" class="code" title="function[]=flipy">flipy</a>	FLIPY    Flips the direction of the y-axis</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="hodograph.html" class="code" title="function[h,hc]=hodograph(varargin)">hodograph</a>	HODOGRAPH   Generate hodograph plots (simple and fancy).</li><li><a href="inticks.html" class="code" title="function[]=inticks">inticks</a>	INTICKS  Sets the 'tickdir' property of the current axis to 'in'.</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="letterlabels.html" class="code" title="function[h]=letterlabels(arg1,arg2,arg3)">letterlabels</a>	LETTERLABELS	For automatically putting letter labels on subplots.</li><li><a href="linecolor.html" class="code" title="function[varargout]=linecolor(varargin)">linecolor</a>	LINECOLOR  Set line colors based on a property value within a colormap.</li><li><a href="linehandles.html" class="code" title="function[h]=linehandles(axh)">linehandles</a>	LINEHANDLES  Finds all line and patch handles from a given set of axes.</li><li><a href="linering.html" class="code" title="function[]=linering(i1)">linering</a>	LINERING  Moves lines through the current line style order.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="nocontours.html" class="code" title="function[h]=nocontours(h)">nocontours</a>	NOCONTOURS  Removes contours from a CONTOURF plot.</li><li><a href="noxlabels.html" class="code" title="function[]=noxlabels(str)">noxlabels</a>	NOXLABELS   Remove some or all x-axis tick mark labels.</li><li><a href="noylabels.html" class="code" title="function[]=noylabels(str)">noylabels</a>	NOYLABELS   Remove some or all y-axis tick mark labels.</li><li><a href="outticks.html" class="code" title="function[]=outticks">outticks</a>	OUTTICKS  Sets the 'tickdir' property of the current axis to 'out'.</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="patchcontourf.html" class="code" title="function[varargout]=patchcontourf(varargin)">patchcontourf</a>	PATCHCONTOURF  Generate filled contours using patches, with specified colors.</li><li><a href="provec.html" class="code" title="function[data,h,hc]=provec(varargin)">provec</a>	PROVEC  Generate progressive vector diagrams (simple and fancy).</li><li><a href="stickvect.html" class="code" title="function[h]=stickvect(arg1,arg2,arg3,arg4,arg5,arg6)">stickvect</a>	STICKVECT Plots "stick vectors" for multicomponent velocity time series.</li><li><a href="uvplot.html" class="code" title="function[h1,h2]=uvplot(varargin)">uvplot</a>	UVPLOT  Plots the real and imaginary parts of a signal on the same axis.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="xlin.html" class="code" title="function[]=xlin">xlin</a>	XLIN   Sets x-axis scale to linear.</li><li><a href="xlog.html" class="code" title="function[]=xlog">xlog</a>	XLOG   Sets x-axis scale to logarithmic.</li><li><a href="xoffset.html" class="code" title="function[]=xoffset(i1,i2)">xoffset</a>	XOFFSET  Offsets lines in the x-direction after plotting.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ylin.html" class="code" title="function[]=ylin">ylin</a>	YLIN   Sets y-axis scale to linear.</li><li><a href="ylog.html" class="code" title="function[]=ylog">ylog</a>	YLOG  Sets y-axis scale to log.</li><li><a href="yoffset.html" class="code" title="function[]=yoffset(i1,i2)">yoffset</a>	YOFFSET  Offsets lines in the y-direction after plotting.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li><li><a href="ztick.html" class="code" title="function[]=ztick(varargin)">ztick</a>	ZTICK  Sets locations of z-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Contents.html" class="code" title="">Contents</a>	jLab v1.5 by J. M. Lilly</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

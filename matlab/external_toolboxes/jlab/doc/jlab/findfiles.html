@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of findfiles</title>
+  <meta name="keywords" content="findfiles">
+  <meta name="description" content="FINDFILES  Returns all files in a directory with a specified extension.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; findfiles.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>findfiles
+</h1>
+
+<div class="fragment"><pre class="comment">FINDFILES  Returns all files in a directory with a specified extension.
+
+   FILES=FINDFILES(DIRNAME,EXT) where DIRNAME is a full directory path, 
+   returns a cell arrays FILES of all files having extension EXT in 
+   directory DIRNAME.
+
+   For example, FILES=FINDFILES('/Users/lilly/Home','m') returns a cell
+   cell array of all m-files in the Home directory.
+
+   FINDFILES(DIRNAME,'*') returns files having any extension.  
+
+   FINDFILES(DIRNAME,'') returns files having no extension.  This can
+   be used to return directory names.
+   ___________________________________________________________________
+
+   Recursive searching
+
+   FINDFILES(DIRNAME,...,'recursive') recursively searches though
+   directory DIRNAME as well as any subdirectories it contains. 
+   
+   [FILES,PATHS]=FINDFILES(DIRNAME,...,'recursive') also outputs a cell 
+   array PATHS specifying the full path name to each file in FILES. 
+   ___________________________________________________________________
+
+   Additional options
+
+   FINDFILES(...,'include',STR1) additionally returns only those file
+   names which inlude the text STR1.
+
+   FINDFILES(...,'exclude',STR2) excludes those files names which 
+   include the text STR2.
+  
+   The include and exclude options must be input after the first two
+   variables.  Both options may be input simultaneously.
+   ___________________________________________________________________
+
+   Usage: files=findfiles(pwd,'m');
+          files=findfiles(dirname,ext);    
+          files=findfiles(dirname,ext,'include','help');
+          [files,dirs]=findfiles(dirname,ext,'include','help','recursive');
+          files=findfiles(dirname,ext,'include','help','exclude','jlab');
+
+   'findfiles --t' runs a test.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2006--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="findfiles.html" class="code" title="function[varargout]=findfiles(varargin)">findfiles</a>	FINDFILES  Returns all files in a directory with a specified extension.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="whichdir.html" class="code" title="function[dir]=whichdir(name)">whichdir</a>	WHICHDIR  Returns directory name containing file in search path.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_floats.html" class="code" title="function[varargout]=about_floats(varargin)">about_floats</a>	FLOATS  Historical dataset of eddy-resolving subsurface floats.</li><li><a href="findfiles.html" class="code" title="function[varargout]=findfiles(varargin)">findfiles</a>	FINDFILES  Returns all files in a directory with a specified extension.</li><li><a href="jcommon.html" class="code" title="">jcommon</a>	jCommon:  Useful general-purpose functions, common to other JLAB modules</li><li><a href="jlab_runtests.html" class="code" title="function[]=jlab_runtests(str)">jlab_runtests</a>	JLAB_RUNTESTS  Runs a test suite for JLAB package.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

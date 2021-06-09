@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of trajextract</title>
+  <meta name="keywords" content="trajextract">
+  <meta name="description" content="TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; trajextract.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>trajextract
+</h1>
+
+<div class="fragment"><pre class="comment">TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.
+
+   [LAT,LON]=TRAJEXTRACT(REGION,LAT,LON) where the input LAT and LON are 
+   cell arrays of columns vectors of latitude and longitude, outputs new
+   cell arrays with LAT and LON of the segments contained within REGION.
+
+   This format for LAT and LON is used by two Lagrangian datasets
+   distributed with JLAB, FLOATS.MAT and DRIFTERS.MAT.  Type 'help floats'
+   or 'help drifters' for more details.
+
+   REGION is an array with the format [WEST EAST SOUTH NORTH]. Longitudes 
+   may either be specified on the interval [-180, 180] or on [0, 360].
+
+   The region may overlap the prime meridian (LON=0) or the dateline
+   (LON=180).  Region boundaries are interpreted to exclude the poles. 
+
+   REGION is passed directly to the function INREGION.  Thus, REGION can
+   also be a cell array built up from serveral region boxes.  See INREGION
+   for more details on this option.
+
+   If an input LAT and LON record contains more than one segment passing 
+   through REGION, these are split into separate entries in the output.
+
+   [LAT,LON,X1,X2,...,XN]=TRAJEXTRACT(REGION,LAT,LON,X1,X2,...,XN) also
+   returns the portions of the cell array variables X1,X2,...,XN within
+   the region.  The input XN are the same size as the input LAT and LON.
+
+   [LAT,LON,...]=TRAJEXTRACT(LMIN,REGION,LAT,LON,...) only returns those 
+   segments containing LMIN or more points. The default is LMIN=2.
+
+   See also <a href="inregion.html" class="code" title="function[bool]=inregion(varargin)">INREGION</a>, <a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">REGIONPLOT</a>.
+
+   'trajextract --t' runs a test.
+   'trajextract --f' generates a sample figure.
+
+   Usage: [lat,lon]=trajextract(region,lat,lon);
+          [lat,lon,num,id]=trajextract(region,lat,lon,num,id);
+          [lat,lon,num,id]=trajextract(200,region,lat,lon,num,id);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="boxon.html" class="code" title="function[]=boxon">boxon</a>	BOXON  Sets 'box' property to 'on'.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="celladd.html" class="code" title="function[y]=celladd(x,y)">celladd</a>	CELLADD  Addition acting on each element in a cell array.</li><li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="cellindex.html" class="code" title="function[varargout]=cellindex(varargin)">cellindex</a>	CELLINDEX  Applies a cell array of indices to a cell array of column vectors.</li><li><a href="cellplot.html" class="code" title="function[h]=cellplot(varargin)">cellplot</a>	CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.</li><li><a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">col2cell</a>	COL2CELL  Converts 'column-appended' data into cell arrays of column vectors.</li><li><a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">col2mat</a>	COL2MAT  Expands 'column-appended' data into a matrix.</li><li><a href="deg180.html" class="code" title="function[varargout]=deg180(varargin)">deg180</a>	DEG180  Converts degrees to the range [-180,180].</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="inregion.html" class="code" title="function[bool]=inregion(varargin)">inregion</a>	INREGION  Tests whether lat/lon points lie within a specified box.</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="mat2col.html" class="code" title="function[varargout]=mat2col(varargin)">mat2col</a>	MAT2COL  Compress NAN-padded matrix data into long columns.</li><li><a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">regionplot</a>	REGIONPLOT  Plots a simple box indicating a latitude / longitude region.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

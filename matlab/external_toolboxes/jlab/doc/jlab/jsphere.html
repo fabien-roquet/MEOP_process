@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of jsphere</title>
+  <meta name="keywords" content="jsphere">
+  <meta name="description" content="jSphere:  Tools for latitude, longitude, and spherical geometry">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; jsphere.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>jsphere
+</h1>
+
+<div class="fragment"><pre class="comment"> jSphere:  Tools for latitude, longitude, and spherical geometry
+
+ Simple lat / lon conversions
+   deg180     - Converts degrees to the range [-180,180].                        
+   deg360     - Converts degrees to the range [0, 360].                          
+   jdeg2rad   - Converts degrees to radians.                                     
+   jrad2deg   - Converts radians to degrees.   
+
+ Distances and regions 
+   inregion   - Tests whether lat/lon points lie within a specified box.         
+   spheredist - Computes great circle distances on a sphere.            
+
+ Earth constants and frequencies
+   radearth   - The radius of the earth in kilometers.   
+   corfreq    - Coriolis frequency in radians per hour.   
+   tidefreq   - Frequencies of the eight major tidal components.
+
+ Coordinate transformations 
+   latlon2xy  - Converts latitude and longitude into local Cartesian coordinates.
+   latlon2xyz - Converts latitude and longitude into 3D Cartesian coordinates.   
+   xy2latlon  - Converts local Cartesian coordinates into latitude and longitude.
+   xyz2latlon - Converts 3D Cartesian coordinates into latitude and longitude.   
+   sphere2uvw - Converts a 3D spherical vector to a 3D Cartesian vector. 
+
+ Differential operators
+   spherecurl - Curl of a vector field on the surface of a sphere.               
+   spherediv  - Divergence of a vector field on the surface of a sphere.         
+   spheregrad - Gradient of a field on the surface of a sphere.                  
+   spherelap  - Laplacian of a field on the surface of a sphere.   
+
+ Plotting tools
+   latratio   - Set plot aspect ratio for latitude / longitude plot.    
+   lonshift   - Shifts longitude origin for plotting purposes.                   
+   regionplot - Plots a simple box indicating a latitude / longitude region.</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="corfreq.html" class="code" title="function[fc]=corfreq(lat)">corfreq</a>	CORFREQ  Coriolis frequency in radians per hour.</li><li><a href="deg180.html" class="code" title="function[varargout]=deg180(varargin)">deg180</a>	DEG180  Converts degrees to the range [-180,180].</li><li><a href="deg360.html" class="code" title="function[varargout]=deg360(varargin)">deg360</a>	DEG360  Converts degrees to the range [0, 360].</li><li><a href="inregion.html" class="code" title="function[bool]=inregion(varargin)">inregion</a>	INREGION  Tests whether lat/lon points lie within a specified box.</li><li><a href="jdeg2rad.html" class="code" title="function[varargout]=jdeg2rad(varargin)">jdeg2rad</a>	JDEG2RAD  Converts degrees to radians.</li><li><a href="jrad2deg.html" class="code" title="function[varargout]=jrad2deg(varargin)">jrad2deg</a>	JRAD2DEG  Converts radians to degrees.</li><li><a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">latlon2xy</a>	LATLON2XY  Converts latitude and longitude into local Cartesian coordinates.</li><li><a href="latlon2xyz.html" class="code" title="function[x,y,z]=latlon2xyz(lat,lon,R)">latlon2xyz</a>	LATLON2XYZ  Converts latitude and longitude into 3D Cartesian coordinates.</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="lonshift.html" class="code" title="function[varargout]=lonshift(varargin)">lonshift</a>	LONSHIFT  Shifts longitude origin for plotting purposes.</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">regionplot</a>	REGIONPLOT  Plots a simple box indicating a latitude / longitude region.</li><li><a href="sphere2uvw.html" class="code" title="function[u,v,w]=sphere2uvw(lat,lon,dr,dth,dphi)">sphere2uvw</a>	SPHERE2UVW Converts a 3D spherical vector to a 3D Cartesian vector.</li><li><a href="spherecurl.html" class="code" title="function[curl,uy,vx]=spherecurl(varargin)">spherecurl</a>	SPHERECURL  Curl of a vector field on the surface of a sphere.</li><li><a href="spheredist.html" class="code" title="function[d]=spheredist(varargin)">spheredist</a>	SPHEREDIST  Computes great circle distances on a sphere.</li><li><a href="spherediv.html" class="code" title="function[div,ux,vy]=spherediv(varargin)">spherediv</a>	SPHEREDIV  Divergence of a vector field on the surface of a sphere.</li><li><a href="spheregrad.html" class="code" title="function[gradx,grady]=spheregrad(varargin)">spheregrad</a>	SPHEREGRAD  Gradient of a field on the surface of a sphere.</li><li><a href="spherelap.html" class="code" title="function[lap]=spherelap(varargin)">spherelap</a>	SPHERELAP  Laplacian of a field on the surface of a sphere.</li><li><a href="tidefreq.html" class="code" title="function[f,name]=tidefreq(str)">tidefreq</a>	TIDEFREQ  Frequencies of the eight major tidal components.</li><li><a href="xy2latlon.html" class="code" title="function[lat,lon]=xy2latlon(varargin)">xy2latlon</a>	XY2LATLON  Converts local Cartesian coordinates into latitude and longitude.</li><li><a href="xyz2latlon.html" class="code" title="function[lat,lon]=xyz2latlon(x,y,z,R)">xyz2latlon</a>	XYZ2LATLON  Converts 3D Cartesian coordinates into latitude and longitude.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Contents.html" class="code" title="">Contents</a>	jLab v1.5 by J. M. Lilly</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

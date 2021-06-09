@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ellsig</title>
+  <meta name="keywords" content="ellsig">
+  <meta name="description" content="ELLSIG  Creates a modulated elliptical signal in two or three dimensions.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ellsig.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ellsig
+</h1>
+
+<div class="fragment"><pre class="comment">ELLSIG  Creates a modulated elliptical signal in two or three dimensions.
+
+   Z=ELLSIG(KAPPA,LAMBDA,THETA,PHI) creates a time-varying, complex-valued
+   elliptical signal Z=X+iY characterized by RMS amplitude KAPPA,
+   linearity LAMBDA, orientation THETA, and orbital phase PHI.
+
+   [X,Y]=ELLSIG(KAPPA,LAMBDA,THETA,PHI) returns the analytic part of the 
+   ellipse signal along the X and Y axes.
+
+   See Lilly and Gascard (2006) and Lilly and Olhede (2010a) for details.
+
+   ELLSIG is inverted by ELLPARAMS, which returns the ellipse parameters
+   given the analytic signals X and Y.
+   ______________________________________________________________________
+  
+   Three dimensions
+
+   ELLSIG can also generate an elliptical signal in three dimenions. 
+
+   [X,Y,Z]=ELLSIG(KAPPA,LAMBDA,THETA,PHI,ALPHA,BETA) returns the analytic 
+   part of the ellipse signal along the X, Y, and Z axes.
+   
+   Here BETA is the &quot;zenith angle&quot; giving the orientation of the plane 
+   containing the ellipse with respect to the vertical, while ALPHA is 
+   the &quot;azimuth angle&quot;, the angle the normal to the plane of the ellipse
+   makes with the x-axis.  
+
+   In the trivariate case, LAMBDA is positive, and the direction of 
+   rotation of the particle projected onto the X-Y plane is changed by  
+   letting the zenith angle BETA exceed PI/2.
+
+   See Lilly (2011) for details on the trivariate case.     
+   __________________________________________________________________
+
+   Cell array input / output
+
+   ELLSIG also works if the input arguments are cell arrays of numeric
+   arrays, in which case the output arguments will also be cell arrays of
+   the same size.
+   ______________________________________________________________________
+
+   [X,Y]=ELLSIG(...,'real') or [X,Y,Z]=ELLSIG(...,'real') takes the real 
+   part of the output arguments.
+   ______________________________________________________________________
+
+   'ellsig --t' runs some tests.
+
+   Usage:  z=ellsig(kappa,lambda,theta,phi);
+           [x,y]=ellsig(kappa,lambda,theta,phi);
+           [x,y,z]=ellsig(kappa,lambda,theta,phi,alpha,beta);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2013 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="jmat3.html" class="code" title="function[x]=jmat3(theta,n)">jmat3</a>	JMAT3 3x3 rotation matrix through specified angle.</li><li><a href="kl2ab.html" class="code" title="function[A,B]=kl2ab(K,L)">kl2ab</a>	KL2AB  Converts ellipse parameters Kappa and Lambda to A and B.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">vectmult</a>	VECTMULT  Matrix multiplication for arrays of vectors.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellcurves.html" class="code" title="function[z]=ellcurves(varargin)">ellcurves</a>	ELLCURVES  Returns curves corresponding to specified ellipse properties.</li><li><a href="elldiff.html" class="code" title="function[k2,l2,theta2,phi2]=elldiff(varargin)">elldiff</a>	ELLDIFF  Differentiation of modulated elliptical signals.</li><li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="ellvel.html" class="code" title="function[v]=ellvel(varargin)">ellvel</a>	ELLVEL  Average and instantaneous ellipse velocities.</li><li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

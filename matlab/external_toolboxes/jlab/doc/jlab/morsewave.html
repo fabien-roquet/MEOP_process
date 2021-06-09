@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of morsewave</title>
+  <meta name="keywords" content="morsewave">
+  <meta name="description" content="MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; morsewave.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>morsewave
+</h1>
+
+<div class="fragment"><pre class="comment"> MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002). 
+
+   PSI=MORSEWAVE(N,GAMMA,BETA,FS) returns an  N x LENGTH(FS) array PSI 
+   which contains time-domain versions of the generalized Morse wavelet
+   specified by GAMMA and BETA, concentrated at frequencies FS.
+  
+   The vector FS specifically denote the *radian* frequencies at which 
+   the Fourier transform of the wavelets reach their maximum amplitudes.  
+
+   A set of frequencies appropriate for analyzing a given length time 
+   series can be easily chosen using MORSESPACE.
+
+   Note that the wavelets are centered at the midpoint in time, that is, 
+   row number ROUND(SIZE(PSI,1)/2).  FS assumes a unit sample rate. 
+
+   [PSI,PSIF]=MORSEWAVE(...) optionally returns a frequency-domain version
+   PSIF of the wavelets.  PSIF is the same size as PSI.
+   _________________________________________________________________
+
+   Normalization
+
+   MORSEWAVE supports two kinds of normalization for the wavelets.
+
+   MORSEWAVE(...,'bandpass') uses &quot;bandpass normalization&quot;, meaning that
+   the FFT of the wavelet has a peak value of 2 for all frequencies FS. 
+
+   MORSEWAVE(...,'energy') uses the unit energy normlization.  The time-
+   domain wavelet energy SUM(ABS(PSI).^2,1) is then always unity. 
+
+   The bandpass normalization corresponds to having 1/S in the time-domain
+   wavelet transform defintion, where S is the scale, while the unit 
+   energy normalization corresponds to 1/SQRT(S).
+
+   MORSEWAVE uses bandpass normalization by default.
+   _________________________________________________________________
+   
+   Multiple orthogonal wavelets 
+
+   MORSEWAVE can compute multiple orthogonal versions of the generalized
+   Morse wavelets, characterized by the order K.
+
+   PSI=MORSEWAVE(N,K,GAMMA,BETA,FS) with a fifth numerical argument K
+   returns an N x LENGTH(FS) x K array PSI which contains time-domain 
+   versions of the first K orthogonal generalized Morse wavelets.
+
+   These K different orthogonal wavelets have been employed in 
+   multiwavelet polarization analysis, see Olhede and Walden (2003a,b).
+
+   Again either bandpass or energy normalization can be applied.  With
+   bandpass normalization, all wavelets are divided by a constant, setting
+   the peak value of the first frequency-domain wavelet equal to 2.
+   _________________________________________________________________
+
+   Background
+
+   For further details on generalized Morse wavelets, see the following 
+   publications. 
+
+     Lilly and Olhede (2012), Generalized Morse wavelets as a superfamily
+        of analytic wavelets. IEEE Trans. Sig. Proc., 60 (11), 6036--6041.
+
+     Lilly and Olhede (2009),  Higher-order properties of analytic 
+         wavelets.  IEEE Trans. Sig. Proc., 57 (1), 146--160.
+
+     Olhede and Walden (2002),  Generalized Morse Wavelets. IEEE Trans.
+         Sig. Proc., 50 (11), 2661--2670.
+   _________________________________________________________________
+
+   'morsewave --t' runs a test
+   'morsewave --f' generates a sample figure
+
+   Usage: psi=morsewave(N,ga,be,fs);
+          [psi,psif]=morsewave(N,ga,be,fs,'bandpass');
+          [psi,psif]=morsewave(N,K,ga,be,fs,'energy');
+          [psi,psif]=morsewave(N,K,ga,be,fs,'bandpass');
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2004--2015 J.M. Lilly and F. Rekibi
+                         --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="dawson.html" class="code" title="function z = dawson(x)">dawson</a>	DAWSON The Dawson function. [By P.J. Acklam]</li><li><a href="dawsonderiv.html" class="code" title="function[y]=dawsonderiv(varargin)">dawsonderiv</a>	DAWSONDERIV  Derivatives of the Dawson function.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="hermpoly.html" class="code" title="function h=hermpoly(t,n)">hermpoly</a>	HERMPOLY  Hermite polynomials. [with F. Rekibi]</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="iseven.html" class="code" title="function[bool]=iseven(x)">iseven</a>	ISEVEN  True for even integer values; false otherwise.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="morsea.html" class="code" title="function[a]=morsea(varargin)">morsea</a>	MORSEA  Returns the generalized Morse wavelet amplitude "a".</li><li><a href="morsebox.html" class="code" title="function[a,sigt,sigo,skew]=morsebox(ga,be)">morsebox</a>	MORSEBOX  Heisenberg time-frequency box for generalized Morse wavelets.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="morseproj.html" class="code" title="function[b]=morseproj(ga,be1,be2)">morseproj</a>	MORSEPROJ  Projection coefficient for two generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="oprod.html" class="code" title="function[z]=oprod(x,y)">oprod</a>	OPROD  Outer product:  OPROD(X,Y)=X*CONJ(Y')</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="uvplot.html" class="code" title="function[h1,h2]=uvplot(varargin)">uvplot</a>	UVPLOT  Plots the real and imaginary parts of a signal on the same axis.</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jwavelet.html" class="code" title="">jwavelet</a>	jWavelet: Continuous wavelet analysis using generalized Morse wavelets</li><li><a href="morsebox.html" class="code" title="function[a,sigt,sigo,skew]=morsebox(ga,be)">morsebox</a>	MORSEBOX  Heisenberg time-frequency box for generalized Morse wavelets.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="morseprops.html" class="code" title="function[p,skew,kurt]=morseprops(ga,be)">morseprops</a>	MORSEPROPS  Properties of the demodulated generalized Morse wavelets.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="morsexpand.html" class="code" title="function[psi]=morsexpand(varargin)">morsexpand</a>	MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.</li><li><a href="msvd.html" class="code" title="function[d,u1,v1,trS,u2,v2]=msvd(mmat,i2,i3)">msvd</a>	MSVD  Singular value decomposition for polarization analysis.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li><li><a href="wigdist.html" class="code" title="function[d,f]=wigdist(x,nmin,nmax,N2,s)">wigdist</a>	WIGDIST  Wigner distribtion (alias-free algorithm).</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

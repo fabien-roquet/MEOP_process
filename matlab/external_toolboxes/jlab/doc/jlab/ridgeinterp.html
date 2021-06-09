@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ridgeinterp</title>
+  <meta name="keywords" content="ridgeinterp">
+  <meta name="description" content="RIDGEINTERP  Interpolate quantity values onto ridge locations.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ridgeinterp.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ridgeinterp
+</h1>
+
+<div class="fragment"><pre class="comment"> RIDGEINTERP  Interpolate quantity values onto ridge locations.
+
+   RIDGEINTERP is a low-level function called by RIDGEWALK.
+
+   XI=RIDGEINTERP(FS,RQ,IR,JR,X) where RQ is a &quot;ridge quantity&quot; at
+   *radian* frequencies FS, and IR and JR are time and scale indices of 
+   ridges, interpolates quantity X along the ridge locations to give XI.
+
+   IR and JR give indices into the first two dimensions of X.  The output
+   XI has the the same number of rows and columns as IR and JR, that is,
+   SIZE(XI,1)=SIZE(IR,1) and SIZE(XI,2)=SIZE(IR,2).  The locations of 
+   NANs in IR and JR are duplicated in XI. 
+
+   NOTE:  IR and JR are now 1-D so the commenting here is not all correct.
+
+   X may have more than one 'page' along its third dimension, in which 
+   case each page is interpolated separately, and SIZE(XI,3)=SIZE(X,3). 
+
+   RQ is output by RIDGEQUANTITY based on a wavelet transform output by
+   WAVETRANS, and IR and JR are output by RIDGEWALK.  
+
+   RIDGEINTERP interpolates transform values between discrete frequency 
+   levels to find a more precise value of the transform along the ridges
+   than simply looking up the values of X at rows IR and columns JR.  
+
+   XI=RIDGEINTERP(FS,RQ,IR,JR,MU,X) interprets the ridges as belonging
+   to the MU-th derivative of the signal to which the quantity X belongs
+   and applies an appropriate correction factor. 
+
+   [XI1,XI2,...,XIN]=RIDGEINTERP(FS,RQ,IR,JR,X1,X2,...,XN) also 
+   interpolates the quantities X1,X2,...,XN, all the same size. 
+
+   RIDGEINTERP uses fast quadratic interpolation via QUADINTERP.  In rare
+   cases, quadratic interpolation fails for an individual point and 
+   therefore linear interpolation is used instead.
+   __________________________________________________________________
+
+   RIDGEINTERP is a low-level function called by RIDGEWALK.
+
+   See also <a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">RIDGEWALK</a>, RIDGEQUANTITY, <a href="quadinterp.html" class="code" title="function[x,t]=quadinterp(t1,t2,t3,x1,x2,x3,t)">QUADINTERP</a>.
+
+   Usage:  xi=ridgeinterp(fs,rq,ir,jr,x);
+           [xi1,xi2,xi3]=ridgeinterp(fs,rq,ir,jr,x1,x2,x3);
+           [xi1,xi2,xi3]=ridgeinterp(dt,fs,rq,ir,jr,x1,x2,x3);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2005--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="lininterp.html" class="code" title="function[x,t]=lininterp(t1,t2,x1,x2,t)">lininterp</a>	LININTERP  Fast linear interpolation for arbitrary-sized arrays.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="nonnan.html" class="code" title="function[x]=nonnan(x)">nonnan</a>	NONNAN  Return all non-NAN elements of an array.</li><li><a href="quadinterp.html" class="code" title="function[x,t]=quadinterp(t1,t2,t3,x1,x2,x3,t)">quadinterp</a>	QUADINTERP  Fast quadratic interpolation for arbitrary-sized arrays.</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jridges.html" class="code" title="">jridges</a>	jRidges:  Wavelet ridge analysis of modulated oscillatory signals</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

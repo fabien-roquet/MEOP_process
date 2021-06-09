@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ellvel</title>
+  <meta name="keywords" content="ellvel">
+  <meta name="description" content="ELLVEL  Average and instantaneous ellipse velocities.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ellvel.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ellvel
+</h1>
+
+<div class="fragment"><pre class="comment"> ELLVEL  Average and instantaneous ellipse velocities. 
+
+   V=ELLVEL(KAPPA,LAMBDA,THETA,PHI,STR) where KAPPA and LAMBDA are the 
+   amplitude and linearity of a time-varying ellise, THETA is its time-
+   varying orientation, and PHI is its time-varying phase, returns various
+   measures of the ellispe 'velocity'.
+
+   STR determines the velocity quantity to be output.
+
+       STR       Symbol     Description
+       ----------------------------------------------------------------
+      'geo'      VM         Geometric mean velocity    
+      'ave'      VBAR       Period-averaged speed          
+      'kin'      VEKE       Kinetic energy velocity        
+      'cir'      VGAMMA     Circulation velocity        
+      'azi'      VAZ        Instantaneous azimuthal velocity        
+      'ins'      VI         Instantaneous speed 
+
+   All are signed quantities reflecting the direction of motion.  That is, 
+   a velocity is defined to be positive when the ellipse is orbited in the 
+   mathematically positive (counterclockwise) sense, and negative when the
+   ellipse is orbited in the mathematically negative sense.
+
+   VM=ELLVEL(KAPPA,LAMBDA,THETA,PHI) with STR omitted returns VM, the
+   geometric mean velocity.  This is a basic of ellipse velocity that is 
+   analagous to the geometric mean radius as a measure of ellipse size.
+
+   ELLVEL(DT,...,) optionally uses DT as the data sample rate, with a 
+   default value of DT=1.  DT is a scalar.
+
+   ELLVEL(DT,...,FACT,STR) optionally converts the physical units of 
+   velocity through a multiplication by FACT, with a default value of 
+   FACT=1.  For example, FACT=1e5 converts kilometers into centimeters, 
+   while FACT=1e5/24/3600 converts km/day into cm/sec.
+   ____________________________________________________________________
+   
+   Cell array input/output
+
+   If ELLVEL is given cell array input, it returns cell array output.
+
+   Thus KAPPA, LAMBDA, THETA, and PHI may each be cell arrays of the 
+   same size, where each element in the cell array is a numerical array.
+
+   VM and other velocity measures will be also cell arrays of this size.
+
+   In this case ELLVEL(DT,...) also works with DT a scalar or an 
+   array whose length is the number of elements in the cell arrays.
+   ____________________________________________________________________
+
+   See also <a href="ellrad.html" class="code" title="function[r]=ellrad(varargin)">ELLRAD</a>, <a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ELLPARAMS</a>, <a href="elldiff.html" class="code" title="function[k2,l2,theta2,phi2]=elldiff(varargin)">ELLDIFF</a>.
+
+   Usage:  v=ellvel(kappa,lambda,theta,phi);
+           v=ellvel(dt,kappa,lambda,theta,phi,1e5);
+           vbar=ellvel(kappa,lambda,theta,phi,'ave');
+
+   'ellvel --f' generates a sample figure.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2005--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="elldiff.html" class="code" title="function[k2,l2,theta2,phi2]=elldiff(varargin)">elldiff</a>	ELLDIFF  Differentiation of modulated elliptical signals.</li><li><a href="ellrad.html" class="code" title="function[r]=ellrad(varargin)">ellrad</a>	ELLRAD  Average and instantaneous ellipse radius.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="ellvel.html" class="code" title="function[v]=ellvel(varargin)">ellvel</a>	ELLVEL  Average and instantaneous ellipse velocities.</li><li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellrossby.html" class="code" title="function[Ro]=ellrossby(lat,lambda,omega)">ellrossby</a>	ELLROSSBY  Ellipse Rossby number, for oceanographic applications.</li><li><a href="ellvel.html" class="code" title="function[v]=ellvel(varargin)">ellvel</a>	ELLVEL  Average and instantaneous ellipse velocities.</li><li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

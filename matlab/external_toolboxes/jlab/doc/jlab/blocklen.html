@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of blocklen</title>
+  <meta name="keywords" content="blocklen">
+  <meta name="description" content="BLOCKLEN Counts the lengths of 'blocks' in an array.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; blocklen.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>blocklen
+</h1>
+
+<div class="fragment"><pre class="comment">BLOCKLEN Counts the lengths of 'blocks' in an array.
+
+   Suppose X is a column vector which contains blocks of identical
+   values, e.g. X=[0 0 0 1 1 3 2 2 2]';
+
+   L=BLOCKLEN(X) counts the lengths of contiguous blocks containing
+   identical values of X, and returns an array L of size SIZE(X).
+   Each elements of L specifies the length of the block to which the
+   corresponding element of X belongs.
+
+   In the above example, L=[3 3 3 2 2 1 3 3 3]';
+
+   [L,IA,IB,NUM]=BLOCKLEN(X) optionally returns indices IA and IB 
+   into the first and last elements, respectively, of each block, as
+   as well as the block number NUM. NUM is the same size as L.
+
+   [...]=BLOCKLEN(X,D) defines the junction between two blocks as
+   locations where ABS(DIFF(X))&gt;D.  Thus D=1 is a 'rate of change'
+   definition, and X=[1 2 3 5 6 10 16 17 18]'; will yield the same 
+   result for L as in the previous example.
+
+   See also <a href="blocknum.html" class="code" title="function[num,a,b]=blocknum(x,delta)">BLOCKNUM</a>.
+
+   Usage: [L,ia,ib]=blocklen(x);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="blocklen.html" class="code" title="function[L,ia,ib,num]=blocklen(x,delta)">blocklen</a>	BLOCKLEN Counts the lengths of 'blocks' in an array.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="blocklen.html" class="code" title="function[L,ia,ib,num]=blocklen(x,delta)">blocklen</a>	BLOCKLEN Counts the lengths of 'blocks' in an array.</li><li><a href="jcommon.html" class="code" title="">jcommon</a>	jCommon:  Useful general-purpose functions, common to other JLAB modules</li><li><a href="periodindex.html" class="code" title="function[index]=periodindex(varargin)">periodindex</a>	PERIODINDEX  Returns time index in increments of instantaneous period.</li><li><a href="ridgechains.html" class="code" title="function[id,ii,jj,xr,fr]=ridgechains(fs,N,bool,x,f,alpha,mask)">ridgechains</a>	RIDGECHAINS  Forms ridge curves by connecting transform ridge points.</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

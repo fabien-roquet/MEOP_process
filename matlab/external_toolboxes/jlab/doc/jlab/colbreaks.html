@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of colbreaks</title>
+  <meta name="keywords" content="colbreaks">
+  <meta name="description" content="COLBREAKS  Insert NANs into discontinuties in a vector.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; colbreaks.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>colbreaks
+</h1>
+
+<div class="fragment"><pre class="comment">COLBREAKS  Insert NANs into discontinuties in a vector.
+
+   O1=COLBREAKS(I1), where I1 is a column vector, inserts NANs into I1 at
+   its discontinuties (and puts one at the end), for example:
+        
+      COLBREAKS([2;2;2;3;3])=[2;2;2;NAN;3;3;NAN];
+
+   [O1,O2,O3,...]=COLBREAKS(I1,I2,...), where I1,I2,... are all column 
+   vectors of the same length, uses I1 as a reference for the other 
+   vectors and inserts NANs into all the vectors at locations where I1 is 
+   discontinous.
+    
+   For instance, using station number for I1 will sort a column of CTD 
+   data into a NAN-padded matrix.
+
+   Note that for complex-valued input arrays, a complex-valued NAN, 
+   NAN+SQRT(-1)*NAN, is used to indicate the break locations. 
+
+   MAT2=COLBREAKS(MAT1), where MAT1 and MAT2 are matrices of the same 
+   size, also works.  In this case the first column of MAT1 is used as the
+   reference vector.
+
+   COLBREAKS, COL2MAT, and MAT2COL together form a system for moving data
+   with segments of nonuniform length rapidly back and forth between a 
+   column format and a padded-matrix format. CTD or float data, for 
+   instance, can be stored in the (usually much smaller) column format and
+   converted into the matrix format upon loading.
+  
+   COLBREAKS(C1,C2,...); with no output arguments overwrites the original
+   input variables.  
+
+   See also <a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">COL2MAT</a>, <a href="mat2col.html" class="code" title="function[varargout]=mat2col(varargin)">MAT2COL</a>, <a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">COL2CELL</a>, <a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">CELL2COL</a>, <a href="orbitbreaks.html" class="code" title="function[varargout]=orbitbreaks(varargin)">ORBITBREAKS</a>.
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2013 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="orbitbreaks.html" class="code" title="function[varargout]=orbitbreaks(varargin)">orbitbreaks</a>	ORBITBREAKS  Separate orbit into passes based on turning points.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

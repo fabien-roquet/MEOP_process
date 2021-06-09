@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of uvplot</title>
+  <meta name="keywords" content="uvplot">
+  <meta name="description" content="UVPLOT  Plots the real and imaginary parts of a signal on the same axis.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; uvplot.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>uvplot
+</h1>
+
+<div class="fragment"><pre class="comment">UVPLOT  Plots the real and imaginary parts of a signal on the same axis.
+
+   UVPLOT(T,CV) plots the real and imaginary components of the
+   complex-valued data CV=U+iV versus time T.  Here T is a column
+   vector and CV is a matrix with LENGTH(T) rows.
+
+   UVPLOT(T,CV,STY1,STY2) optionally plots the real components of CV,
+   U, using style STY1, and the imaginary components V using STY2.
+   STY1 and STY2 are strings following the format in LINESTYLE.
+
+   UVPLOT(T,CV,STY) uses STY for the linestyles of both lines.
+
+   UVPLOT(T,U,V,...), where U and V are real matrices, also works.  
+
+   [H1,H2]=UVPLOT(...) returns handles to the line plots of U and V.
+
+   As an example,
+
+        load bravo94
+        cv=vfilt(bravo.rcm.cv(:,3),24);
+        num=yf2num(bravo.rcm.yearf)-datenum(1994,1,1);
+        uvplot(num,cv,'2b','r-.'),xlim([120 340])
+
+   returns a color version of Fig.4b of Lilly and Rhines JPO 2001.
+ 
+   Usage:  uvplot(t,cv);
+           uvplot(t,cv,sty1,sty2);
+           uvplot(t,cv,sty1,sty2,dy);
+           uvplot(t,u,v,sty1,sty2,dy);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2012 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="maternspec.html" class="code" title="function[varargout]=maternspec(varargin)">maternspec</a>	MATERNSPEC  Fourier spectrum of the Matern random process.</li><li><a href="morlwave.html" class="code" title="function [w,W]=morlwave(N,fo,fs,str)">morlwave</a>	MORLWAVE  Morlet wavelet.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

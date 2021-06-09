@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of jwavelet</title>
+  <meta name="keywords" content="jwavelet">
+  <meta name="description" content="jWavelet: Continuous wavelet analysis using generalized Morse wavelets">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; jwavelet.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>jwavelet
+</h1>
+
+<div class="fragment"><pre class="comment"> jWavelet: Continuous wavelet analysis using generalized Morse wavelets
+
+ Top-level wavelet transform functions
+   wavetrans  - Continuous wavelet transform.
+   morsewave  - Generalized Morse wavelets of Olhede and Walden (2002).              
+   morsespace - Logarithmically-spaced frequencies for generalized Morse wavelets.   
+   wavespecplot - Plot of wavelet spectra together with time series.
+
+ Details of generalized Morse wavelets 
+   morsearea  - Time-frequency concentration area of Morse wavelets. [with F. Rekibi]
+   morsebox   - Heisenberg time-frequency box for generalized Morse wavelets.        
+   morsefreq  - Frequency measures for generalized Morse wavelets. [with F. Rekibi]  
+   morseprops - Properties of the demodulated generalized Morse wavelets.            
+   morsexpand - Generalized Morse wavelets via time-domain Taylor series.
+   morsederiv - Frequency-domain derivatives of generalized Morse wavelets.
+
+ Morlet wavelet 
+   morlwave   - Morlet wavelet.                                                      
+   morlfreq   - Compute Morlet wavelet carrier frequency given peak frequency.   
+
+ See also <a href="jridges.html" class="code" title="">jRidges</a>, <a href="jspectral.html" class="code" title="">jSpectral</a>, <a href="jellipse.html" class="code" title="">jEllipse</a>.</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="dawson.html" class="code" title="function z = dawson(x)">dawson</a>	DAWSON The Dawson function. [By P.J. Acklam]</li><li><a href="dawsonderiv.html" class="code" title="function[y]=dawsonderiv(varargin)">dawsonderiv</a>	DAWSONDERIV  Derivatives of the Dawson function.</li><li><a href="jwavelet.html" class="code" title="">jwavelet</a>	jWavelet: Continuous wavelet analysis using generalized Morse wavelets</li><li><a href="morlfreq.html" class="code" title="function[nui,om2i]=morlfreq(omi)">morlfreq</a>	MORLFREQ  Compute Morlet wavelet carrier frequency given peak frequency.</li><li><a href="morlwave.html" class="code" title="function [w,W]=morlwave(N,fo,fs,str)">morlwave</a>	MORLWAVE  Morlet wavelet.</li><li><a href="morsea.html" class="code" title="function[a]=morsea(varargin)">morsea</a>	MORSEA  Returns the generalized Morse wavelet amplitude "a".</li><li><a href="morsearea.html" class="code" title="function A = morsearea(C,ga,be)">morsearea</a>	MORSEAREA  Time-frequency concentration area of Morse wavelets. [with F. Rekibi]</li><li><a href="morsebox.html" class="code" title="function[a,sigt,sigo,skew]=morsebox(ga,be)">morsebox</a>	MORSEBOX  Heisenberg time-frequency box for generalized Morse wavelets.</li><li><a href="morsederiv.html" class="code" title="function[varargout]=morsederiv(nmax,ga,be,om)">morsederiv</a>	MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="morsemom.html" class="code" title="function[m,n,k,l]=morsemom(p,ga,be)">morsemom</a>	MORSEMOM  Frequency-domain moments of generalized Morse wavelets.</li><li><a href="morseproj.html" class="code" title="function[b]=morseproj(ga,be1,be2)">morseproj</a>	MORSEPROJ  Projection coefficient for two generalized Morse wavelets.</li><li><a href="morseprops.html" class="code" title="function[p,skew,kurt]=morseprops(ga,be)">morseprops</a>	MORSEPROPS  Properties of the demodulated generalized Morse wavelets.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="morsexpand.html" class="code" title="function[psi]=morsexpand(varargin)">morsexpand</a>	MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Contents.html" class="code" title="">Contents</a>	jLab v1.5 by J. M. Lilly</li><li><a href="jwavelet.html" class="code" title="">jwavelet</a>	jWavelet: Continuous wavelet analysis using generalized Morse wavelets</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

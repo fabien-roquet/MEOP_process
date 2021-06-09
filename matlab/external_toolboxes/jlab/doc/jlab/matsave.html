@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of matsave</title>
+  <meta name="keywords" content="matsave">
+  <meta name="description" content="MATSAVE  Create and save structure of variables as a mat-file.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; matsave.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>matsave
+</h1>
+
+<div class="fragment"><pre class="comment">MATSAVE  Create and save structure of variables as a mat-file. 
+
+   MATSAVE NAME X1 X2 ... XN  where X1 ... XN are names of variables in 
+   the current workspace, first creates a structure
+
+       NAME.X1, NAME.X2, NAME.X3
+
+   then saves it as a .mat file called NAME, and finally loads this 
+   mat-file into the current workspace.
+
+   By default, the mat-file is saved in a directory called 'Matfiles'.
+   This directory can be anywhere, but its location must be added to the 
+   Matlab search path using ADDPATH, e.g. 'addpath ~/Matfiles'.  
+
+   It is preferable to put the ADDPATH statement in your STARTUP file so 
+   you do not have to re-enter it every session. 
+
+   If a directory called 'Matfiles' is not found, MATSAVE saves the 
+   mat-file to the current directory.  
+
+   By default NAME is a string rather than a variable.  However, NAME can 
+   also be a variable whose value is a string, through the use of the '-n'
+   flag.  Then
+
+        MATSAVE -N VAR X1 ... XN
+
+   with VAR='sample' will create a structure named 'sample'.
+
+   The version of mat-file format to save in may also be specified through
+   the of the -v flag, such that
+
+        MATSAVE -V6 NAME X1 ... XN
+
+   will create a structure NAME and save it as a Version 6 mat-file; see 
+   SAVE for allowable version options.
+
+   See also <a href="make.html" class="code" title="function[evalme]=make(varargin)">MAKE</a>, <a href="use.html" class="code" title="function[]=use(x)">USE</a>.
+
+   Usage:  <a href="matsave.html" class="code" title="function[]=matsave(varargin)">matsave</a> name x1 x2 x3
+           <a href="matsave.html" class="code" title="function[]=matsave(varargin)">matsave</a> -n var x1 x2 x3
+           <a href="matsave.html" class="code" title="function[]=matsave(varargin)">matsave</a> -v6 -n var x1 x2 x3
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2006--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="findpath.html" class="code" title="function[fullpath]=findpath(dirname)">findpath</a>	FINDPATH  Returns the full pathname of a directory on the Matlab search path.</li><li><a href="make.html" class="code" title="function[evalme]=make(varargin)">make</a>	MAKE  Create a structure containing named variables as fields.</li><li><a href="to_grab_from_caller.html" class="code" title="function[str]=to_grab_from_caller(index)">to_grab_from_caller</a>	TO_GRAB_FROM_CALLER  Returns a string to grab variable values from caller.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="about_floats.html" class="code" title="function[varargout]=about_floats(varargin)">about_floats</a>	FLOATS  Historical dataset of eddy-resolving subsurface floats.</li><li><a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>	JTOPO  One-sixth degree global topography based on Smith and Sandwell.</li><li><a href="jcommon.html" class="code" title="">jcommon</a>	jCommon:  Useful general-purpose functions, common to other JLAB modules</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

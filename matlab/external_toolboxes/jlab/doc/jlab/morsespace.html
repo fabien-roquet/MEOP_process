@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of morsespace</title>
+  <meta name="keywords" content="morsespace">
+  <meta name="description" content="MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; morsespace.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>morsespace
+</h1>
+
+<div class="fragment"><pre class="comment">MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.
+
+   F=MORSESPACE(GAMMA,BETA,N) generates a frequency array for the 
+   generalized Morse wavelet transform of an N-point time series. The 
+   wavelets are specified by GAMMA and BETA.  
+
+   LOG(F) is uniformly spaced, following convention for wavelet analysis.
+
+   F has units of *radians* per sample point, and is a column vector with 
+   the frequencies arranged in decending order. 
+   
+   In this usage, the frequencies F are determined using default settings,
+   described below, which should be appropriate for most applications.  
+
+   Additional control over the frequency array F can be obtained using the
+   following alternate usages.
+   __________________________________________________________________
+
+   High- and low-frequency specification
+
+   F=MORSESPACE(GAMMA,BETA,HIGH,LOW) explicitly sets the high-frequency
+   and low-frequency cutoffs for the frequency array.  
+
+   The first (largest) value of F is then just smaller than HIGH and the 
+   smallest is just larger than LOW.
+
+   HIGH and LOW have units of *radian* per unit sample point.
+   __________________________________________________________________
+
+   High-frequency cutoff
+
+   The highest frequency can be set to be the minimum of a specified value
+   and a cutoff frequency based on a Nyquist overlap condition.
+
+   F=MORSESPACE(GAMMA,BETA,{ALPHA,HIGH},LOW) sets the highest frequency 
+   to be the minimum of the specified value HIGH, and the largest 
+   frequency for which the wavelet will satisfy the threshold level ALPHA. 
+
+   Here ALPHA be a number between zero and one specifying the ratio of a
+   frequency-domain wavelet at the Nyquist frequency to its peak value.
+
+   Note that in this usage, {ALPHA,HIGH} is a cell array with two entries.
+
+   The simplified usage F=MORSESPACE(GAMMA,BETA,N) corresponds to the 
+   choice ALPHA=0.1, so that by default, the highest-frequency wavelet 
+   will decay to at least 10% of its peak value at the Nyquist frequency.
+   __________________________________________________________________
+
+   Low-frequency cutoff
+
+   The lowest frequency can be set to a cutoff frequency based on an 
+   endpoint overlap condition.
+
+   F=MORSESPACE(GAMMA,BETA,HIGH,{R,N}) sets the lowest frequency such that
+   the lowest-frequency wavelet will reach R times its central window
+   width at the ends of the time series. 
+  
+   A choice of R=SQRT(2) corresponds to roughly 95% of the time-domain 
+   wavelet energy being contained within the time series endpoints for a
+   wavelet at the center of the domain.
+
+   F=MORSESPACE(GAMMA,BETA,HIGH,{R,N,LOW}) alternately chooses the maximum 
+   of the R-level cutoff frequency, and a specified low frequency LOW.
+   
+   The simplified usage F=MORSESPACE(GAMMA,BETA,N) corresponds to the
+   default value R=5*SQRT(2).  At the lowest frequency, five wavelets will
+   then fit into the time series, with 5% energy overlap between them.
+   __________________________________________________________________
+
+   Wavelet density
+
+   F=MORSESPACE(GAMMA,BETA,HIGH,LOW,D) controls the number of points in 
+   the frequency array through the 'density' D. 
+
+   Higher values of D mean more overlap in the frequency domain. The
+   default value of the density is D=4.
+
+   When D=1, the peak of one wavelet is located at the half-power points 
+   of the adjacent wavelet. D=4 means that four other wavelets will occur 
+   between the peak of one wavelet and its half-power point. 
+   __________________________________________________________________
+
+   See also <a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">MORSEWAVE</a>, <a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">WAVETRANS</a>.
+
+   Usage: f=morsespace(ga,be,N);
+          f=morsespace(ga,be,high,low,D);
+          f=morsespace(ga,be,{alpha,high},low,D);
+          f=morsespace(ga,be,{alpha,high},{r,N},D);
+          f=morsespace(ga,be,{alpha,high},{r,N,low},D);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2009--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="dlines.html" class="code" title="function[h]=dlines(varargin)">dlines</a>	DLINES   Add diagonal lines to a plot.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="morsea.html" class="code" title="function[a]=morsea(varargin)">morsea</a>	MORSEA  Returns the generalized Morse wavelet amplitude "a".</li><li><a href="morsebox.html" class="code" title="function[a,sigt,sigo,skew]=morsebox(ga,be)">morsebox</a>	MORSEBOX  Heisenberg time-frequency box for generalized Morse wavelets.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="morseprops.html" class="code" title="function[p,skew,kurt]=morseprops(ga,be)">morseprops</a>	MORSEPROPS  Properties of the demodulated generalized Morse wavelets.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="nocontours.html" class="code" title="function[h]=nocontours(h)">nocontours</a>	NOCONTOURS  Removes contours from a CONTOURF plot.</li><li><a href="oprod.html" class="code" title="function[z]=oprod(x,y)">oprod</a>	OPROD  Outer product:  OPROD(X,Y)=X*CONJ(Y')</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellrossby.html" class="code" title="function[Ro]=ellrossby(lat,lambda,omega)">ellrossby</a>	ELLROSSBY  Ellipse Rossby number, for oceanographic applications.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jwavelet.html" class="code" title="">jwavelet</a>	jWavelet: Continuous wavelet analysis using generalized Morse wavelets</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

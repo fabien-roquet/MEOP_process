@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of morsefreq</title>
+  <meta name="keywords" content="morsefreq">
+  <meta name="description" content="MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; morsefreq.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>morsefreq
+</h1>
+
+<div class="fragment"><pre class="comment">MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]
+
+   [FM,FE,FI]=MORSEFREQ(GAMMA,BETA) calculates three different measures of
+   the frequency of the lowest-order generalized Morse wavelet specified 
+   by parameters GAMMA and BETA.
+
+   FM is the modal or peak, FE is the &quot;energy&quot; frequency, and FI is the 
+   instantaneous frequency at the wavelet center.
+
+   [FM,FE,FI,CF]=MORSEFREQ(GAMMA,BETA) also computes the curvature CF of 
+   the instantaneous frequency at the wavelet center. 
+
+   Note that all frequency quantities here are *radian* as in cos(omega t)
+   and not cyclic as in cos(2 pi f t).
+ 
+   The input parameters must either be matrices of the same size,
+   or some may be matrices and the others scalars.   
+
+   For BETA=0, the &quot;wavelet&quot; becomes an analytic lowpass filter, and FM 
+   is not defined in the usual way.  Instead the 1/2 power point of the
+   analytic bandpass filter is returned for FM. 
+
+   For details see
+
+       Lilly and Olhede (2009).  Higher-order properties of analytic 
+           wavelets.  IEEE Trans. Sig. Proc., 57 (1), 146--160.
+
+   See also <a href="morsebox.html" class="code" title="function[a,sigt,sigo,skew]=morsebox(ga,be)">MORSEBOX</a>, <a href="morseprops.html" class="code" title="function[p,skew,kurt]=morseprops(ga,be)">MORSEPROPS</a>, <a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">MORSEWAVE</a>.
+
+   Usage: fm = morsefreq(ga,be);
+          [fm,fe,fi] = morsefreq(ga,be);
+          [fm,fe,fi,cf] = morsefreq(ga,be);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2004--2015 J. M. Lilly and F. Rekibi
+                         --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="imlog.html" class="code" title="function[y]=imlog(x)">imlog</a>	IMLOG  Imaginary part of log: IMLOG(X)=UNWRAP(IMAG(LOG(X)))</li><li><a href="letterlabels.html" class="code" title="function[h]=letterlabels(arg1,arg2,arg3)">letterlabels</a>	LETTERLABELS	For automatically putting letter labels on subplots.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="morlwave.html" class="code" title="function [w,W]=morlwave(N,fo,fs,str)">morlwave</a>	MORLWAVE  Morlet wavelet.</li><li><a href="morsebox.html" class="code" title="function[a,sigt,sigo,skew]=morsebox(ga,be)">morsebox</a>	MORSEBOX  Heisenberg time-frequency box for generalized Morse wavelets.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="morsemom.html" class="code" title="function[m,n,k,l]=morsemom(p,ga,be)">morsemom</a>	MORSEMOM  Frequency-domain moments of generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jwavelet.html" class="code" title="">jwavelet</a>	jWavelet: Continuous wavelet analysis using generalized Morse wavelets</li><li><a href="morsea.html" class="code" title="function[a]=morsea(varargin)">morsea</a>	MORSEA  Returns the generalized Morse wavelet amplitude "a".</li><li><a href="morsebox.html" class="code" title="function[a,sigt,sigo,skew]=morsebox(ga,be)">morsebox</a>	MORSEBOX  Heisenberg time-frequency box for generalized Morse wavelets.</li><li><a href="morsederiv.html" class="code" title="function[varargout]=morsederiv(nmax,ga,be,om)">morsederiv</a>	MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="morsemom.html" class="code" title="function[m,n,k,l]=morsemom(p,ga,be)">morsemom</a>	MORSEMOM  Frequency-domain moments of generalized Morse wavelets.</li><li><a href="morseproj.html" class="code" title="function[b]=morseproj(ga,be1,be2)">morseproj</a>	MORSEPROJ  Projection coefficient for two generalized Morse wavelets.</li><li><a href="morseprops.html" class="code" title="function[p,skew,kurt]=morseprops(ga,be)">morseprops</a>	MORSEPROPS  Properties of the demodulated generalized Morse wavelets.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="morsexpand.html" class="code" title="function[psi]=morsexpand(varargin)">morsexpand</a>	MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.</li><li><a href="ridgeinterp.html" class="code" title="function[varargout]=ridgeinterp(varargin)">ridgeinterp</a>	RIDGEINTERP  Interpolate quantity values onto ridge locations.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

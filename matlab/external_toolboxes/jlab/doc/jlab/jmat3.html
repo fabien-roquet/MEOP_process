@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of jmat3</title>
+  <meta name="keywords" content="jmat3">
+  <meta name="description" content="JMAT3 3x3 rotation matrix through specified angle.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; jmat3.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>jmat3
+</h1>
+
+<div class="fragment"><pre class="comment">JMAT3 3x3 rotation matrix through specified angle.
+
+   J=JMAT3(PHI,N) creates a rotation matrix about axis N in three 
+   dimensions, e.g. JMAT3(PHI,3) returns
+
+       J=[COS(PHI) -SIN(PHI) 0;
+          SIN(PHI)  COS(PHI) 0;
+             0        0      1]
+
+   such that J*X rotates the column-vector X by PHI radians
+   counterclockwise in the XY plane.
+
+   If LENGTH(PHI)&gt;1, then J will have dimension 3 x 3 x SIZE(PHI).
+   N may either be a scalar or an array of the same length as PHI.
+
+   See also <a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">VECTMULT</a>, <a href="jmat.html" class="code" title="function[x]=jmat(theta)">JMAT</a>.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2010 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="jcommon.html" class="code" title="">jcommon</a>	jCommon:  Useful general-purpose functions, common to other JLAB modules</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">vectmult</a>	VECTMULT  Matrix multiplication for arrays of vectors.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

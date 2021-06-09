@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vshift</title>
+  <meta name="keywords" content="vshift">
+  <meta name="description" content="VSHIFT  Cycles the elements of an array along a specified dimension.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; vshift.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>vshift
+</h1>
+
+<div class="fragment"><pre class="comment"> VSHIFT  Cycles the elements of an array along a specified dimension.
+
+   Y=VSHIFT(X,N,DIM) cycles the elements of X N places along dimension DIM.
+  
+   Example: x=[1 2 3 4 5];
+            vshift(x,+1,2)=[2 3 4 5 1]           
+            vshift(x,-1,2)=[5 1 2 3 4]           
+
+   Note shifting by N and then by -N recovers the original array. 
+
+   [Y1,Y2,...YN]=VSHIFT(X1,X2,...XN,N,DIM) also works.
+
+   VSHIFT(X1,X2,...XN,N,DIM); with no arguments overwrite the original 
+   input variables.
+
+   Note that VSHIFT is similar to Matlab's CIRCSHIFT, but has the opposite
+   convection for positive and negative shifts. 
+
+   ------------------------------------------------------------------
+   Y=VSHIFT(X,N,DIM,INDEX,DIM2) applies this shift selectively, only to
+   that subset of X obtained by indexing X with INDEX along DIM2, i.e.
+
+            1 2      DIM2     DIMS(X)
+            | |        |         |
+          X(:,:, ... INDEX, ..., :)    
+
+   is cycled N places along dimension DIM, but the remainder of X is not. 
+   DIM and DIM2 cannot be the same.  The above extensions to multiple 
+   output varibles work in this case as well.  
+   ------------------------------------------------------------------
+
+   See also: <a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">VINDEX</a>, CIRCSHIFT.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2001--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="bindata.html" class="code" title="function[xnum,xi,xmid]=bindata(xbin,xdata,str)">bindata</a>	BINDATA  Rapidly sort data into adjacent bins.</li><li><a href="commentlines.html" class="code" title="function[str]=commentlines(dirname)">commentlines</a>	COMMENTLINES  Returns the comment lines from m-files.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="divgeom.html" class="code" title="function[Q1,Q2,Q3,Q4,Q]=divgeom(varargin)">divgeom</a>	DIVGEOM  Geometric decomposition of eddy vorticity flux divergence.</li><li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="lonshift.html" class="code" title="function[varargout]=lonshift(varargin)">lonshift</a>	LONSHIFT  Shifts longitude origin for plotting purposes.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="orbitbreaks.html" class="code" title="function[varargout]=orbitbreaks(varargin)">orbitbreaks</a>	ORBITBREAKS  Separate orbit into passes based on turning points.</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="psi2fields.html" class="code" title="function[cv,zeta,n,s,p]=psi2fields(varargin)">psi2fields</a>	PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]</li><li><a href="trajwrap.html" class="code" title="function[varargout]=trajwrap(varargin)">trajwrap</a>	TRAJWRAP  Wraps Lagrangian trajectories to fit within a periodic domain.</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

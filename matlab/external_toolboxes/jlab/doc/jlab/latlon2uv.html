@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of latlon2uv</title>
+  <meta name="keywords" content="latlon2uv">
+  <meta name="description" content="LATLON2UV  Converts latitude and longitude to horizontal velocity.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; latlon2uv.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>latlon2uv
+</h1>
+
+<div class="fragment"><pre class="comment">LATLON2UV  Converts latitude and longitude to horizontal velocity.
+
+   [U,V]=LATLON2UV(NUM,LAT,LON) where NUM is the data in DATENUM format
+   and LAT and LON are the latitude and longitude in degrees, outputs the
+   eastward and northward velocity components U and V in cm/s, computed
+   using the first central difference.
+
+   CV=LATLON2UV(...) with one output argument returns the complex- valued
+   velocity CV=U+SQRT(-1)*V. NANs in LAT or LON become NAN+SQRT(-1)*NAN.
+
+   NUM is a column vector or a matrix of the same size as LAT and LON.  
+   LAT and LON are matices having SIZE(NUM,1) rows.  U and V are the same 
+   size as LAT and LON.  
+  
+   LATLON2UV computes the velocity components from the distance travelled
+   across the surface of the sphere and the heading, taking account of 
+   the sphericity of the earth.
+
+   The first and last points must be treated differently, as the central 
+   difference is not defined there.  At the first and last point we use,
+   respectively, the first forward and first backward difference.  
+
+   The radius of the earth is given by the function RADEARTH.
+   ___________________________________________________________________
+
+   Cell array input / output
+
+   LATLON2UV returns cell array output given cell array input.  
+
+   That is, if NUM, LAT, and LON, are all cell arrays of length K, 
+   containing K different numerical arrays, then the output will also be 
+   cell arrays of length K.  
+   ___________________________________________________________________
+
+   Difference algorithm
+
+   By default, LATLON2UV uses a first central difference algorithm which 
+   is defined to be the average of a forward and a backward difference.
+
+   LATLON2UV(...,'forward') uses a first forward difference.  Velocity is
+   computed based on the great circle distance and bearing from each point
+   to the next point.  
+
+   LATLON2UV(...,'backward') uses a first backward difference.  Velocity 
+   is computed based on the great circle distance and bearing from each
+   point to the previous point.  This is equivalent to the first forward
+   difference computed backward in time.
+
+   The first forward and first backward difference can be thought of as 
+   giving the Cartesian velocities of a departing and arriving particle,
+   respectively.
+   ___________________________________________________________________
+
+   See also <a href="xy2latlon.html" class="code" title="function[lat,lon]=xy2latlon(varargin)">XY2LATLON</a>, <a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">LATLON2XY</a>, <a href="uv2latlon.html" class="code" title="function[lat,lon]=uv2latlon(varargin)">UV2LATLON</a>.
+
+   Usage:  [u,v]=latlon2uv(num,lat,lon);
+           cv=latlon2uv(num,lat,lon);
+
+   'latlon2uv --t' runs a test.
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2004--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="imlog.html" class="code" title="function[y]=imlog(x)">imlog</a>	IMLOG  Imaginary part of log: IMLOG(X)=UNWRAP(IMAG(LOG(X)))</li><li><a href="jdeg2rad.html" class="code" title="function[varargout]=jdeg2rad(varargin)">jdeg2rad</a>	JDEG2RAD  Converts degrees to radians.</li><li><a href="jrad2deg.html" class="code" title="function[varargout]=jrad2deg(varargin)">jrad2deg</a>	JRAD2DEG  Converts radians to degrees.</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="latlon2xyz.html" class="code" title="function[x,y,z]=latlon2xyz(lat,lon,R)">latlon2xyz</a>	LATLON2XYZ  Converts latitude and longitude into 3D Cartesian coordinates.</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="spheredist.html" class="code" title="function[d]=spheredist(varargin)">spheredist</a>	SPHEREDIST  Computes great circle distances on a sphere.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="xyz2latlon.html" class="code" title="function[lat,lon]=xyz2latlon(x,y,z,R)">xyz2latlon</a>	XYZ2LATLON  Converts 3D Cartesian coordinates into latitude and longitude.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="ellrossby.html" class="code" title="function[Ro]=ellrossby(lat,lambda,omega)">ellrossby</a>	ELLROSSBY  Ellipse Rossby number, for oceanographic applications.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="uv2latlon.html" class="code" title="function[lat,lon]=uv2latlon(varargin)">uv2latlon</a>	UV2LATLON  Integrates horizontal velocity to give latitude and longitude.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

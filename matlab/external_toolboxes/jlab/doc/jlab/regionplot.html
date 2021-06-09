@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of regionplot</title>
+  <meta name="keywords" content="regionplot">
+  <meta name="description" content="REGIONPLOT  Plots a simple box indicating a latitude / longitude region.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; regionplot.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>regionplot
+</h1>
+
+<div class="fragment"><pre class="comment">REGIONPLOT  Plots a simple box indicating a latitude / longitude region.
+
+   REGIONPLOT(REGION) draws a latitude / longitue box indicated by REGION
+   on the current axes. 
+ 
+   REGION is an array with the format [WEST EAST SOUTH NORTH]. Longitudes 
+   may either be specified on the interval [-180, 180] or on [0, 360].
+
+   By default, longitudes will be converted to [-180,180] unless the
+   region overlaps the dateline, in which case [0,360] will be used.
+
+   The current axes will be held as the box is plotted, then returned to 
+   its previous HOLD state. 
+
+   REGION can also be a cell array of N arrays, each with the format 
+   REGION{N}=[WEST EAST SOUTH NORTH].  All N regions will then be plotted.
+
+   REGIONPLOT is compatible with the M_MAP toolbox, as described below.
+
+   H=REGIONPLOT outputs the line handle H to the plotted box.
+   __________________________________________________________________
+
+   Additional options
+
+   H=REGIONPLOT returns the graphics handle to the plotted box. 
+
+   REGIONPLOT(REGION,STY) uses style string STY, in the LINESTYLE format,
+   with a default value of STY='k'.
+
+   REGIONPLOT(REGION,'M_MAP') will work with Rich Pawlowicz's M_MAP 
+   package by calling M_PLOT.  
+ 
+   The additional input parameters can be input together in either order,
+   i.e. REGIONPLOT(REGION,STY,'M_MAP') or REGIONPLOT(REGION,'M_MAP',STY).
+   __________________________________________________________________
+
+   See also <a href="inregion.html" class="code" title="function[bool]=inregion(varargin)">INREGION</a>, FLOATREGION, <a href="topoplot.html" class="code" title="function[h,hc]=topoplot(varargin)">TOPOPLOT</a>.
+
+   'regionplot --f' generates some sample figures.
+
+   Usage: regionplot(region);
+          h=regionplot(region,'m_map');
+          h=regionplot(region,'m_map','2k');
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="boxon.html" class="code" title="function[]=boxon">boxon</a>	BOXON  Sets 'box' property to 'on'.</li><li><a href="cellplot.html" class="code" title="function[h]=cellplot(varargin)">cellplot</a>	CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.</li><li><a href="deg180.html" class="code" title="function[varargout]=deg180(varargin)">deg180</a>	DEG180  Converts degrees to the range [-180,180].</li><li><a href="deg360.html" class="code" title="function[varargout]=deg360(varargin)">deg360</a>	DEG360  Converts degrees to the range [0, 360].</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">regionplot</a>	REGIONPLOT  Plots a simple box indicating a latitude / longitude region.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jsphere.html" class="code" title="">jsphere</a>	jSphere:  Tools for latitude, longitude, and spherical geometry</li><li><a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">regionplot</a>	REGIONPLOT  Plots a simple box indicating a latitude / longitude region.</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

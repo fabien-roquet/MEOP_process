@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of mspec</title>
+  <meta name="keywords" content="mspec">
+  <meta name="description" content="MSPEC  Multitaper power and cross spectra.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; mspec.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>mspec
+</h1>
+
+<div class="fragment"><pre class="comment"> MSPEC  Multitaper power and cross spectra.
+   _______________________________________________________________________
+
+   <img src='mspec.png'>
+   _______________________________________________________________________
+
+   MSPEC implements spectral and cross-spectral analysis using the 
+   multitaper method for real or complex-valued data. 
+
+   MSPEC is to be run after calling SLEPTAP to compute the multitapers.
+   _______________________________________________________________________
+
+   One-sided power spectrum
+
+   [F,S]=MSPEC(X,PSI) returns the one-sided power spectrum of X at 
+   positive frequencies using data tapers PSI. 
+  
+   Input:   
+       X  --  M x N matrix containing N length M time series
+     PSI  --  M x K matrix of K data tapers
+ 
+   Output:
+       F  --  [M/2] nonnegative *radian* frequencies
+       S  --  [M/2] x N one-sided power spectrum matrix
+                
+   In the above, [M/2] means: M/2 if M is even, and (M+1)/2 if M is odd. 
+   See FOURIER for the calculation of the Fourier frequencies.
+
+   The spectra matrices are averages over the K &quot;eigenspectra&quot; computed 
+   with each of the K tapers, as discussed in Park et al. JGR 1987.
+
+   The one-sided spectrum S is normalized such that its sum over all 
+   frequencies F, (1/2/pi)*SUM(S,1)*DF where DF is the frequency 
+   increment, approximates the signal variance; see discussion below.
+
+   MSPEC(...,'detrend') detrends the data before computing the spectra.
+   ______________________________________________________________________
+  
+   Cross-spectra of real-valued data
+   
+   MSPEC can be used to compute the cross-spectrum of two real-valued
+   time series or sets of time series.
+
+   [F,SXX,SYY,SXY]=MSPEC(X,Y,PSI);   --- For cross-spectra
+        
+   Input:
+       X  --  M x N matrix containing N length M time series
+       Y  --  M x N matrix containing N length M time series
+     PSI  --  M x K matrix of K data tapers
+ 
+   Output:
+       F  --  M/2 nonnegative frequencies
+     SXX  --  [M/2] x N one-sided spectra of X
+     SYY  --  [M/2] x N one-sided spectra of Y
+     SXY  --  [M/2] x N one-sided cross spectra of X and Y 
+
+   See TWOSPECPLOT for plotting SXX and SYY simultaneously.
+   ______________________________________________________________________
+  
+   Rotary spectra of complex-valued data
+
+   MSPEC can also the so called &quot;rotary spectra&quot; of complex-valued 
+   time series or sets of time series.
+
+   [F,SPP,SNN,SPN]=MSPEC(Z,PSI);   --- For rotary spectra of Z=X+iY
+
+   Input:   
+       Z  --  M x N matrix containing N length M time series
+     PSI  --  M x K matrix of K data tapers
+   
+   Output:   
+        F  --  M/2 nonnegative frequencies
+      SPP  --  [M/2] x N positively rotating power spectrum matrix
+      SNN  --  [M/2] x N negatively rotating power spectrum matrix  
+      SPN  --  [M/2] x N rotary cross spectral matrix      
+
+   Note that the rotary spectra are defined such that SXX+SYY=SPP+SNN.
+  
+   The rotary spectra SPP and SNN are normalized such that the sum of SPP
+   over all frequencies plus that of SNN approximates the variance of Z. 
+
+   See TWOSPECPLOT for plotting SPP and SNN simultaneously.
+   ______________________________________________________________________
+  
+   Sample rate
+
+   [F,S]=MSPEC(DT,...) specifies the sample interval to be used in the
+   calculation of the frequency array F. DT defaults to unity.
+
+   Spectral values depend linearly upon the sample rate in order that the 
+   integral of the spectra over frequency approximate the variance.
+   ______________________________________________________________________
+
+   Periodogram
+
+   MPSEC can be used to form the naive spectral estimator, known as the
+   periodogram. Although this is not generally a good way to estimate the
+   spectrum, it can be useful as a comparision.
+
+   MSPEC(X,[]) or MSPEC(X,Y,[]) with PSI empty uses the default, or boxcar
+   taper, normalized to unit energy. This returns the periodogram.  
+   ______________________________________________________________________
+  
+   Normalizations
+
+   By default, MSPEC uses *radian* frequency as in cos(f t).  Optionally
+   MSPEC(,...,'cyclic') will use *cyclic* frequency, as in cos(2 pi f t).
+
+   MSPEC is normalized such that with DT=1, its sum will approximately 
+   recover the time series variance. For the MSPEC periodogram, this 
+   recovery is exact, such that [F,S]=MSPEC(X,[]) gives SUM(S)=STD(X).^2.
+
+   [F,SPP,SNN]=MSPEC(Z,[]) with unit DT and complex-valued Z also recovers 
+   exactly the variance of Z, but with modifications as follows:
+
+     SUM(SPP)+SUM(SNN(2:end))   = STD(Z).^2  --  Odd time series length M
+     SUM(SPP)+SUM(SNN(2:end-1)) = STD(Z).^2  --  Even time series length M 
+
+   These modifications are necessary because the rotary spectra duplicates
+   the zero frequency on the negative side when M is odd, and duplicates
+   both the zero frequency and the Nyquist when M is even. 
+   ______________________________________________________________________
+   
+   Cross-spectra of complex-valued data
+
+   To compute the cross-spectra of two complex-valued time series or sets 
+   of time series Z1 and Z2, run MSPEC repeatedly.
+
+   [F,SP1P1,SP2P2,SP1P2]=MSPEC(Z1,Z2,PSI);  
+   [F,SN1N1,SN2N2,SN1N2]=MSPEC(CONJ(Z1),CONJ(Z2),PSI);  
+
+   The first call returns the spectra and cross-spectra of Z1 and Z2 at
+   positive frequencies, while the second returns their spectra and cross-
+   spectra at negative frequencies.  Finally
+
+   [F,SP1P1,SN2N2,SP1N2]=MSPEC(Z1,CONJ(Z2),PSI);  
+
+   returns the cross-spectra between the positive rotary components of Z1 
+   and the negative components of Z2.
+   ______________________________________________________________________
+
+   Adaptive spectra
+
+   MSPEC(...,LAMBDA,'adaptive'), where LAMBDA contains the eigenvalues of
+   the tapers as computed by SLEPTAP, alternately uses the &quot;adaptive&quot;
+   multitaper method of Thomson (1982).
+ 
+   This implementation follows that of Park et al. (1987a), JGR.
+
+   For cross-spectra or for rotary spectra, the weights appearing in the
+   adaptive spectra are derived for the total spectrum of each signal 
+   compoment, that is for SXX+SYY or SPP+SNN as appropriate.  Then the
+   separate spectra and co-spectra are computed using identical weights.
+   ______________________________________________________________________
+  
+   Cell array input / output
+
+   MSPEC generates cell array output given cell array input.
+
+   Let's say one has P different time series, X1, X2,..., XP.  Put these 
+   into a cell array X{1}=X1, X{2}=X2, ..., X{P}=XP, and then use
+   '[psi,lambda]=sleptap(cellength(x))' to make a cell array of tapers.
+
+   [F,S]=MSPEC(X,PSI) then returns cell arrays F and S corresponding 
+   to the Fourier frequencies and spectra of the P arrays.  
+
+   The other argument forms given above also work.  In particular, 
+   specifiying the sample time through MPSEC(DT,...) works, with DT either
+   a scalar or an array of the same length as the cell array X.
+
+   The spectra can then be plotted with CELLPLOT(F,S), or TWOSPECPLOT for
+   a pair of output spectra.
+   ______________________________________________________________________
+ 
+   Example 
+
+   The example at the top of this help file shows clockwise (left) and 
+   counterclockwise (right) rotary spectra from moored current meter  
+   measurements of the ocean currents in the Labrador Sea.
+   
+   The periodogram is in gray, and blue and red are multitaper spectra 
+   with P=4 and P=32, respectively.  The local Coriolis frequency is 
+   marked with a dashed line.  Tidal and inertial peaks are apparent.
+
+   The main point of this figure is to show that increasing P increases
+   the degree of frequency-domain smoothing.   
+   ______________________________________________________________________
+
+   'mspec --t' runs some tests.
+   'mspec --f' generates the above sample figure from Bravo mooring data.
+
+   See also: <a href="sleptap.html" class="code" title="function[v,lambda]=sleptap(varargin)">SLEPTAP</a>, <a href="hermfun.html" class="code" title="function h=hermfun(t,j)">HERMFUN</a>, MTRANS, <a href="msvd.html" class="code" title="function[d,u1,v1,trS,u2,v2]=msvd(mmat,i2,i3)">MSVD</a>, <a href="twospecplot.html" class="code" title="function[h]=twospecplot(varargin)">TWOSPECPLOT</a>.
+
+   Usage   [f,s]=mspec(x,psi);
+           [f,s]=mspec(dt,x,psi);
+           [f,spp,snn,spn]=mspec(z,psi);
+           [f,sxx,syy,sxy]=mspec(x,y,psi);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="corfreq.html" class="code" title="function[fc]=corfreq(lat)">corfreq</a>	CORFREQ  Coriolis frequency in radians per hour.</li><li><a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>	CROP  Gets rid of whitespace around an image. [by A. Bliss]</li><li><a href="fourier.html" class="code" title="function[f]=fourier(varargin)">fourier</a>	FOURIER  The one-sided Fourier frequencies for a given length time series.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="matmult.html" class="code" title="function[z]=matmult(mata,matb,K)">matmult</a>	MATMULT  Matrix multiplication for arrays of matrices.</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="sleptap.html" class="code" title="function[v,lambda]=sleptap(varargin)">sleptap</a>	SLEPTAP  Calculate Slepian tapers.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="tmat.html" class="code" title="function[x]=tmat()">tmat</a>	TMAT  2x2 complex grouping matrix.  TMAT = [1  i; 1 -i] / SQRT(2)</li><li><a href="twospecplot.html" class="code" title="function[h]=twospecplot(varargin)">twospecplot</a>	TWOSPECPLOT  Plots a pair of rotary or Cartesian spectra.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vstd.html" class="code" title="function[varargout] = vstd(varargin)">vstd</a>	VSTD Standard deviation over finite elements along a specfied dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="whichdir.html" class="code" title="function[dir]=whichdir(name)">whichdir</a>	WHICHDIR  Returns directory name containing file in search path.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jspectral.html" class="code" title="">jspectral</a>	jSpectral:  Multitaper spectral analysis, and other time series tools</li><li><a href="maternoise.html" class="code" title="function[varargout]=maternoise(varargin)">maternoise</a>	MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

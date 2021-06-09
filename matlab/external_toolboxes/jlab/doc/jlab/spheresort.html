@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of spheresort</title>
+  <meta name="keywords" content="spheresort">
+  <meta name="description" content="SPHERESORT  Sorted great circle distances to nearby points on the earth.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; spheresort.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>spheresort
+</h1>
+
+<div class="fragment"><pre class="comment">SPHERESORT  Sorted great circle distances to nearby points on the earth.
+
+   Computing great circle distances on the earth between two sets of
+   points --- data points and a fixed grid, say --- is computationally 
+   expensize.  SPHERESORT speeds this up substantially. 
+
+   [DS,XS,YS]=SPHERESORT(LAT,LON,LATO,LONO,CUTOFF) returns the great
+   circle distances DS between data points at locations LAT, LON and 
+   nearby grid points located at LATO, LONO, sorting in order of distance. 
+
+   XS and YS are the corresponding positions of the sorted data points 
+   in a local tangent plane about each grid point. 
+
+   SPHERESORT only computes distances for nearby points.  CUTOFF is the
+   maximum distance (in kilometers) for which we wish the great circle
+   distance to be computed.  
+
+   CUTOFF should be less that 1/4 of the circumference of the earth, 
+   RADEARTH * PI/2, so that (LAT,LON) points lie in the same hemisphere
+   as the corresponding grid points.
+ 
+   LAT and LON are arrays of the same size into data point locations.
+   LATO and LONO are arrays of length M and N, say, specifying the
+   latitudes and longitudes of an M x N matrix of grid points, i.e.
+
+       LATO =  [LATO_1;    LONO= [LONO_1 LONO_2 ... LONO_N]. 
+                LATO_2; 
+                  ...
+                LATO_M]
+
+   The output arrays are then each M x N x P arrays of column vectors, 
+   where P is the maximum number of points in the CUTOFF neighborhood at
+   any grid point.  Points farther away are filled with NANs.
+
+   DS gives the distances of data points less than CUTOFF kilometers 
+   from the (m,n)th grid point, sorted in order of increasing distance.  
+
+   XS and YS are also M x N x P, and give the coordinates of the 
+   corresponding data points in a Cartesian expansion about the (m,n)th
+   grid point, in kilometers.  See LATLON2XY for details.
+   _________________________________________________________________
+ 
+   Additional input parameters
+
+   Let's say some additional variables Z1, Z2,...,ZK are given at
+   the data locations LAT, LON.  Then 
+   
+   [DS,XS,YS,Z1S,Z2S,...,ZKS]=
+
+                SPHERESORT(LAT,LON,Z1,Z2,...,ZK,LATO,LONO,CUTOFF);
+
+   also returns the sorted values of these variables.
+
+   Z1S, Z2S,...,ZKS are the same size as the other output arguments.  
+   Z1S then gives the value of Z1 at data points no more than CUTOFF 
+   kilometers from the (m,n)th grid point, etc.
+
+   To output an index into the data point locations, use
+  
+   [DS,XS,YS,INDEX]=SPHERESORT(LAT,LON,1:LENGTH(LAT(:)),LATO,LONO,CUTOFF).
+   _________________________________________________________________
+  
+   Parellel algorithm
+
+   With Matlab's Parallel Computing Toolbox installed, SPHERESORT can 
+   take advantage of multiple cores to speed up operations.
+
+   SPHERESORT('parallel',NWORKERS) parallelizes the computation with the
+   number of workers set to NWORKERS.  Choose this as the number of 
+   independent processors on your machine. 
+
+   As the additional efficiency is not dramatic, this is typically only an 
+   advantage for very large datasets.  Due to the nature of the
+   calculation we have to use SPMD, which is less efficient than PARFOR.
+
+   As an example, for a dataset with 1 million points, a 12 core Mac Pro 
+   takes about 44 seconds to complete the sort on a 1x1 degree grid, 
+   versus 184 seconds for the standard algorithm, a factor of 4 faster.
+   _________________________________________________________________
+
+   See also <a href="twodsort.html" class="code" title="function[varargout]=twodsort(varargin)">TWODSORT</a>, <a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">POLYSMOOTH</a>.
+
+   'spheresort --t' runs a test.
+
+   Usage: ds=spheresort(lat,lon,lato,lono,cutoff);
+          ds=spheresort(lat,lon,lato,lono,cutoff,'parallel',Nworkers);
+          [ds,xs,ys]=spheresort(lat,lon,lato,lono,cutoff);
+          [ds,xs,ys,z1s,z2s]=spheresort(lat,lon,z1,z2,lato,lono,cutoff);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2008--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="anyany.html" class="code" title="function[b]=anyany(x)">anyany</a>	ANYANY(X)=ANY(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="jrad2deg.html" class="code" title="function[varargout]=jrad2deg(varargin)">jrad2deg</a>	JRAD2DEG  Converts radians to degrees.</li><li><a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">latlon2xy</a>	LATLON2XY  Converts latitude and longitude into local Cartesian coordinates.</li><li><a href="latlon2xyz.html" class="code" title="function[x,y,z]=latlon2xyz(lat,lon,R)">latlon2xyz</a>	LATLON2XYZ  Converts latitude and longitude into 3D Cartesian coordinates.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="spheredist.html" class="code" title="function[d]=spheredist(varargin)">spheredist</a>	SPHEREDIST  Computes great circle distances on a sphere.</li><li><a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">spheresort</a>	SPHERESORT  Sorted great circle distances to nearby points on the earth.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li><li><a href="xyz2latlon.html" class="code" title="function[lat,lon]=xyz2latlon(x,y,z,R)">xyz2latlon</a>	XYZ2LATLON  Converts 3D Cartesian coordinates into latitude and longitude.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="jmap.html" class="code" title="">jmap</a>	jMap:  Mapping scattered data using local polynomial fitting</li><li><a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">polysmooth</a>	POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.</li><li><a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">spheresort</a>	SPHERESORT  Sorted great circle distances to nearby points on the earth.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

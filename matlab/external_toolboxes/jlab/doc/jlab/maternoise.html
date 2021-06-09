@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of maternoise</title>
+  <meta name="keywords" content="maternoise">
+  <meta name="description" content="MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; maternoise.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>maternoise
+</h1>
+
+<div class="fragment"><pre class="comment">MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]
+
+   Z=MATERNOISE(N,SIG,ALPHA,H) simulates a length N complex-valued Matern 
+   random process Z having variance SIG^2, slope parameter ALPHA, and
+   range or damping parameter H.  
+
+   Z=MATERNOISE([N,M],SIG,ALPHA,H) generate M realizations of this 
+   process, so that Z is of size N x M.
+
+   The sample interval is taken to be unity.  The damping parameter H is 
+   understood to have units of the inverse of the sample interval. 
+
+   See MATERNSPEC for details on the input arguments. 
+
+   Note that the process Z is explicitly set to have zero temporal mean. 
+
+   For further details, see Sykulski, Olhede, Lilly, and Danioux (2015),
+   &quot;Lagrangian time series models for ocean surface drifter trajectories.&quot;
+   __________________________________________________________________
+
+   Sample interval  
+
+   MATERNOISE(DT,N,SIG,ALPHA,H) uses DT as the sample interval, instead of 
+   the default DT=1. H is understood to have the same units as 1/DT.  
+
+   Note that the spectra of MATERNOISE(N,SIG,ALPHA,H) with a unit sample
+   rate, and MATERNOISE(DT,N,SIG,ALPHA,H./DT), with a new sample rate DT, 
+   will have the same spectral shape. 
+
+   For values of H greater than about 1/DT, the process becomes 
+   essentially white noise.  Thus typical values will have H&lt;(1/DT).
+   __________________________________________________________________
+
+   Multiple parameter values
+
+   The input arguments SIG, ALPHA, and H may all be either scalars, or
+   arrays of the same length, say K.  
+
+   Z=MATERNOISE(N,SIG,ALPHA,H), with at least one of SIG, ALPHA, and H  
+   being an array of length K, returns a matrix Z that is N x K. 
+
+   Z=MATERNOISE([N M],SIG,ALPHA,H) then returns Z of size N x M x K.
+   __________________________________________________________________
+
+   Algorithm
+
+   MATERNOISE uses a Cholesky matrix decomposition method which makes the
+   autocovariance matrix of the generated process Z have exactly the form 
+   of a sampled Matern autocovariance function, for nonzero H, or of 
+   fractional Brownian motion for H=0. 
+
+   Note that since the Cholesky decomposition requires O(N^3) operations,
+   generating very long time series (&gt;2000 points or so) may be slow.
+   __________________________________________________________________
+
+   Oscillatory Matern
+
+   MATERNOISE(N,SIG,ALPHA,C), where C=H-i*OMEGA is complex-valued, uses 
+   H=REAL(C) for the damping parameter and also sets a rotation frequency
+   to OMEGA=-IMAG(C). 
+
+   The associated oscillatory process undergoes rotations at frequency 
+   OMEGA in addition to the damping at timescale 1/H.
+
+   Note that OMEGA has units of radians per sample interval.  If DT is 
+   input, then OMEGA is understood to ahve the same units as 1/DT.
+   __________________________________________________________________
+   
+   Fast algorithm 
+
+   MATERNOISE(...,'fast') uses a fast, highly accurate approximate 
+   generation algorithm.  This method works by making use of the known
+   analytic form for the Matern impulse response function.
+
+   In the fast algorithm, oversampling is used to ensure that the 
+   structure of the Green's function is accurately resolved.  Note that
+   the fast algorithm is only accurate for ALPHA&gt;=1.
+
+   [Z,ERR]=MATERNOISE(...,'fast') also returns the error ERR involved in 
+   the fast algorithm's approximation of the autocovariance sequence.  
+  
+   See the sample figures for a test of the fast algorithm.
+   __________________________________________________________________
+
+   See also <a href="maternspec.html" class="code" title="function[varargout]=maternspec(varargin)">MATERNSPEC</a>, <a href="materncov.html" class="code" title="function[varargout]=materncov(varargin)">MATERNCOV</a>, <a href="maternimp.html" class="code" title="function[varargout]=maternimp(varargin)">MATERNIMP</a>, MATERNPROPS.
+
+   'maternoise --t' runs some tests.
+   'maternoise --f' generates some sample figures.
+
+   Usage: z=maternoise(N,sig,alpha,h);
+          z=maternoise([N,M],sig,alpha,h);
+          z=maternoise(dt,[N,M],sig,alpha,h);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2015  A.M. Sykulski and J.M. Lilly
+                                 --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="anyany.html" class="code" title="function[b]=anyany(x)">anyany</a>	ANYANY(X)=ANY(X(:))</li><li><a href="arrayify.html" class="code" title="function[varargout]=arrayify(varargin)">arrayify</a>	ARRAYIFY  Converts a set of scalars or arrays into column arrays.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="maternc.html" class="code" title="function[c]=maternc(alpha)">maternc</a>	MATERNC  Returns the normalization function C_ALPHA for a Matern process.</li><li><a href="maternchol.html" class="code" title="function[T]=maternchol(N,alpha,H,alg)">maternchol</a>	MATERNCHOL  Cholesky decomposition of the Matern covariance matrix.</li><li><a href="materncov.html" class="code" title="function[varargout]=materncov(varargin)">materncov</a>	MATERNCOV  Autocovariance function of the Matern random process.</li><li><a href="maternedge.html" class="code" title="function[teps]=maternedge(varargin)">maternedge</a>	MATERNEDGE  Long-time cutoff edge for the Matern impulse response function.</li><li><a href="maternimp.html" class="code" title="function[varargout]=maternimp(varargin)">maternimp</a>	MATERNIMP  Impulse response function for the Matern random process.</li><li><a href="maternoise.html" class="code" title="function[varargout]=maternoise(varargin)">maternoise</a>	MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]</li><li><a href="maternspec.html" class="code" title="function[varargout]=maternspec(varargin)">maternspec</a>	MATERNSPEC  Fourier spectrum of the Matern random process.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="sleptap.html" class="code" title="function[v,lambda]=sleptap(varargin)">sleptap</a>	SLEPTAP  Calculate Slepian tapers.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vempty.html" class="code" title="function[varargout]=vempty(varargin)">vempty</a>	VEMPTY   Initializes multiple variables to empty sets or empty cell arrays.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vstd.html" class="code" title="function[varargout] = vstd(varargin)">vstd</a>	VSTD Standard deviation over finite elements along a specfied dimension.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li><li><a href="xlog.html" class="code" title="function[]=xlog">xlog</a>	XLOG   Sets x-axis scale to logarithmic.</li><li><a href="ylog.html" class="code" title="function[]=ylog">ylog</a>	YLOG  Sets y-axis scale to log.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jmatern.html" class="code" title="">jmatern</a>	jMatern:  Parametric spectral analysis based on the Matern process</li><li><a href="maternoise.html" class="code" title="function[varargout]=maternoise(varargin)">maternoise</a>	MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vindex</title>
+  <meta name="keywords" content="vindex">
+  <meta name="description" content="VINDEX  Indexes an N-D array along a specified dimension.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; vindex.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>vindex
+</h1>
+
+<div class="fragment"><pre class="comment">VINDEX  Indexes an N-D array along a specified dimension.
+
+   Y=VINDEX(X,INDEX,DIM) indexes the multidimensional array X along     
+   dimension DIM. This is equivalent to   
+        
+            1 2       DIM     DIMS(X)
+            | |        |         |
+        Y=X(:,:, ... INDEX, ..., :);        
+
+   where the location of INDEX is specified by DIM.
+
+   VINDEX is defined to return an empty array if INDEX is empty.
+  
+   Note that VINDEX does not index along singleton dimensions, thus
+   when X is a column vector, VINDEX(X,INDEX,2) returns X.  
+
+   [Y1,Y2,...YN]=VINDEX(X1,X2,...XN,INDEX,DIM) also works.
+
+   VINDEX(X1,X2,...XN,INDEX,DIM); with no output arguments overwrites 
+   the original input variables.
+
+   VINDEX also supports logical indexing with INDEX a boolean array
+   of the same size as the dimension being indexed.
+
+   See also <a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">VINDEXINTO</a>, SQUEEZE, DIMS, PERMUTE, SHIFTDIM.
+
+   'vindex --t' runs a test.
+
+   Usage:  y=vindex(x,index,dim);
+           [y1,y2,y3]=vindex(x1,x2,x3,index,dim);
+           vindex(x1,x2,x3,index,dim);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2001--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="about_floats.html" class="code" title="function[varargout]=about_floats(varargin)">about_floats</a>	FLOATS  Historical dataset of eddy-resolving subsurface floats.</li><li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="cellchunk.html" class="code" title="function[varargout]=cellchunk(varargin)">cellchunk</a>	CELLCHUNK  Converts cell array data into uniform length 'chunks'.</li><li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="ellrossby.html" class="code" title="function[Ro]=ellrossby(lat,lambda,omega)">ellrossby</a>	ELLROSSBY  Ellipse Rossby number, for oceanographic applications.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="matinv.html" class="code" title="function[invmat]=matinv(mat,str)">matinv</a>	MATINV  Fast inversion of arrays of small matrices.</li><li><a href="matmult.html" class="code" title="function[z]=matmult(mata,matb,K)">matmult</a>	MATMULT  Matrix multiplication for arrays of matrices.</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">polysmooth</a>	POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.</li><li><a href="ridgechains.html" class="code" title="function[id,ii,jj,xr,fr]=ridgechains(fs,N,bool,x,f,alpha,mask)">ridgechains</a>	RIDGECHAINS  Forms ridge curves by connecting transform ridge points.</li><li><a href="ridgeinterp.html" class="code" title="function[varargout]=ridgeinterp(varargin)">ridgeinterp</a>	RIDGEINTERP  Interpolate quantity values onto ridge locations.</li><li><a href="spheredist.html" class="code" title="function[d]=spheredist(varargin)">spheredist</a>	SPHEREDIST  Computes great circle distances on a sphere.</li><li><a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">spheresort</a>	SPHERESORT  Sorted great circle distances to nearby points on the earth.</li><li><a href="stickvect.html" class="code" title="function[h]=stickvect(arg1,arg2,arg3,arg4,arg5,arg6)">stickvect</a>	STICKVECT Plots "stick vectors" for multicomponent velocity time series.</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodsort.html" class="code" title="function[varargout]=twodsort(varargin)">twodsort</a>	TWODSORT  Distances from data points to nearby grid points.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li><li><a href="uv2latlon.html" class="code" title="function[lat,lon]=uv2latlon(varargin)">uv2latlon</a>	UV2LATLON  Integrates horizontal velocity to give latitude and longitude.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vsqueeze.html" class="code" title="function[varargout]=vsqueeze(varargin)">vsqueeze</a>	VSQUEEZE   Squeezes multiple input arguments simultaneously.</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

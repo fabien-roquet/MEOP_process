@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of about_drifters</title>
+  <meta name="keywords" content="about_drifters">
+  <meta name="description" content="DRIFTERS  Global surface drifter dataset from the Global Drifter Program.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; about_drifters.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>about_drifters
+</h1>
+
+<div class="fragment"><pre class="comment">DRIFTERS  Global surface drifter dataset from the Global Drifter Program. 
+   _______________________________________________________________________
+   
+   <img src='drifters.png'>
+   _______________________________________________________________________
+
+   DRIFTERS.MAT is a matfile containing the global surface drifter dataset 
+   from NOAA's Atlantic Oceanographic and Meteorological Laboratory (AOML)
+   Global Drifter Program (GDP) Drifter Data Assembly Center, online at
+
+       http://www.aoml.noaa.gov/phod/dac/index.php
+
+   All gaps have been filled with linear interpolation, and only drifter
+   records with at least one week of data are returned.
+
+   LOAD DRIFTERS loads the structure DRIFTERS, with the following fields:
+
+       drifters.about     Pointer to this document            
+       drifters.id        Drifter ids                 [18577 x 1 array] 
+       drifters.buoy      Drifter buoy type           [18577 x 1 array] 
+       drifters.num       Date in DATENUM format      {18577 x 1 cell} 
+       drifters.lat       Latitudes                   {18577 x 1 cell} 
+       drifters.lon       Longitudes                  {18577 x 1 cell} 
+       drifters.t         Temperature in centigrade   {18577 x 1 cell} 
+       drifters.cv        Velocity u+iv in cm/s       {18577 x 1 cell}   
+       drifters.flag      Drogue presence flag        {18577 x 1 cell}   
+
+   NUM, LAT, LON, T, CV, and FLAG are all cell arrays, with one drifter 
+   per cell.
+
+   BUOY and FLAG are metadata information described in more detail below.
+
+   A number of routines are available in JLAB to work directly with such
+   cell arrays, see JCELL.  In particular, CELLPLOT will plot such data.
+
+   After 'load drifters', type 'use drifters' to map the structure fields 
+   into named variables in the workspace--id, num, lat, lon, etc.
+
+   To plot the entire drifter dataset, as in the above figure, type 
+
+      load drifters, use drifters, cellplot(380,lon,lat), topoplot
+
+   where 380 specifies the right-hand axis of the plot, chosen to be 
+   the longitude of the southern tip of Africa.
+
+   To convert the cell arrays into one long column vector, with a NAN 
+   separating each drifter, type 'cell2col(num,lat,lon,t,cv);'.
+
+   DRIFTERS.MAT is distributed as a part of JDATA, a supplement to the 
+   software toolbox JLAB, and is available at http://www.jmlilly.net.
+   __________________________________________________________________
+
+   Metadata
+
+   The fields BUOY and FLAG give metadata information. BUOY is the drifter
+   design type according to the following code:
+
+      1=SVP,  2=SVPB, 3=SVPC, 4=SVPBS, 5=SVPW, 6=SVPBW.
+
+   FLAG is true when the drifter's drogue is estimated to be present, and
+   false otherwise. 
+   __________________________________________________________________
+
+   Dataset creation
+
+   The ASCII files on which DRIFTERS.MAT is based are available for 
+   download from AOML at 
+
+       http://www.aoml.noaa.gov/envids/gld/FtpInterpolatedInstructions.php
+
+   For completeness, the m-file ABOUT_DRIFTERS also contains the 
+   processing steps used in the creation of DRIFTER.MAT.  
+
+   If you wish to do this yourself, with JLAB on your search path, 
+   'about_drifters --create' will recreate DRIFTERS.MAT by reading in the
+   original data as downloaded from AOML.  This will take a while.
+
+   You'll need to make sure to put the directory containing the files on
+   your Matlab search path using ADDPATH, e.g. 'addpath ~/Data/aoml'.
+
+   As of January 2015, the AOML drifter dataset consists of three files:
+   
+           buoydata_1_5000.dat
+           buoydata_5001_10000.dat
+           buoydata_10001_jun14.dat
+
+   These should placed in the directory specified above in order for 
+   ABOUT_DRIFTERS.M to create DRIFTERS.MAT.
+
+   Note that the velocity CV in DRIFTERS.MAT is computed from latitude,
+   longitude, and time using LATLON2UV.  It is not quite the same as the
+   velocity field produced by AOML.
+   __________________________________________________________________
+
+   See also <a href="jdata.html" class="code" title="">JDATA</a>, <a href="about_floats.html" class="code" title="function[varargout]=about_floats(varargin)">ABOUT_FLOATS</a>.
+
+   'about_drifters --f' generates the sample figure shown above.
+
+   Usage: <a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>
+          <a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a> --create
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="cellplot.html" class="code" title="function[h]=cellplot(varargin)">cellplot</a>	CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.</li><li><a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">col2cell</a>	COL2CELL  Converts 'column-appended' data into cell arrays of column vectors.</li><li><a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">col2mat</a>	COL2MAT  Expands 'column-appended' data into a matrix.</li><li><a href="colbreaks.html" class="code" title="function[varargout]=colbreaks(varargin)">colbreaks</a>	COLBREAKS  Insert NANs into discontinuties in a vector.</li><li><a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>	CROP  Gets rid of whitespace around an image. [by A. Bliss]</li><li><a href="deg180.html" class="code" title="function[varargout]=deg180(varargin)">deg180</a>	DEG180  Converts degrees to the range [-180,180].</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="mat2col.html" class="code" title="function[varargout]=mat2col(varargin)">mat2col</a>	MAT2COL  Compress NAN-padded matrix data into long columns.</li><li><a href="matsave.html" class="code" title="function[]=matsave(varargin)">matsave</a>	MATSAVE  Create and save structure of variables as a mat-file.</li><li><a href="topoplot.html" class="code" title="function[h,hc]=topoplot(varargin)">topoplot</a>	TOPOPLOT  Plot regional or global topography at one-sixth degree resolution.</li><li><a href="trajfill.html" class="code" title="function[lat,lon,filled]=trajfill(varargin)">trajfill</a>	TRAJFILL  Fills float or drifter trajectories with linear interpolation.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="jdata.html" class="code" title="">jdata</a>	jData: Oceanographic datasets included with JLAB-FULL distribution</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

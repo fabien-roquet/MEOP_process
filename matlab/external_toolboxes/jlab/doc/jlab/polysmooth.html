@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polysmooth</title>
+  <meta name="keywords" content="polysmooth">
+  <meta name="description" content="POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; polysmooth.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>polysmooth
+</h1>
+
+<div class="fragment"><pre class="comment">POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.
+
+   POLYSMOOTH generates a map from scattered data in two dimensions---
+   either on the plane or on the sphere---using a local least squares fit 
+   to a polynomial. 
+
+   A numerically efficient algorithm is used that avoids explicit loops. 
+   Also, the data are pre-sorted so that different mapping parameters can 
+   be tried out at little computational expense.
+
+   A reference paper for this function is currently in preparation.  In 
+   the meantime, for more details see the following book:
+
+      Fan and Gijbels, 1996.  Local polynomial modelling and its 
+          applications. Chapman and Hall.
+   __________________________________________________________________
+
+   Smoothing on the plane
+
+   Let's say we have an array Z of data is at locations X,Y, where X,Y, 
+   and Z are all arrays of the same size.  The problem is to obtain a 
+   mapped field ZHAT on some regular grid specified by arrays XO and YO.
+
+   Calling POLYSMOOTH is a two-step process: 
+
+       [DS,XS,YS,ZS]=TWODSORT(X,Y,Z,XO,YO,CUTOFF);
+       ZHAT=POLYSMOOTH(DS,XS,YS,ZS,B,P);
+
+   Firstly, TWODSORT which returns ZS, a 3D array of data values at each 
+   grid point, sorted by increasing distance DS, and the corresponding 
+   positions XS and YS. Here XO and YO are arrays specifying the bin 
+   center locations of the grid.  See TWODSORT for more details.
+  
+   Here CUTOFF determines the maximum distance included in the sorting 
+   and should be chosen to be greater than B.  
+
+   Secondly, POLYSMOOTH fits a Pth order polynomial at each gridpoint 
+   within a neighborhood specified by the &quot;bandwidth&quot; B.  
+
+   Data and grid point locations are presumed to have the same units as
+   the bandwidth B (e.g., kilometers).
+
+   P may be chosen as P=0 (fit to a constant), P=1 (fit to a plane), or
+   else P=2 (fit to a parabolic surface).  
+
+   POLYSMOOTH can also be used for data on the sphere, as described next.
+   __________________________________________________________________
+
+   Smoothing on the sphere
+
+   POLYSMOOTH supports a local polynomial fit on the sphere.  As before 
+   this is a two-step process:
+
+       [DS,XS,YS,ZS]=SPHERESORT(LAT,LON,Z,LATO,LONO,CUTOFF);
+       ZHAT=POLYSMOOTH(DS,XS,YS,ZS,B,P,'sphere') 
+
+   Firstly one calls SPHERESORT, which is the analogue of TWODSORT for the 
+   sphere.  LATO and LONO are arrays specifying the bin center locations 
+   of the grid.  See SPHERESORT for more details.
+
+   Secondly, POLYSMOOTH fits a Pth order polynomial at each gridpoint 
+   within a neighborhood specified by the &quot;bandwidth&quot; B.  The bandwidth 
+   here should have units of kilometers. 
+
+   Note that SPHERESORT and POLYSMOOTH both assume the sphere to be the 
+   radius of the earth, as specified by the function RADEARTH.
+   __________________________________________________________________
+  
+   Additional options
+   
+   A number of different options are possible, as descibed below.  These  
+   are specified with trailing string arguments, which can be given in any
+   order provided they are after the numeric arguments.
+   __________________________________________________________________
+
+   Weighting function
+
+   POLYSMOOTH weights the data points in the vicinity of each grid point
+   according to some decaying function of distance.
+
+   1) Parabolic weighting
+
+   POLYSMOOTH(...,'epa'), the default behavior, uses the Epanechnikov  
+   kernel --- a fancy name for a parabolic weighting function.  This  
+   function vanishes outside a radius of the bandwidth B.  
+
+   The Epanechnikov kernel has the numerical advantage that distances from 
+   far away points do not have to be computed, and is therefore preferred.
+
+   2) Gaussian weighting:
+
+   POLYSMOOTH(...,'gau') uses a Gaussian weighting function instead, with 
+   a standard deviation of B and truncated, for numerical reasons, at a 
+   radius of 3B.  
+
+   When using the Gaussian weighting function you'll need to call TWODSORT
+   or SPHERESORT with a cutoff distance of at least 3B.
+   __________________________________________________________________
+
+   Algorithms 
+
+   POLYSMOOTH has two algorithm choices for optimal performance, both of 
+   which give identical answers.
+
+   1) Speed optimization
+
+   The default algorithm is optimized for speed but uses a great deal of 
+   memory.  It solves the least squares problem for all grid points
+   simultaneously (by directly solving matrix inversions---see MATINV.)
+
+   This can be greater than an order of magnitude faster than the obvious 
+   approach of looping over the grid points.
+ 
+   2) Memory optimization
+
+   If the data is so large that memory becomes a limiting factor, use
+
+       ZHAT=POLYSMOOTH(DS,XS,YS,ZS,B,P,'memory');
+  
+   which performs an explicit loop. 
+   __________________________________________________________________
+
+   Weighted data points
+
+   POLYSMOOTH can also incorporate a weighting factor on the data points.
+   Let W be an array of positive values the same size as the data array Z.  
+   Each data point is then treated as if it were W data points.
+
+   To use weighted data points, call TWODSORT or SPHERESORT with W added:
+
+       [DS,XS,YS,ZS,WS]=TWODSORT(X,Y,Z,W,XO,YO,CUTOFF);           
+    or [DS,XS,YS,ZS,WS]=SPHERESORT(LAT,LON,Z,W,LATO,LONO,CUTOFF); 
+    
+   followed by    ZHAT=POLYSMOOTH(DS,XS,YS,ZS,WS,B,P);
+            or    ZHAT=POLYSMOOTH(DS,XS,YS,ZS,WS,B,P,'sphere');
+
+   for data distributed on the plane or on the sphere, respectively.
+
+   For very large datasets, this is useful in first condensing the data
+   into a manageable size.
+   __________________________________________________________________
+
+   Additional output arguments
+
+   [ZHAT,WEIGHT]=POLYSMOOTH(...) also returns the total weight used in 
+   the computation at each grid point.  WEIGHT is the same size as ZHAT.
+
+   Small weights mean that only few or far away data points contributed
+   to the calculation; therefore, the values of ZHAT at these points
+   are less reliable than at points where the total weight is large.
+
+   [ZHAT,WEIGHT,BETA]=POLYSMOOTH(...) additionally returns the matrix
+   of the estimated first P derivatives.  BETA is 3D and is the same 
+   size as ZHAT and WEIGHT along its first two dimensions.
+
+   BETA(:,:,1) is the estimated zeroth derivative, i.e. the surface, so
+   this is the same as ZHAT.
+   __________________________________________________________________
+
+   Variable bandwidth
+
+   ZHAT=POLYSMOOTH(...,N,P,'variable') uses the parameter N instead of a
+   fixed bandwidth.  The bandwidth now varies over the grid such that N
+   points fall within one bandwidth distance from every grid point.
+   
+   [ZHAT,WEIGHT,BETA,B]=POLYSMOOTH(...,N,P,'variable') returns the 
+   bandwidth B at each grid point, which is the same size as ZHAT.  
+
+   The variable bandwidth algorithm can give good results when the data
+   spacing is highly uneven, particularly when used with a higher-order
+   (P=1 or P=2) fit.  
+
+   When using the variable bandwidth method, be aware that the bandwidth
+   necessary to include N points may turn out to be larger than CUTOFF,
+   the maximum distance value given to TWODSORT or SPHERESORT.  
+   __________________________________________________________________
+
+   'polysmooth --t' runs some tests.
+   'polysmooth --f' generates some sample figures.
+
+   Usage:  [ds,xs,ys,zs]=twodsort(x,y,z,xo,yo,cutoff);  
+           [zhat,weight,beta]=polysmooth(ds,xs,ys,zs,b,p);
+   --or--
+           [ds,xs,ys,zs]=spheresort(lat,lon,z,w,lato,lono,cutoff); 
+           [zhat,weight,beta]=polysmooth(ds,xs,ys,zs,b,p,'sphere');
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2008--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">latlon2xy</a>	LATLON2XY  Converts latitude and longitude into local Cartesian coordinates.</li><li><a href="matinv.html" class="code" title="function[invmat]=matinv(mat,str)">matinv</a>	MATINV  Fast inversion of arrays of small matrices.</li><li><a href="matmult.html" class="code" title="function[z]=matmult(mata,matb,K)">matmult</a>	MATMULT  Matrix multiplication for arrays of matrices.</li><li><a href="nocontours.html" class="code" title="function[h]=nocontours(h)">nocontours</a>	NOCONTOURS  Removes contours from a CONTOURF plot.</li><li><a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">polysmooth</a>	POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">spheresort</a>	SPHERESORT  Sorted great circle distances to nearby points on the earth.</li><li><a href="twodsort.html" class="code" title="function[varargout]=twodsort(varargin)">twodsort</a>	TWODSORT  Distances from data points to nearby grid points.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vsize.html" class="code" title="function[n]=vsize(varargin)">vsize</a>	VSIZE  Returns the sizes of multiple arguments.</li><li><a href="vsqueeze.html" class="code" title="function[varargout]=vsqueeze(varargin)">vsqueeze</a>	VSQUEEZE   Squeezes multiple input arguments simultaneously.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="jmap.html" class="code" title="">jmap</a>	jMap:  Mapping scattered data using local polynomial fitting</li><li><a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">polysmooth</a>	POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

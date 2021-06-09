@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vrep</title>
+  <meta name="keywords" content="vrep">
+  <meta name="description" content="VREP  Replicates an array along a specified dimension.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; vrep.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>vrep
+</h1>
+
+<div class="fragment"><pre class="comment">VREP  Replicates an array along a specified dimension.
+
+   Y=VREP(X,N,DIM) replicates the array by N times along dimension
+   dimension DIM.  For instance:   
+                                                                         
+        VREP([1:4]',3,2)=[ [1:4]' [1:4]' [1:4]' ]                            
+                                                                         
+   This is often useful in array algebra.            
+
+   IF N and DIM are arrays of length M, then X is replicated along each of
+   the M different dimensions: N(1) times along dimensions DIM(1), etc.
+
+   [Y1,Y2,...,YP]=VREP(X1,X2,...,XP,N,DIM) also works.
+                                                                         
+   See also <a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">VINDEX</a>, DIM.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2001--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="blurspec.html" class="code" title="function[varargout]=blurspec(varargin)">blurspec</a>	BLURSPEC  Returns the blurred and aliased spectrum given the autocovariance.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="inellipse.html" class="code" title="function[bool]=inellipse(varargin)">inellipse</a>	INELLIPSE  Locates points on the interior of ellipses.</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="isridgepoint.html" class="code" title="function[bool,rq,w,om]=isridgepoint(w,fs,chi,str,fmin,fmax,mask)">isridgepoint</a>	ISRIDGEPOINT  Finds wavelet ridge points using one of several criterion.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">latlon2xy</a>	LATLON2XY  Converts latitude and longitude into local Cartesian coordinates.</li><li><a href="maternchol.html" class="code" title="function[T]=maternchol(N,alpha,H,alg)">maternchol</a>	MATERNCHOL  Cholesky decomposition of the Matern covariance matrix.</li><li><a href="maternimp.html" class="code" title="function[varargout]=maternimp(varargin)">maternimp</a>	MATERNIMP  Impulse response function for the Matern random process.</li><li><a href="maternoise.html" class="code" title="function[varargout]=maternoise(varargin)">maternoise</a>	MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]</li><li><a href="maternspec.html" class="code" title="function[varargout]=maternspec(varargin)">maternspec</a>	MATERNSPEC  Fourier spectrum of the Matern random process.</li><li><a href="morsea.html" class="code" title="function[a]=morsea(varargin)">morsea</a>	MORSEA  Returns the generalized Morse wavelet amplitude "a".</li><li><a href="morseproj.html" class="code" title="function[b]=morseproj(ga,be1,be2)">morseproj</a>	MORSEPROJ  Projection coefficient for two generalized Morse wavelets.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li><li><a href="msvd.html" class="code" title="function[d,u1,v1,trS,u2,v2]=msvd(mmat,i2,i3)">msvd</a>	MSVD  Singular value decomposition for polarization analysis.</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">polysmooth</a>	POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.</li><li><a href="psi2fields.html" class="code" title="function[cv,zeta,n,s,p]=psi2fields(varargin)">psi2fields</a>	PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]</li><li><a href="ridgechains.html" class="code" title="function[id,ii,jj,xr,fr]=ridgechains(fs,N,bool,x,f,alpha,mask)">ridgechains</a>	RIDGECHAINS  Forms ridge curves by connecting transform ridge points.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="slidetrans.html" class="code" title="function[y,ystack]=slidetrans(x,w,fs,str)">slidetrans</a>	SLIDETRANS  Sliding-window ('moving-window') Fourier transform.</li><li><a href="spherecurl.html" class="code" title="function[curl,uy,vx]=spherecurl(varargin)">spherecurl</a>	SPHERECURL  Curl of a vector field on the surface of a sphere.</li><li><a href="spherediv.html" class="code" title="function[div,ux,vy]=spherediv(varargin)">spherediv</a>	SPHEREDIV  Divergence of a vector field on the surface of a sphere.</li><li><a href="spheregrad.html" class="code" title="function[gradx,grady]=spheregrad(varargin)">spheregrad</a>	SPHEREGRAD  Gradient of a field on the surface of a sphere.</li><li><a href="spherelap.html" class="code" title="function[lap]=spherelap(varargin)">spherelap</a>	SPHERELAP  Laplacian of a field on the surface of a sphere.</li><li><a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">spheresort</a>	SPHERESORT  Sorted great circle distances to nearby points on the earth.</li><li><a href="twodsort.html" class="code" title="function[varargout]=twodsort(varargin)">twodsort</a>	TWODSORT  Distances from data points to nearby grid points.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li><li><a href="vmoment.html" class="code" title="function[varargout] = vmoment(varargin)">vmoment</a>	VMOMENT Central moment over finite elements along a specfied dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li><li><a href="wigdist.html" class="code" title="function[d,f]=wigdist(x,nmin,nmax,N2,s)">wigdist</a>	WIGDIST  Wigner distribtion (alias-free algorithm).</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

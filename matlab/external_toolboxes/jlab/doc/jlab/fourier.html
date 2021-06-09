@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fourier</title>
+  <meta name="keywords" content="fourier">
+  <meta name="description" content="FOURIER  The one-sided Fourier frequencies for a given length time series.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; fourier.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>fourier
+</h1>
+
+<div class="fragment"><pre class="comment">FOURIER  The one-sided Fourier frequencies for a given length time series.
+
+   F=FOURIER(N) returns the one-sided (or positive) Fourier frequencies 
+   for a time series of length N.   
+
+   F is a radian or angular frequency so that the Nyquist is at PI.
+
+   F=FOURIER(DT,N) uses sample rate DT in calculating the frequencies, so
+   that the Nyquist will be at PI/DT.
+ 
+   Note that the highest resolved frequency, MAX(F), differs for even or
+   odd N.  For even N, it is the Nyquist PI/DT, but for odd N the Nyquist
+   is not resolved and the highest resolved frequency is (N-1)/N * PI/DT.
+
+   F has length FLOOR(N/2)+1, or N/2+1 for even N, and (N+1)/2 for odd N.
+
+   See also CENTEREDTIMES.
+
+   Usage: f=fourier(N);
+          f=fourier(dt,N);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2011--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="fourier.html" class="code" title="function[f]=fourier(varargin)">fourier</a>	FOURIER  The one-sided Fourier frequencies for a given length time series.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="blurspec.html" class="code" title="function[varargout]=blurspec(varargin)">blurspec</a>	BLURSPEC  Returns the blurred and aliased spectrum given the autocovariance.</li><li><a href="fourier.html" class="code" title="function[f]=fourier(varargin)">fourier</a>	FOURIER  The one-sided Fourier frequencies for a given length time series.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jspectral.html" class="code" title="">jspectral</a>	jSpectral:  Multitaper spectral analysis, and other time series tools</li><li><a href="maternspec.html" class="code" title="function[varargout]=maternspec(varargin)">maternspec</a>	MATERNSPEC  Fourier spectrum of the Matern random process.</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

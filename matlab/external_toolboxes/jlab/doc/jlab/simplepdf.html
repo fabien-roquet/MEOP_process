@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of simplepdf</title>
+  <meta name="keywords" content="simplepdf">
+  <meta name="description" content="SIMPLEPDF  Gaussian, uniform, Cauchy, and exponential pdfs.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; simplepdf.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>simplepdf
+</h1>
+
+<div class="fragment"><pre class="comment">SIMPLEPDF  Gaussian, uniform, Cauchy, and exponential pdfs.
+
+   F=SIMPLEPDF(X,MU,SIG,'gaussian') computes a Gaussian pdf with mean
+   MU and standard deviation SIG.
+  
+   F=SIMPLEPDF(X,MU,SIG,'boxcar') computes a uniform pdf with mean MU
+   and standard deviation SIG.
+  
+   F=SIMPLEPDF(X,XO,ALPHA,'cauchy') computes a Cauchy pdf with location
+   parameter XO and scale parameter ALPHA.
+
+   F=SIMPLEPDF(X,BETA,'exponential') computes an exponential pdf with
+   scale parameter, hence mean and standard deviation, equal to BETA.
+
+   'simplepdf --f' generates a sample figure
+
+   Usage: f=simplepdf(x,mu,sig,'gaussian');
+          f=simplepdf(x,mu,sig,'boxcar');
+          f=simplepdf(x,xo,alpha,'cauchy');
+          f=simplepdf(x,beta,'exponential');
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2001--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="simplepdf.html" class="code" title="function[f]=simplepdf(x,mu,sig,flag)">simplepdf</a>	SIMPLEPDF  Gaussian, uniform, Cauchy, and exponential pdfs.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jcommon.html" class="code" title="">jcommon</a>	jCommon:  Useful general-purpose functions, common to other JLAB modules</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="simplepdf.html" class="code" title="function[f]=simplepdf(x,mu,sig,flag)">simplepdf</a>	SIMPLEPDF  Gaussian, uniform, Cauchy, and exponential pdfs.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

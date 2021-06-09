@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fixlabels</title>
+  <meta name="keywords" content="fixlabels">
+  <meta name="description" content="FIXLABELS  Specify precision of axes labels.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; fixlabels.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>fixlabels
+</h1>
+
+<div class="fragment"><pre class="comment">FIXLABELS  Specify precision of axes labels.
+
+   FIXLABELS(PREC) rewrites the X and Y axis labels of the current axes tp
+   precision PREC.  PREC denotes the tenths place of the highest-precision
+   digit, so PREC=-2 includes the hundredths place.
+
+   Unlike standard matlab labelling, FIXLABELS uses zeros instead of blank
+   spaces to the right of the decimal point.
+
+   FIXLABELS([XPREC,YPREC]) uses different precision for the X and Y axes. 
+
+   FIXLABELS(H,PREC) rewrites the labels of axes H.  H may also be a
+   vector of axes handles, in which case PREC may either be a scalar or a
+   vector PREC=[X1PREC Y1PREC X2PREC ...] .
+
+   FIXLABELS with no arguments rewrites all X and Y axis labels of the
+   current figure to the default (current) precision for that axis, but 
+   using zeros instead of blank spaces to the right of the decimal point.
+
+   Note: make sure the tickmarks are where you want them in the hardcopy 
+   before calling FIXLABELS (since it sets the 'TICKMODE' and 
+   'TICKLABELMODE' properties to 'MANUAL').
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 1999--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li><li><a href="ztick.html" class="code" title="function[]=ztick(varargin)">ztick</a>	ZTICK  Sets locations of z-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ecconv.html" class="code" title="function[varargout]=ecconv(varargin)">ecconv</a>	ECCONV  Converts between eccentricity measures.</li><li><a href="ellvel.html" class="code" title="function[v]=ellvel(varargin)">ellvel</a>	ELLVEL  Average and instantaneous ellipse velocities.</li><li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="wigdist.html" class="code" title="function[d,f]=wigdist(x,nmin,nmax,N2,s)">wigdist</a>	WIGDIST  Wigner distribtion (alias-free algorithm).</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

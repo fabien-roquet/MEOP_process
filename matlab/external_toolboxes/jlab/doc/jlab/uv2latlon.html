@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of uv2latlon</title>
+  <meta name="keywords" content="uv2latlon">
+  <meta name="description" content="UV2LATLON  Integrates horizontal velocity to give latitude and longitude.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; uv2latlon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>uv2latlon
+</h1>
+
+<div class="fragment"><pre class="comment">UV2LATLON  Integrates horizontal velocity to give latitude and longitude.
+
+   [LAT,LON]=UV2LATLON(NUM,U,V,LATO,LONO) where NUM is the data in DATENUM
+   format, integates velocities U and V from intial location (LATO,LONO)
+   to form a trajectory on the earth described by LAT and LON.
+
+   LATO and LONO are an initial latitude and longitude in degrees,
+   and U and V are eastward and northward velocity components in cm/s. 
+
+   [LAT,LON]=UV2LATLON(NUM,CV,LATO,LONO), where CV is the complex-valued
+   velocity CV=U+SQRT(-1)*V, also works.
+
+   UV2LATLON is inverted by LATLON2UV.  
+   ___________________________________________________________________
+
+   Cell array input / output
+
+   UV2LATLON returns cell array output given cell array input.  
+
+   That is, if NUM, U, and V, are all cell arrays of length K, containing
+   K different numerical arrays, then the output will also be cell arrays
+   of length K.  
+
+   In this case LATO and LONO are either scalars, or arrays of length K.
+   ___________________________________________________________________
+
+   Algorithm
+
+   UV2LATLON works by converting the velocity at the current point into 
+   a vector in 3D Cartesian coordinates, using SPHERE2UVW, finding the new
+   location in 3D space, and then converting this back into latitude 
+   and longitude using XYZ2LATLON, and then interating for the next point.
+
+   By default, UV2LATLON uses a forward integration from an initial point. 
+   This inverts LATLON2UV(...,'forward') to a high degree of precision for
+   typical drifter and float velocity values and sampling intervals.
+
+   UV2LATLON(NUM,CV,LATF,LONF,'backward') instead uses a *backward* 
+   integration, and LATF and LONF are now the *final* points rather than 
+   the initial points.  This inverts LATLON2UV(...,'backward'). 
+   ___________________________________________________________________
+ 
+   See also <a href="xy2latlon.html" class="code" title="function[lat,lon]=xy2latlon(varargin)">XY2LATLON</a>, <a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">LATLON2XY</a>, <a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">LATLON2UV</a>.
+
+   'uv2latlon --t' runs a test.
+
+   Usage: [lat,lon]=uv2latlon(num,u,v,lato,lono);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="cellimag.html" class="code" title="function[x]=cellimag(x)">cellimag</a>	CELLIMAG  Imaginary part of each element in a cell array.</li><li><a href="cellreal.html" class="code" title="function[x]=cellreal(x)">cellreal</a>	CELLREAL  Real part of each element in a cell array.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="latlon2xyz.html" class="code" title="function[x,y,z]=latlon2xyz(lat,lon,R)">latlon2xyz</a>	LATLON2XYZ  Converts latitude and longitude into 3D Cartesian coordinates.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="sphere2uvw.html" class="code" title="function[u,v,w]=sphere2uvw(lat,lon,dr,dth,dphi)">sphere2uvw</a>	SPHERE2UVW Converts a 3D spherical vector to a 3D Cartesian vector.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="uv2latlon.html" class="code" title="function[lat,lon]=uv2latlon(varargin)">uv2latlon</a>	UV2LATLON  Integrates horizontal velocity to give latitude and longitude.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li><li><a href="xyz2latlon.html" class="code" title="function[lat,lon]=xyz2latlon(x,y,z,R)">xyz2latlon</a>	XYZ2LATLON  Converts 3D Cartesian coordinates into latitude and longitude.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="uv2latlon.html" class="code" title="function[lat,lon]=uv2latlon(varargin)">uv2latlon</a>	UV2LATLON  Integrates horizontal velocity to give latitude and longitude.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

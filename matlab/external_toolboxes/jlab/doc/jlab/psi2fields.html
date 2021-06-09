@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of psi2fields</title>
+  <meta name="keywords" content="psi2fields">
+  <meta name="description" content="PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; psi2fields.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>psi2fields
+</h1>
+
+<div class="fragment"><pre class="comment">PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]
+
+   CV=PSI2FIELDS(PSI) where PSI is a matrix of streamfunction values, 
+   returns the complex velocity U+iV.
+
+   [CV,ZETA,N,S,P]=PSI2FIELDS(PSI) also returns velocity gradient fields:
+
+          ZETA    - Vorticity               dv/dx-du/dy
+             N    - Normal strain           du/dx-dv/dy
+             S    - Shear strain            dv/dx+du/dy
+             P    - Okubo-Weiss parameter   S^2+N^2-ZETA^2
+
+   PSI should be oriented with the X-dimension along *columns* and the 
+   Y-dimensions along the *rows*.  Both of these must be of even length.
+
+   The output fields are all the same size as PSI.  
+  
+   PSI can have additional dimensions after the first two, for example, 
+   with time in the third dimensions.  Up to four dimensions are possible.
+
+   PSI2FIELDS(DX,PSI) uses the grid spacing DX, in units of kilometers, in
+   computing the gradient fields. By default, DX is set to unity. 
+   
+   PSI is taken to have units of meters squared per second.  The units of
+   CV are given in centimeters per second, N and S have units of inverse
+   seconds, and P has units of inverse seconds squared. 
+   __________________________________________________________________
+
+   Algorithm choice
+
+   PSI2FIELDS can use two different algorithms.
+
+   PSI2FIELDS(PSI,'spectral'), the default hehavior, computes the gradient
+   fields in the spectral domain.  This is particularly appropriate when
+   PSI is doubly periodic.
+
+   PSI2FIELDS(PSI,'spatial') alternately computes the gradient fields
+   in the spatial domain, using first central differences for derivatives.
+
+   PSI2FIELDS(PSI,'arakawa') computes gradients in the spatial domain 
+   with the weighted central difference scheme used by Arakawa (1966).
+
+   PSI2FIELDS(PSI,'spatial',STR) or PSI2FIELDS(PSI,'arakawa',STR) 
+   specifies the boundary conditions for derivatives at the domain edges.  
+
+   The default behavior for spatial derivatives is STR='periodic'.  Other
+   choices are 'mirror' and 'zeros'.  See VDIFF for more details. 
+   __________________________________________________________________
+
+   'psi2fields --t' runs some tests.
+   'psi2fields --f' generates two sample figures.
+
+   Usage: cv=psi2fields(psi);
+          [cv,zeta,N,S,P]=psi2fields(psi);
+          [cv,zeta,N,S,P]=psi2fields(dx,psi);
+          [cv,zeta,N,S,P]=psi2fields(dx,psi,'spatial');
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2015 J.M. Lilly and P.E. Isachsen 
+                             --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="psi2fields.html" class="code" title="function[cv,zeta,n,s,p]=psi2fields(varargin)">psi2fields</a>	PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vempty.html" class="code" title="function[varargout]=vempty(varargin)">vempty</a>	VEMPTY   Initializes multiple variables to empty sets or empty cell arrays.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="curveinterp.html" class="code" title="function[ci]=curveinterp(varargin)">curveinterp</a>	CURVEINTERP  Interpolate a field or its gradient onto a set of curves.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="psi2fields.html" class="code" title="function[cv,zeta,n,s,p]=psi2fields(varargin)">psi2fields</a>	PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

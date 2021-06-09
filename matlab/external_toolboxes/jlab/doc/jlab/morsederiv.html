@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of morsederiv</title>
+  <meta name="keywords" content="morsederiv">
+  <meta name="description" content="MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; morsederiv.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>morsederiv
+</h1>
+
+<div class="fragment"><pre class="comment">MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.
+
+   DCELL=MORSEDERIV(N,GAMMA,BETA,OMEGA) returns the first N normalized
+   frequency derivatives of the lowest-order generalized Morse wavelet 
+   specified by parameters GAMMA and BETA, at the radian frequency OMEGA.
+
+   DCELL is a cell array with DCELL{N} containing the Nth derivative.
+
+   This derivative is defined as
+
+           dn = ( omega^n / psi ) * ( d^n psi / d omega^n )
+
+   where omega is the radian frequency and psi is the wavelet.
+ 
+   N must be a scalar. The other input parameters must either be matrices
+   of the same size, or some may be matrices and the others scalars.
+
+   DCELL=MORSEDERIV(N,GAMMA,BETA) evaluates the derivative at the peak
+   frequency by default.
+
+   For details see
+
+       Lilly and Olhede (2009).  Higher-order properties of analytic 
+           wavelets.  IEEE Trans. Sig. Proc., 57 (1), 146--160.
+
+   See also <a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">MORSEWAVE</a>, <a href="morsemom.html" class="code" title="function[m,n,k,l]=morsemom(p,ga,be)">MORSEMOM</a>, <a href="bellpoly.html" class="code" title="function[varargout]=bellpoly(varargin)">BELLPOLY</a>.
+
+   'morsewave --t' runs a test.
+
+   Usage: dcell=morsederiv(4,gamma,beta,omega);
+          dcell=morsederiv(4,gamma,beta);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2009 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="cum2mom.html" class="code" title="function[varargout]=cum2mom(varargin)">cum2mom</a>	CUM2MOM  Convert cumulants to moments.</li><li><a href="morsederiv.html" class="code" title="function[varargout]=morsederiv(nmax,ga,be,om)">morsederiv</a>	MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jwavelet.html" class="code" title="">jwavelet</a>	jWavelet: Continuous wavelet analysis using generalized Morse wavelets</li><li><a href="morsederiv.html" class="code" title="function[varargout]=morsederiv(nmax,ga,be,om)">morsederiv</a>	MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

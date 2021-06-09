@@ -1,0 +1,693 @@
+smru_platform_code,location,reference_doi,species
+DL02-C400-16,,,Grey seal
+DL02-C401-16,,,Grey seal
+awru1-A-06,Davis,,Weddell seal
+awru1-B-06,Davis,,Weddell seal
+awru1-C-06,Davis,,Weddell seal
+ct10-22925-05,California,,
+ct10-23104-05,California,,
+ct10-24176-05,California,,
+ct10-24178-05,California,,
+ct10-26341-05,California,,
+ct10-28592-05,California,,
+ct100-251-13,Campbell,,Southern ellie
+ct100-263-13,Campbell,,Southern ellie
+ct100-264-13,Campbell,,Southern ellie
+ct100-298-13,Campbell,,Southern ellie
+ct100-301-13,Campbell,,Southern ellie
+ct101-303-12,South Australia,,Fur seal
+ct101-330-12,South Australia,,Fur seal
+ct101-416-12,South Australia,,Fur seal
+ct101-416-rebatt-12,South Australia,,Fur seal
+ct101-701-13,South Australia,,Fur seal
+ct101-703-13,South Australia,,Fur seal
+ct101-704-13,South Australia,,Fur seal
+ct101-790-13,South Australia,,Fur seal
+ct101-791-13,South Australia,,Fur seal
+ct101-792-13,South Australia,,Fur seal
+ct101-793-13,South Australia,,Fur seal
+ct101-794-13,South Australia,,Fur seal
+ct101-795-13,South Australia,,Fur seal
+ct102-12190-12,King George Is. Antarctica,10.1594/PANGAEA.833564,
+ct102-12782-13,King George Is. Antarctica,10.1594/PANGAEA.833558,
+ct102-12787-13,King George Is. Antarctica,10.1594/PANGAEA.833562,
+ct102-12797-13,King George Is. Antarctica,10.1594/PANGAEA.833563,
+ct102-12798-13,King George Is. Antarctica,10.1594/PANGAEA.833561,
+ct102-12799-13,King George Is. Antarctica,10.1594/PANGAEA.833560,
+ct102-OO052-11,King George Is. Antarctica,10.1594/PANGAEA.833559,
+ct106-175-12,South Australia,,Sea lion
+ct106-614-12,South Australia,,Sea lion
+ct106-628_rebat-14,South Australia,,Sea lion
+ct106-629_2-12,South Australia,,Sea lion
+ct106-633_rebat-14,Australia. Pearson Island,,Sea lion
+ct106-705-13,South Australia,,Fur seal
+ct106-796-13,South Australia,,Fur seal
+ct107-933-13,Ano Nuevo.California,,
+ct107-934-13-N1,Ano Nuevo.California,,
+ct107-934-13-N2,Ano Nuevo.California,,
+ct107-938-13-N1,Ano Nuevo.California,,
+ct107-938-13-N2,Ano Nuevo.California,,
+ct107-940-13,Ano Nuevo.California,,
+ct107-941-13-N1,Ano Nuevo.California,,
+ct107-941-13-N2,Ano Nuevo.California,,
+ct107-947-13-N1,Ano Nuevo.California,,
+ct107-947-13-N2,Ano Nuevo.California,,
+ct107-950-13-N1,Ano Nuevo.California,,
+ct107-950-13-N2,Ano Nuevo.California,,
+ct107-951-13-N1,Ano Nuevo.California,,
+ct107-951-13-N2,Ano Nuevo.California,,
+ct107-952-13-N1,Ano Nuevo.California,,
+ct107-952-13-N2,Ano Nuevo.California,,
+ct107-953-13-N1,Ano Nuevo.California,,
+ct107-953-13-N2,Ano Nuevo.California,,
+ct107-F946-13-N1,Ano Nuevo.California,,
+ct107-F946-13-N2,Ano Nuevo.California,,
+ct107-F954-14,Ano Nuevo.California,,
+ct107-F995-14,Ano Nuevo.California,,
+ct108-297-13,Campbell,,Southern ellie
+ct108-300-13,Campbell,,Southern ellie
+ct108-554-13,Campbell,,Southern ellie
+ct108-564-13,Campbell,,Southern ellie
+ct108-569-13,Campbell,,Southern ellie
+ct108-622-13,Campbell,,Southern ellie
+ct108-632-13,Campbell,,Southern ellie
+ct108-663-13,Campbell,,Southern ellie
+ct109-031-14,Kerguelen,,Southern ellie
+ct109-032-14,Kerguelen,,Southern ellie
+ct109-085-14,Kerguelen,,Southern ellie
+ct109-184-14,Kerguelen,,Southern ellie
+ct109-186-14,Kerguelen,,Southern ellie
+ct109-187-14,Kerguelen,,Southern ellie
+ct109-188-14,Kerguelen,,Southern ellie
+ct109-190-14,Kerguelen,,Southern ellie
+ct109-191-14,Kerguelen,,Southern ellie
+ct109-937-14,Kerguelen,,Southern ellie
+ct109-939-14,Kerguelen,,Southern ellie
+ct109-942-14,Kerguelen,,Southern ellie
+ct109-944-14,Kerguelen,,Southern ellie
+ct109-949-14,Kerguelen,,Southern ellie
+ct109-956-14,Kerguelen,,Southern ellie
+ct109-958-14,Kerguelen,,Southern ellie
+ct109-964-14,Kerguelen,,Southern ellie
+ct109-965-14,Kerguelen,,Southern ellie
+ct109-966-14,Kerguelen,,Southern ellie
+ct109-967-14,Kerguelen,,Southern ellie
+ct109-968-14,Kerguelen,,Southern ellie
+ct109-973-14,Kerguelen,,Southern ellie
+ct110-027-14,Montague Is. Australia,,Fur seal
+ct110-027-rebatt-14,Montague Is. Australia,,Fur seal
+ct110-028-14,Montague Is. Australia,,Fur seal
+ct110-029-14,Montague Is. Australia,,Fur seal
+ct110-086-14,Montague Is. Australia,,Fur seal
+ct110-087-14,Montague Is. Australia,,Fur seal
+ct110-088-14,Montague Is. Australia,,Fur seal
+ct110-089-14,Montague Is. Australia,,Fur seal
+ct110-090-14,Montague Is. Australia,,Fur seal
+ct110-256-12,Montague Is. Australia,,Fur seal
+ct111-030-13,Dumont d'Urville,,Weddell seal
+ct111-617-13,Dumont d'Urville,,Weddell seal
+ct111-665-13,Dumont d'Urville,,Weddell seal
+ct111-835-10,Dumont d'Urville,,Weddell seal
+ct114-02-14,Ano Nuevo.California,,
+ct114-03-14,Ano Nuevo.California,,
+ct114-04-14,Ano Nuevo.California,,
+ct114-05-14,Ano Nuevo.California,,
+ct114-06-14-N1,Ano Nuevo.California,,
+ct114-06-14-N2,Ano Nuevo.California,,
+ct114-07-14,Ano Nuevo.California,,
+ct114-08-14,SNI.California,,
+ct114-09-14-N1,SNI.California,,
+ct114-09-14-N2,SNI.California,,
+ct114-10-14,SNI.California,,
+ct114-11-14,SNI.California,,
+ct114-12-14,SNI.California,,
+ct114-13-14,SNI.California,,
+ct114-14-14,Ano Nuevo.California,,
+ct114-15-14,SNI.California,,
+ct114-16-14,SNI.California,,
+ct115-892-14,Montague Is. Australia,,Fur seal
+ct118-301-11,South Shetland Islands,,
+ct118-319-11,South Shetland Islands,,
+ct118-331-11,South Shetland Islands,,
+ct118-493-11,South Shetland Islands,,
+ct118-894-13,South Shetland Islands,,
+ct118-929-13,South Shetland Islands,,
+ct119-275-14,Scott Base,,Weddell seal
+ct119-279-14,Scott Base,,Weddell seal
+ct119-294-14,Scott Base,,Weddell seal
+ct12-054-05,California,,
+ct12-098-05,California,,
+ct12-102-05,California,,
+ct12-107-05,California,,
+ct12-110-05,California,,
+ct122-154-15,Kerguelen,,Southern ellie
+ct122-158-15,Kerguelen,,Southern ellie
+ct122-159-15,Kerguelen,,Southern ellie
+ct122-32BAT-15,Kerguelen,,Southern ellie
+ct122-33BAT-15,Kerguelen,,Southern ellie
+ct122-35BAT-15,Kerguelen,,Southern ellie
+ct122-39BAT-13,Kerguelen,,Southern ellie
+ct122-43BAT-15,Kerguelen,,Southern ellie
+ct122-49BAT-15,Kerguelen,,Southern ellie
+ct123-185-14,South Australia,,Sea lion
+ct123-224-14,South Australia,,Sea lion
+ct123-226-14,South Australia,,Sea lion
+ct123-363_rebat-09,Australia. West Island,,Sea lion
+ct123-616_rebat-14,Australia. West Island,,Sea lion
+ct123-F222_rebat-14,Australia. West Island,,Sea lion
+ct123-F223_rebat-14,Australia. West Island,,Sea lion
+ct123-F628_rebat2-14,Australia. West Island,,Sea lion
+ct125-02BAT-14,Ano Nuevo.California,,
+ct125-05BAT-14,Ano Nuevo.California,,
+ct125-06BAT-14,Ano Nuevo.California,,
+ct127-11061-09,Peninsula Valdes,,
+ct127-11343-07,Peninsula Valdes,,
+ct127-11877-08,Peninsula Valdes,,
+ct129-R189-14,Ano Nuevo.California,,
+ct129-R229-14,Ano Nuevo.California,,
+ct129-R234-14,Ano Nuevo.California,,
+ct129-R235-14,Ano Nuevo.California,,
+ct129-R264-14,Ano Nuevo.California,,
+ct129-R267-14,Ano Nuevo.California,,
+ct129-R269-14,Ano Nuevo.California,,
+ct129-R933c-13,Ano Nuevo.California,,
+ct129-R962-14,Ano Nuevo.California,,
+ct13-059-05,Mexico,,
+ct137-189BAT-14,Ano Nuevo.California,,
+ct137-227BAT-12,Ano Nuevo.California,,
+ct137-231BAT-14,Ano Nuevo.California,,
+ct137-267BAT-14,Ano Nuevo.California,,
+ct137-268BAT-14,Ano Nuevo.California,,
+ct137-367BAT-15,Ano Nuevo.California,,
+ct137-428-10,Ano Nuevo.California,,
+ct137-933BAT-13,Ano Nuevo.California,,
+ct137-953BAT-13,Ano Nuevo.California,,
+ct14-068-06,Cape Shirreff. Antarctica,,
+ct14-103-06,Cape Shirreff. Antarctica,,
+ct14-104-06,Cape Shirreff. Antarctica,,
+ct14-105-06,Cape Shirreff. Antarctica,,
+ct14-106-06,Cape Shirreff. Antarctica,,
+ct14-111-06,Cape Shirreff. Antarctica,,
+ct14-118-06,Cape Shirreff. Antarctica,,
+ct14-175-06,Cape Shirreff. Antarctica,,
+ct143-666-18,South Shetland Islands,,
+ct143-667-18,South Shetland Islands,,
+ct17-f100-06,Ano Nuevo.California,,
+ct17-m007-06,Ano Nuevo.California,,
+ct17-m070-06,Ano Nuevo.California,,
+ct17-m098-06,San Benito. Mexico,,
+ct17-m110-06,San Benito.Mexico,,
+ct19-054-06,Ano Nuevo.California,,
+ct2-9916-04,Macquarie,,Southern ellie
+ct2-9919-04,Macquarie,,Southern ellie
+ct2-9920-04,Macquarie,,Southern ellie
+ct2-9925-04,Macquarie,,Southern ellie
+ct21-36-07,Marion Island,10.1594/PANGAEA.706940,
+ct21-37-07,Marion Island,10.1594/PANGAEA.706944,
+ct21-38-07,Marion Island,10.1594/PANGAEA.706941,
+ct21-39-07,Marion Island,10.1594/PANGAEA.706939,
+ct21-41-07,Marion Island,10.1594/PANGAEA.706943,
+ct21-GG178-07,Marion Island,10.1594/PANGAEA.706942,
+ct25-054-07,Cape Shirreff. Antarctica,,
+ct25-490-07,Cape Shirreff. Antarctica,,
+ct25-556-07,Cape Shirreff. Antarctica,,
+ct25-557-07,Cape Shirreff. Antarctica,,
+ct25-558-07,Cape Shirreff. Antarctica,,
+ct25-559-07,Cape Shirreff. Antarctica,,
+ct25-560-07,Cape Shirreff. Antarctica,,
+ct25-561-07,Cape Shirreff. Antarctica,,
+ct25-562-07,Cape Shirreff. Antarctica,,
+ct25-563-07,Cape Shirreff. Antarctica,,
+ct25-564-07,Cape Shirreff. Antarctica,,
+ct25-568-07,Cape Shirreff. Antarctica,,
+ct25-568r-07,Cape Shirreff. Antarctica,,
+ct27-W1-07,Weddell Sea,,
+ct27-W2-07,Weddell Sea,,
+ct27-W3-07,Weddell Sea,,
+ct27-W5-07,Weddell Sea,,
+ct27x-W4-07,Elephant Island,,
+ct28-574r-07,Ano Nuevo.California,,
+ct28-575r-07,Ano Nuevo.California,,
+ct28-576-07,Ano Nuevo.California,,
+ct28-582-07,Ano Nuevo.California,,
+ct28-583-07,Ano Nuevo.California,,
+ct29-591-07,Antarctic,,
+ct29-599-07,Antarctic,,
+ct29-628-07,Antarctic,,
+ct29-629-07,Antarctic,,
+ct29-630-07,Antarctic,,
+ct29-631-07,Antarctic,,
+ct29-632-07,Antarctic,,
+ct29-633-07,Antarctic,,
+ct29-635-07,Antarctic,,
+ct29-W627-07,Antarctic,,
+ct29-W634-07,Antarctic,,
+ct30-S-07,Ano Nuevo.California,,
+ct30-T-07,Ano Nuevo.California,,
+ct30-X-07,Ano Nuevo.California,,
+ct30-Y-07,Ano Nuevo.California,,
+ct31-441_rec-07,South Australia,,Sea lion
+ct31-448B_rec-07,South Australia,,Sea lion
+ct33-OO021-07,Marion Island,10.1594/PANGAEA.714646,
+ct33-OO418-07,Marion Island,10.1594/PANGAEA.714654,
+ct33-PO043-07,Marion Island,10.1594/PANGAEA.714652,
+ct33-WW058-07,Marion Island,10.1594/PANGAEA.714647,
+ct33-WW061-07,Marion Island,10.1594/PANGAEA.714648,
+ct35-RR483-07,Marion Island,10.1594/PANGAEA.706938,
+ct35-YY070-07,Marion Island,10.1594/PANGAEA.706937,
+ct35-YY193a-07,Marion Island,10.1594/PANGAEA.706949,
+ct35-YY240-07,Marion Island,10.1594/PANGAEA.706936,
+ct35-YY264a-07,Marion Island,10.1594/PANGAEA.706951,
+ct35-YY348a-07,Marion Island,10.1594/PANGAEA.706950,
+ct35b-YY039-08,Marion Island,10.1594/PANGAEA.714657,
+ct35b-YY193b-08,Marion Island,10.1594/PANGAEA.714653,
+ct35b-YY264b-08,Marion Island,10.1594/PANGAEA.714658,
+ct35b-YY348b-08,Marion Island,10.1594/PANGAEA.714656,
+ct35x-GG380-08,Marion Island,10.1594/PANGAEA.714659,
+ct35x-PO225-08,Marion Island,10.1594/PANGAEA.714665,
+ct35x-WR029-08,Marion Island,10.1594/PANGAEA.714666,
+ct35x-WW005-08,Marion Island,10.1594/PANGAEA.714664,
+ct36-A-09,Kerguelen,,Southern ellie
+ct36-B-09,Kerguelen,,Southern ellie
+ct36-C-09,Kerguelen,,Southern ellie
+ct36-D-09,Kerguelen,,Southern ellie
+ct36-E-09,Kerguelen,,Southern ellie
+ct36-F-09,Kerguelen,,Southern ellie
+ct36-R1-09,Kerguelen,,Southern ellie
+ct36-R4-09,Kerguelen,,Southern ellie
+ct37-590-08,Antarctica,,
+ct37-598-08,Antarctica,,
+ct37-617-08,Antarctica,,
+ct37-618-08,Antarctica,,
+ct37-619-08,Antarctica,,
+ct37-620-08,Antarctica,,
+ct37-621-08,Antarctica,,
+ct37-757-08,Antarctica,,
+ct37-762-08,Antarctica,,
+ct37-765-08,Antarctica,,
+ct37-780-08,Antarctica,,
+ct37-781-08,Antarctica,,
+ct38w-Denise-08,Dumont d'Urville,,Weddell seal
+ct38w-Elodie-08,Dumont d'Urville,,Weddell seal
+ct38w-Mathilde-08,Dumont d'Urville,,Weddell seal
+ct38w-QueenEliz-08,Dumont d'Urville,,Weddell seal
+ct4-9908-04,California,,
+ct4-9915-04,California,,
+ct4-9921-04,California,,
+ct41-588-08,California,,
+ct41-756-08,California,,
+ct41-764-08,California,,
+ct41-794-08,California,,
+ct41-795-08,California,,
+ct42-WB057-08,Marion Island,10.1594/PANGAEA.714663,
+ct43-574-09,Weddell Sea,,
+ct43-582-09,Weddell Sea,,
+ct43-613-09,Weddell Sea,,
+ct43-858-09,Weddell Sea,,
+ct43-860-09,Weddell Sea,,
+ct43-862-09,Weddell Sea,,
+ct43-864-09,Weddell Sea,,
+ct43-865-09,Weddell Sea,,
+ct43-866-09,Weddell Sea,,
+ct44-1-08,Weddell Sea,10.1594/PANGAEA.714617,
+ct44-2-08,Weddell Sea,10.1594/PANGAEA.714618,
+ct44-3-08,Weddell Sea,10.1594/PANGAEA.714615,
+ct44-5-08,Weddell Sea,10.1594/PANGAEA.714620,
+ct44-6-08,Weddell Sea,10.1594/PANGAEA.714619,
+ct47-A-09,Dumont d'Urville,,Weddell seal
+ct47-B-09,Dumont d'Urville,,Weddell seal
+ct47-C-09,Dumont d'Urville,,Weddell seal
+ct47-D-09,Dumont d'Urville,,Weddell seal
+ct47-E-09,Dumont d'Urville,,Weddell seal
+ct47-F-09,Dumont d'Urville,,Weddell seal
+ct47-G-09,Dumont d'Urville,,Weddell seal
+ct47-I-09,Dumont d'Urville,,Weddell seal
+ct48-021-09,Cape Shirreff. Antarctica,,
+ct48-032-09,Cape Shirreff. Antarctica,,
+ct48-041-09,Cape Shirreff. Antarctica,,
+ct48-047-09,Cape Shirreff. Antarctica,,
+ct48-050-09,Cape Shirreff. Antarctica,,
+ct48-051-09,Cape Shirreff. Antarctica,,
+ct48-057-09,Cape Shirreff. Antarctica,,
+ct48-060-09,Cape Shirreff. Antarctica,,
+ct48-118b-09,Cape Shirreff. Antarctica,,
+ct48-576b-09,Cape Shirreff. Antarctica,,
+ct48-585b-09,Cape Shirreff. Antarctica,,
+ct48-615b-09,Cape Shirreff. Antarctica,,
+ct48-764b-09,Cape Shirreff. Antarctica,,
+ct50-BB246-09,Marion Island,10.1594/PANGAEA.734605,
+ct50-BB349-09,Marion Island,10.1594/PANGAEA.734606,
+ct50-RR217-09,Marion Island,10.1594/PANGAEA.734604,
+ct50-RR435-09,Marion Island,10.1594/PANGAEA.734607,
+ct51-069-09,California,,
+ct51-072-09,California,,
+ct53-583b-09,Ano Nuevo.California,,
+ct54-496-10,King George Is,10.1594/PANGAEA.749643,
+ct54-498-10,King George Is,10.1594/PANGAEA.749644,
+ct54-500-10,King George Is,10.1594/PANGAEA.749648,
+ct54-501-10,King George Is,10.1594/PANGAEA.749645,
+ct54-502-10,King George Is,10.1594/PANGAEA.749646,
+ct54-503-10,King George Is,10.1594/PANGAEA.749649,
+ct54-504-10,King George Is,10.1594/PANGAEA.749650,
+ct54-505-10,King George Is,10.1594/PANGAEA.749651,
+ct54-r515a-10,King George Is,10.1594/PANGAEA.749653,
+ct54-r515b-10,King George Is,10.1594/PANGAEA.749653,
+ct54-r674-10,King George Is,10.1594/PANGAEA.749652,
+ct57-L476-10,South Shetland Islands,,
+ct57-L477-10,South Shetland Islands,,
+ct57-L478-10,South Shetland Islands,,
+ct57-L479-10,South Shetland Islands,,
+ct57-L480-10,South Shetland Islands,,
+ct57-W481-10,South Shetland Islands,,
+ct57-W483-10,South Shetland Islands,,
+ct57-W484-10,South Shetland Islands,,
+ct6-10006-05,Macquarie,,Southern ellie
+ct6-10010-05,Macquarie,,Southern ellie
+ct6-10011-05,Macquarie,,Southern ellie
+ct6-10015-05,Macquarie,,Southern ellie
+ct6-10016-05,Macquarie,,Southern ellie
+ct6-10017-05,Macquarie,,Southern ellie
+ct6-10018-05,Macquarie,,Southern ellie
+ct6-10020-05,Macquarie,,Southern ellie
+ct6-10021-05,Macquarie,,Southern ellie
+ct6-9920-05,Macquarie,,Southern ellie
+ct61-01r-09,South Australia,,Sea lion
+ct61-02-09,South Australia,,Sea lion
+ct61-03-09,South Australia,,Sea lion
+ct61-04-09,South Australia,,Sea lion
+ct61-06-09,South Australia,,Sea lion
+ct61-07-09,South Australia,,Sea lion
+ct61-08-09,South Australia,,Sea lion
+ct61-09-09,South Australia,,Sea lion
+ct61-10-09,South Australia,,Sea lion
+ct63-083-10,Ross Sea McMurdo,,
+ct63-426rec-10,Ross Sea McMurdo,,
+ct63-427rec-10,Ross Sea McMurdo,,
+ct63-428rec-10,Ross Sea McMurdo,,
+ct63-430-10,Ross Sea McMurdo,,
+ct63-431rec-10,Ross Sea McMurdo,,
+ct63-433-10,Ross Sea McMurdo,,
+ct63-435rec-10,Ross Sea McMurdo,,
+ct63-444-10,Ross Sea McMurdo,,
+ct63-445-10,Ross Sea McMurdo,,
+ct63-446-10,Ross Sea McMurdo,,
+ct63-447-10,Ross Sea McMurdo,,
+ct63-448-10,Ross Sea McMurdo,,
+ct63-458-10,Ross Sea McMurdo,,
+ct63-G381-10,Ross Sea McMurdo,,
+ct63-rf082-10,Ross Sea McMurdo,,
+ct63-rf111-10,Ross Sea McMurdo,,
+ct63-rf577-10,Ross Sea McMurdo,,
+ct63-rf795-10,Ross Sea McMurdo,,
+ct64-M001-09,Macquarie,,Southern ellie
+ct64-M036-09,Macquarie,,Southern ellie
+ct64-M037-09,Macquarie,,Southern ellie
+ct64-M040-09,Macquarie,,Southern ellie
+ct64-M043-09,Macquarie,,Southern ellie
+ct64-M044-09,Macquarie,,Southern ellie
+ct64-M052-09,Macquarie,,Southern ellie
+ct64-M053-09,Macquarie,,Southern ellie
+ct64-M059-09,Macquarie,,Southern ellie
+ct64-M061-09,Macquarie,,Southern ellie
+ct64-M721-09,Macquarie,,Southern ellie
+ct64-M746-09,Macquarie,,Southern ellie
+ct64-M752-09,Macquarie,,Southern ellie
+ct64-M979-09,Macquarie,,Southern ellie
+ct64-M994-09,Macquarie,,Southern ellie
+ct67-10110-10,Ano Nuevo.California,,
+ct67-11072-10,Ano Nuevo.California,,
+ct68-WW005-10,Marion Island,10.1594/PANGAEA.758668,
+ct68-YY189-10,Marion Island,10.1594/PANGAEA.758666,
+ct70-356-11,Weddell Sea,,
+ct70-486-11,Weddell Sea,,
+ct70-488-11,Weddell Sea,,
+ct70-490-11,Weddell Sea,,
+ct70-491-11,Weddell Sea,,
+ct70-499-11,Weddell Sea,,
+ct70-500-11,Weddell Sea,,
+ct70-501-11,Weddell Sea,,
+ct70-502-11,Weddell Sea,,
+ct70-503-11,Weddell Sea,,
+ct70-526-11,Weddell Sea,,
+ct70-633-11,Weddell Sea,,
+ct70-634-11,Weddell Sea,,
+ct70-637-11,Weddell Sea,,
+ct70-638-11,Weddell Sea,,
+ct70-640-11,Weddell Sea,,
+ct70-642-11,Weddell Sea,,
+ct70-643-11,Weddell Sea,,
+ct70-650-11,Weddell Sea,,
+ct73-846-11,Marion Island,10.1594/PANGAEA.776430,
+ct73-GG335-11,Marion Island,10.1594/PANGAEA.776428,
+ct73-OO052-11,Marion Island,10.1594/PANGAEA.776431,
+ct73-RR217-11,Marion Island,10.1594/PANGAEA.776426,
+ct73-WW061-11,Marion Island,10.1594/PANGAEA.776425,
+ct73-YY039-11,Marion Island,10.1594/PANGAEA.776427,
+ct74-698r-11,Ross Sea McMurdo,,
+ct74-702-11,Ross Sea McMurdo,,
+ct74-707-11,Ross Sea McMurdo,,
+ct74-709-11,Ross Sea McMurdo,,
+ct74-710-11,Ross Sea McMurdo,,
+ct74-711-11,Ross Sea McMurdo,,
+ct74-712-11,Ross Sea McMurdo,,
+ct74-720-11,Ross Sea McMurdo,,
+ct74-721-11,Ross Sea McMurdo,,
+ct74-722-11,Ross Sea McMurdo,,
+ct74-723-11,Ross Sea McMurdo,,
+ct74-724r-11,Ross Sea McMurdo,,
+ct74-757-11,Ross Sea McMurdo,,
+ct74-794-11,Ross Sea McMurdo,,
+ct74-795r-11,Ross Sea McMurdo,,
+ct74-796-11,Ross Sea McMurdo,,
+ct74-rb426-11,Ross Sea McMurdo,,
+ct74-rb431-11,Ross Sea McMurdo,,
+ct74-rb435-11,Ross Sea McMurdo,,
+ct75-020-11,Dumont d'Urville,,Weddell seal
+ct75-030-11,Dumont d'Urville,,Weddell seal
+ct75-838-11,Dumont d'Urville,,Weddell seal
+ct75-839-11,Dumont d'Urville,,Weddell seal
+ct75-Cy32-11,Dumont d'Urville,,Weddell seal
+ct76-073-11,South Australia,,Sea lion
+ct76-364r-11,South Australia,,Sea lion
+ct76-402-11,South Australia,,Sea lion
+ct76-825-11,South Australia,,Sea lion
+ct77-167-12,Casey,,Southern ellie
+ct77-170-12,Casey,,Southern ellie
+ct77-171-12,Casey,,Southern ellie
+ct77-177-12,Casey,,Southern ellie
+ct77-178-12,Casey,,Southern ellie
+ct77-179-12,Casey,,Southern ellie
+ct77-180-12,Casey,,Southern ellie
+ct77-181-12,Casey,,Southern ellie
+ct77-182-12,Casey,,Southern ellie
+ct77-184-12,Casey,,Southern ellie
+ct77-185-12,Casey,,Southern ellie
+ct77-469-12,Casey,,Southern ellie
+ct77-473-12,Casey,,Southern ellie
+ct77-485-12,Casey,,Southern ellie
+ct77-492-12,Casey,,Southern ellie
+ct77-652-12,Casey,,Southern ellie
+ct77-701-12,Casey,,Southern ellie
+ct77-823-12,Casey,,Southern ellie
+ct77-824-12,Casey,,Southern ellie
+ct77-854-12,Casey,,Southern ellie
+ct77-891-12,Casey,,Southern ellie
+ct77-919-12,Casey,,Southern ellie
+ct78-450-12,Davis,,Southern ellie
+ct78-459-12,Davis,,Southern ellie
+ct78-460-12,Davis,,Southern ellie
+ct78-461-12,Davis,,Southern ellie
+ct78-465-12,Davis,,Southern ellie
+ct78-472-12,Davis,,Southern ellie
+ct78-497-12,Davis,,Southern ellie
+ct78-498-12,Davis,,Southern ellie
+ct78-523-12,Davis,,Southern ellie
+ct78-700-12,Davis,,Southern ellie
+ct78-706-12,Davis,,Southern ellie
+ct78-758-12,Davis,,Southern ellie
+ct78-820-12,Davis,,Southern ellie
+ct78-821-12,Davis,,Southern ellie
+ct78-826-12,Davis,,Southern ellie
+ct78-828-12,Davis,,Southern ellie
+ct78-829-12,Davis,,Southern ellie
+ct78-851-12,Davis,,Southern ellie
+ct78-852-12,Davis,,Southern ellie
+ct78-875-12,Davis,,Southern ellie
+ct78-892-12,Davis,,Southern ellie
+ct78d-760-11,Davis,,Southern ellie
+ct78d-D351-11,Davis,,Southern ellie
+ct78d-D358-11,Davis,,Southern ellie
+ct78d-D361-11,Davis,,Southern ellie
+ct78d-D362-11,Davis,,Southern ellie
+ct78d-D398-11,Davis,,Southern ellie
+ct78d-D400-11,Davis,,Southern ellie
+ct78d-D408-11,Davis,,Southern ellie
+ct78d-D484-11,Davis,,Southern ellie
+ct78d-D487-11,Davis,,Southern ellie
+ct78d-D489-11,Davis,,Southern ellie
+ct78d-D496-11,Davis,,Southern ellie
+ct78d-D677-11,Davis,,Southern ellie
+ct78d-D703-11,Davis,,Southern ellie
+ct78d-D704-11,Davis,,Southern ellie
+ct78d-D761-11,Davis,,Southern ellie
+ct78d-D822-11,Davis,,Southern ellie
+ct78d-D827-11,Davis,,Southern ellie
+ct78d-D850-11,Davis,,Southern ellie
+ct78d-D876-11,Davis,,Southern ellie
+ct78d-D877-11,Davis,,Southern ellie
+ct79-238-12,Campbell,,Southern ellie
+ct79-242-12,Campbell,,Southern ellie
+ct79-249-12,Campbell,,Southern ellie
+ct79-259-12,Campbell,,Southern ellie
+ct83-859-13,South Shetland Islands,,
+ct85-237-12,Scott Base,,Weddell seal
+ct85-245-12,Scott Base,,Weddell seal
+ct85-246-12,Scott Base,,Weddell seal
+ct85-250-12,Scott Base,,Weddell seal
+ct85-252-12,Scott Base,,Weddell seal
+ct85-254-12,Scott Base,,Weddell seal
+ct85-257-12,Scott Base,,Weddell seal
+ct85-44-13,Scott Base,,Weddell seal
+ct86-172-12,South Australia,,Sea lion
+ct86-186-12,South Australia,,Sea lion
+ct86-187-12,South Australia,,Sea lion
+ct86-239-12,South Australia,,Sea lion
+ct86-364_2-11,South Australia,,Sea lion
+ct86-402_2-11,South Australia,,Sea lion
+ct87-188-12,Marion Island,10.1594/PANGAEA.810553,
+ct87-923-12,Marion Island,10.1594/PANGAEA.810552,
+ct88-225-12,Ross Sea McMurdo,,
+ct88-226-12,Ross Sea McMurdo,,
+ct88-227-12,Ross Sea McMurdo,,
+ct88-228-12,Ross Sea McMurdo,,
+ct88-229-12,Ross Sea McMurdo,,
+ct88-230-12,Ross Sea McMurdo,,
+ct88-231-12,Ross Sea McMurdo,,
+ct88-232-12,Ross Sea McMurdo,,
+ct88-233-12,Ross Sea McMurdo,,
+ct88-234-12,Ross Sea McMurdo,,
+ct88-235-12,Ross Sea McMurdo,,
+ct88-240-12,Ross Sea McMurdo,,
+ct88-243-12,Ross Sea McMurdo,,
+ct88-244-12,Ross Sea McMurdo,,
+ct88-247-12,Ross Sea McMurdo,,
+ct88-258-12,Ross Sea McMurdo,,
+ct88-795-12,Ross Sea McMurdo,,
+ct89-302-12,Ano Nuevo.California,,
+ct89-302b-12,Ano Nuevo.California,,
+ct89-328-12,Ano Nuevo.California,,
+ct89-328b-12,Ano Nuevo.California,,
+ct9-26342-05,Antarctic,,
+ct9-28587-05,Antarctic,,
+ct9-28590-05,Antarctic,,
+ct9-28591-05,Antarctic,,
+ct9-28595-05,Antarctic,,
+ct9-28597-05,Antarctic,,
+ct90-317-12,Marion Island,10.1594/PANGAEA.810550,
+ct91-305-12,South Australia,,Fur seal
+ct91-326-12,South Australia,,Fur seal
+ct91-327-12,South Australia,,Fur seal
+ct91-329-12,South Australia,,Fur seal
+ct91-411-12,South Australia,,Fur seal
+ct91-412-12,South Australia,,Fur seal
+ct91-414-12,South Australia,,Fur seal
+ct91-417-12,South Australia,,Fur seal
+ct91-418-12,South Australia,,Fur seal
+ct96-01-13,Kerguelen,,Southern ellie
+ct96-02-13,Kerguelen,,Southern ellie
+ct96-03-13,Kerguelen,,Southern ellie
+ct96-05-13,Kerguelen,,Southern ellie
+ct96-06-13,Kerguelen,,Southern ellie
+ct96-07-13,Kerguelen,,Southern ellie
+ct96-08-13,Kerguelen,,Southern ellie
+ct96-09-13,Kerguelen,,Southern ellie
+ct96-10-13,Kerguelen,,Southern ellie
+ct96-11-13,Kerguelen,,Southern ellie
+ct96-12-13,Kerguelen,,Southern ellie
+ct96-14-13,Kerguelen,,Southern ellie
+ct96-16-13,Kerguelen,,Southern ellie
+ct96-17-13,Kerguelen,,Southern ellie
+ct96-18-13,Kerguelen,,Southern ellie
+ct96-19-13,Kerguelen,,Southern ellie
+ct96-20-13,Kerguelen,,Southern ellie
+ct96-21-13,Kerguelen,,Southern ellie
+ct96-22-13,Kerguelen,,Southern ellie
+ct96-23-13,Kerguelen,,Southern ellie
+ct96-24-13,Kerguelen,,Southern ellie
+ct96-25-13,Kerguelen,,Southern ellie
+ct96-26-13,Kerguelen,,Southern ellie
+ct96-27-13,Kerguelen,,Southern ellie
+ct96-28-13,Kerguelen,,Southern ellie
+ct96-29-13,Kerguelen,,Southern ellie
+ct96-30-13,Kerguelen,,Southern ellie
+ct98-31-13,Kerguelen,,Southern ellie
+ct98-33-13,Kerguelen,,Southern ellie
+ct98-34-13,Kerguelen,,Southern ellie
+ct98-35-13,Kerguelen,,Southern ellie
+ct98-36-13,Kerguelen,,Southern ellie
+ct98-38-13,Kerguelen,,Southern ellie
+ct98-39-13,Kerguelen,,Southern ellie
+ct98-40-13,Kerguelen,,Southern ellie
+ct98-41-13,Kerguelen,,Southern ellie
+ct98-42-13,Kerguelen,,Southern ellie
+ct98-43-13,Kerguelen,,Southern ellie
+ct98-45-13,Kerguelen,,Southern ellie
+ct98-46-13,Kerguelen,,Southern ellie
+ct98-47-13,Kerguelen,,Southern ellie
+ct98-48-13,Kerguelen,,Southern ellie
+ct98-49-13,Kerguelen,,Southern ellie
+ct98-50-13,Kerguelen,,Southern ellie
+ct99-LB037-13,Marion Island,10.1594/PANGAEA.839518,
+ct99-OO052-13,Marion Island,10.1594/PANGAEA.846745,
+ct99-YY189-13,Marion Island,10.1594/PANGAEA.839517,
+ft09-048-11,Ano Nuevo.California,,
+ft13-073_3-13,Australia. West Island,,Sea lion
+ft13-615-12,Australia. S Neptune Is,,Sea lion
+ft13-616_recov-12,Australia. Nuyts Reef,,Sea lion
+ft13-618-12,Australia,,Sea lion
+ft13-627-12,Australia. Rocky North,,Sea lion
+ft13-628_recov-12,Australia. Kangaroo Is,,Sea lion
+ft13-633_recov-12,Australia. Pearson Island,,Sea lion
+ft19-221-14,Australia. West Island,,Sea lion
+ft19-222-14,Australia. West Island,,Sea lion
+ft19-633_rebat2-14,Australia. Pearson Island,,Sea lion
+ft21-423-16,Ano Nuevo.California,,
+ft26-946-BAT2-13,Ano Nuevo.California,,
+ft26-950-18,Ano Nuevo.California,,
+ft26-959-18,Ano Nuevo.California,,
+ft26-960-18,Ano Nuevo.California,,
+wd04-836-11,Davis,,Weddell seal
+wd04-838-11,Davis,,Weddell seal
+wd04-880-11,Davis,,Weddell seal
+wd04-881-11,Davis,,Weddell seal
+wd04-882-11,Davis,,Weddell seal
+wd04-883-11,Davis,,Weddell seal
+wd04-884-11,Davis,,Weddell seal
+wd04-896-11,Davis,,Weddell seal
+wd04-897-11,Davis,,Weddell seal
+wd04-898-11,Davis,,Weddell seal
+wd04-899-11,Davis,,Weddell seal
+wd04-900-11,Davis,,Weddell seal
+wd04-906-11,Davis,,Weddell seal
+wd04-907-11,Davis,,Weddell seal
+wd04-908-11,Davis,,Weddell seal
+wd04-909-11,Davis,,Weddell seal
+wd04-910-11,Davis,,Weddell seal
+wd04-911-11,Davis,,Weddell seal
+wd06-01-13,Weddell Sea,10.1594/PANGAEA.839692,
+wd06-02-13,Weddell Sea,,
+wd06-03-13,Weddell Sea,10.1594/PANGAEA.839698,
+wd06-04-13,Weddell Sea,10.1594/PANGAEA.839693,
+wd06-05-13,Weddell Sea,10.1594/PANGAEA.839694,
+wd06-07-13,Weddell Sea,10.1594/PANGAEA.839695,
+wd06-08-13,Weddell Sea,10.1594/PANGAEA.839696,
+wd06-09-13,Weddell Sea,10.1594/PANGAEA.839699,
+wd06-10-13,Weddell Sea,10.1594/PANGAEA.839697,
+wd1-10165-06,Davis,,Weddell seal
+wd1-10183-06,Davis,,Weddell seal
+wd1-10213-06,Davis,,Weddell seal
+wd1-10216-06,Davis,,Weddell seal
+wd1-10217-06,Davis,,Weddell seal
+wd1-9497-06,Davis,,Weddell seal
+wd3-CTD2-07,Dumont d'Urville,,Weddell seal
+wd3-CTD3-07,Dumont d'Urville,,Weddell seal

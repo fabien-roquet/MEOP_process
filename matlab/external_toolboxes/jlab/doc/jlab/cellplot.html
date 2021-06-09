@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of cellplot</title>
+  <meta name="keywords" content="cellplot">
+  <meta name="description" content="CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; cellplot.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>cellplot
+</h1>
+
+<div class="fragment"><pre class="comment">CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.
+
+   CELLPLOT(X) where X is a cell array containing N arrays,
+
+       X{1}=X1, X{2}=X2,..., X{N}=XN
+ 
+   is the same as 
+
+      PLOT(X1), PLOT(X2),..., PLOT(XN).
+
+   However, CELLPLOT is vastly quicker than the obvious loop and also has
+   some handy features, as described below.
+
+   CELLPLOT(X,Y), where X and Y are both cell arrays of N arrays, performs
+
+      PLOT(X1,Y1), PLOT(X1,Y1),..., PLOT(XN,YN).
+
+   H=CELLPLOT(...) returns the handle to the plots.  
+
+   CELLPLOT is compatible with the M_MAP toolbox, as described below.%
+
+   CELLPLOT(X) or CELLPLOT(X,Y) still works if X and Y are not cell 
+   arrays, but are vectors or matrices.  This is useful in accessing the 
+   additional options described below. 
+   __________________________________________________________________
+   
+   Additional options
+
+   CELLPLOT(...,STY) uses the linestyle specified by STY.  STY is a
+   string following the format in LINESTYLE, e.g. STY='2b g r--'. 
+
+   CELLPLOT(...,'M_MAP') will work with Rich Pawlowicz's M_MAP 
+   package by calling M_PLOT.  
+
+   CELLPLOT(...,INDEX) only plots the elements of the cell array 
+   indicated by index.
+
+   The string arguments and INDEX can be combined provided they are 
+   after the one or two input cell array variables.
+   __________________________________________________________________
+
+   CELLPLOT on the sphere
+    
+   When plotting data on the sphere, there is an annoying wrap-around
+   effect when the data crosses the dateline at longitude 180.  This
+   leads to lines extending all the way across the plot.
+
+   CELLPLOT(LONO,LON,LAT) where LONO is the value of a cutoff longitude
+   uses LONO as the right-hand-edge of the plot, and LONO-360 as the 
+   left-hand-edge, with no wraparound effects.  
+
+   This works together also with the 'm_map' option.  In this case LONO 
+   should be between -180 and 180, and one must set the maximum longitude
+   in M_MAP to LONO. For a global plot, this means one will call M_PROJ as
+ 
+         M_PROJ(...,'longitudes',[LONO-360 LONO],...).
+
+   If you run CELLPLOT with M_MAP and data doesn't show up, make sure 
+   the longitudes have been set correctly.
+   __________________________________________________________________
+
+   See also <a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">LINESTYLE</a>.
+
+   Usage: cellplot(x)
+          cellplot(x,y)
+          h=cellplot(x,y,index,'m_map');
+          cellplot(lono,lat,lon,index);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2008--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="boxon.html" class="code" title="function[]=boxon">boxon</a>	BOXON  Sets 'box' property to 'on'.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">col2cell</a>	COL2CELL  Converts 'column-appended' data into cell arrays of column vectors.</li><li><a href="deg360.html" class="code" title="function[varargout]=deg360(varargin)">deg360</a>	DEG360  Converts degrees to the range [0, 360].</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="mat2col.html" class="code" title="function[varargout]=mat2col(varargin)">mat2col</a>	MAT2COL  Compress NAN-padded matrix data into long columns.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="about_floats.html" class="code" title="function[varargout]=about_floats(varargin)">about_floats</a>	FLOATS  Historical dataset of eddy-resolving subsurface floats.</li><li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="jcell.html" class="code" title="">jcell</a>	jCell:  Tools for operating on cell arrays of column vectors</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="makefigs_topoplot.html" class="code" title="">makefigs_topoplot</a>	</li><li><a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">regionplot</a>	REGIONPLOT  Plots a simple box indicating a latitude / longitude region.</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li><li><a href="twospecplot.html" class="code" title="function[h]=twospecplot(varargin)">twospecplot</a>	TWOSPECPLOT  Plots a pair of rotary or Cartesian spectra.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

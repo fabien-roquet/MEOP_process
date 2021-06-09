@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of curveinterp</title>
+  <meta name="keywords" content="curveinterp">
+  <meta name="description" content="CURVEINTERP  Interpolate a field or its gradient onto a set of curves.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; curveinterp.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>curveinterp
+</h1>
+
+<div class="fragment"><pre class="comment">CURVEINTERP  Interpolate a field or its gradient onto a set of curves.
+
+   CURVEINTERP is a low-level function called by CLOSEDCURVES and
+   CURVEMOMENTS.
+
+   FC=CURVEINTERP(X,Y,F,XC,YC) interpolates the field in matrix F, with 
+   axes X and Y, onto the curves specified by XC and YC.  
+
+   X is associated with the *columns* of F and Y with its *rows*.  The 
+   lengths of X and Y must match SIZE(F,2) and SIZE(F,1) respectively.
+
+   Unlike INTERP2, CURVEINTERP permits XC and YC to be cell arrays of 
+   column vectors, in which case FC will be a cell array of the same size.
+   This is useful for working with CLOSEDCURVES and CURVEMOMENTS.
+
+   CURVEINTERP uses a fast loopless algorithm that is an order of 
+   magnitude faster than looping over the individual curves. 
+
+   CURVEINTERP works by calling INTERP2 with the 'linear' algorithm.
+   __________________________________________________________________
+
+   Gradient interpolation
+
+   GRADFC=CURVEINTERP(X,Y,F,XC,YC,'gradient') alternately interpolates not
+   F, but instead its *gradient*, and returns the result in the complex-
+   valued quantity GRADFC=dF/dX+sqrt(-1)*dF/dY.
+  
+   This can be very useful when F is large, because it is not necessary
+   to compute the gradient of F everywhere.  It is only computed locally
+   in near the curves, which can lead to a considerable speed improvment.
+   __________________________________________________________________
+
+   See also <a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">CLOSEDCURVES</a>, <a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">CURVEMOMENTS</a>.
+
+   'curveinterp --t' runs a test.
+
+   Usage: fc=curveinterp(x,y,f,xc,yc);
+          gradfc=curveinterp(x,y,f,xc,yc,'gradient');
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="celladd.html" class="code" title="function[y]=celladd(x,y)">celladd</a>	CELLADD  Addition acting on each element in a cell array.</li><li><a href="cellmult.html" class="code" title="function[y]=cellmult(x,y)">cellmult</a>	CELLMULT  Multiplication acting on each element in a cell array.</li><li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">col2cell</a>	COL2CELL  Converts 'column-appended' data into cell arrays of column vectors.</li><li><a href="curveinterp.html" class="code" title="function[ci]=curveinterp(varargin)">curveinterp</a>	CURVEINTERP  Interpolate a field or its gradient onto a set of curves.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="psi2fields.html" class="code" title="function[cv,zeta,n,s,p]=psi2fields(varargin)">psi2fields</a>	PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="vempty.html" class="code" title="function[varargout]=vempty(varargin)">vempty</a>	VEMPTY   Initializes multiple variables to empty sets or empty cell arrays.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="curveinterp.html" class="code" title="function[ci]=curveinterp(varargin)">curveinterp</a>	CURVEINTERP  Interpolate a field or its gradient onto a set of curves.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

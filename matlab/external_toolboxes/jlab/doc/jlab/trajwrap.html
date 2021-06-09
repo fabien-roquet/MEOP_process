@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of trajwrap</title>
+  <meta name="keywords" content="trajwrap">
+  <meta name="description" content="TRAJWRAP  Wraps Lagrangian trajectories to fit within a periodic domain.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; trajwrap.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>trajwrap
+</h1>
+
+<div class="fragment"><pre class="comment">TRAJWRAP  Wraps Lagrangian trajectories to fit within a periodic domain.
+
+   CX=TRAJWRAP(CX,L) wraps the complex-valued Lagrangian trajectory CX to 
+   fit within the doubly periodic domain with edges at +/- L.  
+
+   CX specifies the particle position in complex-valued form CX=X+iY.
+
+   CX may be of any dimension, but time is assumed to increase along rows.
+   The output array will be the same size as the input array.  
+
+   Set L=[LX LY] to specify different periodicities in the X and Y 
+   directions. Use L=[LX NaN] for only zonal periodicity, or L=[NaN Ly] 
+   for only meridional periodicity.
+
+   CX=TRAJWRAP(CX,L,'nans') optionally sets the discontinuties resulting
+   from wrapping to values of NaN, for plotting purposes.  Note that the 
+   output is in this case still the same size as the input. 
+
+   [CX1,CX2,...,CXN]=TRAJWRAP(CX1,CX2,...CXN,L) also works for multiple
+   arrays of trajectories with the same periodicity.
+
+   TRAJWRAP(CX1,CX2,...CXN,L); with no output arguments overwrites the 
+   original named input variables.
+
+   See also <a href="trajunwrap.html" class="code" title="function[varargout]=trajunwrap(varargin)">TRAJUNWRAP</a>.
+
+   'trajwrap --t' runs a test.
+   'trajwrap --f' generates a sample figure.
+
+   Usage: cx=trajwrap(cx,L);
+          cx=trajwrap(cx,[Lx Ly],'nan');
+          cx=trajwrap(cx,[Lx Ly]);
+          [cx1,cx2]=trajwrap(cx1,cx2,[Lx Ly]);
+          trajwrap(cx1,cx2,[Lx Ly]);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="trajunwrap.html" class="code" title="function[varargout]=trajunwrap(varargin)">trajunwrap</a>	TRAJUNWRAP  Unwraps Lagrangian trajectories from a periodic domain.</li><li><a href="trajwrap.html" class="code" title="function[varargout]=trajwrap(varargin)">trajwrap</a>	TRAJWRAP  Wraps Lagrangian trajectories to fit within a periodic domain.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="trajwrap.html" class="code" title="function[varargout]=trajwrap(varargin)">trajwrap</a>	TRAJWRAP  Wraps Lagrangian trajectories to fit within a periodic domain.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

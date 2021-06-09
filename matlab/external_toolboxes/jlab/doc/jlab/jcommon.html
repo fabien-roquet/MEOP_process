@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of jcommon</title>
+  <meta name="keywords" content="jcommon">
+  <meta name="description" content="jCommon:  Useful general-purpose functions, common to other JLAB modules">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; jcommon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>jcommon
+</h1>
+
+<div class="fragment"><pre class="comment"> jCommon:  Useful general-purpose functions, common to other JLAB modules
+
+ Array functions
+   aresame    - Test whether two N-D arrays are the same.                        
+   arrayify   - Converts a set of scalars or arrays into column arrays.            
+   blocklen   - Counts the lengths of 'blocks' in an array.                        
+   blocknum   - Numbers the contiguous blocks of an array.   
+   lnsd       - Last non-singleton dimension of an array.                          
+   matmult    - Matrix multiplication for arrays of matrices.                      
+   nonnan     - Return all non-NAN elements of an array.                           
+   vectmult   - Matrix multiplication for arrays of vectors.    
+
+ File and directory tools
+   commentlines - Returns the comment lines from m-files.                          
+   findfiles    - Returns all files in a directory with a specified extension.       
+   findpath     - Returns the full pathname of a directory on the Matlab search path.
+   jhelp        - Opens linked JLAB help files in Matlab's internal web browser.     
+   whichdir     - Returns directory name containing file in search path.             
+
+ Mathematical aliases
+   choose     - Binomial coefficient: CHOOSE(N,K) = &quot;N choose K&quot;
+   frac       - Fraction: FRAC(A,B)=A./B                                                    
+   imlog      - Imaginary part of log: IMLOG(X)=UNWRAP(IMAG(LOG(X)))                                      
+   iseven     - True for even integer values; false otherwise.                     
+   isodd      - True for odd integer values; false otherwise. 
+   oprod      - Outer product:  OPROD(X,Y)=X*CONJ(Y')                              
+   res        - Residual after flooring:  RES(X)=X-FLOOR(X)                        
+   rot        - Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)  
+   squared    - Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2         
+ 
+ Matrices, polynomials, and special functions
+   jmat       - 2x2 rotation matrix through specified angle.                       
+   jmat3      - 3x3 rotation matrix through specified angle.  
+   tmat       - 2x2 complex grouping matrix.  TMAT = [1  i; 1 -i] / SQRT(2)
+   bellpoly   - Complete Bell polynomials.  
+   hermpoly   - Hermite polynomials. [with F. Rekibi]   
+   hermfun    - Orthonormal Hermite functions. [with F. Rekibi]                    
+
+ Dataset organization as structures
+   make       - Create a structure containing named variables as fields.  
+   matsave    - Create and save structure of variables as a mat-file. 
+   use        - Copies structure fields into named variables in workspace.         
+
+ Statistics
+   cum2mom    - Convert cumulants to moments.    
+   mom2cum    - Convert moments to cumulants.                                      
+   pdfprops   - Mean and variance associated with a probability distribution.  
+   simplepdf  - Gaussian, uniform, Cauchy, and exponential pdfs.                   
+
+ Filling bad data points
+   fillbad    - Linearly interpolate over bad data points.</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="arrayify.html" class="code" title="function[varargout]=arrayify(varargin)">arrayify</a>	ARRAYIFY  Converts a set of scalars or arrays into column arrays.</li><li><a href="bellpoly.html" class="code" title="function[varargout]=bellpoly(varargin)">bellpoly</a>	BELLPOLY  Complete Bell polynomials.</li><li><a href="blocklen.html" class="code" title="function[L,ia,ib,num]=blocklen(x,delta)">blocklen</a>	BLOCKLEN Counts the lengths of 'blocks' in an array.</li><li><a href="blocknum.html" class="code" title="function[num,a,b]=blocknum(x,delta)">blocknum</a>	BLOCKNUM  Numbers the contiguous blocks of an array.</li><li><a href="choose.html" class="code" title="function[b]=choose(n,k)">choose</a>	CHOOSE  Binomial coefficient: CHOOSE(N,K) = "N choose K"</li><li><a href="commentlines.html" class="code" title="function[str]=commentlines(dirname)">commentlines</a>	COMMENTLINES  Returns the comment lines from m-files.</li><li><a href="cum2mom.html" class="code" title="function[varargout]=cum2mom(varargin)">cum2mom</a>	CUM2MOM  Convert cumulants to moments.</li><li><a href="fillbad.html" class="code" title="function[datao]=fillbad(data,i2,i3,i4)">fillbad</a>	FILLBAD  Linearly interpolate over bad data points.</li><li><a href="findfiles.html" class="code" title="function[varargout]=findfiles(varargin)">findfiles</a>	FINDFILES  Returns all files in a directory with a specified extension.</li><li><a href="findpath.html" class="code" title="function[fullpath]=findpath(dirname)">findpath</a>	FINDPATH  Returns the full pathname of a directory on the Matlab search path.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="hermfun.html" class="code" title="function h=hermfun(t,j)">hermfun</a>	HERMFUN  Orthonormal Hermite functions. [with F. Rekibi]</li><li><a href="hermpoly.html" class="code" title="function h=hermpoly(t,n)">hermpoly</a>	HERMPOLY  Hermite polynomials. [with F. Rekibi]</li><li><a href="imlog.html" class="code" title="function[y]=imlog(x)">imlog</a>	IMLOG  Imaginary part of log: IMLOG(X)=UNWRAP(IMAG(LOG(X)))</li><li><a href="iseven.html" class="code" title="function[bool]=iseven(x)">iseven</a>	ISEVEN  True for even integer values; false otherwise.</li><li><a href="isodd.html" class="code" title="function[bool]=isodd(x)">isodd</a>	ISODD  True for odd integer values; false otherwise.</li><li><a href="jhelp.html" class="code" title="function[varargout]=jhelp(str)">jhelp</a>	JHELP  Opens linked JLAB help files in Matlab's internal web browser.</li><li><a href="jmat.html" class="code" title="function[x]=jmat(theta)">jmat</a>	JMAT 2x2 rotation matrix through specified angle.</li><li><a href="jmat3.html" class="code" title="function[x]=jmat3(theta,n)">jmat3</a>	JMAT3 3x3 rotation matrix through specified angle.</li><li><a href="lnsd.html" class="code" title="function[varargout]=lnsd(varargin)">lnsd</a>	LNSD  Last non-singleton dimension of an array.</li><li><a href="make.html" class="code" title="function[evalme]=make(varargin)">make</a>	MAKE  Create a structure containing named variables as fields.</li><li><a href="matmult.html" class="code" title="function[z]=matmult(mata,matb,K)">matmult</a>	MATMULT  Matrix multiplication for arrays of matrices.</li><li><a href="matsave.html" class="code" title="function[]=matsave(varargin)">matsave</a>	MATSAVE  Create and save structure of variables as a mat-file.</li><li><a href="mom2cum.html" class="code" title="function[varargout]=mom2cum(varargin)">mom2cum</a>	MOM2CUM  Convert moments to cumulants.</li><li><a href="nonnan.html" class="code" title="function[x]=nonnan(x)">nonnan</a>	NONNAN  Return all non-NAN elements of an array.</li><li><a href="oprod.html" class="code" title="function[z]=oprod(x,y)">oprod</a>	OPROD  Outer product:  OPROD(X,Y)=X*CONJ(Y')</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="res.html" class="code" title="function[x]=res(x)">res</a>	RES    Residual after flooring:  RES(X)=X-FLOOR(X)</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="simplepdf.html" class="code" title="function[f]=simplepdf(x,mu,sig,flag)">simplepdf</a>	SIMPLEPDF  Gaussian, uniform, Cauchy, and exponential pdfs.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="tmat.html" class="code" title="function[x]=tmat()">tmat</a>	TMAT  2x2 complex grouping matrix.  TMAT = [1  i; 1 -i] / SQRT(2)</li><li><a href="to_grab_from_caller.html" class="code" title="function[str]=to_grab_from_caller(index)">to_grab_from_caller</a>	TO_GRAB_FROM_CALLER  Returns a string to grab variable values from caller.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">vectmult</a>	VECTMULT  Matrix multiplication for arrays of vectors.</li><li><a href="whichdir.html" class="code" title="function[dir]=whichdir(name)">whichdir</a>	WHICHDIR  Returns directory name containing file in search path.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Contents.html" class="code" title="">Contents</a>	jLab v1.5 by J. M. Lilly</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

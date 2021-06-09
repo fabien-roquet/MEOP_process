@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of jpcolor</title>
+  <meta name="keywords" content="jpcolor">
+  <meta name="description" content="JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; jpcolor.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>jpcolor
+</h1>
+
+<div class="fragment"><pre class="comment">JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.
+
+   JPCOLOR(XMID,YMID,Z) makes a PCOLOR plot with XMID and YMID marking the
+   *centers* of the cells of Z.  X and Y should have uniform spacing.
+
+   This is unlike PCOLOR(X,Y,Z), where X and Y mark the cell *edges*.  
+
+   Similarly, unlike PCOLOR, JPCOLOR does not throw away the last row and
+   column of Z.
+   
+   The default shading for JPCOLOR is FLAT rather than FACETED.  JPCOLOR
+   also sets the level of the PCOLOR image to the back of the plot.
+
+   'jpcolor --f' generates a figure showing the differences from PCOLOR.
+
+   Usage: jpcolor(x,y,z);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="boxon.html" class="code" title="function[]=boxon">boxon</a>	BOXON  Sets 'box' property to 'on'.</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>	JTOPO  One-sixth degree global topography based on Smith and Sandwell.</li><li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="divgeom.html" class="code" title="function[Q1,Q2,Q3,Q4,Q]=divgeom(varargin)">divgeom</a>	DIVGEOM  Geometric decomposition of eddy vorticity flux divergence.</li><li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="psi2fields.html" class="code" title="function[cv,zeta,n,s,p]=psi2fields(varargin)">psi2fields</a>	PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]</li><li><a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">readtopo</a>	READTOPO  Read one-minute topography data from Smith and Sandwell.</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

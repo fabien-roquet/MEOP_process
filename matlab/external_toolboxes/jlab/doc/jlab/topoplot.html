@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of topoplot</title>
+  <meta name="keywords" content="topoplot">
+  <meta name="description" content="TOPOPLOT  Plot regional or global topography at one-sixth degree resolution.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; topoplot.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>topoplot
+</h1>
+
+<div class="fragment"><pre class="comment">TOPOPLOT  Plot regional or global topography at one-sixth degree resolution.
+   __________________________________________________________________
+
+   <img src='topoplot.png'>
+   __________________________________________________________________
+
+   TOPOPLOT with no input arguments makes a patch plot of the earth's
+   surface topography within the axis of the current plot.  Continents are
+   black and the continental shelf to a depth of 500~m is gray.
+
+   TOPOPLOT CONTINENTS plots the continents only as a patch plots with
+   the continents in black.  
+
+   If the current plot is empty, TOPOPLOT uses the domain -180 to 180 
+   degrees in longitude, and -80.666 to 80.666 degrees in latitude.
+
+   These two options use PATCHCONTOURF, which does not use the current 
+   colormap and so allow one to allow plot a colored field in addition to
+   the topography.  The remaining options use CONTOURF.
+   __________________________________________________________________
+ 
+   TOPOPLOT(REGION,V) makes a filled contour plot of the earth's surface
+   topography within a region specified by REGION, at contour intervals V.   
+
+   REGION is an array with the format [WEST EAST SOUTH NORTH]. Longitudes 
+   may either be specified on the interval [-180, 180] or on [0, 360].
+
+   V is an array of contour levels, in kilometers, with positive values 
+   for heights above sea level and negative values for below sea level.
+
+   By default, TOPOPLOT uses a flipped grayscale colormap, with high
+   elevations colored dark gray, and low elevations colored light gray.
+   TOPOPLOT uses CONTOURF with the contours themselves not shown. 
+  
+   TOPOPLOT uses the one-sixth degree resolution topography file JTOPO.MAT
+   included with JLAB, based on the Smith and Sandwell dataset.  The 
+   latitude range +/- 80.666 is covered. Type 'help jtopo' for details. 
+
+   TOPOPLOT(REGION) with V unspecified uses V=[0 -1/2 -1], showing the
+   continents in black and the contintental shelf at 500 m depth in gray.
+
+   To plot the continents in black, use TOPOPLOT(REGION,[-1/2 0]).
+
+   TOPOPLOT([],V) sets REGION to the axis limits of the current plot.
+   __________________________________________________________________
+
+   Additional options
+
+   TOPOPLOT(REGION,V,VC) additionally draws the individual contour levels
+   in VC, with the color shading still based on the array V.
+
+   TOPOPLOT(REGION,[],VC) draws only the contours in VC, with no shading.
+   By default, these will be drawn as heavy white lines.
+  
+   TOPOPLOT(REGION,V,VC,STY) uses linestyle STY for the individual contour
+   levels.  STY is in LINESTYLE form, e.g. STY='2g--'.
+
+   [H,HC]=TOPOPLOT(REGION,V,VC) returns the handles to the contours
+   corresponding to levels V and VC, respectively.
+   
+   TOPOPLOT(...,'M_MAP') will work with Rich Pawlowicz's M_MAP package by
+   calling M_CONTOUR and M_CONTOURF.
+   __________________________________________________________________
+
+   See also <a href="jtopo.html" class="code" title="">JTOPO</a>, <a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">REGIONPLOT</a>, <a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">READTOPO</a>.
+
+   'topoplot --f' generates the above sample figures and some others.
+
+   Usage: topoplot(region,v);
+          topoplot(region,v,'m_map');
+          [h,hc]=topoplot(region,v,vc);
+          [h,hc]=topoplot(region,v,vc,'2m--');
+          [h,hc]=topoplot(region,v,vc,'2m--','m_map');
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="boxon.html" class="code" title="function[]=boxon">boxon</a>	BOXON  Sets 'box' property to 'on'.</li><li><a href="flipmap.html" class="code" title="function[]=flipmap">flipmap</a>	FLIPMAP Flips the current colormap upside-down.</li><li><a href="jtopo.html" class="code" title="">jtopo</a>	jTopo:  Tools and data for plotting topography</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="lonshift.html" class="code" title="function[varargout]=lonshift(varargin)">lonshift</a>	LONSHIFT  Shifts longitude origin for plotting purposes.</li><li><a href="makefigs_topoplot.html" class="code" title="">makefigs_topoplot</a>	</li><li><a href="nocontours.html" class="code" title="function[h]=nocontours(h)">nocontours</a>	NOCONTOURS  Removes contours from a CONTOURF plot.</li><li><a href="patchcontourf.html" class="code" title="function[varargout]=patchcontourf(varargin)">patchcontourf</a>	PATCHCONTOURF  Generate filled contours using patches, with specified colors.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="about_floats.html" class="code" title="function[varargout]=about_floats(varargin)">about_floats</a>	FLOATS  Historical dataset of eddy-resolving subsurface floats.</li><li><a href="jtopo.html" class="code" title="">jtopo</a>	jTopo:  Tools and data for plotting topography</li><li><a href="makefigs_topoplot.html" class="code" title="">makefigs_topoplot</a>	</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

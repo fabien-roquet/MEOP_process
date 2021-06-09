@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of latratio</title>
+  <meta name="keywords" content="latratio">
+  <meta name="description" content="LATRATIO  Set plot aspect ratio for latitude / longitude plot.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; latratio.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>latratio
+</h1>
+
+<div class="fragment"><pre class="comment">LATRATIO  Set plot aspect ratio for latitude / longitude plot.
+
+   LATRATIO(LAT) sets the aspect ratio of the current axis correctly a 
+   Cartesian plot centered about the latitude LAT, i.e. the x/y aspect 
+   ratio is set to COS(LAT).
+
+   Equal distances along the x- and y-axes then correspond to the same 
+   physical distance.
+
+   LAT is measured in degrees.
+
+   LATRATIO(LAT,H) does the same for the axis with handle H.
+
+   LATRATIO with no input arguments sets the aspect ratio of the current
+   axis using the midpoint of the y-axis limits.
+
+   AR=LATRATIO(LAT) alternately returns the correct aspect ratio in a 
+   two-element array AR, without modifying any plots. 
+
+   Usage: latratio(lat,h);
+          latratio(lat);
+          latratio;
+          ar=latration(lat);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2013 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="jdeg2rad.html" class="code" title="function[varargout]=jdeg2rad(varargin)">jdeg2rad</a>	JDEG2RAD  Converts degrees to radians.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="about_floats.html" class="code" title="function[varargout]=about_floats(varargin)">about_floats</a>	FLOATS  Historical dataset of eddy-resolving subsurface floats.</li><li><a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>	JTOPO  One-sixth degree global topography based on Smith and Sandwell.</li><li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jsphere.html" class="code" title="">jsphere</a>	jSphere:  Tools for latitude, longitude, and spherical geometry</li><li><a href="makefigs_topoplot.html" class="code" title="">makefigs_topoplot</a>	</li><li><a href="patchcontourf.html" class="code" title="function[varargout]=patchcontourf(varargin)">patchcontourf</a>	PATCHCONTOURF  Generate filled contours using patches, with specified colors.</li><li><a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">readtopo</a>	READTOPO  Read one-minute topography data from Smith and Sandwell.</li><li><a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">regionplot</a>	REGIONPLOT  Plots a simple box indicating a latitude / longitude region.</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

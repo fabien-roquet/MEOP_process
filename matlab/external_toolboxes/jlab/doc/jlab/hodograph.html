@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of hodograph</title>
+  <meta name="keywords" content="hodograph">
+  <meta name="description" content="HODOGRAPH   Generate hodograph plots (simple and fancy).">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; hodograph.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>hodograph
+</h1>
+
+<div class="fragment"><pre class="comment">HODOGRAPH   Generate hodograph plots (simple and fancy).
+
+   A hodograph of a velocity time series is defined as a polar
+   coordinate plot of the eastward component versus the northward.
+  
+   Simple hodographs:
+
+     HODOGRAPH(U,V) generates a simple hodograph plotting U versus V.
+     U and V are column vectors, or matrices with time oriented in
+     columns.  
+  
+     HODOGRAPH(CV), where CV=U+iV, also works.
+
+   Fancy hodographs:
+
+     A fancy hodograph use SCATTER to plot change the color and/or
+     sizes of the points according to another parameter, say density.
+     A colorbar is also plotted.
+
+     HODOGRAPH(U,V,C) uses C as the symbol color.  The array C must
+     have the same size as U and V.
+
+     HODOGRAPH(U,V,C,S) also uses S as the symbol size.  The array S
+     must have the same size as U and V.
+    
+     HODOGRAPH(CV,C) and HODOGRAPH(CV,C,S) also work.
+
+     Note that since SCATTER is slow for large datasets, it is useful
+     to decimate the data before plotting.  This is accomplished
+     using HODOGRAPH(...,INDEX). Then only the points CV(INDEX,:) are
+     plotted.
+
+     [H,HC]=FHODOGRAPH(...) returns the handle H to the data, and the
+     handle HC to the colorbar axis.
+
+   As an example,
+  
+          load bravo94
+          cv=vfilt(bravo.rcm.cv(:,3),24);
+          th=100*detrend(bravo.cat.th(:,3));
+          [h,hc]=hodograph(cv,th,20+0*th,[1:4000]);
+          caxis([-8 8])
+         
+   makes Figure 6a of Lilly and Rhines (2002) JPO.
+         
+   Usage: hodograph(cv);
+          [h,hc]=hodograph(cv,c,index);
+          [h,hc]=hodograph(cv,c,s,index);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information 
+   (C) 2000--2012 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

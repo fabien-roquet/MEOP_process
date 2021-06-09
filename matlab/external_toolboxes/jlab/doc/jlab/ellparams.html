@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ellparams</title>
+  <meta name="keywords" content="ellparams">
+  <meta name="description" content="ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ellparams.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ellparams
+</h1>
+
+<div class="fragment"><pre class="comment">ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.
+
+   [KAPPA,LAMBDA,THETA,PHI]=ELLPARAMS(X,Y) where X and Y are analytic 
+   signals, returns the parameters of the complex-valued signal 
+   Z=REAL(X)+i REAL(Y), expressed as a modulated ellipse.
+
+   Here KAPPA is the RMS ellipse amplitude, LAMBDA is the linearity, 
+   THETA is the orientation, and PHI is the instantaneous orbital phase.
+
+   See Lilly and Gascard (2006) and Lilly and Olhede (2010a) for details.
+
+   ELLPARAMS is inverted by ELLSIG, which returns the X and Y signals 
+   given the ellipse parameters.
+
+   ELLPARAMS(...,DIM) performs the analysis with time running along
+   dimension DIM, as opposed to the default behavior of DIM=1.    
+   __________________________________________________________________
+
+   Trivariate signals
+
+   ELLPARAMS also works for trivariate signals, which can be expressed as
+   a modulated ellipse in three dimensions.
+
+   [KAPPA,LAMBDA,THETA,PHI,ALPHA,BETA]=ELLPARAMS(X,Y,Z), where X, Y, and Z
+   are all analytic signals, also returns the zenith angle ALPHA and the 
+   azimuth angle BETA in addition to the other ellipse parameters.
+
+   See Lilly (2010) for details on the trivariate case.
+   __________________________________________________________________
+
+   Cell array input / output
+
+   ELLPARAMS also works if the input arguments are cell arrays of numeric
+   arrays, in which case the output arguments will also be cell arrays of
+   the same size.
+   __________________________________________________________________
+
+   Alternate form
+
+   [...]=ELLPARAMS(M) also works, where M is a two-column or three-column
+   matrix, i.e. M=[X Y] or M=[X Y Z], for bivariate or trivariate signals,
+   respectively. 
+   __________________________________________________________________
+
+   'ellparams --t' runs a test.
+
+   See also <a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ELLSIG</a>, <a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ELLBAND</a>, <a href="elldiff.html" class="code" title="function[k2,l2,theta2,phi2]=elldiff(varargin)">ELLDIFF</a>, <a href="ellvel.html" class="code" title="function[v]=ellvel(varargin)">ELLVEL</a>, <a href="ellrad.html" class="code" title="function[r]=ellrad(varargin)">ELLRAD</a>, <a href="kl2ab.html" class="code" title="function[A,B]=kl2ab(K,L)">KL2AB</a>, <a href="ab2kl.html" class="code" title="function[K,L]=ab2kl(A,B)">AB2KL</a>.
+
+   Usage: [kappa,lambda,theta,phi]=ellparams(M);
+          [kappa,lambda,theta,phi]=ellparams(x,y);
+          [kappa,lambda,theta,phi]=ellparams(x,y,dim);
+          [kappa,lambda,theta,phi]=ellparams([x,y]);
+          [kappa,lambda,theta,phi,alpha,beta]=ellparams(x,y,z);
+          [kappa,lambda,theta,phi,alpha,beta]=ellparams([x,y,z]);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2009--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="imlog.html" class="code" title="function[y]=imlog(x)">imlog</a>	IMLOG  Imaginary part of log: IMLOG(X)=UNWRAP(IMAG(LOG(X)))</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="jmat3.html" class="code" title="function[x]=jmat3(theta,n)">jmat3</a>	JMAT3 3x3 rotation matrix through specified angle.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">vectmult</a>	VECTMULT  Matrix multiplication for arrays of vectors.</li><li><a href="vempty.html" class="code" title="function[varargout]=vempty(varargin)">vempty</a>	VEMPTY   Initializes multiple variables to empty sets or empty cell arrays.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="ellrossby.html" class="code" title="function[Ro]=ellrossby(lat,lambda,omega)">ellrossby</a>	ELLROSSBY  Ellipse Rossby number, for oceanographic applications.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

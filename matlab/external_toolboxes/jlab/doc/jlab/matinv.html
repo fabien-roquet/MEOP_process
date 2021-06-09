@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of matinv</title>
+  <meta name="keywords" content="matinv">
+  <meta name="description" content="MATINV  Fast inversion of arrays of small matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; matinv.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>matinv
+</h1>
+
+<div class="fragment"><pre class="comment">MATINV  Fast inversion of arrays of small matrices.
+
+   MATINV is a low-level function called by POLYSMOOTH.
+  
+   Let MAT be an array of K different M x M matrices A1,A2,...,AK.
+   INV=MATINV(MAT) then returns an array of N inverse matrices.
+    
+   If MAT has dimensions K1 x K2 x .... M x M, then MATINV returns an 
+   array of the same size containing the inverses of the M x M matrices.
+
+   For example, MAT could be 10 x 10 x 4 x 4, in which case the inverses
+   of one hundred 4 x 4 matrices are found.
+
+   MAT can have any dimensionality so long as the matrices to be inverted
+   occupy the last two dimensions.  The last dimension is interpreted as
+   &quot;columns&quot; and the second to last as &quot;rows.&quot;
+
+   Note that MATINV only works matrices with M=2 through M=6.
+   ____________________________________________________________
+
+   Algorithms
+
+   MATINV can use either of two different algorithms.   This is specified
+   with INV=MATINV(MAT,STR). 
+    
+   MATINV(MAT,'direct') uses algebraic expressions for 2 x 2 and 3 x 3 
+   matrix inverses together with Boltz's block diagonal recursion formula.
+   For details, see the following links
+
+        http://mathworld.wolfram.com/MatrixInverse.html
+        http://en.wikipedia.org/wiki/Invertible_matrix.
+
+   MATINV(MAT,'loop') uses Matlab's INV function together with a 
+   straightforward loop.
+
+   The direct algorithm, which is the default, can be much faster when
+   MAT is large and the dimension to be inverted is small.
+   ____________________________________________________________
+
+   See also <a href="matmult.html" class="code" title="function[z]=matmult(mata,matb,K)">MATMULT</a>.
+
+   'matinv --t' runs some tests.
+
+   Usage: inv=matinv(mat);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2008--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="lnsd.html" class="code" title="function[varargout]=lnsd(varargin)">lnsd</a>	LNSD  Last non-singleton dimension of an array.</li><li><a href="matinv.html" class="code" title="function[invmat]=matinv(mat,str)">matinv</a>	MATINV  Fast inversion of arrays of small matrices.</li><li><a href="matmult.html" class="code" title="function[z]=matmult(mata,matb,K)">matmult</a>	MATMULT  Matrix multiplication for arrays of matrices.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jmap.html" class="code" title="">jmap</a>	jMap:  Mapping scattered data using local polynomial fitting</li><li><a href="matinv.html" class="code" title="function[invmat]=matinv(mat,str)">matinv</a>	MATINV  Fast inversion of arrays of small matrices.</li><li><a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">polysmooth</a>	POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

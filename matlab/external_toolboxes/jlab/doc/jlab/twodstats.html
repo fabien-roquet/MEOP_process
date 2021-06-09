@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of twodstats</title>
+  <meta name="keywords" content="twodstats">
+  <meta name="description" content="TWODSTATS  Mean, variance, and covariance of functions of two variables.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; twodstats.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>twodstats
+</h1>
+
+<div class="fragment"><pre class="comment">TWODSTATS  Mean, variance, and covariance of functions of two variables.
+   __________________________________________________________________
+
+   <img src='drifters_mean.png'>
+   __________________________________________________________________
+
+   TWODSTATS computes the first- and second-order statistics of a function
+   of two variables in prescribed bins.  This function may either be a 
+   scalar-valued or vector-valued quantity at each point. 
+ 
+   An example of a scalar-valued dataset is temperature as a function of
+   latitude and longitude. An example of a vector-valued dataset is wind
+   or current velocity as a function of latitude and longitude.
+
+   TWODSTATS, TWODHIST, and TWODMED are three related functions for 
+   computing statistics as a function two variables using very fast
+   algorithms that avoid any loops through efficient use of indexing. 
+   __________________________________________________________________
+  
+   Mean and standard deviation of a scalar-valued function 
+
+   MZ=TWODSTATS(X,Y,Z,XBIN,YBIN) where X, Y and Z are arrays of the same
+   length, forms the mean of Z over the XY plane.  
+  
+   If XBIN and YBIN are length N and M, respectively, then MZ is of 
+   size M-1 x N-1.  Bins with no data are assigned a value of NAN.
+
+   XBIN and YBIN must be monotonically increasing. 
+
+   MZ=TWODSTATS(X,Y,Z,N) uses N bins in the X and Y directions, linearly
+   spaced between the minimum and maximum values.  MZ is N-1 x N-1.
+
+   MZ=TWODSTATS(X,Y,Z,[XMIN XMAX],[YMIN YMAX],N) uses N bins, linearly
+   spaced between the designated X and Y values.  MZ is N-1 x N-1. 
+
+   X, Y, and Z can also be cell arrays of numerical arrays, in which case 
+   all data values are concatented prior to finding the statistics.
+   __________________________________________________________________
+
+   Additional output
+   
+   [MZ,XMID,YMID]=TWODSTATS(...) optionally returns the midpoints XMID
+   and YMID of the bins.
+
+   [MZ,XMID,YMID,NUMZ]=TWODSTATS(...) also returns the number of good
+   data points in each of the (X,Y) bins.  NUMZ is the same size as MZ.
+
+   [MZ,XMID,YMID,NUMZ,STDZ]=TWODSTATS(...) also returns the standard 
+   deviation of Z in the (X,Y) bins.  STDZ is the same size as MZ.
+   __________________________________________________________________
+  
+   Mean and covariance of a vector-valued function 
+   
+   TWODSTATS can also be used to analyze a function which contains more
+   than one value at each (X,Y) point.  
+
+   If Z represents a vector with K components, then Z should have the same
+   size as X and Y in all but its last dimension, which will be length K.
+
+   MZ=TWODSTATS(X,Y,Z,XBIN,YBIN) then returns MZ, containing the mean 
+   values of each component of Z in each bin.  If M and N are the lengths 
+   of XBIN and YBIN, MZ is of size M-1 x N-1 x K. 
+
+   [MZ,XMID,YMID,NUMZ,COVZ]=TWODSTATS(...) returns the full covariance
+   matrix COVZ in each of the bins.  As the covariance of Z is K x K, the 
+   size of the output matrix COVZ is M-1 x N-1 x K x K.
+   __________________________________________________________________
+
+   Algorithms
+
+   TWODSTATS uses a fast (exact) algorithm which is particularly efficient 
+   for large arrays.  TWODSTATS can be two orders of magnitude faster than
+   the obvious way of sorting the data in bins using explicit loops.   
+
+   The values of Z are sorted into bins according to the (X,Y) values, 
+   with bin edges specified by XBIN and YBIN. The mean of all finite 
+   values of Z in each bin is then computed looplessly, using indexing.
+
+   TWODSTATS(...,'slow') uses a slow algorithm which uses less memory.  By
+   default, TWODSTATS uses a fast but memory-intensive algorithm.  Use 
+   this flag if you get an out-of-memory error.  
+   __________________________________________________________________
+   
+   See also <a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">TWODHIST</a>, <a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">TWODMED</a>.
+
+   'twodstats --t' runs a test.
+   'twodstats --f' generates the sample figure shown above.
+
+   Usage: mz=twodstats(x,y,z,N);
+          mz=twodstats(x,y,z,[xmin xmax],[ymin ymax],N);
+          mz=twodstats(x,y,z,xbin,ybin);
+          [mz,xmid,ymid]=twodstats(x,y,z,xbin,ybin);
+          [mz,xmid,ymid,numz]=twodstats(x,y,z,xbin,ybin);
+          [mz,xmid,ymid,numz,stdz]=twodstats(x,y,z,xbin,ybin);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="bindata.html" class="code" title="function[xnum,xi,xmid]=bindata(xbin,xdata,str)">bindata</a>	BINDATA  Rapidly sort data into adjacent bins.</li><li><a href="blocklen.html" class="code" title="function[L,ia,ib,num]=blocklen(x,delta)">blocklen</a>	BLOCKLEN Counts the lengths of 'blocks' in an array.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="cellabs.html" class="code" title="function[x]=cellabs(x)">cellabs</a>	CELLABS  Absolute value of each element in a cell array.</li><li><a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>	CROP  Gets rid of whitespace around an image. [by A. Bliss]</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="oprod.html" class="code" title="function[z]=oprod(x,y)">oprod</a>	OPROD  Outer product:  OPROD(X,Y)=X*CONJ(Y')</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="topoplot.html" class="code" title="function[h,hc]=topoplot(varargin)">topoplot</a>	TOPOPLOT  Plot regional or global topography at one-sixth degree resolution.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vstd.html" class="code" title="function[varargout] = vstd(varargin)">vstd</a>	VSTD Standard deviation over finite elements along a specfied dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>	JTOPO  One-sixth degree global topography based on Smith and Sandwell.</li><li><a href="jstats.html" class="code" title="">jstats</a>	jStats:  Fast statistical analysis of large datasets in two dimensions</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

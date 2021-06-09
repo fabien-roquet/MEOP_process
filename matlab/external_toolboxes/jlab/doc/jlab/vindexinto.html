@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vindexinto</title>
+  <meta name="keywords" content="vindexinto">
+  <meta name="description" content="VINDEXINTO  Indexes into N-D array along a specified dimension.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; vindexinto.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>vindexinto
+</h1>
+
+<div class="fragment"><pre class="comment">VINDEXINTO  Indexes into N-D array along a specified dimension.
+
+   Y=VINDEXINTO(Y,X,INDEX,DIM) indexes the array X into the multi- 
+   dimensional array Y along dimension DIM. This is equivalent to   
+        
+            1 2       DIM     DIMS(X)
+            | |        |         |
+          Y(:,:, ... INDEX, ..., :)=X;        
+
+   where the location of INDEX is specified by DIM.  X must have the
+   exact same size as the block it replaces, or be a scalar.  
+   
+   VINDEXINTO is defined leave Y unchanged if INDEX is empty, and to 
+   ignore NANs and INFs in INDEX.  
+
+   VINDEXINTO(Y,X,INDEX,0) with DIM=0 is equivalent to Y(INDEX)=X;
+  
+   [Y1,Y2,...YN]=VINDEXINTO(Y1,Y2,...YN,X1,X2,...XN,INDEX,DIM) also 
+   works.
+
+   VINDEXINTO(Y1,Y2,...YN,X1,X2,...XN,INDEX,DIM); with no output 
+   arguments overwrites the original input variables ,Y2,...YN.
+
+   See also <a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">VINDEX</a>, SQUEEZE, DIMS, PERMUTE, SHIFTDIM
+
+   'vindexinto --t' runs a test.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2005--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="iseven.html" class="code" title="function[bool]=iseven(x)">iseven</a>	ISEVEN  True for even integer values; false otherwise.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="ecconv.html" class="code" title="function[varargout]=ecconv(varargin)">ecconv</a>	ECCONV  Converts between eccentricity measures.</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="matinv.html" class="code" title="function[invmat]=matinv(mat,str)">matinv</a>	MATINV  Fast inversion of arrays of small matrices.</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="ridgechains.html" class="code" title="function[id,ii,jj,xr,fr]=ridgechains(fs,N,bool,x,f,alpha,mask)">ridgechains</a>	RIDGECHAINS  Forms ridge curves by connecting transform ridge points.</li><li><a href="timeseries_boundary.html" class="code" title="function[y]=timeseries_boundary(varargin)">timeseries_boundary</a>	TIMESERIES_BOUNDARY  Apply boundary conditions to data before transform.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

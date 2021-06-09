@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of cum2mom</title>
+  <meta name="keywords" content="cum2mom">
+  <meta name="description" content="CUM2MOM  Convert cumulants to moments.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; cum2mom.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>cum2mom
+</h1>
+
+<div class="fragment"><pre class="comment">CUM2MOM  Convert cumulants to moments.
+
+   [M0,M1,...MN]=CUM2MOM(K0,K1,...KN) converts the first N cumulants 
+   K0,K1,...KN into the first N moments M0,M1,...MN.
+
+   The KN and MN are all scalars or arrays of the same size.
+
+   Note for a probability density function, M0=1 and K0=0.
+
+   MCELL=CUM2MOM(KCELL), where KCELL is a cell array whose (N+1)th
+   is the Nth cumulant, returns a similar cell array of moments.
+
+   CUM2MOM is inverted by MOM2CUM.  
+
+   See also <a href="mom2cum.html" class="code" title="function[varargout]=mom2cum(varargin)">MOM2CUM</a>, <a href="bellpoly.html" class="code" title="function[varargout]=bellpoly(varargin)">BELLPOLY</a>.
+
+   Usage: [m0,m1,m2]=cum2mom(k0,k1,k2);
+          mcell=cum2mom(kcell);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2008 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="bellpoly.html" class="code" title="function[varargout]=bellpoly(varargin)">bellpoly</a>	BELLPOLY  Complete Bell polynomials.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jcommon.html" class="code" title="">jcommon</a>	jCommon:  Useful general-purpose functions, common to other JLAB modules</li><li><a href="mom2cum.html" class="code" title="function[varargout]=mom2cum(varargin)">mom2cum</a>	MOM2CUM  Convert moments to cumulants.</li><li><a href="morsederiv.html" class="code" title="function[varargout]=morsederiv(nmax,ga,be,om)">morsederiv</a>	MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

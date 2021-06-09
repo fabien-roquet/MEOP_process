@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stickvect</title>
+  <meta name="keywords" content="stickvect">
+  <meta name="description" content="STICKVECT Plots &quot;stick vectors&quot; for multicomponent velocity time series.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; stickvect.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>stickvect
+</h1>
+
+<div class="fragment"><pre class="comment">STICKVECT Plots &quot;stick vectors&quot; for multicomponent velocity time series.
+  
+   STICKVECT(TIME,SCALE,U,V), where U and V are measurements of
+   &quot;eastward&quot; and &quot;northward&quot; velocities respectively, represents the
+   velocity points as vectors strung out along the x-axis.
+
+   The vector TIME is used as the x-axis, and SCALE is the stretching
+   factor used to map U values onto TIME.  SCALE velocity units
+   correspond to one X unit. The aspect ratio of the plot is set so
+   that angles are not distorted: the point (U,V)=(1,1) will make a
+   45 degree angle.
+
+   STICKVECT(TIME,SCALE,U,V,NSTICKS) plots only NSTICKS vectors
+   evenly spaced throughout the length of the input vectors.
+
+   STICKVECT may also be used with multicomponent time series. In
+   this case U and V are matrices the columns of which are distinct
+   time series from (for example) different depths.
+ 
+   STICKVECT(TIME,SCALE,U,V,NSTICKS,SHIFT), when U and V are
+   matrices, will offset the stickvector lines in the vertical by
+   amount SHIFT. SHIFT may either be a scalar, denoting the offset
+   between adjacent time series, a vector containing the &quot;baseline&quot;
+   values for each instrument, or a matrix of same size as U and V.
+   TIME may be a vector, or it may be a matrix of the same size as U
+   and V if the time-axes are not all the same.
+    
+   STICKVECT(TIME,CV,...), where CV=U+iV, also works.
+
+   STICKVECT plots a small diagonal line in the upper right-hand
+   corner of the plot, which should be at a 45 degree angle; this
+   provides a check that the aspect ratio is correct.  
+  
+   H=STICKVECT(...) returns a vector containing handles to the
+   stickvector lines of the various time series.
+
+   To adjust the appearance of the plot, first vary SCALE and then
+   vary NSTICKS.
+    
+   As an example,  
+  
+         load bravo94
+         cv=vfilt(bravo.rcm.cv,100);
+         stickvect(bravo.rcm.yearf,180,cv,300,-30);
+ 
+   recreates the upper part of Fig. 24 of Lilly et. al JPO 1999. 
+   This may be run by typing 'stickvect --f'.
+        
+   Usage:  stickvect(time,scale,u,v);
+           stickvect(time,scale,u,v,nsticks);
+           stickvect(time,scale,u,v,nsticks,shift);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 1998--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="stickvect.html" class="code" title="function[h]=stickvect(arg1,arg2,arg3,arg4,arg5,arg6)">stickvect</a>	STICKVECT Plots "stick vectors" for multicomponent velocity time series.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="stickvect.html" class="code" title="function[h]=stickvect(arg1,arg2,arg3,arg4,arg5,arg6)">stickvect</a>	STICKVECT Plots "stick vectors" for multicomponent velocity time series.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

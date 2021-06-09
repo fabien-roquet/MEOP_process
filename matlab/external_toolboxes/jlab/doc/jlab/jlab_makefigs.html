@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of jlab_makefigs</title>
+  <meta name="keywords" content="jlab_makefigs">
+  <meta name="description" content="JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; jlab_makefigs.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>jlab_makefigs
+</h1>
+
+<div class="fragment"><pre class="comment">JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.
+
+   JLAB_MAKEFIGS NAME makes all figures for the publication NAME, as follows. 
+
+   'jlab_makefigs superfamily':
+   Lilly, J. M., and S. C. Olhede (2012). Generalized Morse wavelets as a
+      superfamily of analytic wavelets. IEEE Transactions on Signal
+      Processing 60 (11), 6036--6041.
+
+   'jlab_makefigs multivariate':
+   Lilly, J. M., and S. C. Olhede (2012). Analysis of modulated 
+      multivariate oscillations. IEEE Transactions on Signal Processing, 
+      60 (2), 600--612.
+
+   'jlab_makefigs vortex': 
+   Lilly, J. M., R. K. Scott, and S. C. Olhede (2011). Extracting waves 
+      and vortices from Lagrangian trajectories. Geophysical Research 
+      Letters, 38, L23605, 1--5.
+
+   'jlab_makefigs trivariate':
+   Lilly, J. M. (2011). Modulated oscillations in three dimensions. IEEE
+      Transactions on Signal Processing, 59 (12), 5930--5943.
+
+   'jlab_makefigs analytic':
+   Lilly, J. M., and S. C. Olhede (2010). On the analytic wavelet 
+      transform. IEEE Transactions on Information Theory, 56 (8),
+      4135--4156.
+
+   'jlab_makefigs bandwidth':
+   Lilly, J. M., and S. C. Olhede (2010). Bivariate instantaneous 
+      frequency and bandwidth. IEEE Transactions on Signal Processing,
+      58 (2), 591--603.
+
+   'jlab_makefigs asilomar':
+   Lilly, J. M., and S. C. Olhede (2009). Wavelet ridge estimation of 
+      jointly modulated multivariate oscillations. IEEE 43rd Asilomar 
+      Conference on Signals, Systems, and Computers, 452--456. 
+
+   'jlab_makefigs morsies':
+   Lilly, J. M., and S. C. Olhede, (2009). Higher-order properties of 
+      analytic wavelets. IEEE Transactions on Signal Processing, 57 (1),
+      146--160.
+   
+   'jlab_makefigs ridges':
+   Lilly, J. M., and J.-C. Gascard (2006). Wavelet ridge diagnosis of 
+      time-varying elliptical signals with application to an oceanic eddy. 
+      Nonlinear Processes in Geophysics 13, 467--483.
+   
+   'jlab_makefigs all' makes the figures for all papers.
+  
+   'jlab_makefigs NAME print' will  print all figure for paper NAME as
+   .eps files in the current diretory, e.g. 'jlab_makefigs ridges print'. 
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ab2kl.html" class="code" title="function[K,L]=ab2kl(A,B)">ab2kl</a>	AB2KL  Converts A and B to ellipse parameters Kappa and Lambda.</li><li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="anyany.html" class="code" title="function[b]=anyany(x)">anyany</a>	ANYANY(X)=ANY(X(:))</li><li><a href="boxoff.html" class="code" title="function[]=boxoff">boxoff</a>	BOXON  Sets 'box' property to 'off'.</li><li><a href="boxon.html" class="code" title="function[]=boxon">boxon</a>	BOXON  Sets 'box' property to 'on'.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="celladd.html" class="code" title="function[y]=celladd(x,y)">celladd</a>	CELLADD  Addition acting on each element in a cell array.</li><li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="cellmult.html" class="code" title="function[y]=cellmult(x,y)">cellmult</a>	CELLMULT  Multiplication acting on each element in a cell array.</li><li><a href="cellplot.html" class="code" title="function[h]=cellplot(varargin)">cellplot</a>	CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.</li><li><a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">col2mat</a>	COL2MAT  Expands 'column-appended' data into a matrix.</li><li><a href="corfreq.html" class="code" title="function[fc]=corfreq(lat)">corfreq</a>	CORFREQ  Coriolis frequency in radians per hour.</li><li><a href="discretecolorbar.html" class="code" title="function[hc]=discretecolorbar(hc,cax,ci,str)">discretecolorbar</a>	DISCRETECOLORBAR  Plots a colorbar with discrete variation.</li><li><a href="ecconv.html" class="code" title="function[varargout]=ecconv(varargin)">ecconv</a>	ECCONV  Converts between eccentricity measures.</li><li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="ellrad.html" class="code" title="function[r]=ellrad(varargin)">ellrad</a>	ELLRAD  Average and instantaneous ellipse radius.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="ellvel.html" class="code" title="function[v]=ellvel(varargin)">ellvel</a>	ELLVEL  Average and instantaneous ellipse velocities.</li><li><a href="fillbad.html" class="code" title="function[datao]=fillbad(data,i2,i3,i4)">fillbad</a>	FILLBAD  Linearly interpolate over bad data points.</li><li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="flipmap.html" class="code" title="function[]=flipmap">flipmap</a>	FLIPMAP Flips the current colormap upside-down.</li><li><a href="flipy.html" class="code" title="function[]=flipy">flipy</a>	FLIPY    Flips the direction of the y-axis</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="fourier.html" class="code" title="function[f]=fourier(varargin)">fourier</a>	FOURIER  The one-sided Fourier frequencies for a given length time series.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="inticks.html" class="code" title="function[]=inticks">inticks</a>	INTICKS  Sets the 'tickdir' property of the current axis to 'in'.</li><li><a href="iseven.html" class="code" title="function[bool]=iseven(x)">iseven</a>	ISEVEN  True for even integer values; false otherwise.</li><li><a href="jdeg2rad.html" class="code" title="function[varargout]=jdeg2rad(varargin)">jdeg2rad</a>	JDEG2RAD  Converts degrees to radians.</li><li><a href="jmat3.html" class="code" title="function[x]=jmat3(theta,n)">jmat3</a>	JMAT3 3x3 rotation matrix through specified angle.</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">latlon2xy</a>	LATLON2XY  Converts latitude and longitude into local Cartesian coordinates.</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="letterlabels.html" class="code" title="function[h]=letterlabels(arg1,arg2,arg3)">letterlabels</a>	LETTERLABELS	For automatically putting letter labels on subplots.</li><li><a href="linecolor.html" class="code" title="function[varargout]=linecolor(varargin)">linecolor</a>	LINECOLOR  Set line colors based on a property value within a colormap.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="make.html" class="code" title="function[evalme]=make(varargin)">make</a>	MAKE  Create a structure containing named variables as fields.</li><li><a href="matmult.html" class="code" title="function[z]=matmult(mata,matb,K)">matmult</a>	MATMULT  Matrix multiplication for arrays of matrices.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="morlfreq.html" class="code" title="function[nui,om2i]=morlfreq(omi)">morlfreq</a>	MORLFREQ  Compute Morlet wavelet carrier frequency given peak frequency.</li><li><a href="morlwave.html" class="code" title="function [w,W]=morlwave(N,fo,fs,str)">morlwave</a>	MORLWAVE  Morlet wavelet.</li><li><a href="morsebox.html" class="code" title="function[a,sigt,sigo,skew]=morsebox(ga,be)">morsebox</a>	MORSEBOX  Heisenberg time-frequency box for generalized Morse wavelets.</li><li><a href="morsederiv.html" class="code" title="function[varargout]=morsederiv(nmax,ga,be,om)">morsederiv</a>	MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="morseprops.html" class="code" title="function[p,skew,kurt]=morseprops(ga,be)">morseprops</a>	MORSEPROPS  Properties of the demodulated generalized Morse wavelets.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li><li><a href="nocontours.html" class="code" title="function[h]=nocontours(h)">nocontours</a>	NOCONTOURS  Removes contours from a CONTOURF plot.</li><li><a href="nonnan.html" class="code" title="function[x]=nonnan(x)">nonnan</a>	NONNAN  Return all non-NAN elements of an array.</li><li><a href="noylabels.html" class="code" title="function[]=noylabels(str)">noylabels</a>	NOYLABELS   Remove some or all y-axis tick mark labels.</li><li><a href="outticks.html" class="code" title="function[]=outticks">outticks</a>	OUTTICKS  Sets the 'tickdir' property of the current axis to 'out'.</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="periodindex.html" class="code" title="function[index]=periodindex(varargin)">periodindex</a>	PERIODINDEX  Returns time index in increments of instantaneous period.</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="ridgemap.html" class="code" title="function[varargout]=ridgemap(varargin)">ridgemap</a>	RIDGEMAP  Maps ridge quantities back onto the time series.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="simplepdf.html" class="code" title="function[f]=simplepdf(x,mu,sig,flag)">simplepdf</a>	SIMPLEPDF  Gaussian, uniform, Cauchy, and exponential pdfs.</li><li><a href="sleptap.html" class="code" title="function[v,lambda]=sleptap(varargin)">sleptap</a>	SLEPTAP  Calculate Slepian tapers.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="tmat.html" class="code" title="function[x]=tmat()">tmat</a>	TMAT  2x2 complex grouping matrix.  TMAT = [1  i; 1 -i] / SQRT(2)</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="uvplot.html" class="code" title="function[h1,h2]=uvplot(varargin)">uvplot</a>	UVPLOT  Plots the real and imaginary parts of a signal on the same axis.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">vectmult</a>	VECTMULT  Matrix multiplication for arrays of vectors.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li><li><a href="wigdist.html" class="code" title="function[d,f]=wigdist(x,nmin,nmax,N2,s)">wigdist</a>	WIGDIST  Wigner distribtion (alias-free algorithm).</li><li><a href="xlog.html" class="code" title="function[]=xlog">xlog</a>	XLOG   Sets x-axis scale to logarithmic.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="xy2latlon.html" class="code" title="function[lat,lon]=xy2latlon(varargin)">xy2latlon</a>	XY2LATLON  Converts local Cartesian coordinates into latitude and longitude.</li><li><a href="ylog.html" class="code" title="function[]=ylog">ylog</a>	YLOG  Sets y-axis scale to log.</li><li><a href="yoffset.html" class="code" title="function[]=yoffset(i1,i2)">yoffset</a>	YOFFSET  Offsets lines in the y-direction after plotting.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li><li><a href="ztick.html" class="code" title="function[]=ztick(varargin)">ztick</a>	ZTICK  Sets locations of z-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Contents.html" class="code" title="">Contents</a>	jLab v1.5 by J. M. Lilly</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

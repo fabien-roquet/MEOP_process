@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of latlon2xyz</title>
+  <meta name="keywords" content="latlon2xyz">
+  <meta name="description" content="LATLON2XYZ  Converts latitude and longitude into 3D Cartesian coordinates.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; latlon2xyz.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>latlon2xyz
+</h1>
+
+<div class="fragment"><pre class="comment">LATLON2XYZ  Converts latitude and longitude into 3D Cartesian coordinates.
+
+   [X,Y,Z]=LATLON2XYZ(LAT,LON) converts latitude and longitude of 
+   a position on the surface of a sphere into Cartesian coordinates.  
+
+   LAT and LON are in degrees and X, Y, and Z are in kilometers.  
+
+   LAT and LON may either be arrays of the same size, or LON may be an
+   array and LAT a scalar.  X, Y, and Z will have the same size as LON.
+
+   The Cartesian coordinate system is a right-handed system whose
+   origin lies at the center of the sphere.  It is oriented with the 
+   Z-axis passing though the poles and the X-axis passing through
+   the point LAT=0, LON=0.  
+
+   By default, the radius of the sphere is taken as RADEARTH.
+   LATLON2XYZ(LAT,LON,R) uses a sphere of radius R, in kilometers,
+   instead.
+
+   LATLON2XYZ is inverted by XYZ2LATLON.
+
+   See JSPHERE for related functions.
+
+   'latlon2xyz --t' runs a test.
+
+   Usage: [x,y,z]=latlon2xyz(lat,lon);
+          [x,y,z]=latlon2xyz(lat,lon,R);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2006--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="latlon2xyz.html" class="code" title="function[x,y,z]=latlon2xyz(lat,lon,R)">latlon2xyz</a>	LATLON2XYZ  Converts latitude and longitude into 3D Cartesian coordinates.</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jsphere.html" class="code" title="">jsphere</a>	jSphere:  Tools for latitude, longitude, and spherical geometry</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="latlon2xyz.html" class="code" title="function[x,y,z]=latlon2xyz(lat,lon,R)">latlon2xyz</a>	LATLON2XYZ  Converts latitude and longitude into 3D Cartesian coordinates.</li><li><a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">spheresort</a>	SPHERESORT  Sorted great circle distances to nearby points on the earth.</li><li><a href="trajfill.html" class="code" title="function[lat,lon,filled]=trajfill(varargin)">trajfill</a>	TRAJFILL  Fills float or drifter trajectories with linear interpolation.</li><li><a href="uv2latlon.html" class="code" title="function[lat,lon]=uv2latlon(varargin)">uv2latlon</a>	UV2LATLON  Integrates horizontal velocity to give latitude and longitude.</li><li><a href="xyz2latlon.html" class="code" title="function[lat,lon]=xyz2latlon(x,y,z,R)">xyz2latlon</a>	XYZ2LATLON  Converts 3D Cartesian coordinates into latitude and longitude.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

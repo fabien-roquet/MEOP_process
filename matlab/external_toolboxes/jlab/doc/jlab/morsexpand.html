@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of morsexpand</title>
+  <meta name="keywords" content="morsexpand">
+  <meta name="description" content="MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; morsexpand.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>morsexpand
+</h1>
+
+<div class="fragment"><pre class="comment">MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.
+
+   PSI=MORSEXPAND(T,GAMMA,BETA,FS) computes the lowest-order generalized
+   Morse wavelet specified by parameters GAMMA and BETA, and having a peak
+   frequency at *radian* frequency FS, using a time-domain Taylor series.
+
+   Normally one would use MORSEWAVE to compute the wavelets in the
+   frequency domain, but it is sometimes useful to have an explicit
+   time-domain representation.
+
+   There are no contraints on the size of T nor its ordering.  
+
+   All input parameters other than T should be scalars.
+   __________________________________________________________________
+
+   Algorithms
+
+   MORSEXPAND can use one of two different algorithms.
+
+   MORSEXPAND(,...,'moment'), the default behavior,  Taylor-expands the
+   time-domain wavelet directly.
+
+   MORSEXPAND(,...,'cumulant') expands the logarithm of the time-domain 
+   wavelet and then takes the exponential. 
+
+   MORSEXPAND(N,...) specifies the number of terms to include in the
+   Taylor expansion.  N defaults to 10 in the 'cumulant' case and 100 in
+   the 'moment' case.
+
+   These algorithms implement equations (30) and (31) of Lilly and
+   Olhede (2009).
+
+   For details see
+
+       Lilly and Olhede (2009).  Higher-order properties of analytic 
+           wavelets.  IEEE Trans. Sig. Proc., 57 (1), 146--160.
+   __________________________________________________________________
+
+   See also <a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">MORSEWAVE</a>, <a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">WAVETRANS</a>.
+
+   'morsexpand --t' runs a test.
+
+   Usage: psi=morsexpand(t,gamma,beta,fs);
+          psi=morsexpand(n,t,gamma,beta,fs);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="morsemom.html" class="code" title="function[m,n,k,l]=morsemom(p,ga,be)">morsemom</a>	MORSEMOM  Frequency-domain moments of generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="morsexpand.html" class="code" title="function[psi]=morsexpand(varargin)">morsexpand</a>	MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="jwavelet.html" class="code" title="">jwavelet</a>	jWavelet: Continuous wavelet analysis using generalized Morse wavelets</li><li><a href="morsexpand.html" class="code" title="function[psi]=morsexpand(varargin)">morsexpand</a>	MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

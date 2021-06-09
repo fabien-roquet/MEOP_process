@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of quadinterp</title>
+  <meta name="keywords" content="quadinterp">
+  <meta name="description" content="QUADINTERP  Fast quadratic interpolation for arbitrary-sized arrays.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; quadinterp.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>quadinterp
+</h1>
+
+<div class="fragment"><pre class="comment">QUADINTERP  Fast quadratic interpolation for arbitrary-sized arrays.
+
+   QUADINTERP is a low-level function called by RIDGEINTERP.
+
+   XI=QUADINTERP(T1,T2,T3,X1,X2,X3,TI) interpolates a function X
+   within an independent variable T using a quadratic algorithm.
+
+   The function values X1--X3 may be arrays of any size provided 
+   they are all the same size.  The &quot;time&quot; values T1--T3 may be 
+   scalars, or arrays of the same size as X1--X3.  
+
+   If T1--T3 and X1--X3 are non-scalar arrays, T should either be
+   a scalar or an array of the same size as the other arguments.
+
+   If T1--T3 and X1--X3 are all scalars, T may be of any size, and
+   XI will have the same size as T.
+
+   The function values X1--X3 may be real or complex.
+
+   QUADINTERP uses the exact algebraic expressions to operate
+   looplessly on matrices, thus it is very fast.    
+   __________________________________________________________________
+
+   Locating maxima or minima
+
+   QUADINTERP can also be used to find the extreme value of X(T), 
+   that is its maxima or minima.
+ 
+   [XE,TE]=QUADINTERP(T1,T2,T3,X1,X2,X3) with only six input arguments
+   solves for TE, the time at which X(T) obtains an extreme value XE.
+
+   XE and TE are the same size as the input arrays.
+   __________________________________________________________________
+
+   Algorithm details
+
+   Let X and T be related as
+
+              X = A*T.^2 + B*T + C 
+
+   The coefficients A, B, and C are uniquely determined by three (T,X)
+   pairs.  QUADINTERP solves for these coefficients and uses the 
+   result to interpolate X to any other value of T.   
+   __________________________________________________________________
+
+   See also <a href="lininterp.html" class="code" title="function[x,t]=lininterp(t1,t2,x1,x2,t)">LININTERP</a>, CUBEINTERP.
+
+   Usage:   x=quadinterp(t1,t2,t3,x1,x2,x3,t);
+            [xe,te]=quadinterp(t1,t2,t3,x1,x2,x3);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2006 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="quadinterp.html" class="code" title="function[x,t]=quadinterp(t1,t2,t3,x1,x2,x3,t)">quadinterp</a>	QUADINTERP  Fast quadratic interpolation for arbitrary-sized arrays.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jridges.html" class="code" title="">jridges</a>	jRidges:  Wavelet ridge analysis of modulated oscillatory signals</li><li><a href="quadinterp.html" class="code" title="function[x,t]=quadinterp(t1,t2,t3,x1,x2,x3,t)">quadinterp</a>	QUADINTERP  Fast quadratic interpolation for arbitrary-sized arrays.</li><li><a href="ridgeinterp.html" class="code" title="function[varargout]=ridgeinterp(varargin)">ridgeinterp</a>	RIDGEINTERP  Interpolate quantity values onto ridge locations.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

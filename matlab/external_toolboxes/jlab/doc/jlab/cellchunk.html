@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of cellchunk</title>
+  <meta name="keywords" content="cellchunk">
+  <meta name="description" content="CELLCHUNK  Converts cell array data into uniform length 'chunks'.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; cellchunk.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>cellchunk
+</h1>
+
+<div class="fragment"><pre class="comment">CELLCHUNK  Converts cell array data into uniform length 'chunks'.
+
+   Y=CELLCHUNK(X,L), where X is a cell array of variable-length numeric
+   arrays, extracts non-overlapping 'chunks' of the uniform length L and
+   returns these in Y, a matrix having L rows.
+   
+   Successive chunks of length L data in X are become successive columns
+   in Y, regardless of the cell to which they initially belonged.  
+   Residuals of length less then L at the end of each cell are discarded.
+
+   For example:
+
+       x{1}=[1 2 3 4]'; x{2}=[5 6 7]'; x{3}=[8 9]'; 
+
+       cellchunk(x,2) =  [1 3 5 8]
+                         [2 4 6 9]
+
+   This is useful, for example, in examining spectra from uniform-length 
+   intervals in Lagragnian data such as FLOATS.MAT or DRIFTERS.MAT.
+
+   If there is a remainder R in how many times L goes into the length of
+   the time series, FLOOR(R/2) points will be thrown away from the
+   beginning of the time series and CEIL(R/2) points from the end. 
+
+   [Y1,Y2,...,YN]=CELLCHUNK(X1,X2,...,XN,L) also works, where the XN are
+   all cell array of the same size.
+ 
+   CELLCHUNK with no output arguments overwrite the original named input
+   variables. 
+   __________________________________________________________________
+   
+   Overlap
+
+   CELLCHUNK(...,L,'overlap') instead outputs chunks of length L with a 
+   50% overlap.  That is, successive columns of the output overlap by L/2.
+
+   In this case, remainders are discarded from the ends of the time 
+   series, instead of being split between the beginning and the end as in
+   the non-overlapping case.  
+   __________________________________________________________________   
+
+   See also INERTIALCHUNK.
+
+   'cellchunk --t' runs a test.
+
+   Usage: y=cellchunk(x,L);
+          [y1,y2,y3]=cellchunk(x1,x2,x3,L);
+          [y1,y2,y3]=cellchunk(x1,x2,x3,L,'overlap');
+          cellchunk(x1,x2,x3,L);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="cellchunk.html" class="code" title="function[varargout]=cellchunk(varargin)">cellchunk</a>	CELLCHUNK  Converts cell array data into uniform length 'chunks'.</li><li><a href="nonnan.html" class="code" title="function[x]=nonnan(x)">nonnan</a>	NONNAN  Return all non-NAN elements of an array.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="cellchunk.html" class="code" title="function[varargout]=cellchunk(varargin)">cellchunk</a>	CELLCHUNK  Converts cell array data into uniform length 'chunks'.</li><li><a href="jcell.html" class="code" title="">jcell</a>	jCell:  Tools for operating on cell arrays of column vectors</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

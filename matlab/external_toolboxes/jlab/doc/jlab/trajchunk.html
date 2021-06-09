@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of trajchunk</title>
+  <meta name="keywords" content="trajchunk">
+  <meta name="description" content="TRAJCHUNK  Converts Lagrangian trajectories into chunks based on the Coriolis period.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; trajchunk.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>trajchunk
+</h1>
+
+<div class="fragment"><pre class="comment">TRAJCHUNK  Converts Lagrangian trajectories into chunks based on the Coriolis period.
+
+   TRAJCHUNK is used to split float or drifter data into chuncks such that
+   the length of each chunk is a fixed multiple of the average Coriolis
+   frequency. This is useful in spectral analysis. 
+
+   [NUMO,LATO]=TRAJCHUNK(NUM,LAT,P), where NUM and LAT are arrays of date
+   number and latitude for float or drifter data, re-organizes these into 
+   chunks such that the average Coriolis frequency f_C in each chunk is at 
+   least P times the Rayleigh frequency f_R for that chunk.
+
+   Recall that the Rayleigh frequency is f_R=2*pi/(DT*N), in units of 
+   radians per unit time, where DT is the sample interval and N is the
+   number of samples.
+
+   The output variables NUM and LAT are now cell arrays of numerical
+   arrays, with each cell is truncated such that its length is just long
+   enough such that f_C &gt; P * f_R.  
+
+   Trajectories that are not long enough to satisfy this criterion are 
+   discarded, as are short residual segments at the end of trajectories.   
+
+   Each input trajectory is thus split into zero, one, or more than one
+   cells in the output variables.   
+   __________________________________________________________________
+
+   Additional options
+
+   [NUMO,LATO,Y1,Y2,...,YM]=TRAJCHUNK(NUM,LAT,X1,X2,...XM,N) chunks the M
+   input arrays X1, X2,... XM in the same manner, and returns these as Y1,
+   Y2,... YM.  The YM are cell arrays of the same size as NUMO.
+
+   TRAJCHUNK(...,P,LMIN) also specifies a mininum number of points LMIN
+   for each chunk.      
+
+   TRAJCHUNK with no output arguments overwrites the original named output
+   variables. 
+
+   [..,II]=TRAJCHUNK(...), with an extra final output argument, 
+   outputs a cell array II of indices to the original time series. 
+
+   As an example, LAT(II{1}) gives the latitudes of the data in the first 
+   cell of the output, LATO{1}.
+   __________________________________________________________________
+   
+   Keeping short data segments
+
+   By default, any data is cells shorter than the specified length are 
+   discarded, as are data segments at the end of the trajectories.  
+
+   TRAJCHUNK(...,'keep') keeps these instead.  Short cells are returned in
+   their own chunks, and leftover segments are appended to the end of the 
+   preceding chunk.  
+
+   This preserves the number of data points, while favoring a requested 
+   length, if possible, from each trajectory. 
+   __________________________________________________________________
+
+   Cell array input 
+
+   The input variables NUM and LAT are cell arrays of numerical arrays,
+   with one trajectory per cell, as with FLOATS.MAT and DRIFTERS.MAT.  For
+   details on these datasets, see ABOUT_FLOATS and ABOUT_DRIFTERS.
+
+   In this case, the output variables are still 1D cell arrays of numeric
+   arrays.  Chunks drawn from each successive trajectory are appended to 
+   the end of the output cell arrays.   
+
+   [...,II,KK]=TRAJCHUNK(...) in this case also outputs the indices of
+   the data locations within the input cells.  KK is not a cell array
+   like the other output arguments, but rather a row array of LENGTH(II).
+
+   As an example, LAT(KK(1))(II{1}) gives the latitudes of the data in the 
+   first cell of the output, LATO{1}.
+   __________________________________________________________________
+   
+   Overlap
+
+   TRAJCHUNK(...,'overlap',PCT) outputs chunks with a percentage PCT 
+   overlap.  For example, TRAJCHUNK(...,'overlap',50) outputs chunks that 
+   overlap by 50%.  The default behavior gives chunks with no overlap.
+   __________________________________________________________________   
+
+   See also <a href="cellchunk.html" class="code" title="function[varargout]=cellchunk(varargin)">CELLCHUNK</a>.
+
+   'trajchunk --t' runs a test.
+
+   Usage: [num,lat]=trajchunk(num,lat,P);
+          [num,lat,lon,cv]=trajchunk(num,lat,lon,cv,P);
+          [num,lat,lon,cv]=trajchunk(num,lat,lon,cv,P,lmin);
+          [num,lat,lon,cv]=trajchunk(num,lat,lon,cv,P,'half');
+          trajchunk(num,lat,lon,cv,P);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">col2mat</a>	COL2MAT  Expands 'column-appended' data into a matrix.</li><li><a href="corfreq.html" class="code" title="function[fc]=corfreq(lat)">corfreq</a>	CORFREQ  Coriolis frequency in radians per hour.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="res.html" class="code" title="function[x]=res(x)">res</a>	RES    Residual after flooring:  RES(X)=X-FLOOR(X)</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="trajchunk.html" class="code" title="function[varargout]=trajchunk(varargin)">trajchunk</a>	TRAJCHUNK  Converts Lagrangian trajectories into chunks based on the Coriolis period.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="trajchunk.html" class="code" title="function[varargout]=trajchunk(varargin)">trajchunk</a>	TRAJCHUNK  Converts Lagrangian trajectories into chunks based on the Coriolis period.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

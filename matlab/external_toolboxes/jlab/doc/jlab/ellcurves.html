@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ellcurves</title>
+  <meta name="keywords" content="ellcurves">
+  <meta name="description" content="ELLCURVES  Returns curves corresponding to specified ellipse properties.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ellcurves.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ellcurves
+</h1>
+
+<div class="fragment"><pre class="comment">ELLCURVES  Returns curves corresponding to specified ellipse properties.
+
+   For direct plotting of ellipses, see ELLPLOT, which calls ELLCURVES.
+
+   Z=ELLCURVES(KAPPA,LAMBDA,THETA,ZO) returns complex-valued curves Z
+   tracing out the periphery of ellipses with amplitude KAPPA, linearity 
+   LAMBDA, and orientation THETA, located at complex positions ZO=XO+iYO.
+
+   All input arguments are arrays of the same length, say N.  By default,  
+   Z is calculated at 32 locations around the periphery.  Thus Z will be a
+   complex-valued matrix with 32 rows and N columns. 
+
+   ELLCURVES(KAPPA,LAMBDA,THETA,PHI,Z) with five input arguments begins 
+   each ellipse at phase PHI.  For most applications, the starting phase
+   does not matter.  The default value is to begin with a phase of zero. 
+
+   ELLCURVES(... ,'npoints',M) uses M points around the ellipse periphery.
+
+   ELLCURVES(... ,'aspect',AR) with AR=[XAR YAR] multiplies the X-signal 
+   and Y-signal by XAR and YAR, respectively, for plotting purposes. 
+
+   ELLCURVES is called by ELLPLOT, and is also useful in applications,
+   e.g. analysis of model fields within elliptical contours.
+
+   The curves can be plotted with PLOT(Z).
+
+   See also <a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ELLIPSEPLOT</a>, <a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ELLSIG</a>, <a href="inellipse.html" class="code" title="function[bool]=inellipse(varargin)">INELLIPSE</a>.
+
+   Usage: z=ellcurves(kappa,lambda,theta,zo);
+          z=ellcurves(kappa,lambda,theta,phi,zo);
+          z=ellcurves(kappa,lambda,theta,phi,zo,'npoints',64);
+          z=ellcurves(kappa,lambda,theta,phi,zo,'aspect',ar,'npoints',64);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

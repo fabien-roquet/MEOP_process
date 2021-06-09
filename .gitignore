@@ -1,0 +1,11 @@
+.ipynb_checkpoints/
+calibration_plots/
+doc_latex/
+final_dataset_prof/
+*.png
+list_*.csv
+list_*.txt
+list_*.pkl
+plots/
+share/
+temporary/

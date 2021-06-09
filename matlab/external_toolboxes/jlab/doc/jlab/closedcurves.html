@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of closedcurves</title>
+  <meta name="keywords" content="closedcurves">
+  <meta name="description" content="CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; closedcurves.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>closedcurves
+</h1>
+
+<div class="fragment"><pre class="comment">CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.
+   _______________________________________________________________________
+   
+   <img src='closedcurves.png'>
+   ______________________________________________________________________
+
+   [XC,YC]=CLOSEDCURVES(F,FO) returns closed curves of the matrix F at 
+   level FO, i.e. curves where F=FO, as the cell arrays XC and YC.  
+
+   If F has N contiguous patches at the contour level FO, then XC and YC
+   will be length N cell arrays.  
+
+   After rounding, the values of XC will be indices into the *columns* 
+   of F, while YC will be indices into the *rows*. 
+
+   [XC,YC]=CLOSEDCURVES(X,Y,F,FO) alternately specifies X and Y axes to go
+   with F.  X is associated with the *columns* of F and Y with its *rows*.
+   The lengths of X and Y must match SIZE(F,2) and SIZE(F,1) respectively.
+
+   Use CELLPLOT(XC,YC) to plot the curves. 
+
+   CLOSEDCURVES works by calling Matlab's CONTOUR routine, re-arranging
+   the contour matrix output, and throwing away non-closed contours. 
+
+   CLOSEDCURVES has options for considering a periodic domain, and for
+   interpolating the curves at a specified resolution, as described below.
+
+   The above figure shows closed curves of the Okubo-Weiss parameter P,
+   specifically the contour level P = -4 times its own standard deviation,
+   in a numerical simulation of quasi-geostrophic (QG) turbulence.
+   __________________________________________________________________
+
+   Periodic extension
+  
+   CLOSEDCURVES can look for curves within a singly or doubly periodic
+   version of the input field F.
+
+   CLOSEDCURVES(...,'periodic') will make F doubly periodic before looking
+   for closed curves.  
+
+   The X and Y axes will be extended based on their regular spacing, and 
+   these extended values will be returned in XC and YC for curves that 
+   fall into the periodically extended domain. 
+
+   CLOSEDCURVES(...,'periodic',N) extends F by N points in all directions.
+
+   CLOSEDCURVES(...,'periodic',N,M) extends F by M points at both the left
+   and the right (rows), and N points at the top and the bottom (columns).
+
+   To apply the periodic extension in only one of the dimesions, use
+   CLOSEDCURVES(...,'periodic',N,0) or CLOSEDCURVES(...,'periodic',0,M).
+
+   The above figure illustrates the difference between the periodized and
+   non-periodized algorithm.  In periodic domain such as this one, closed
+   curves at the region boundary will be missed wihtout periodization.
+
+   See PERIODIZE for details.
+   __________________________________________________________________
+
+   Interpolation
+
+   CLOSEDCURVES can also interpolate the curves to a specified number of
+   points along each curve, in order to increase the spatial resolution.  
+
+   [XC,YC]=CLOSEDCURVES(...,'interpolate',NPOINTS) will spline-interpolate
+   each curve to be length NPOINTS. 
+
+   In this case, XC and YC will be *matrices* instead of cell arrays.  The
+   number of rows of XC and YC is then NPOINTS, with each column 
+   corresponding to a separate curve.
+
+   Choosing a high value of NPOINTS, say NPOINTS=256, will minimize errors
+   in integral calculations based on these curves, such as those carried
+   out by CURVEMOMENTS.
+   __________________________________________________________________
+
+   See also <a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">CURVEMOMENTS</a>, <a href="curveinterp.html" class="code" title="function[ci]=curveinterp(varargin)">CURVEINTERP</a>, <a href="periodize.html" class="code" title="function[varargout]=periodize(varargin)">PERIODIZE</a>.
+
+   'closedcurves --t' runs a test.
+   'closedcurves --f' generates the above figure.
+
+   Usage: [xc,yc]=closedcurves(f,fo);
+          [xc,yc]=closedcurves(x,y,f,fo);
+          [xc,yc]=closedcurves(x,y,f,fo,'interpolate',256);
+          [xc,yc]=closedcurves(x,y,f,fo,'periodic',M);
+          [xc,yc]=closedcurves(x,y,f,fo,'periodic',N,M);
+          [xc,yc]=closedcurves(x,y,f,fo,'periodic',N,M,'interpolate',256);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="cellplot.html" class="code" title="function[h]=cellplot(varargin)">cellplot</a>	CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.</li><li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>	CROP  Gets rid of whitespace around an image. [by A. Bliss]</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="flipmap.html" class="code" title="function[]=flipmap">flipmap</a>	FLIPMAP Flips the current colormap upside-down.</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="noxlabels.html" class="code" title="function[]=noxlabels(str)">noxlabels</a>	NOXLABELS   Remove some or all x-axis tick mark labels.</li><li><a href="noylabels.html" class="code" title="function[]=noylabels(str)">noylabels</a>	NOYLABELS   Remove some or all y-axis tick mark labels.</li><li><a href="periodize.html" class="code" title="function[varargout]=periodize(varargin)">periodize</a>	PERIODIZE  Returns a doubly periodic version of an input array.</li><li><a href="psi2fields.html" class="code" title="function[cv,zeta,n,s,p]=psi2fields(varargin)">psi2fields</a>	PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="curveinterp.html" class="code" title="function[ci]=curveinterp(varargin)">curveinterp</a>	CURVEINTERP  Interpolate a field or its gradient onto a set of curves.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="patchcontourf.html" class="code" title="function[varargout]=patchcontourf(varargin)">patchcontourf</a>	PATCHCONTOURF  Generate filled contours using patches, with specified colors.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

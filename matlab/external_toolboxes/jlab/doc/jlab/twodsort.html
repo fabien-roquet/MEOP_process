@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of twodsort</title>
+  <meta name="keywords" content="twodsort">
+  <meta name="description" content="TWODSORT  Distances from data points to nearby grid points.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; twodsort.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>twodsort
+</h1>
+
+<div class="fragment"><pre class="comment">TWODSORT  Distances from data points to nearby grid points.
+
+   [D,XD,YD]=TWODSORT(X,Y,XO,YO,CUTOFF) returns distances D between data
+   points at locations X,Y and nearby grid points at XO,YO, computed
+   efficiently and organized in a convenient manner.
+
+   XD and YD are deviations from each data point location to the grid 
+   point location. CUTOFF is the maximum distance for which we wish the
+   output arrays to be returned.
+ 
+   X and Y are arrays of the same size into data point locations. XO and
+   YO  are arrays of length M and N, say, specifying the bin center
+   locations of an M x N matrix of grid points, i.e.
+
+       XO =  [XO_1;    YO= [YO_1 YO_2 ... YO_N]. 
+              XO_2; 
+               ...
+              XO_M]
+
+   The output arrays are then each M x N x P arrays of column vectors, 
+   where P is the maximum number of points in the CUTOFF neighborhood at
+   any grid point.  Points farther away are filled with NANs.
+
+   D gives the distances of those data points less than CUTOFF from the
+   (m,n)th grid point, sorted in order of increasing distance.  XD and YD 
+   are deviations of each data point from the (m,n)th grid point location.
+   _________________________________________________________________
+ 
+   Additional input parameters
+
+   Let's say some additional variables Z1, Z2,...,ZK are given at the data
+   locations X,Y.  Then 
+   
+   [D,XD,YD,Z1D,Z2D,...,ZKD]=
+
+                TWODSORT(X,Y,Z1,Z2,...,ZK,XO,YO,CUTOFF);
+
+   also returns the values of these variables.
+
+   Z1D, Z2D,...,ZKD are the same size as the other output arguments.  Z1D
+   then gives the value of Z1 at data points no more than CUTOFF 
+   kilometers from the (m,n)th grid point, etc.
+
+   To output an index into the data point locations, use
+  
+   [D,X,Y,INDEX]= TWODSORT(X,Y,[1:LENGTH(X(:))],XO,YO,CUTOFF).
+   _________________________________________________________________
+ 
+   See also <a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">SPHERESORT</a>, <a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">POLYSMOOTH</a>.
+
+   'twodsort --t' runs a test.
+
+   Usage: [ds,xs,ys]=twodsort(x,y,xo,yo,cutoff);
+          [ds,xs,ys,zs]=twodsort(x,y,zs,xo,yo,cutoff);
+          [xs,ys,z1s,z2s,...,zNs]=twodsort(x,y,z1,z2,...,zN,xo,yo,cutoff);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2008--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="twodsort.html" class="code" title="function[varargout]=twodsort(varargin)">twodsort</a>	TWODSORT  Distances from data points to nearby grid points.</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jmap.html" class="code" title="">jmap</a>	jMap:  Mapping scattered data using local polynomial fitting</li><li><a href="polysmooth.html" class="code" title="function[varargout]=polysmooth(varargin)">polysmooth</a>	POLYSMOOTH  Smoothing scattered 2D data with local polynomial fitting.</li><li><a href="twodsort.html" class="code" title="function[varargout]=twodsort(varargin)">twodsort</a>	TWODSORT  Distances from data points to nearby grid points.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

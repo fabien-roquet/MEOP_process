@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of cellindex</title>
+  <meta name="keywords" content="cellindex">
+  <meta name="description" content="CELLINDEX  Applies a cell array of indices to a cell array of column vectors.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; cellindex.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>cellindex
+</h1>
+
+<div class="fragment"><pre class="comment">CELLINDEX  Applies a cell array of indices to a cell array of column vectors.
+
+   Y=CELLINDEX(X,INDEX) where X is a cell array of N column vectors, and
+   INDEX is a cell array of indices into those vectors
+
+       X{1}=X1, X{2}=X2,..., X{N}=XN
+       INDEX{1}=I1, INDEX{2}=I2,..., INDEX{N}=IN
+ 
+   applies INDEX to each element of X, returning Y defined by
+
+      Y{1}=X1(I1), Y{2}=X2(I2),..., Y{N}=XN(IN).
+
+   The output arrays YN are the same size as the indices IN. 
+   __________________________________________________________________
+
+   Multiple input arguments
+
+   [Y1,Y2,...,YM]=CELLINDEX(X1,X2,...,XM,INDEX) also works, with M 
+   different cell arrays XM of identical size input, leading to M cell
+   arrays YM all having the same size as INDEX.
+   __________________________________________________________________
+
+   See also <a href="jcell.html" class="code" title="">JCELL</a>, <a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">VINDEX</a>.
+
+   Usage: y=cellindex(x,index);
+          [y1,y2,y3]=cellindex(x1,x2,x3,index);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2011--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jcell.html" class="code" title="">jcell</a>	jCell:  Tools for operating on cell arrays of column vectors</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

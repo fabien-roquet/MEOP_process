@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of orbitbreaks</title>
+  <meta name="keywords" content="orbitbreaks">
+  <meta name="description" content="ORBITBREAKS  Separate orbit into passes based on turning points.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; orbitbreaks.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>orbitbreaks
+</h1>
+
+<div class="fragment"><pre class="comment">ORBITBREAKS  Separate orbit into passes based on turning points.
+
+   ORBITBREAKS is a level function called by ABOUT_ALONGTRACK.
+
+   [LAT,LON]=ORBITBREAKS(LAT,LON), where LAT and LON are column vectors
+   representing a satellite orbital groundtrack, is used to separate 
+   different passes based on the turning points in latitude.
+
+   NANs are inserted into both LAT and LON wherever LAT has a turning
+   point.  Note that no data is removed.
+
+   All latitudes and lontidues are in degrees.  The output longitude has 
+   range [-180, 180].
+
+   Calling COL2MAT(LAT,LON) will then reshape LAT and LON into matrices, 
+   with each orbital pass in its own column.
+   
+   [LAT,LON,X1,X2,... XN]=ORBITBREAKS(LAT,LON,X1,X2,... XN) will insert
+   NANs into the other arguments in the same locations as for LAT and LON.
+
+   The input arguments should contain no NANs.  For missing data, use INFs
+   instead.
+
+   ORBITBREAKS(LAT,LON, ...) with no output arguments overwrites the 
+   original variables.
+
+   See also <a href="colbreaks.html" class="code" title="function[varargout]=colbreaks(varargin)">COLBREAKS</a>, <a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">COL2MAT</a>.
+
+   'orbitbreak --t' runs a test.
+
+   Usage: [lat,lon]=orbitbreaks(lat,lon);
+          [lat,lon,x1,x2,x3]=orbitbreaks(lat,lon,x1,x2,x3);
+          orbitbreaks(lat,lon);
+          orbitbreaks(lat,lon,x1,x2,x3);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2006--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="anyany.html" class="code" title="function[b]=anyany(x)">anyany</a>	ANYANY(X)=ANY(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="colbreaks.html" class="code" title="function[varargout]=colbreaks(varargin)">colbreaks</a>	COLBREAKS  Insert NANs into discontinuties in a vector.</li><li><a href="deg180.html" class="code" title="function[varargout]=deg180(varargin)">deg180</a>	DEG180  Converts degrees to the range [-180,180].</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="orbitbreaks.html" class="code" title="function[varargout]=orbitbreaks(varargin)">orbitbreaks</a>	ORBITBREAKS  Separate orbit into passes based on turning points.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="orbitbreaks.html" class="code" title="function[varargout]=orbitbreaks(varargin)">orbitbreaks</a>	ORBITBREAKS  Separate orbit into passes based on turning points.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

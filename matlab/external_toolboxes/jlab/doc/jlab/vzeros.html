@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vzeros</title>
+  <meta name="keywords" content="vzeros">
+  <meta name="description" content="VZEROS   Initializes multiple variables to arrays of zeros or nans.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; vzeros.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>vzeros
+</h1>
+
+<div class="fragment"><pre class="comment">VZEROS   Initializes multiple variables to arrays of zeros or nans.
+
+   [X1,X2, ... XN]=VZEROS(M,N)  is equivalent to
+        
+      X1=ZEROS(M,N); X2=ZEROS(M,N); .... XN=ZEROS(M,N);
+
+   thus initializing all the output variables to arrays of zeros.
+
+   [X1,X2, ... XN]=VZEROS(M,N,NAN) initializes to NANs instead.
+   [X1,X2, ... XN]=VZEROS(M,N,INF) initializes to INFs instead.
+
+   [X1,X2, ... XN]=VZEROS(M,N,K,... P) similiarly initializes the Xi
+   to N-D arrays of zeros having size M x N x K x ... P.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information (C)
+   2004--2010 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="blurspec.html" class="code" title="function[varargout]=blurspec(varargin)">blurspec</a>	BLURSPEC  Returns the blurred and aliased spectrum given the autocovariance.</li><li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="divgeom.html" class="code" title="function[Q1,Q2,Q3,Q4,Q]=divgeom(varargin)">divgeom</a>	DIVGEOM  Geometric decomposition of eddy vorticity flux divergence.</li><li><a href="dlines.html" class="code" title="function[h]=dlines(varargin)">dlines</a>	DLINES   Add diagonal lines to a plot.</li><li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="maternchol.html" class="code" title="function[T]=maternchol(N,alpha,H,alg)">maternchol</a>	MATERNCHOL  Cholesky decomposition of the Matern covariance matrix.</li><li><a href="maternoise.html" class="code" title="function[varargout]=maternoise(varargin)">maternoise</a>	MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]</li><li><a href="morsederiv.html" class="code" title="function[varargout]=morsederiv(nmax,ga,be,om)">morsederiv</a>	MORSEDERIV  Frequency-domain derivatives of generalized Morse wavelets.</li><li><a href="morsemom.html" class="code" title="function[m,n,k,l]=morsemom(p,ga,be)">morsemom</a>	MORSEMOM  Frequency-domain moments of generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="ridgechains.html" class="code" title="function[id,ii,jj,xr,fr]=ridgechains(fs,N,bool,x,f,alpha,mask)">ridgechains</a>	RIDGECHAINS  Forms ridge curves by connecting transform ridge points.</li><li><a href="sampletimes.html" class="code" title="function[meandt,sigdt,meddt,maxdt]=sampletimes(num)">sampletimes</a>	SAMPLETIMES  Computes mean sampling intervals and their statistics.</li><li><a href="spheredist.html" class="code" title="function[d]=spheredist(varargin)">spheredist</a>	SPHEREDIST  Computes great circle distances on a sphere.</li><li><a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">spheresort</a>	SPHERESORT  Sorted great circle distances to nearby points on the earth.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodsort.html" class="code" title="function[varargout]=twodsort(varargin)">twodsort</a>	TWODSORT  Distances from data points to nearby grid points.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li><li><a href="uv2latlon.html" class="code" title="function[lat,lon]=uv2latlon(varargin)">uv2latlon</a>	UV2LATLON  Integrates horizontal velocity to give latitude and longitude.</li><li><a href="vmedian.html" class="code" title="function[varargout] = vmedian(varargin)">vmedian</a>	VMEDIAN  Median over finite elements along a specified dimension.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

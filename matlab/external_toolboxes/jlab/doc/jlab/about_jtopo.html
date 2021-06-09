@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of about_jtopo</title>
+  <meta name="keywords" content="about_jtopo">
+  <meta name="description" content="JTOPO  One-sixth degree global topography based on Smith and Sandwell.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; about_jtopo.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>about_jtopo
+</h1>
+
+<div class="fragment"><pre class="comment">JTOPO  One-sixth degree global topography based on Smith and Sandwell.
+   _______________________________________________________________________
+   
+   <img src='jtopo.png'>
+   _______________________________________________________________________
+
+   JTOPO is a matfile containing smoothed one-sixth degree global 
+   topography based on the Smith and Sandwell database version 18.1.
+
+   LOAD JTOPO loads the structure JTOPO, with the following fields:
+
+       jtopo.about     Pointer to this document  
+       jtopo.lat       Array of latitudes         [969 x 1] 
+       jtopo.lon       Array of longitudes        [1 x 2160]
+       jtopo.topo      Matrix of topography       [969 x 2160]
+
+   Typing 'use jtopo' maps these fields into variables in the current
+   workspace, e.g. 'use jtopo, pcolor(lon,lat,topo), shading interp'.
+
+   TOPO is in units of kilometers and is positive for above sea level, 
+   and negative for below sea level.   
+
+   The one-minute Smith and Sandwell topography database is smoothed to 
+   one-sixth of a degree by averaging in 1/6 x 1/6 bins. 
+
+   LAT is uniformly spaced from -80.666 to 80.666, and LON is uniformly
+   spaced from -180 to 179.8333.  These are *grid-centered* values, that 
+   is, they indicate midpoints of the topography cells.
+
+   JTOPO is distributed with JLAB, available at http://www.jmlilly.net.
+
+   See also <a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">READTOPO</a>, which reads in any region of the Smith and Sandwell
+   database, and <a href="topoplot.html" class="code" title="function[h,hc]=topoplot(varargin)">TOPOPLOT</a>, which makes simple plots based on <a href="jtopo.html" class="code" title="">JTOPO</a>.
+   __________________________________________________________________
+
+   Data and documentation
+
+   This dataset is based on the Smith and Sandwell Global Topography
+   Dataset v. 18.1, which is included with <a href="jdata.html" class="code" title="">JDATA</a>.
+
+   The original source of the Smith and Sandwell Dataset v. 18.1 is
+
+       http://topex.ucsd.edu/WWW_html/mar_topo.html
+
+   and the reference for this dataset is
+
+      Smith, W. H. F., and D. T. Sandwell, Global seafloor topography
+      from satellite altimetry and ship TOPO soundings, Science,
+      v. 277, p. 1957-1962, 26 Sept., 1997.
+
+   Note that the Smith and Sandwell database is defined for latitudes
+   between -80.738 and 80.738.
+   __________________________________________________________________
+
+   License and Copyright
+
+   <a href="jtopo.html" class="code" title="">JTOPO</a>.MAT is distributed with <a href="jdata.html" class="code" title="">JDATA</a> for RESEARCH AND NON-PROFIT <a href="use.html" class="code" title="function[]=use(x)">USE</a>
+   ONLY, in accordance with the copyright statement for the Smith and
+   Sandwell dataset.  For details, see <a href="topo_copyright.html" class="code" title="function[varargout]=topo_copyright(varargin)">TOPO_COPYRIGHT</a>.
+   __________________________________________________________________
+
+   Dataset creation
+
+   For completeness, the m-file <a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">ABOUT_JTOPO</a> also contains the processing
+   steps used in the creation of <a href="jtopo.html" class="code" title="">JTOPO</a>.MAT.
+
+   If you wish to do this yourself, with JLAB on your search path,
+   'about_jtopo --create' will recreate the <a href="jtopo.html" class="code" title="">JTOPO</a>.MAT dataset by reading
+   in and averaging Smith and Sandwell. This will take a while.
+
+   For this to work you will need to have the <a href="jdata.html" class="code" title="">JDATA</a> folder containing
+   file 'topo_18.1.img' downloaded and on your Matlab search path.
+   __________________________________________________________________
+
+   See also <a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">READTOPO</a>, <a href="topoplot.html" class="code" title="function[h,hc]=topoplot(varargin)">TOPOPLOT</a>, <a href="jdata.html" class="code" title="">JDATA</a>.
+
+   'about_jtopo --f' generates the sample figure shown above.
+
+   Usage: <a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>
+          <a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a> --create
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>	JTOPO  One-sixth degree global topography based on Smith and Sandwell.</li><li><a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>	CROP  Gets rid of whitespace around an image. [by A. Bliss]</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="jtopo.html" class="code" title="">jtopo</a>	jTopo:  Tools and data for plotting topography</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="matsave.html" class="code" title="function[]=matsave(varargin)">matsave</a>	MATSAVE  Create and save structure of variables as a mat-file.</li><li><a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">readtopo</a>	READTOPO  Read one-minute topography data from Smith and Sandwell.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>	JTOPO  One-sixth degree global topography based on Smith and Sandwell.</li><li><a href="jtopo.html" class="code" title="">jtopo</a>	jTopo:  Tools and data for plotting topography</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

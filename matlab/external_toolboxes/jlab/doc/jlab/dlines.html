@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of dlines</title>
+  <meta name="keywords" content="dlines">
+  <meta name="description" content="DLINES   Add diagonal lines to a plot.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; dlines.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>dlines
+</h1>
+
+<div class="fragment"><pre class="comment">DLINES   Add diagonal lines to a plot.
+
+   DLINES(M,STYLE) puts diagonal lines with slopes M having style
+   described by the string STYLE. 
+
+   By default, DLINES uses the lower left corner of the current axis
+   as the line origin for M&gt;0, and the lower right corner if M&lt;0.
+
+   DLINES(M,Y0,STYLE) instead uses Y0 as the intercept of the left-
+   hand side of the current x-axis.
+
+   (Note that the above descriptions refer to the axis sides with
+   the 'normal', rather than 'reverse', directions.)
+
+   The SYTLE strings follow the format specified in LINESTYLE.  Thus
+   STYLE='2b--' draws blue dotted lines of width 2.
+
+   STYLE is optional and defauts to STYLE='g--', a green dashed line.
+
+   H=DLINES(...) returns an array of handles H to the lines.
+
+   See also <a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">HLINES</a>, <a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">VLINES</a>.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2008 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="dlines.html" class="code" title="function[h]=dlines(varargin)">dlines</a>	DLINES   Add diagonal lines to a plot.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="dlines.html" class="code" title="function[h]=dlines(varargin)">dlines</a>	DLINES   Add diagonal lines to a plot.</li><li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="morlfreq.html" class="code" title="function[nui,om2i]=morlfreq(omi)">morlfreq</a>	MORLFREQ  Compute Morlet wavelet carrier frequency given peak frequency.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

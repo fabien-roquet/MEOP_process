@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of to_overwrite</title>
+  <meta name="keywords" content="to_overwrite">
+  <meta name="description" content="TO_OVERWRITE Returns a string to overwrite original arguments.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; to_overwrite.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>to_overwrite
+</h1>
+
+<div class="fragment"><pre class="comment">TO_OVERWRITE Returns a string to overwrite original arguments.
+
+   STR=TO_OVERWRITE(N), when called from within an m-file which has
+   VARARGIN for the input variable, returns a string which upon
+   EVAL(STR) will cause the first N input variables in the caller
+   workspace with the values contained in the first N elements of
+   VARARGOUT.
+
+   See also <a href="to_grab_from_caller.html" class="code" title="function[str]=to_grab_from_caller(index)">TO_GRAB_FROM_CALLER</a>.
+
+   Usage: eval(to_overwrite(N))
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2001--2006 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="arrayify.html" class="code" title="function[varargout]=arrayify(varargin)">arrayify</a>	ARRAYIFY  Converts a set of scalars or arrays into column arrays.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="cellchunk.html" class="code" title="function[varargout]=cellchunk(varargin)">cellchunk</a>	CELLCHUNK  Converts cell array data into uniform length 'chunks'.</li><li><a href="cellmean.html" class="code" title="function[varargout]=cellmean(varargin)">cellmean</a>	CELLMEAN  Mean value of each element a cell array or set of cell arrays.</li><li><a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">col2cell</a>	COL2CELL  Converts 'column-appended' data into cell arrays of column vectors.</li><li><a href="col2mat.html" class="code" title="function[varargout]=col2mat(varargin)">col2mat</a>	COL2MAT  Expands 'column-appended' data into a matrix.</li><li><a href="colbreaks.html" class="code" title="function[varargout]=colbreaks(varargin)">colbreaks</a>	COLBREAKS  Insert NANs into discontinuties in a vector.</li><li><a href="jcommon.html" class="code" title="">jcommon</a>	jCommon:  Useful general-purpose functions, common to other JLAB modules</li><li><a href="mat2col.html" class="code" title="function[varargout]=mat2col(varargin)">mat2col</a>	MAT2COL  Compress NAN-padded matrix data into long columns.</li><li><a href="orbitbreaks.html" class="code" title="function[varargout]=orbitbreaks(varargin)">orbitbreaks</a>	ORBITBREAKS  Separate orbit into passes based on turning points.</li><li><a href="trajchunk.html" class="code" title="function[varargout]=trajchunk(varargin)">trajchunk</a>	TRAJCHUNK  Converts Lagrangian trajectories into chunks based on the Coriolis period.</li><li><a href="trajunwrap.html" class="code" title="function[varargout]=trajunwrap(varargin)">trajunwrap</a>	TRAJUNWRAP  Unwraps Lagrangian trajectories from a periodic domain.</li><li><a href="trajwrap.html" class="code" title="function[varargout]=trajwrap(varargin)">trajwrap</a>	TRAJWRAP  Wraps Lagrangian trajectories to fit within a periodic domain.</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li><li><a href="vmedian.html" class="code" title="function[varargout] = vmedian(varargin)">vmedian</a>	VMEDIAN  Median over finite elements along a specified dimension.</li><li><a href="vmoment.html" class="code" title="function[varargout] = vmoment(varargin)">vmoment</a>	VMOMENT Central moment over finite elements along a specfied dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vsqueeze.html" class="code" title="function[varargout]=vsqueeze(varargin)">vsqueeze</a>	VSQUEEZE   Squeezes multiple input arguments simultaneously.</li><li><a href="vstd.html" class="code" title="function[varargout] = vstd(varargin)">vstd</a>	VSTD Standard deviation over finite elements along a specfied dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="vtranspose.html" class="code" title="function[varargout]=vtranspose(varargin)">vtranspose</a>	VTRANSPOSE  Transpose multiple input arguments simultaneously.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

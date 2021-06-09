@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of divgeom</title>
+  <meta name="keywords" content="divgeom">
+  <meta name="description" content="DIVGEOM  Geometric decomposition of eddy vorticity flux divergence.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; divgeom.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>divgeom
+</h1>
+
+<div class="fragment"><pre class="comment">DIVGEOM  Geometric decomposition of eddy vorticity flux divergence.
+
+   [F1,F2,F3,F4]=DIVGEOM(K,L,THETA) returns the geometric decomposition
+   of eddy vorticity flux divergence associated with variance ellipses 
+   having kinetic energy K, anisotropy L, and orientation THETA.
+
+   K, L, and THETA are matrices of the same size.  These are defined on an
+   X-Y grid with x oriented in *columns* and y oriented in *rows*.  
+
+   Note that K and L are related to ellipse parameters KAPPA and LAMBDA
+   used elsewhere in JLAB by K=KAPPA^2 and L=LAMBDA*KAPPA^2.
+
+   F1, F2, F3, and F4 are four different contributions to the eddy 
+   vorticity flux divergence, as follows:
+ 
+       F1     Quadratic variations in the linear energy L
+       F2     Product of linear variations in THETA and L
+       F3     Quadratic variations in the orientation THETA
+       F4     Product of linear variations in orientation THETA
+
+   For details, see Waterman and Lilly (2015), Geometric decomposition of
+   eddy-mean flow feedbacks in barotropic systems, J. Phys. Oceanogr. 
+
+   DIVGEOM(DX,...) alternately uses a grid spacing of DX for computing the
+   derivatives, with a default value DX=1.
+
+   [F1,F2,F3,F4,F]=DIVGEOM(...) also returns the total eddy flux 
+   divergence F, calculated directly, with F1+F2+F3+F4 = F apart from 
+   numerical error.
+
+   By default, DIVGEOM calculates derivates with repeated applications of
+   a first central difference.  DIVGEOM(...,'arakawa') alternately uses a 
+   modified first central difference appropriate for models that employ an
+   Awakawa advection scheme. 
+
+   __________________________________________________________________
+
+   Usage: [F1,F2,F3,F4]=divgeom(K,L,theta);
+          [F1,F2,F3,F4,F]=divgeom(dx,K,L,theta);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="divgeom.html" class="code" title="function[Q1,Q2,Q3,Q4,Q]=divgeom(varargin)">divgeom</a>	DIVGEOM  Geometric decomposition of eddy vorticity flux divergence.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vshift.html" class="code" title="function[varargout]=vshift(varargin)">vshift</a>	VSHIFT  Cycles the elements of an array along a specified dimension.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="divgeom.html" class="code" title="function[Q1,Q2,Q3,Q4,Q]=divgeom(varargin)">divgeom</a>	DIVGEOM  Geometric decomposition of eddy vorticity flux divergence.</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

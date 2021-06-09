@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of joceans</title>
+  <meta name="keywords" content="joceans">
+  <meta name="description" content="jOceans:  Oceanography-specific data and model analysis tools">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; joceans.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>joceans
+</h1>
+
+<div class="fragment"><pre class="comment"> jOceans:  Oceanography-specific data and model analysis tools
+
+ Conversions for Lagrangian trajectories
+   latlon2uv   - Converts latitude and longitude to horizontal velocity.  
+   uv2latlon   - Integrates horizontal velocity to give latitude and longitude.  
+
+ Manipulating Lagrangian trajectories
+   trajextract - Extracts Lagrangian trajectory segments within given region.        
+   trajfill    - Fills float or drifter trajectories with linear interpolation.       
+   trajunwrap  - Unwraps Lagrangian trajectories from a periodic domain.              
+   trajwrap    - Wraps Lagrangian trajectories to fit within a periodic domain.       
+   trajchunk   - Converts cell array data into chunks based on the Coriolis period.
+
+ Idealized numerical model tools
+   psi2fields   - Velocity and other fields from the streamfunction. [with P.E. Isachsen]    
+   periodize    - Returns a doubly periodic version of an input array.   
+
+ Eulerian eddy identification and analysis
+   inellipse    - Locates points on the interior of ellipses.                          
+   closedcurves - Locate and interpolate closed curves in a possibly periodic domain.
+   curvemoments - Centroid, area, and many other moments of a closed curve.          
+   divgeom      - Geometric decomposition of eddy vorticity flux divergence.     
+
+  Plotting tools for mooring data
+   hodograph  - Generate hodograph plots (simple and fancy).                                   
+   provec     - Generate progressive vector diagrams (simple and fancy).             
+   stickvect  - Plots &quot;stick vectors&quot; for multicomponent velocity time series.       
+
+  See also <a href="jsphere.html" class="code" title="">jSphere</a>, <a href="jmatern.html" class="code" title="">jMatern</a>.</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="curveinterp.html" class="code" title="function[ci]=curveinterp(varargin)">curveinterp</a>	CURVEINTERP  Interpolate a field or its gradient onto a set of curves.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="divgeom.html" class="code" title="function[Q1,Q2,Q3,Q4,Q]=divgeom(varargin)">divgeom</a>	DIVGEOM  Geometric decomposition of eddy vorticity flux divergence.</li><li><a href="hodograph.html" class="code" title="function[h,hc]=hodograph(varargin)">hodograph</a>	HODOGRAPH   Generate hodograph plots (simple and fancy).</li><li><a href="inellipse.html" class="code" title="function[bool]=inellipse(varargin)">inellipse</a>	INELLIPSE  Locates points on the interior of ellipses.</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="orbitbreaks.html" class="code" title="function[varargout]=orbitbreaks(varargin)">orbitbreaks</a>	ORBITBREAKS  Separate orbit into passes based on turning points.</li><li><a href="periodize.html" class="code" title="function[varargout]=periodize(varargin)">periodize</a>	PERIODIZE  Returns a doubly periodic version of an input array.</li><li><a href="provec.html" class="code" title="function[data,h,hc]=provec(varargin)">provec</a>	PROVEC  Generate progressive vector diagrams (simple and fancy).</li><li><a href="psi2fields.html" class="code" title="function[cv,zeta,n,s,p]=psi2fields(varargin)">psi2fields</a>	PSI2FIELDS  Velocity and other fields from the streamfunction. [with P.E. Isachsen]</li><li><a href="stickvect.html" class="code" title="function[h]=stickvect(arg1,arg2,arg3,arg4,arg5,arg6)">stickvect</a>	STICKVECT Plots "stick vectors" for multicomponent velocity time series.</li><li><a href="trajchunk.html" class="code" title="function[varargout]=trajchunk(varargin)">trajchunk</a>	TRAJCHUNK  Converts Lagrangian trajectories into chunks based on the Coriolis period.</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li><li><a href="trajfill.html" class="code" title="function[lat,lon,filled]=trajfill(varargin)">trajfill</a>	TRAJFILL  Fills float or drifter trajectories with linear interpolation.</li><li><a href="trajunwrap.html" class="code" title="function[varargout]=trajunwrap(varargin)">trajunwrap</a>	TRAJUNWRAP  Unwraps Lagrangian trajectories from a periodic domain.</li><li><a href="trajwrap.html" class="code" title="function[varargout]=trajwrap(varargin)">trajwrap</a>	TRAJWRAP  Wraps Lagrangian trajectories to fit within a periodic domain.</li><li><a href="uv2latlon.html" class="code" title="function[lat,lon]=uv2latlon(varargin)">uv2latlon</a>	UV2LATLON  Integrates horizontal velocity to give latitude and longitude.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Contents.html" class="code" title="">Contents</a>	jLab v1.5 by J. M. Lilly</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

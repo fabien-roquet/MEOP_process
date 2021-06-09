@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of isridgepoint</title>
+  <meta name="keywords" content="isridgepoint">
+  <meta name="description" content="ISRIDGEPOINT  Finds wavelet ridge points using one of several criterion.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; isridgepoint.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>isridgepoint
+</h1>
+
+<div class="fragment"><pre class="comment">ISRIDGEPOINT  Finds wavelet ridge points using one of several criterion.
+
+   ISRIDGEPOINT is a low-level function called by RIDGEWALK.
+  
+   BOOL=ISRIDGEPOINT(W,FS,CHI,STR) where W is a wavelet transform matrix  
+   at *radian* frequecies FS, finds all ridge points of W with amplitudes
+   |W| exceeding the amplitude cutoff A.  Several different different 
+   ridge defintions may be used and are specified by STR.
+
+   BOOL is a matrix of the same size as W, which is equal to one for 
+   those elements of W which are ridge points, and zero otherwise.
+
+   STR may be either of the following:
+
+        'phase'       Rate of transform change of phase definition
+        'amplitude'   Maxima of transfom amplitude definition
+
+   For all definitions, ISRIDGEPOINT rejects spurious ridge points.
+   These tend to occur on the flanks of interesting signals, and 
+   reflect the wavelet structure rather than the signal structure.
+
+   A ridge point is considered spurious if either it is located at an
+   amplitude minima, or if the frequency anomaly (transform frequency
+   minus scale frequency) is a maximum.
+
+   See also RIDGEQUANTITY, <a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">RIDGEWALK</a>.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2006--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jridges.html" class="code" title="">jridges</a>	jRidges:  Wavelet ridge analysis of modulated oscillatory signals</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

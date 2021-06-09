@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of col2mat</title>
+  <meta name="keywords" content="col2mat">
+  <meta name="description" content="COL2MAT  Expands 'column-appended' data into a matrix.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; col2mat.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>col2mat
+</h1>
+
+<div class="fragment"><pre class="comment">COL2MAT  Expands 'column-appended' data into a matrix.
+
+   M=COL2MAT(C), where C is a column vector of data segments
+   separated by NANs, expands the data into a matrix such that each
+   segment has its own column.  For instance, the intervals may
+   represent CTD casts of various depths, and the NANs mark
+   transitions between casts.
+
+   M will have enough rows to fit the longest data segment. Segments
+   are read into columns of M from the top down, leaving empty spaces
+   at the bottom which are filled in with NANs.
+
+   If the data is complex, then gaps are filled with NAN+SQRT(-1)*NAN;
+
+   [M1,M2,....]=COL2MAT(C1,C2,...), where C1,C2,... are input column
+   vectors, also works, as does [M1,M2,....]=COL2MAT(MAT), where MAT
+   is a matrix of column vectors.  In both cases the first column is
+   used as the reference for the others, so that only the locations
+   of NANs in the first column matters.
+
+   COL2MAT, MAT2COL, and COLBREAKS together form a system for moving
+   data with segments of nonuniform length rapidly back and forth
+   between a column format and a padded-matrix format.  CTD or float
+   data, for instance, can be stored in the (usually much smaller)
+   column format and converted into the matrix format upon loading.
+
+   COL2MAT(C1,C2,...); with no output arguments overwrites the
+   original input variables.
+
+   See also <a href="mat2col.html" class="code" title="function[varargout]=mat2col(varargin)">MAT2COL</a>, <a href="colbreaks.html" class="code" title="function[varargout]=colbreaks(varargin)">COLBREAKS</a>, <a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">COL2CELL</a>, <a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">CELL2COL</a>.
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2013 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="cellmean.html" class="code" title="function[varargout]=cellmean(varargin)">cellmean</a>	CELLMEAN  Mean value of each element a cell array or set of cell arrays.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="ridgemap.html" class="code" title="function[varargout]=ridgemap(varargin)">ridgemap</a>	RIDGEMAP  Maps ridge quantities back onto the time series.</li><li><a href="trajchunk.html" class="code" title="function[varargout]=trajchunk(varargin)">trajchunk</a>	TRAJCHUNK  Converts Lagrangian trajectories into chunks based on the Coriolis period.</li><li><a href="trajextract.html" class="code" title="function[varargout]=trajextract(varargin)">trajextract</a>	TRAJEXTRACT  Extracts Lagrangian trajectory segments within given region.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

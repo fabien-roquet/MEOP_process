@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vsum</title>
+  <meta name="keywords" content="vsum">
+  <meta name="description" content="VSUM  Sum over finite elements along a specified dimension.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; vsum.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>vsum
+</h1>
+
+<div class="fragment"><pre class="comment">VSUM  Sum over finite elements along a specified dimension.
+
+   Y=VSUM(X,DIM) takes the sum of all finite elements of X along        
+   dimension DIM. 
+                                                                         
+   [Y,NUM]=VSUM(X,DIM) also outputs the number of good data points NUM,  
+   which has the same dimension as Y.                             
+
+   [Y1,Y2,...YN]=VSUM(X1,X2,...XN,DIM) also works.
+
+   VSUM(X1,X2,...XN,DIM);  with no output arguments overwrites the 
+   original input variables.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2001--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="to_overwrite.html" class="code" title="function[str]=to_overwrite(N)">to_overwrite</a>	TO_OVERWRITE Returns a string to overwrite original arguments.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="blurspec.html" class="code" title="function[varargout]=blurspec(varargin)">blurspec</a>	BLURSPEC  Returns the blurred and aliased spectrum given the autocovariance.</li><li><a href="curveinterp.html" class="code" title="function[ci]=curveinterp(varargin)">curveinterp</a>	CURVEINTERP  Interpolate a field or its gradient onto a set of curves.</li><li><a href="dawson.html" class="code" title="function z = dawson(x)">dawson</a>	DAWSON The Dawson function. [By P.J. Acklam]</li><li><a href="dawsonderiv.html" class="code" title="function[y]=dawsonderiv(varargin)">dawsonderiv</a>	DAWSONDERIV  Derivatives of the Dawson function.</li><li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jlab_runtests.html" class="code" title="function[]=jlab_runtests(str)">jlab_runtests</a>	JLAB_RUNTESTS  Runs a test suite for JLAB package.</li><li><a href="jvarfun.html" class="code" title="">jvarfun</a>	jVarfun:  Perform common operations on multiple variables simultaneously.</li><li><a href="morsea.html" class="code" title="function[a]=morsea(varargin)">morsea</a>	MORSEA  Returns the generalized Morse wavelet amplitude "a".</li><li><a href="morsemom.html" class="code" title="function[m,n,k,l]=morsemom(p,ga,be)">morsemom</a>	MORSEMOM  Frequency-domain moments of generalized Morse wavelets.</li><li><a href="morseproj.html" class="code" title="function[b]=morseproj(ga,be1,be2)">morseproj</a>	MORSEPROJ  Projection coefficient for two generalized Morse wavelets.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="morsexpand.html" class="code" title="function[psi]=morsexpand(varargin)">morsexpand</a>	MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li><li><a href="msvd.html" class="code" title="function[d,u1,v1,trS,u2,v2]=msvd(mmat,i2,i3)">msvd</a>	MSVD  Singular value decomposition for polarization analysis.</li><li><a href="pdfprops.html" class="code" title="function[mu,sigma,skew,kurt]=pdfprops(x,fx,dim)">pdfprops</a>	PDFPROPS  Mean and variance associated with a probability distribution.</li><li><a href="ridgemap.html" class="code" title="function[varargout]=ridgemap(varargin)">ridgemap</a>	RIDGEMAP  Maps ridge quantities back onto the time series.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="simplepdf.html" class="code" title="function[f]=simplepdf(x,mu,sig,flag)">simplepdf</a>	SIMPLEPDF  Gaussian, uniform, Cauchy, and exponential pdfs.</li><li><a href="sleptap.html" class="code" title="function[v,lambda]=sleptap(varargin)">sleptap</a>	SLEPTAP  Calculate Slepian tapers.</li><li><a href="slidetrans.html" class="code" title="function[y,ystack]=slidetrans(x,w,fs,str)">slidetrans</a>	SLIDETRANS  Sliding-window ('moving-window') Fourier transform.</li><li><a href="spheresort.html" class="code" title="function[varargout]=spheresort(varargin)">spheresort</a>	SPHERESORT  Sorted great circle distances to nearby points on the earth.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ellipseplot</title>
+  <meta name="keywords" content="ellipseplot">
+  <meta name="description" content="ELLIPSEPLOT  Plot ellipses.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ellipseplot.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ellipseplot
+</h1>
+
+<div class="fragment"><pre class="comment">ELLIPSEPLOT  Plot ellipses.
+
+   ELLIPSEPLOT(K,L,TH,Z) plots an ellipse of amplitude K, linearity L, and
+   orientation TH at complex-valued location Z=X+iY.
+
+   K, L, and TH are shorthand for the symbols KAPPA, LAMBDA, and THETA.
+   K and L are related to the semi-axes A and B by K=SQRT((A^2+B^2)/2)
+   and L=(A^2-B^2)/(A^2+B^2).  See Lilly and Gascard (2006) for details. 
+
+   Multiple ellipses are plotted if K, L, TH, and Z, are arrays of the
+   same size.
+
+   ELLIPSEPLOT draws each column of the input arrays with a different 
+   color, cycling through the default line colors.
+
+   H=ELLIPSEPLOT(...) outputs an array of line handles.
+
+   ELLIPSEPLOT calls ELLCURVES to actually compute the elliptical curves. 
+   ______________________________________________________________________
+
+   Aspect ratio
+
+   ELLIPSEPLOT(...,AR) with AR=[XAR YAR] multiplies the X-signal and
+   Y-signal by XAR and YAR, respectively, for plotting purposes. The
+   aspect ratio is set such that circles appear circular.
+
+   It's okay for AR to have three entries, AR=[XAR YAR ZAR], as is
+   output by &quot;get(gca,'dataaspectratio')&quot;.  The last entry is ignored.
+
+   AR is optional and defaults to [1 1]. 
+
+   The following trailing options can occur in any order, as long as 
+   they are after K, L, TH, Z, and (if present) AR.
+   ______________________________________________________________________
+
+   Skipping ellipses
+
+   Frequently one does not wish to plot all the ellipses.  There are two
+   ways to accomplish this, as documented in this and the next section.
+
+   K, L, TH, and Z are column vectors, plot every SKIP-th ellipse with
+
+         ELLIPSEPLOT(K,L,TH,Z, ... ,'skip',SKIP).
+
+   This plots ellipses at indicies [SKIP:SKIP:LENGTH(K)-SKIP].
+
+   More generally, if the input field are matrices of the same size, each
+   having N dimensions, then SKIP can be an array with N elements.  Then
+   SKIP(1) indicates the SKIP number for the first matrix dimension, etc.
+   ______________________________________________________________________
+
+   Indexing ellipses
+   
+   To have more precise control over which ellipses are plotted, use
+   
+          ELLIPSEPLOT(K,L,TH,Z, ... ,'index',INDEX) 
+
+   which only plots the ellipses at the indicies indicated by INDEX. If
+   INDEX is empty, nothing happens.  
+
+   When K, L, TH, and Z are column vectors, INDEX is an array.  
+ 
+   More generally, INDEX can be a cell array of N arrays, one for each 
+   dimension of the input matrices.
+
+   See PERIODINDEX for generating an index that skips every N periods.
+   ______________________________________________________________________
+
+   Specifying linestyles
+
+   ELLIPSEPLOT(K,L,TH,Z, ... ,STY) where STY is a single style string in 
+   LINESTYLE format, or a cell array of such strings, determines the line
+   styles for the ellipses.
+
+   With cell array input, the entries of STY is applied to the elements in
+   the cell arrays K{1}, K{2}, etc.  Otherwise, the entries in STY are 
+   applied to the multiple columns (if any) of the arrays K, L, TH and Z.
+
+   By default, the default line styles are used, so corresponding to 
+   STY{1}='b'; STY{2}='g'; STY{3}='r'; and so forth.
+
+   For example, STY{1}='2b--'; STY{2}='r-.'; will alternate between thick
+   blue dashed lines and thin red dash-dotted lines.
+
+   See LINESTYLE for more details. 
+   ______________________________________________________________________
+ 
+   Additional options
+
+   ELLIPSEPLOT(K,L,TH,Z, ... ,'m_map') will work with Rich Pawlowicz's 
+   M_MAP package. In this case Z should be of the form LON+SQRT(-1)*LAT,
+   or a cell array of numeric arrays having this form.
+
+   ELLIPSEPLOT(K,L,TH,Z, ... ,'phase',PHI) optionally draws a small line, 
+   like a clock hand, to indicate the ellipse phase PHI.
+
+   ELLIPSEPLOT(K,L,TH,Z, ... ,'npoints',N) plots ellipses with N points
+   along the circumference.  The default value is 32.  Use N=16 or 64 
+   for faster plotting or for smoother, more well-defined ellipses.
+
+   ELLIPSEPLOT(K,L,TH,Z, ... ,'scale',S) sets the ellipse scale for a 
+   plot in which Z is of the form LON+SQRT(-1)*LAT.  Here K should be
+   in units kilometers, and the resulting ellipses will be plotted at S
+   times their actual size, with S=1 corresponding to actual size.
+
+   [H,INDEX]=ELLIPSEPLOT(K,L,TH,Z,...) also returns the index INDEX into
+   the ellipse locations that were actually mapped.  This is particularly 
+   useful with the 'skip' input argument, and allows the handles H to 
+   be manipulated later, for example, to set color based on K values.
+   ______________________________________________________________________
+
+   Cell array input 
+
+   ELLIPSEPLOT also works if the input arguments are cell arrays. 
+
+   Specifically, if K, L, TH, and Z are all cell arrays of N different 
+   numerical arrays, then ELLIPSEPLOT will act on each of them in turn.
+
+   In this case SIZE(K{M}), SIZE(L{M}), SIZE(TH{M}), and SIZE(Z{M}) must 
+   all be identical for M=1,2,... N.
+   ______________________________________________________________________
+
+   See also <a href="periodindex.html" class="code" title="function[index]=periodindex(varargin)">PERIODINDEX</a>, <a href="linecolor.html" class="code" title="function[varargout]=linecolor(varargin)">LINECOLOR</a>, <a href="ellcurves.html" class="code" title="function[z]=ellcurves(varargin)">ELLCURVES</a>.
+
+   'ellipseplot --f' makes some test figures.
+
+   Usage: ellipseplot(k,l,th,z)
+          ellipseplot(k,l,th,z,ar)
+          ellipseplot(k,l,th,z,'axis')
+          ellipseplot(k,l,th,z,ar,'phase',phi)
+          ellipseplot(k,l,th,z,ar,'npoints',64)
+          ellipseplot(k,l,th,z,ar,'index',index)
+          ellipseplot(k,l,th,z,ar,'skip',5)
+          ellipseplot(k,l,th,z,'2r--')
+   ______________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2004--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ab2kl.html" class="code" title="function[K,L]=ab2kl(A,B)">ab2kl</a>	AB2KL  Converts A and B to ellipse parameters Kappa and Lambda.</li><li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="ellcurves.html" class="code" title="function[z]=ellcurves(varargin)">ellcurves</a>	ELLCURVES  Returns curves corresponding to specified ellipse properties.</li><li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vempty.html" class="code" title="function[varargout]=vempty(varargin)">vempty</a>	VEMPTY   Initializes multiple variables to empty sets or empty cell arrays.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li><li><a href="xy2latlon.html" class="code" title="function[lat,lon]=xy2latlon(varargin)">xy2latlon</a>	XY2LATLON  Converts local Cartesian coordinates into latitude and longitude.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="ecconv.html" class="code" title="function[varargout]=ecconv(varargin)">ecconv</a>	ECCONV  Converts between eccentricity measures.</li><li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="inellipse.html" class="code" title="function[bool]=inellipse(varargin)">inellipse</a>	INELLIPSE  Locates points on the interior of ellipses.</li><li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

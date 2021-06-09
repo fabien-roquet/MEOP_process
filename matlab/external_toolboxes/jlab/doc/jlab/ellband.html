@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ellband</title>
+  <meta name="keywords" content="ellband">
+  <meta name="description" content="ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ellband.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ellband
+</h1>
+
+<div class="fragment"><pre class="comment">ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.
+
+   [A,B,C]=ELLBAND(KAPPA,LAMBDA,THETA,PHI) computes the instantaneous 
+   bandwidth of the elliptical signal characterized by RMS amplitude 
+   KAPPA, linearity LAMBDA, orientation THETA, and orbital phase PHI.
+
+   The three output arguments are
+
+          A  - Amplitude modulation bandwidth  
+          B  - Deformation bandwidth
+          C  - Precession bandwidth. 
+
+   and these satisfy UPSILON^2=A^2+B^2+C^2 where UPSILON is the joint 
+   instantaneous bandwidth of the bivariate signal.
+
+   The form of these terms is as follows:
+
+         A = 1/KAPPA d/dt KAPPA 
+         B = 1/2 * 1/SQRT(1-LAMBDA^2) *  d/dt LAMBDA 
+         C = LAMBDA d/dt THETA
+
+   [A,B,C,UPSILON]=ELLBAND(KAPPA,LAMBDA,THETA,PHI) also returns the total 
+   instantaneous bandwith UPSILON=SQRT(A^2+B^2+C^2).
+
+   ELLBAND(...,DIM) performs the analysis with time running along
+   dimension DIM, as opposed to the default behavior of DIM=1.
+
+   For details see Lilly and Olhede (2010).
+
+   ELLBAND also works if the input arguments are cell arrays of numerical
+   arrays, in which case the output will be similarly sized cell arrays.
+   __________________________________________________________________
+
+   Three dimensions
+
+   ELLBAND can also compute the instantaneous bandwidth of modulated 
+   elliptical signals in three dimensions.
+
+   [A,B,C,D,E]=ELLBAND(KAPPA,LAMBDA,THETA,PHI,ALPHA,BETA) returns the
+   terms in the bandwidth from a modulated ellipical signal in a plane
+   with a normal vector having azimuth angle ALPHA and zenith angle BETA.
+   
+   The five output arguments are
+
+          A   - Amplitude modulation bandwidth, as in 2D 
+          B   - Deformation bandwidth, as in 2D
+          C   - Precession bandwidth, as in 2D
+          D   - Precession bandwidth with full 3D effects
+          E   - Bandwidth due to motion of the normal to the plane
+
+   and these, in principle, satisfy UPSILON^2=A^2+B^2+C^2+D^2+|E|^2 where 
+   UPSILON is the joint instantaneous bandwidth of the trivariate signal.
+   See below for a caveat on this statement.
+
+   Terms A--C are just as in the bivariate case.  The new terms are:
+
+         D = LAMBDA [d/dt THETA + COS(BETA) * d/dt ALPHA]
+         E = N^T X_+ / |X_+^H X_+|    
+   
+   where N is the trivariate normal vector, X_+ is the trivariate analytic
+   signal vector, and &quot;T&quot; denotes the matrix transpose, and &quot;H&quot; the 
+   Hermitian transpose.  Note that term E may be complex-valued.
+
+   Note that term C does not contribute to the full bandwidth, but is 
+   output in order to compare the two-dimensional and three-dimensional
+   effects in the full precession bandwidth, term D.
+
+   An important point is that the trivariate ellipse parameters can be 
+   ill-defined for a nearly linear signal, and the elliptical bandwidth 
+   terms can give erroneously large values at isolated points.  To check
+   for this, compare with the joint bandwidth from INSTMOM.
+
+   [A,B,C,D,E,UPSILON]=ELLBAND(KAPPA,LAMBDA,THETA,PHI,ALPHA,BETA) also 
+   returns the total bandwith UPSILON=SQRT(A^2+B^2+C^2+D^2+|E|^2).
+
+   For details see Lilly (2011).
+   __________________________________________________________________
+
+   ELLBAND(DT,...) sets the sample interval DT, which defaults to DT=1.
+   DT may be a scalar, or if the input fields are cell arrays having
+   length N, DT may be a numerical array of length N. 
+   
+   See also <a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">ANATRANS</a>, <a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">WAVETRANS</a>, <a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">INSTMOM</a>.
+
+   'ellband --t' runs a test.
+   'ellband --f' generates a figure from Lilly and Olhede (2010).
+
+   Usage:  [a,b,c]=ellband(kappa,lambda,theta,phi);
+           [a,b,c]=ellband(dt,kappa,lambda,theta,phi);
+           [a,b,c]=ellband(dt,kappa,lambda,theta,phi,dim);
+           [a,b,c,upsilon]=ellband(dt,kappa,lambda,theta,phi,dim);
+           [a,b,c,d,e]=ellband(kappa,lambda,theta,phi,alpha,beta);
+           [a,b,c,d,e]=ellband(dt,kappa,lambda,theta,phi,alpha,beta);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2006--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ab2kl.html" class="code" title="function[K,L]=ab2kl(A,B)">ab2kl</a>	AB2KL  Converts A and B to ellipse parameters Kappa and Lambda.</li><li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="jmat3.html" class="code" title="function[x]=jmat3(theta,n)">jmat3</a>	JMAT3 3x3 rotation matrix through specified angle.</li><li><a href="letterlabels.html" class="code" title="function[h]=letterlabels(arg1,arg2,arg3)">letterlabels</a>	LETTERLABELS	For automatically putting letter labels on subplots.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="sleptap.html" class="code" title="function[v,lambda]=sleptap(varargin)">sleptap</a>	SLEPTAP  Calculate Slepian tapers.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="tmat.html" class="code" title="function[x]=tmat()">tmat</a>	TMAT  2x2 complex grouping matrix.  TMAT = [1  i; 1 -i] / SQRT(2)</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">vectmult</a>	VECTMULT  Matrix multiplication for arrays of vectors.</li><li><a href="vempty.html" class="code" title="function[varargout]=vempty(varargin)">vempty</a>	VEMPTY   Initializes multiple variables to empty sets or empty cell arrays.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li><li><a href="vindex.html" class="code" title="function[varargout]=vindex(varargin)">vindex</a>	VINDEX  Indexes an N-D array along a specified dimension.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li><li><a href="vzeros.html" class="code" title="function[varargout]=vzeros(varargin)">vzeros</a>	VZEROS   Initializes multiple variables to arrays of zeros or nans.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

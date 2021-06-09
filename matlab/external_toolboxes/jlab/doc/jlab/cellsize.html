@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of cellsize</title>
+  <meta name="keywords" content="cellsize">
+  <meta name="description" content="CELLSIZE  Size of each element in a cell array along specified dimension.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; cellsize.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>cellsize
+</h1>
+
+<div class="fragment"><pre class="comment">CELLSIZE  Size of each element in a cell array along specified dimension.
+
+   S=CELLSIZE(X,DIM) where X is a cell array of N arrays,
+
+       X{1}=X1, X{2}=X2,..., X{N}=XN
+ 
+   returns the N x 1 array of lengths S with 
+  
+      S(1)=SIZE(X1,DIM), S(2)=SIZE(X2,DIM),..., S(N)=SIZE(XN,DIM).
+
+   S is the same size as X. 
+
+   CELLSIZE requires the cell array X to have four or fewer dimensions.
+
+   See also <a href="cellength.html" class="code" title="function[s]=cellength(x)">CELLENGTH</a>.
+
+   Usage: s=cellsize(x,dim);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2009 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="cellsize.html" class="code" title="function[s]=cellsize(x,n)">cellsize</a>	CELLSIZE  Size of each element in a cell array along specified dimension.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="cellsize.html" class="code" title="function[s]=cellsize(x,n)">cellsize</a>	CELLSIZE  Size of each element in a cell array along specified dimension.</li><li><a href="jcell.html" class="code" title="">jcell</a>	jCell:  Tools for operating on cell arrays of column vectors</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

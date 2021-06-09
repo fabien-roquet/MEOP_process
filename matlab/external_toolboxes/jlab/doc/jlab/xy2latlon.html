@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of xy2latlon</title>
+  <meta name="keywords" content="xy2latlon">
+  <meta name="description" content="XY2LATLON  Converts local Cartesian coordinates into latitude and longitude.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; xy2latlon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>xy2latlon
+</h1>
+
+<div class="fragment"><pre class="comment"> XY2LATLON  Converts local Cartesian coordinates into latitude and longitude.
+
+   [LAT,LON]=XY2LATLON(X,Y,LATO,LONO) converts (X,Y) position with units 
+   of kilometers, specifying a location in a plane tangent to the earth 
+   at the point (LATO,LONO), into latitude and longitude locations.  
+
+   LONO may each either be specified on the interval [-180, 180] or on the
+   interval [0, 360].  Output longitudes LON are defined to be within the
+   interval [-180, 180].
+
+   LAT and LON may be computed with either the full spherical geometry,
+   the default, or using a small angle approximation.  To specify the
+   small angle approximation use XY2LATLON(...,'small').
+
+   LAT and LON are defined to be NAN for points with SQRT(X^2+Y^2)
+   exceeding the radius of the earth.
+
+   XY2LATLON(CX,LATO,LONO) with three input arguments, where CX is the 
+   complex-valued displacement CX=X+SQRT(-1)*Y, also works
+
+   The radius of the earth is given by the function RADEARTH.
+   ___________________________________________________________________
+
+   Cell array input / output
+
+   XY2LATLON returns cell array output given cell array input.  
+
+   That is, if the input arguments are all cell arrays of length K, 
+   containing K different numerical arrays, then the output will also be 
+   cell arrays of length K.  
+
+   This also works if X and Y, or alternatively CX, are cell arrays but 
+   LATO and LONO are scalars.
+   ___________________________________________________________________
+
+   XY2LATLON is inverted by LATLON2XY.
+
+   See also <a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">LATLON2XY</a>, <a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">LATLON2UV</a>.
+
+   Usage:  [lat,lon]=xy2latlon(x,y,lato,lono);
+           [lat,lon]=xy2latlon(cx,lato,lono);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2005--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="cellimag.html" class="code" title="function[x]=cellimag(x)">cellimag</a>	CELLIMAG  Imaginary part of each element in a cell array.</li><li><a href="cellreal.html" class="code" title="function[x]=cellreal(x)">cellreal</a>	CELLREAL  Real part of each element in a cell array.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="jdeg2rad.html" class="code" title="function[varargout]=jdeg2rad(varargin)">jdeg2rad</a>	JDEG2RAD  Converts degrees to radians.</li><li><a href="jrad2deg.html" class="code" title="function[varargout]=jrad2deg(varargin)">jrad2deg</a>	JRAD2DEG  Converts radians to degrees.</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="xyz2latlon.html" class="code" title="function[lat,lon]=xyz2latlon(x,y,z,R)">xyz2latlon</a>	XYZ2LATLON  Converts 3D Cartesian coordinates into latitude and longitude.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellipseplot.html" class="code" title="function[h,indexout]=ellipseplot(varargin)">ellipseplot</a>	ELLIPSEPLOT  Plot ellipses.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jsphere.html" class="code" title="">jsphere</a>	jSphere:  Tools for latitude, longitude, and spherical geometry</li><li><a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">latlon2xy</a>	LATLON2XY  Converts latitude and longitude into local Cartesian coordinates.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

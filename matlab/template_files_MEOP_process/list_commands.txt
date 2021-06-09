@@ -1,0 +1,21 @@
+# how to execute a command using screen
+screen -S myscreen -d -m bash -c "./run_process_function.sh 'disp(1)'"
+
+./run_process_function.sh 'mirounga_processing;'
+./run_process_function.sh 'mirounga_diags;'
+./run_process_function.sh 'mirounga_diags('generate_plot2');'
+./run_process_function.sh 'mirounga_diags('generate_plot2');'
+./run_process_function.sh 'mirounga_diags('global_diagnostics');'
+./run_process_function.sh 'sc_process_new_deployments;'
+
+
+# how to connect to the VPN
+sudo openconnect -u fr30 --passwd-on-stdin vpn.st-andrews.ac.uk
+
+
+# how to mirror smug directory
+password = xxx
+source='.'
+target='xxx'
+lftp -u fabien,${password} -e "set ftp:prefer-epsv no;mirror ${source} ${target};quit" smug.st-andrews.ac.uk
+

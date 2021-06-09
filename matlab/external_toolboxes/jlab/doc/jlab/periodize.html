@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of periodize</title>
+  <meta name="keywords" content="periodize">
+  <meta name="description" content="PERIODIZE  Returns a doubly periodic version of an input array.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; periodize.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>periodize
+</h1>
+
+<div class="fragment"><pre class="comment">PERIODIZE  Returns a doubly periodic version of an input array.
+
+   [XP,YP,FP]=PERIODIZE(X,Y,F) takes the matrix F and forms a doubly-
+   periodic version FP, which will be 3*SIZE(F). 
+
+   XP and YP are the new X and Y axes extended based on the delta-X and
+   delta-Y values within X and Y.  X and Y must both have uniform spacing.
+   
+   [XE,YE,FP]=PERIODIZE(N,X,Y,F) only extends F periodically by N points, 
+   so that FP is SIZE(F,1)+2*N by SIZE(F,2)+2*N.
+
+   [XE,YE,FP]=PERIODIZE(N,M,X,Y,F) extends F periodically by N points in
+   the X-direction, corresponding to the *columns* of F, and by M points 
+   in the Y-direction, corresponding to the *rows* of F. 
+
+   Thus in this case FP will be SIZE(F,1)+2*M by SIZE(F,2)+2*N.
+
+   F may have multiple higher dimensions, for example a third dimension 
+   corresponding to time.  Only the first two dimensions are periodized.
+
+   For singly periodic versions, use PERIODIZE(0,M,F) or PERIODIZE(N,0,F). 
+
+   [XP,YP,F1P,F2P,...,FKP]=PERIODIZE(...,X,Y,F1,F2,...,FK) also works,
+   and returns periodized versions of all the K arrays F1, F2,...,FK.
+
+   'periodize --t' runs a test.
+   'periodize --f' generates a sample figure.
+
+   Usage: [xp,yp,fp]=periodize(x,y,f);
+          [xp,yp,fp]=periodize(N,x,y,f);
+          [xp,yp,fp]=periodize(N,M,x,y,f);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="anyany.html" class="code" title="function[b]=anyany(x)">anyany</a>	ANYANY(X)=ANY(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="periodize.html" class="code" title="function[varargout]=periodize(varargin)">periodize</a>	PERIODIZE  Returns a doubly periodic version of an input array.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vstd.html" class="code" title="function[varargout] = vstd(varargin)">vstd</a>	VSTD Standard deviation over finite elements along a specfied dimension.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li><li><a href="periodize.html" class="code" title="function[varargout]=periodize(varargin)">periodize</a>	PERIODIZE  Returns a doubly periodic version of an input array.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

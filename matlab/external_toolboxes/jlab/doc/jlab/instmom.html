@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of instmom</title>
+  <meta name="keywords" content="instmom">
+  <meta name="description" content="INSTMOM  Univariate and multivariate instantaneous moments.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; instmom.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>instmom
+</h1>
+
+<div class="fragment"><pre class="comment">INSTMOM  Univariate and multivariate instantaneous moments.
+
+   [A,OMEGA,UPSILON]=INSTMOM(X), where X is an analytic signal, computes 
+   the amplitude A, instantaneous *radian* frequency OMEGA, and 
+   instantaneous bandwidth assuming a unit sample rate. 
+
+   X is an array with the first dimension being &quot;time&quot;.  Thus, X can be a 
+   matrix of analytic signals oriented as column vectors, or a 2- or 3-D 
+   wavelet transform such as output by WAVETRANS.
+
+   The output arrays are the same size as X. 
+
+   The instantaneous frequency, bandwidth, and curvature are defined as
+
+            A    = abs X
+          OMEGA  = d/dt Im ln X = d/dt arg X
+         UPSILON = d/dt Re ln X = d/dt ln abs X  
+  
+   where i=SQRT(-1) as usual.
+
+   INSTMOM(X,DIM) computes the moments along dimension DIM, instead of 
+   the default of computing the moments along the rows (DIM=1).
+
+   For details, see 
+  
+       Lilly &amp; Olhede (2010), &quot;Bivariate instantaneous frequency and 
+            bandwidth&quot;, IEEE Trans. Sig. Proc., 58 (2), 591--603.
+   _____________________________________________________________________
+   
+   Sample interval
+
+   INSTMOM(DT,...) uses sample interval DT, where DT is a scalar, for 
+   computing time derivatives.  DT=1 is the default.
+   _____________________________________________________________________
+ 
+   Joint instantaneous moments
+
+   INSTMOM can also calculate the joint instananeous moments of 
+   multivariate signals, as defined in Lilly and Olhede (2010).
+
+   [JA,JOMEGA,JUPSILON]=INSTMOM(X1,X2,...,XN,DIM) returns the *joint*
+   instantaneous moments calculated across the N signals X1,X2,... XN, 
+   based on the univariate instantaneous moments along dimension DIM.
+
+   The joint instantaneous amplitude JA is the root-mean-square of the 
+   component amplitudes across dimension JDIM, while JOMEGA is power-
+   weighted average of the component instantaneous frequencies.
+
+   For details and for the definition of the joint instantaneous bandwidth 
+   JUPSILON, see Lilly and Olhede (2010).
+
+   [JA,JOMEGA,JUPSILON]=INSTMOM(X,DIM,JDIM) also works, where the joint
+   instantaneous moments are calculated across dimensions JDIM of X.
+
+   The joint instantaneous moments JA, JOMEGA, and JUPSILON then have the 
+   same size as X, except along dimension JDIM where they have only one 
+   entry.  Note that DIM is no longer optional when JDIM is used.
+   _____________________________________________________________________
+ 
+   Instantaneous curvature
+
+   INSTMOM can also return the next-higher order instantaneous moment, 
+   which is more rarely encountered. 
+
+   [A,OMEGA,UPSILON,XI]=INSTMOM(X) returns the instantaneous curvature XI,
+   defined as
+
+            XI   = d^2/dt^2 abs X / abs X + i d^2/dt^2 arg X
+                 = UPSILON^2 + d/dt UPSILON + i d/dt OMEGA
+
+   Similarly [JA,JOMEGA,JUPSILON,JXI]=INSTMOM(X,DIM,JDIM) returns the
+   joint instantaneous curvature JXI for the multivariate signal X.
+    
+   For details on the univariate and joint instantaneous curvature, see 
+
+       Lilly and Olhede (2012a), &quot;Analysis of modulated multivariate 
+            oscillations&quot;, IEEE Trans. Sig. Proc., 60 (2), 600--612. 
+   _____________________________________________________________________
+
+   Boundary conditions
+
+   The first and last points must be treated differently, as the central 
+   difference is not defined there.  Three different methods can be used.
+
+   INSTMOM(...,STR) specifies the method: STR= 'endpoint' (the default),
+   'periodic', or 'nans'.  See VDIFF for details.   
+   _____________________________________________________________________
+
+   'instmom --f' generates some sample figures.
+
+   Usage: [a,om]=instmom(x);
+          [a,om,up,xi]=instmom(dt,x);
+          [a,om,up,xi]=instmom(dt,x,dim);
+          [a,om,up,xi]=instmom(dt,x1,x2,x3,x4,dim);
+          [a,om,up,xi]=instmom(dt,x,dim,jdim);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2007--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="bellpoly.html" class="code" title="function[varargout]=bellpoly(varargin)">bellpoly</a>	BELLPOLY  Complete Bell polynomials.</li><li><a href="fixlabels.html" class="code" title="function[]= fixlabels(arg1,arg2)">fixlabels</a>	FIXLABELS  Specify precision of axes labels.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="letterlabels.html" class="code" title="function[h]=letterlabels(arg1,arg2,arg3)">letterlabels</a>	LETTERLABELS	For automatically putting letter labels on subplots.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="lnsd.html" class="code" title="function[varargout]=lnsd(varargin)">lnsd</a>	LNSD  Last non-singleton dimension of an array.</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="morsewave.html" class="code" title="function[varargout]=morsewave(varargin)">morsewave</a>	MORSEWAVE  Generalized Morse wavelets of Olhede and Walden (2002).</li><li><a href="morsexpand.html" class="code" title="function[psi]=morsexpand(varargin)">morsexpand</a>	MORSEXPAND  Generalized Morse wavelets via time-domain Taylor series.</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="uvplot.html" class="code" title="function[h1,h2]=uvplot(varargin)">uvplot</a>	UVPLOT  Plots the real and imaginary parts of a signal on the same axis.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="xtick.html" class="code" title="function[]=xtick(varargin)">xtick</a>	XTICK  Sets locations of x-axis tick marks.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ellparams</a>	ELLPARAMS  Ellipse parameters of a modulated bivariate or trivariate oscillation.</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="isridgepoint.html" class="code" title="function[bool,rq,w,om]=isridgepoint(w,fs,chi,str,fmin,fmax,mask)">isridgepoint</a>	ISRIDGEPOINT  Finds wavelet ridge points using one of several criterion.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jridges.html" class="code" title="">jridges</a>	jRidges:  Wavelet ridge analysis of modulated oscillatory signals</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

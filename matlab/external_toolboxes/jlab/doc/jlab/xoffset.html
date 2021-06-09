@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of xoffset</title>
+  <meta name="keywords" content="xoffset">
+  <meta name="description" content="XOFFSET  Offsets lines in the x-direction after plotting.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; xoffset.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>xoffset
+</h1>
+
+<div class="fragment"><pre class="comment">XOFFSET  Offsets lines in the x-direction after plotting.
+                        
+   XOFFSET allows data to be manipulated after it has been plotted, by
+   operating on the data stored in the figure itself.  This may be used 
+   only with 2-D line plots (not symbol plots, contour plots, etc.). 
+
+   XOFFSET offsets all lines in the current axes a specified amount.
+        
+   XOFFSET(N) or XOFFSET N, where N is a *real* number, offsets each
+   column of the X-data by an amount N from the previous column.  N must 
+   be a number, not a variable whose value is a number.
+
+   XOFFSET(N) or XOFFSET N, where N is an *imaginary* number, offsets
+   each column of the X-data by an amount imag(N)*DX from the previous 
+   column, where DX is the X-axis length of the original (unoffset) plot.
+
+   XOFFSET(M,N) or XOFFSET M N, applies the same offsets to each of M 
+   groups of lines. For example, for complex-valued data Z use UVPLOT(Z) 
+   followed by XOFFSET 2 N.
+
+   XOFFSET with no arguments returns the data to its original (unoffset) 
+   orientation [as do XOFFSET(0) and XOFFSET(0i)].
+   
+   XOFFSET also allow multiple axes to be manipulated simultaneously.
+
+   XOFFSET LOCK and XOFFSET UNLOCK lock and unlock all Y-data in the
+   current figure. When LOCK is on, calls to XOFFSET are applied to each
+   subplot individually.
+
+   See also <a href="yoffset.html" class="code" title="function[]=yoffset(i1,i2)">YOFFSET</a>, <a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">LINESTYLE</a>.
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="axeshandles.html" class="code" title="function[h]=axeshandles(fignum)">axeshandles</a>	AXESHANDLES  Returns handles to all axes children.</li><li><a href="linehandles.html" class="code" title="function[h]=linehandles(axh)">linehandles</a>	LINEHANDLES  Finds all line and patch handles from a given set of axes.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

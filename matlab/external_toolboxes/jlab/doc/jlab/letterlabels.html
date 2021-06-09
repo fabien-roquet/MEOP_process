@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of letterlabels</title>
+  <meta name="keywords" content="letterlabels">
+  <meta name="description" content="LETTERLABELS	For automatically putting letter labels on subplots.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; letterlabels.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>letterlabels
+</h1>
+
+<div class="fragment"><pre class="comment">LETTERLABELS    For automatically putting letter labels on subplots.
+
+   LETTERLABELS puts letter labels '(a)','(b)','(c)' etc., on the
+   subplots of the current figure, in the upper left-hand corner of
+   each subplot window.
+
+   LETTERLABELS(I) specifies the labelling position, clockwise from 
+   top left: 
+
+        I=1    Top left
+        I=2    Top right
+        I=3    Bottom right
+        I=4    Bottom left
+
+   LETTERLABELS(H,I), where H is a vector of handles to subplots,
+   puts labels on the subplots indicated by H.
+
+   LETTERLABELS(H,I,'d'), begins the labelling with letter 'd'.
+
+   LETTERLABELS will not put the letters on the right subplots if you
+   click on them before hand (because this changes the order of the
+   subplot handles).  Also if you want to label the subplots in a
+   nonstandard order, do this by reordering H.
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2000, 2004 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="maternspec.html" class="code" title="function[varargout]=maternspec(varargin)">maternspec</a>	MATERNSPEC  Fourier spectrum of the Matern random process.</li><li><a href="morsefreq.html" class="code" title="function [fm,fe,fi,cf] = morsefreq(ga,be)">morsefreq</a>	MORSEFREQ  Frequency measures for generalized Morse wavelets. [with F. Rekibi]</li><li><a href="wigdist.html" class="code" title="function[d,f]=wigdist(x,nmin,nmax,N2,s)">wigdist</a>	WIGDIST  Wigner distribtion (alias-free algorithm).</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

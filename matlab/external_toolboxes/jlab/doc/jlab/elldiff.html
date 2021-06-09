@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of elldiff</title>
+  <meta name="keywords" content="elldiff">
+  <meta name="description" content="ELLDIFF  Differentiation of modulated elliptical signals.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; elldiff.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>elldiff
+</h1>
+
+<div class="fragment"><pre class="comment">ELLDIFF  Differentiation of modulated elliptical signals.
+
+   Given the properties of a time-varying elliptical signal, ELLDIFF 
+   finds the ellipse properties of the time derivative of that signal.  
+ 
+   [K2,L2,TH2,PHI2]=ELLDIFF(K,L,TH,PHI) where the input arguments
+   specify a time-varying ellipse of the complex-valued time series 
+   Z=X+iY, returns the ellipse parameters for the associated time-
+   varing ellipse of the first central difference of Z.  
+
+   K and L are the input ellipse amplitude and linearity, respectively,
+   while TH and PHI are its orientation and orbital phase.  The output
+   arguments are the same parameters for the differentiated ellipse.
+    
+   [...]=ELLDIFF(DT,...) optionally specifies a time-step of DT
+   (default=1) for the differentiation. 
+
+   [...]=ELLDIFF(...,FACT) optionally multiplies the output amplitudes
+   by the scale factor FACT (default=1), e.g. for a unit conversion from 
+   kilometers into centimeters.
+
+   See also <a href="ellparams.html" class="code" title="function[kappa,lambda,theta,phi,alpha,beta]=ellparams(varargin)">ELLPARAMS</a>.
+
+   Usage:  [k2,l2,theta2,phi2]=elldiff(k,l,theta,phi);
+           [k2,l2,theta2,phi2]=elldiff(4*3600,k,l,theta,phi,1e5);
+
+   'elldiff --t' runs a test
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2005--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ab2kl.html" class="code" title="function[K,L]=ab2kl(A,B)">ab2kl</a>	AB2KL  Converts A and B to ellipse parameters Kappa and Lambda.</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="elldiff.html" class="code" title="function[k2,l2,theta2,phi2]=elldiff(varargin)">elldiff</a>	ELLDIFF  Differentiation of modulated elliptical signals.</li><li><a href="ellsig.html" class="code" title="function[x,y,z]=ellsig(varargin)">ellsig</a>	ELLSIG  Creates a modulated elliptical signal in two or three dimensions.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="imlog.html" class="code" title="function[y]=imlog(x)">imlog</a>	IMLOG  Imaginary part of log: IMLOG(X)=UNWRAP(IMAG(LOG(X)))</li><li><a href="kl2ab.html" class="code" title="function[A,B]=kl2ab(K,L)">kl2ab</a>	KL2AB  Converts ellipse parameters Kappa and Lambda to A and B.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="elldiff.html" class="code" title="function[k2,l2,theta2,phi2]=elldiff(varargin)">elldiff</a>	ELLDIFF  Differentiation of modulated elliptical signals.</li><li><a href="ellvel.html" class="code" title="function[v]=ellvel(varargin)">ellvel</a>	ELLVEL  Average and instantaneous ellipse velocities.</li><li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

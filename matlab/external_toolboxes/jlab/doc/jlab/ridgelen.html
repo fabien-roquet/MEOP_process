@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ridgelen</title>
+  <meta name="keywords" content="ridgelen">
+  <meta name="description" content="RIDGELEN  Wavelet ridge length expressed as number of full cycles.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ridgelen.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ridgelen
+</h1>
+
+<div class="fragment"><pre class="comment">RIDGELEN  Wavelet ridge length expressed as number of full cycles.
+
+   LEN=RIDGELEN(IR,FR) determines the length of the ridges given by the
+   ridge parameters IR and FR, with LEN expressed as number of cycles
+   completed along the ridge.  FR has units of radians per sample.
+
+   IR is an array of the ridge time indices, while FR is the frequency of 
+   the wavelet transform value along the ridge, as output by RIDGEWALK. 
+
+   LEN is a column vector of the same size as IR and FR.  Each element of
+   LEN gives the number of cycles contained in the current ridge. 
+
+   IR and FR can also be cell arrays of ridges, in which case the output
+   LEN is also a cell array of the same size as the input variables.
+   _____________________________________________________________________
+   
+   Sample interval
+
+   LEN=RIDGELEN(DT,IR,FR) uses the sample interval DT in calculating the 
+   ridge length.  DT has the default value DT=1.
+
+   In this case, FR is expected to have units of radians per DT.
+
+   If IR and FR are cell arrays, DT may either be a scalar or an array of
+   length LENGTH(IR).
+   _______________________________________________________________________
+
+   RIDGELEN internally computes an ID that takes on a single value for all
+   points in the same ridge.  If such an ID is already available, calling
+   LEN=RIDGELEN(DT,ID,IR,FR) also works.  This form is used by RIDGEWALK.  
+   _______________________________________________________________________
+
+   'ridgelen --t' runs some tests.
+
+   Usage: lr=ridgelen(ir,fr);
+          lr=ridgelen(dt,ir,fr);
+          lr=ridgelen(dt,id,ir,fr);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2009--2014 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="blocknum.html" class="code" title="function[num,a,b]=blocknum(x,delta)">blocknum</a>	BLOCKNUM  Numbers the contiguous blocks of an array.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="ridgelen.html" class="code" title="function[lr]=ridgelen(varargin)">ridgelen</a>	RIDGELEN  Wavelet ridge length expressed as number of full cycles.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jridges.html" class="code" title="">jridges</a>	jRidges:  Wavelet ridge analysis of modulated oscillatory signals</li><li><a href="ridgechains.html" class="code" title="function[id,ii,jj,xr,fr]=ridgechains(fs,N,bool,x,f,alpha,mask)">ridgechains</a>	RIDGECHAINS  Forms ridge curves by connecting transform ridge points.</li><li><a href="ridgelen.html" class="code" title="function[lr]=ridgelen(varargin)">ridgelen</a>	RIDGELEN  Wavelet ridge length expressed as number of full cycles.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

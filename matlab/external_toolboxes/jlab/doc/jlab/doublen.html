@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of doublen</title>
+  <meta name="keywords" content="doublen">
+  <meta name="description" content="DOUBLEN  Interpolates a time series to double its length.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; doublen.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>doublen
+</h1>
+
+<div class="fragment"><pre class="comment"> DOUBLEN  Interpolates a time series to double its length.
+
+   Y=DOUBLEN(X) for a column vector X of length M, returns the
+   interpolation of X to length 2M.  M must be even.
+  
+   For matrix X of size M x N, each column is interpolated to length
+   2M, and Y is size 2M x N.
+  
+   The interpolated vector Y may be considered to be of the same
+   duration, but with twice the sample rate, as the original vector.
+   In the interpolated vector, all frequencies higher than the
+   original Nyquist are set to zero.
+  
+   DOUBLEN uses the frequency-domain zero padding algorithm of Mallat
+   (1999), second edition, Section 4.5.4.
+
+   'doublen --t' runs a test  
+   'doublen --f' generates a sample figure
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2004 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="doublen.html" class="code" title="function[y]=doublen(x)">doublen</a>	DOUBLEN  Interpolates a time series to double its length.</li><li><a href="isodd.html" class="code" title="function[bool]=isodd(x)">isodd</a>	ISODD  True for odd integer values; false otherwise.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="vfilt.html" class="code" title="function[varargout]=vfilt(varargin)">vfilt</a>	VFILT  Filtering along rows without change in length.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="doublen.html" class="code" title="function[y]=doublen(x)">doublen</a>	DOUBLEN  Interpolates a time series to double its length.</li><li><a href="jspectral.html" class="code" title="">jspectral</a>	jSpectral:  Multitaper spectral analysis, and other time series tools</li><li><a href="wigdist.html" class="code" title="function[d,f]=wigdist(x,nmin,nmax,N2,s)">wigdist</a>	WIGDIST  Wigner distribtion (alias-free algorithm).</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

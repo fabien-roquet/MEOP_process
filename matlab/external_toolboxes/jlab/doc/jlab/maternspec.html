@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of maternspec</title>
+  <meta name="keywords" content="maternspec">
+  <meta name="description" content="MATERNSPEC  Fourier spectrum of the Matern random process.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; maternspec.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>maternspec
+</h1>
+
+<div class="fragment"><pre class="comment">MATERNSPEC  Fourier spectrum of the Matern random process.
+ 
+   [F,S]=MATERNSPEC(N,SIG,ALPHA,H) returns the spectrum S of a length N
+   complex-valued Matern random process having variance SIG^2, slope 
+   parameter ALPHA, and range or damping parameter H.
+
+   F is an array of one-sided (positive) Fourier frequencies for a time
+   series of length N, F=FOURIER(N).  Note that F is a *radian* frequency. 
+   For simplicity, the sample interval is taken to be unity.
+
+   The lengths of the output variables F and S are N/2+1 for even N, and
+   (N+1)/2 for odd N.
+     
+   S is the postive rotary spectrum given by
+
+        S(F) = SIG^2 / (F^2 + H^2)^ALPHA * D(ALPHA,H)
+    
+   where D(ALPHA,H)= 2 * H^(2*ALPHA-1)./MATERNC(ALPHA) is a normalizing
+   function, with MATERNC being a function of the slope parameter ALPHA. 
+
+   Note that the positive and negative rotary spectra are identical for
+   the standard Matern process.
+
+   The input parameters SIG, ALPHA, and H, may all either be scalars or 
+   arrays of the same length M.  If the latter, then the output spectrum
+   S will be a matrix with LENGTH(F) rows and M columns. 
+
+   The sample interval is taken to be unity.  The damping parameter H is 
+   understood to have units of the inverse of the sample interval.
+
+   For further details, see Sykulski, Olhede, Lilly, and Danioux (2015),
+   &quot;Lagrangian time series models for ocean surface drifter trajectories.&quot;
+   __________________________________________________________________
+
+   Sample interval  
+
+   MATERNSPEC(DT,N,SIG,ALPHA,H) uses DT as the sample interval, instead of
+   the default DT=1.  H is understood to have the same units as 1/DT.
+   __________________________________________________________________
+
+   Oscillatory Matern
+
+   [F,SPP,SNN]=MATERNSPEC(N,SIG,ALPHA,C), with C complex, uses H=REAL(C)
+   for the damping, and also sets a rotation frequency to OMEGA=-IMAG(C).  
+
+   SPP and SNN are now the postive rotary and negative rotary spectra,
+
+        SPP(F) = SIG^2 / [(F-OMEGA)^2 + H^2]^ALPHA    * D(ALPHA,H)
+        SPP(F) = SIG^2 / [(-F-OMEGA)^2 + H^2]^ALPHA   * D(ALPHA,H)
+
+   with the spectrum for positive frequencies +F returned in SPP, and for 
+   negative frequencies -F in SNN.  
+
+   The associated oscillatory process undergoes rotations at frequency 
+   OMEGA in addition to the damping at timescale 1/H.  
+
+   Note that OMEGA has units of radians per sample interval.  If DT is 
+   input, then OMEGA is understood to ahve the same units as 1/DT.
+   __________________________________________________________________
+   
+   Special cases
+
+   The generalized Matern family contains several other families of
+   random processes as special cases:
+
+     OMEGA=0           - The complex-valued Matern process
+     OMEGA=0 and H=0   - Complex-valued fractional Brownian motion
+     ALPHA=1           - The complex Ornstein-Uhlenbeck process
+     ALPHA=1, OMEGA=0  - Z=X+iY where X and Y are real-valued OU processes 
+
+   See Sykulski, Olhede, Lilly, and Danioux (2015) for more discussion.
+   __________________________________________________________________
+
+   See also <a href="materncov.html" class="code" title="function[varargout]=materncov(varargin)">MATERNCOV</a>, <a href="maternoise.html" class="code" title="function[varargout]=maternoise(varargin)">MATERNOISE</a>, MATERNPROPS, MATERNFIT, <a href="blurspec.html" class="code" title="function[varargout]=blurspec(varargin)">BLURSPEC</a>.
+
+   'maternspec --f' generates some sample figures.
+
+   Usage:      [f,s]=maternspec(N,sig,alpha,h);
+               [f,spp,snn]=maternspec(dt,N,sig,alpha,h);
+               [f,spp,snn]=maternspec(N,sig,alpha,c);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2013--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="arrayify.html" class="code" title="function[varargout]=arrayify(varargin)">arrayify</a>	ARRAYIFY  Converts a set of scalars or arrays into column arrays.</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="fourier.html" class="code" title="function[f]=fourier(varargin)">fourier</a>	FOURIER  The one-sided Fourier frequencies for a given length time series.</li><li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="letterlabels.html" class="code" title="function[h]=letterlabels(arg1,arg2,arg3)">letterlabels</a>	LETTERLABELS	For automatically putting letter labels on subplots.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="maternc.html" class="code" title="function[c]=maternc(alpha)">maternc</a>	MATERNC  Returns the normalization function C_ALPHA for a Matern process.</li><li><a href="materncov.html" class="code" title="function[varargout]=materncov(varargin)">materncov</a>	MATERNCOV  Autocovariance function of the Matern random process.</li><li><a href="maternimp.html" class="code" title="function[varargout]=maternimp(varargin)">maternimp</a>	MATERNIMP  Impulse response function for the Matern random process.</li><li><a href="maternspec.html" class="code" title="function[varargout]=maternspec(varargin)">maternspec</a>	MATERNSPEC  Fourier spectrum of the Matern random process.</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="uvplot.html" class="code" title="function[h1,h2]=uvplot(varargin)">uvplot</a>	UVPLOT  Plots the real and imaginary parts of a signal on the same axis.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="ytick.html" class="code" title="function[]=ytick(varargin)">ytick</a>	YTICK  Sets locations of y-axis tick marks.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="blurspec.html" class="code" title="function[varargout]=blurspec(varargin)">blurspec</a>	BLURSPEC  Returns the blurred and aliased spectrum given the autocovariance.</li><li><a href="jmatern.html" class="code" title="">jmatern</a>	jMatern:  Parametric spectral analysis based on the Matern process</li><li><a href="materncov.html" class="code" title="function[varargout]=materncov(varargin)">materncov</a>	MATERNCOV  Autocovariance function of the Matern random process.</li><li><a href="maternoise.html" class="code" title="function[varargout]=maternoise(varargin)">maternoise</a>	MATERNOISE  Generates realizations of the Matern random process.  [with A. Sykulski]</li><li><a href="maternspec.html" class="code" title="function[varargout]=maternspec(varargin)">maternspec</a>	MATERNSPEC  Fourier spectrum of the Matern random process.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

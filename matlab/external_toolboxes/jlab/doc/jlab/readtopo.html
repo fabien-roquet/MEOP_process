@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of readtopo</title>
+  <meta name="keywords" content="readtopo">
+  <meta name="description" content="READTOPO  Read one-minute topography data from Smith and Sandwell.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; readtopo.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>readtopo
+</h1>
+
+<div class="fragment"><pre class="comment">READTOPO  Read one-minute topography data from Smith and Sandwell. 
+   _______________________________________________________________________
+   
+   <img src='readtopo.png'>
+   _______________________________________________________________________
+
+   [TOPO,LAT,LON]=READTOPO(REGION) extracts regional topography from the
+   the one-minute Smith and Sandwell global database version 18.1.  This 
+   file is included with JDATA, available from at http://www.jmlilly.net.
+
+   REGION is an array of the form REGION=[WEST EAST SOUTH NORTH] which  
+   indicates the *edges* of the desired domain.  Longitudes can be 
+   specified either on the interval [0,360] or the interval [-180,180]. 
+
+   The region may overlap the prime meridian or the dateline.  Region
+   boundaries are interpreted to exclude the poles. 
+ 
+   TOPO is a matrix of topography in units of kilometers and is positive 
+   for above sea level, and negative for below sea level.  
+
+   LON is a row vector of longitudes and LAT a column vector of latitudes.
+
+   LAT and LON output by READTOPO are *grid-centered*, that is, they
+   indicate midpoints of the topography cells. LON is uniformly spaced, 
+   but LAT is non-uniformly spaced, with bin sizes decreasing poleward.
+
+   Note that the Smith and Sandwell database is defined only for latitudes 
+   between -80.738 and 80.738.
+   __________________________________________________________________
+
+   Interpolation
+
+   [TOPO,LAT,LON]=READTOPO(REGION,DLAT,DLON) optionally linearly 
+   interpolates the one-minute (1/60 degree) topographic data to a 
+   different resolution, specified by DLAT and DLON, in degrees.   
+
+   READTOPO(REGION,DLAT) with DLON omitted sets DLON=DLAT.
+
+   This is useful for interpolating the high-resolution Smith and Sandwell
+   dataset to a coarser resolution. 
+   __________________________________________________________________
+
+   Alternate path
+
+   By default, READTOPO looks for the topography file topo_18.1.img in 
+   the JLAB directory.  
+
+   [TOPO,LAT,LON]=READTOPO(DIRNAME,REGION...) alternatively specifies  
+   DIRNAME as the path to the parent directory of the file topo_18.1.img. 
+   __________________________________________________________________
+
+   Data and documentation
+
+   The original location for the Smith and Sandwell Global Topography
+    Dataset v. 18.1, file 'topo_18.1.img' is
+
+       http://topex.ucsd.edu/WWW_html/mar_topo.html.
+
+   The reference for the Smith and Sandwell Database is
+
+      Smith, W. H. F., and D. T. Sandwell, Global seafloor topography 
+      from satellite altimetry and ship TOPO soundings, Science, v. 277, 
+      p. 1957-1962, 26 Sept., 1997.
+   __________________________________________________________________
+
+   License and Copyright 
+
+   The data file topo_18.1.img is distributed with JDATA for RESEARCH AND 
+   NON-PROFIT USE ONLY, in accordance with the copyright statement for the
+   Smith and Sandwell dataset.  For details, type 'help topo_copyright'.
+
+   You are free to use and redistribute READTOPO under the terms in the
+   JLAB license, http://www.jmlilly.net/doc/jlab/jlab_license.html.
+
+   READTOPO is self-contained, although tests and sample figure require 
+   JLAB to run.  JLAB is available from http://www.jmlilly.net.
+
+   Send comments, questions, and bug reports to 'eponym@jmlilly.net'.
+   __________________________________________________________________
+    
+   See also <a href="jtopo.html" class="code" title="">JTOPO</a>, <a href="regionplot.html" class="code" title="function[h]=regionplot(varargin)">REGIONPLOT</a>, and <a href="topoplot.html" class="code" title="function[h,hc]=topoplot(varargin)">TOPOPLOT</a> in JLAB.
+
+   'readtopo --f' generates the sample figure shown above.
+   'readtopo --t' runs some tests.
+
+   Usage: [topo,lat,lon]=readtopo([west east south north]);
+          [topo,lat,lon]=readtopo(dirname,[west east south north]);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2006--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="crop.html" class="code" title="function crop(filename,append,margin)">crop</a>	CROP  Gets rid of whitespace around an image. [by A. Bliss]</li><li><a href="inregion.html" class="code" title="function[bool]=inregion(varargin)">inregion</a>	INREGION  Tests whether lat/lon points lie within a specified box.</li><li><a href="jpcolor.html" class="code" title="function[varargout]=jpcolor(x,y,z)">jpcolor</a>	JPCOLOR  Modified version of PCOLOR appropriate for cell-centered grids.</li><li><a href="latratio.html" class="code" title="function[ar]=latratio(lat,h)">latratio</a>	LATRATIO  Set plot aspect ratio for latitude / longitude plot.</li><li><a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">readtopo</a>	READTOPO  Read one-minute topography data from Smith and Sandwell.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="whichdir.html" class="code" title="function[dir]=whichdir(name)">whichdir</a>	WHICHDIR  Returns directory name containing file in search path.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>	JTOPO  One-sixth degree global topography based on Smith and Sandwell.</li><li><a href="jtopo.html" class="code" title="">jtopo</a>	jTopo:  Tools and data for plotting topography</li><li><a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">readtopo</a>	READTOPO  Read one-minute topography data from Smith and Sandwell.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of slidetrans</title>
+  <meta name="keywords" content="slidetrans">
+  <meta name="description" content="SLIDETRANS  Sliding-window ('moving-window') Fourier transform.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; slidetrans.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>slidetrans
+</h1>
+
+<div class="fragment"><pre class="comment">SLIDETRANS  Sliding-window ('moving-window') Fourier transform.
+   
+   Y=SLIDETRANS(X,PSI,F) computes the sliding-window Fourier transform of
+   the signal X using window PSI at frequencies F. X and W are column
+   vectors.  Y is a matrix of size LENGTH(X) by LENGTH(FS).
+
+   The frequencies F are radian frequencies as in COS(F T).   
+
+   PSI may also be a matrix, in which case Y is a 3-D array of size 
+   LENGTH(X) by LENGTH(FS) by SIZE(W,2).
+
+   SLIDETRANS(...,STR) sets the endpoint boundary conditions, with STR
+   equal to 'mirror', 'periodic', or 'zeros'.  The default is 'periodic'. 
+   For more details, see the boundary condition discussion in WAVETRANS.
+
+   A good choice for window is the first &quot;Slepian&quot; taper; see SLEPTAP.
+   Hermite functions are also used; see HERMFUN.
+
+   SLIDETRANS follows the same normalization as WAVETRANS when the input
+   signal X is complex-valued, so see that function for details.
+   _________________________________________________________________
+
+   Definition
+
+   The sliding window transform is defined as
+
+      y(t,f) = int psi^*(u-t) exp[-2 pi i f (u-t)] x(t) du.
+
+   When a sinusoid is transformed at its own frequency, the rate of change
+   of the phase of the sliding window transform recovers the frequency of
+   the sinusoid.  This is the same as with the wavelet transform.
+
+   This differs from the definition of Mallat (1999), p. 69, by a unit
+   amplitude factor of exp[2 pi i f t].  In Mallat's defintion, the
+   transform of a sinusoid at the sinusoid's frequency has constant phase.
+   Both definitions have the same modulus.
+   _________________________________________________________________
+
+   'slidetrans --t' runs a test.
+   'slidetrans --f' generates a sample figure.
+
+   Usage: y=slidetrans(x,psi,f);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information 
+   (C) 2004--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="hermfun.html" class="code" title="function h=hermfun(t,j)">hermfun</a>	HERMFUN  Orthonormal Hermite functions. [with F. Rekibi]</li><li><a href="hlines.html" class="code" title="function[h]=hlines(y,sty)">hlines</a>	HLINES   Add horizontal lines to a plot.</li><li><a href="oprod.html" class="code" title="function[z]=oprod(x,y)">oprod</a>	OPROD  Outer product:  OPROD(X,Y)=X*CONJ(Y')</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li><li><a href="slidetrans.html" class="code" title="function[y,ystack]=slidetrans(x,w,fs,str)">slidetrans</a>	SLIDETRANS  Sliding-window ('moving-window') Fourier transform.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jspectral.html" class="code" title="">jspectral</a>	jSpectral:  Multitaper spectral analysis, and other time series tools</li><li><a href="slidetrans.html" class="code" title="function[y,ystack]=slidetrans(x,w,fs,str)">slidetrans</a>	SLIDETRANS  Sliding-window ('moving-window') Fourier transform.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

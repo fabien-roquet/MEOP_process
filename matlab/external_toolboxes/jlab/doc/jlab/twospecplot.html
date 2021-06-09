@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of twospecplot</title>
+  <meta name="keywords" content="twospecplot">
+  <meta name="description" content="TWOSPECPLOT  Plots a pair of rotary or Cartesian spectra.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; twospecplot.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>twospecplot
+</h1>
+
+<div class="fragment"><pre class="comment">TWOSPECPLOT  Plots a pair of rotary or Cartesian spectra.
+
+   TWOSPECPLOT(F,SPP,SNN) plots the rotary spectra SPP and SNN with log- 
+   log axes.  SNN is on the left, with a reversed x-axis. 
+
+   TWOSPECPLOT(F,SXX,SYY,'cartesian') left the same, but now labels the 
+   and right axes as the zonal and meridional spectra, respectively.
+
+   TWOSPECPLOT(...,'tides') marks the major tidal with dotted lines.  F is
+   assumed to be in units of *radians* per hour.
+
+   TWOSPECPLOT(LAT,F,SPP,SNN) also marks the Coriolis frequency at 
+   latitude LAT, using a red line, on both sides of the spectrum.
+
+   H=TWOSPECPLOT(...) also returns the handle to the subplots.
+
+   The input quantities F, SPP, and SNN or F, SXX, and SYY may be cell
+   arrays.  See 'Cell array input / output' under MSPEC for details.
+
+   See also <a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">MSPEC</a>, <a href="sleptap.html" class="code" title="function[v,lambda]=sleptap(varargin)">SLEPTAP</a>.
+
+   Usage: twospecplot(f,spp,snn)
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2012--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="boxon.html" class="code" title="function[]=boxon">boxon</a>	BOXON  Sets 'box' property to 'on'.</li><li><a href="cell2col.html" class="code" title="function[varargout]=cell2col(varargin)">cell2col</a>	CELL2COL  Converts cell arrays of column vectors into 'column-appended' data.</li><li><a href="cellplot.html" class="code" title="function[h]=cellplot(varargin)">cellplot</a>	CELLPLOT  Rapidly plot all elements of a cell array of numeric arrays.</li><li><a href="corfreq.html" class="code" title="function[fc]=corfreq(lat)">corfreq</a>	CORFREQ  Coriolis frequency in radians per hour.</li><li><a href="flipx.html" class="code" title="function[]=flipx">flipx</a>	FLIPX    Flips the direction of the x-axis</li><li><a href="maxmax.html" class="code" title="function[b]=maxmax(x)">maxmax</a>	MAXMAX(X)=MAX(X(ISFINITE(X)))</li><li><a href="minmin.html" class="code" title="function[b]=minmin(x)">minmin</a>	MINMIN(X)=MIN(X(ISFINITE(X)))</li><li><a href="packfig.html" class="code" title="function[h]=packfig(varargin)">packfig</a>	PACKFIG  Squeeze together rows and/or columns of the current figure.</li><li><a href="tidefreq.html" class="code" title="function[f,name]=tidefreq(str)">tidefreq</a>	TIDEFREQ  Frequencies of the eight major tidal components.</li><li><a href="vlines.html" class="code" title="function[h]=vlines(x,sty)">vlines</a>	VLINES   Add vertical lines to a plot.</li><li><a href="xlog.html" class="code" title="function[]=xlog">xlog</a>	XLOG   Sets x-axis scale to logarithmic.</li><li><a href="ylog.html" class="code" title="function[]=ylog">ylog</a>	YLOG  Sets y-axis scale to log.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jspectral.html" class="code" title="">jspectral</a>	jSpectral:  Multitaper spectral analysis, and other time series tools</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

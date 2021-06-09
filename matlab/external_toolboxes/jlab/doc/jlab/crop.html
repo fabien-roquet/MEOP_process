@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of crop</title>
+  <meta name="keywords" content="crop">
+  <meta name="description" content="CROP  Gets rid of whitespace around an image. [by A. Bliss]">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; crop.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>crop
+</h1>
+
+<div class="fragment"><pre class="comment">CROP  Gets rid of whitespace around an image. [by A. Bliss]
+
+   CROP(FILENAME,APPEND,MARGIN) is the full calling form. APPEND and
+      MARGIN are optional inputs.
+
+   CROP('filename.ext') crops the image in the file and saves it using
+   the original filename, overwriting the old image. The extension (ext)
+   can be anything IMREAD supports.
+
+   CROP(directory) crops all images in a directory. 
+
+   If APPEND is 1, CROP saves the cropped image as 'filename_crop.ext'
+   in the same directory as the original.
+
+   MARGIN sets the margin width in pixels (default is 10).
+
+   Changes since version 1:
+       1. Now accepts directories as input.
+       2. Improved input checks and comments.
+       3. Handles transparency in .png files.
+       4. Just prior to saving version 1, I added the APPEND option.
+
+   Example:
+       crop('C:\MATLAB7\toolbox\matlab\demos\html\cruller_01.png',1)
+
+   See also: IMREAD, IMWRITE
+   See <a href="crop_license.html" class="code" title="">crop_license</a>.m for the license details.
+   Written by Andy Bliss Sept 8th, 2006. Revised May 31, 2012.
+   __________________________________________________________________
+   This third-party software is included with JLAB for convenience, in
+   accordance with the redistribution policy at <a href="crop_license.html" class="code" title="">crop_license</a>.m.</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="about_alongtrack.html" class="code" title="function[varargout]=about_alongtrack(varargin)">about_alongtrack</a>	ALONGTRACK  Sea surface height anomalies from the Beckley merged dataset.</li><li><a href="about_drifters.html" class="code" title="function[varargout]=about_drifters(varargin)">about_drifters</a>	DRIFTERS  Global surface drifter dataset from the Global Drifter Program.</li><li><a href="about_floats.html" class="code" title="function[varargout]=about_floats(varargin)">about_floats</a>	FLOATS  Historical dataset of eddy-resolving subsurface floats.</li><li><a href="about_jtopo.html" class="code" title="function[varargout]=about_jtopo(varargin)">about_jtopo</a>	JTOPO  One-sixth degree global topography based on Smith and Sandwell.</li><li><a href="closedcurves.html" class="code" title="function[xc,yc]=closedcurves(varargin)">closedcurves</a>	CLOSEDCURVES  Locate and interpolate closed curves in a possibly periodic domain.</li><li><a href="curvemoments.html" class="code" title="function[varargout]=curvemoments(x,y,z)">curvemoments</a>	CURVEMOMENTS  Centroid, area, and many other moments of a closed curve.</li><li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="makefigs_topoplot.html" class="code" title="">makefigs_topoplot</a>	</li><li><a href="mspec.html" class="code" title="function[varargout]=mspec(varargin)">mspec</a>	MSPEC  Multitaper power and cross spectra.</li><li><a href="readtopo.html" class="code" title="function [mat,lat,lon,offset]=readtopo(varargin)">readtopo</a>	READTOPO  Read one-minute topography data from Smith and Sandwell.</li><li><a href="twodhist.html" class="code" title="function[mat,xmid,ymid,index]=twodhist(varargin)">twodhist</a>	TWODHIST  Two-dimensional histogram.</li><li><a href="twodmed.html" class="code" title="function[mat,xmid,ymid]=twodmed(varargin)">twodmed</a>	TWODMED  Median value of a function of two variables.</li><li><a href="twodstats.html" class="code" title="function[mat,xmid,ymid,num,std]=twodstats(varargin)">twodstats</a>	TWODSTATS  Mean, variance, and covariance of functions of two variables.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

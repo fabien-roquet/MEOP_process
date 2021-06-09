@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ridgewalk</title>
+  <meta name="keywords" content="ridgewalk">
+  <meta name="description" content="RIDGEWALK  Extract wavelet transform ridges, including bias estimates.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; ridgewalk.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ridgewalk
+</h1>
+
+<div class="fragment"><pre class="comment"> RIDGEWALK  Extract wavelet transform ridges, including bias estimates. 
+
+   [IR,JR,WR,FR]=RIDGEWALK(W,FS) where W is a wavelet transform matrix
+   at frequecies FS, such as that returned by MORSEWAVE, returns the 
+   wavelet ridges of transform W.
+
+   The columns of W correspond to different frequencies, specified by the
+   frequency array FS, at which the wavelet transform was performed.  Note
+   that FS assumes a unit sample rate.  
+
+   The frequencies FS are expected to be ordered from highest to lowest.  
+
+   RIDGEWALK returns the following quantities along ridges
+
+       IR     Ridge indices into rows of W (time) 
+       JR     Ridge indices into columns of W (scale) 
+       WR     Wavelet transfrom value along the ridge
+       FR     Transform frequency values in radian frequency
+
+   All output variables are cell arrays with one ridge per cell.  To plot
+   the ridges, use CELLPLOT(IR,JR).  CELL2COL(IR,JR,WR,FR) turns these
+   cell arrays into concatenated column vectors. 
+
+   RIDGEWALK(DT,W,FS,...) uses a sample rate DT to compute the ridge
+   frequency FR.  The default value of DT is unity.  This does not affect
+   the specification of FS, which is given in terms of a unit sample rate.
+   _______________________________________________________________________
+
+   Masked-out regions
+
+   RIDGEWALK permits the use to explicitly specify time-frequency regions 
+   which should be excluded from the ridge analyis.
+
+   RIDGEWALK(...,W,FS,BOOL), where BOOL is a boolean array of the same
+   size as W, then those points for which BOOL is false will be excluded 
+   from the ridge analysis. In addition, ridges are not permitted to cross
+   such regions, to prevent spurious chaining between distant frequencies.
+
+   This functionality is useful if we have ancillary information, such as
+   a local signal-to-noise estimate, that can help determine a priori
+   which time-frequency points appear to be statistically significant. 
+   _______________________________________________________________________
+
+   Additional options
+
+   RIDGEWALK has other contingencies for rejecting spurious ridge points.
+   These tend to occur on the flanks of interesting signals, and 
+   reflect the wavelet structure rather than the signal structure.
+
+   RIDGEWALK(...,{L,CHI}) specifies options for the ridge computation.
+
+        L  -- Removes all ridges of less than L periods in length
+      CHI  -- Removes all small amplitude ridge points having |W|&lt;CHI
+
+   In general, L should be set in proportion to the number of oscillations
+   contained in the wavelet.  A recommended setting is L &gt; 2*P/pi, with P 
+   described shortly. This criterion means that the ridge must be longer
+   than the number of oscillations in the central envelope of the wavelet.
+
+   Here P is a quantity that characterizes the number of oscillations in a
+   wavelet.  For the generalized Morse wavelets calculated by MORSEWAVE, 
+   P is given by P=SQRT(BETA*GAMMA), see Lilly and Olhede (2009).
+
+   The options cell may also include some additional parameters for hidden
+   options that are used during testing. These should not be required by
+   most users, but are documented in the function body for completeness.
+   _______________________________________________________________________  
+
+   Time-dependent frequency range
+
+   The ridge curves may be limited to a time-varying frequency range.
+
+   RIDGEWALK(DT,...,{FMAX,FMIN,L,CHI}) additionally specifies a maximum 
+   frequency FMAX and minumum frequency FMIN for the ridges.  Only ridge
+   points between these two frequencies are returned.
+
+   FMAX and FMIN are both *radian* frequencies per unit time as specified
+   by DT. DT is optional and its default value is unity.  Thus FMAX and 
+   FMIN are directly comparable to the ridge frequency FR. 
+   
+   Both FMAX and FMIN are either scalars, or arrays the same length as W. 
+   _______________________________________________________________________
+
+   Output of bias parameters
+
+   [IR,JR,WR,FR,BR,CR]=RIDGEWALK(...) optionally outputs two additional
+   quantities along the ridges.
+
+       BR     Instantaneous bandwidth  
+       CR     Instantaneous curvature  
+
+   When these 'bias parameters' BR and CR are small compared with the
+   frequency, i.e. BR/FR &lt;&lt; 1 and CR/(FR^2) &lt;&lt; 1, then the signal is 
+   accurately estimated, as discussed in 
+
+      Lilly and Olhede (2010), On the analytic wavelet transform. 
+           IEEE Trans. Info. Theory, 56 (8), 4135--4156.
+
+   For more details, see INSTMOM.
+   _______________________________________________________________________
+
+   Joint ridges
+
+   [IR,JR,W1R,W2R,...,WNR,F1R,F2R,...FNR]=RIDGEWALK(W1,W2,...,WN,FS) 
+   finds the joint ridges of N transforms that all have the same size.  
+
+   In this case, there is only one set of ridges but N different values.
+   All of the output fields are again cell arrays of the same size.
+
+   [IR,JR,WR,FR]=RIDGEWALK(W1,W2,...,WN,FS,'mat') specifies an alternate,
+   'matrix' format for joint ridges.  Now WR and FR are cell arrays, each 
+   element of which is a matrix with N columns.  The default 'column' 
+   format splits these N columns into N different output arguments.
+
+   For details on joint ridges, see
+
+      Lilly and Olhede (2012), Analysis of Modulated Multivariate 
+           Oscillations. IEEE Trans. Sig. Proc., 60 (2), 600--612.
+   _______________________________________________________________________
+   
+   Bias parameters for joint ridges
+
+   [IR,JR,WR,FR,BR,CR]=RIDGEWALK(W1,W2,...,WN,FS,'mat') for the case of 
+   joint ridges similarly outputs the two bias parameters along the 
+   ridges, here organized in matrix format.
+
+   BR and CR are normalized versions of (17) and (18) of Lilly and Olhede 
+   (2012). Both BR and CR have been normalized by dividing them by the 
+   modulus of the estimated analytic signal, SQRT(SUM(ABS(WR).^2,2)).
+
+   [...,B1R,B2R,...,BRN,C1R,C2N,...,CNR]=RIDGEWALK(W1,W2,...,WN,FS), the
+   default, uses column format instead.  In this case there will be 2+4*N
+   total output arguments: IR, JR, and N columns of WR, FR, BR, and CR.     
+
+   The bias associated with the estimated signal is small compared to the 
+   magnitude of the signal when the modulus of XCR is small.
+
+   For more details on the bias parameters for multivariate signals see 
+   Lilly and Olhede (2012).
+   _______________________________________________________________________
+
+   Interscale interpolation
+   
+   RIDGEWALK interpolates among discrete scale levels to yield more
+   accurate values for the ridge quantities WR and FR using a fast
+   quadratic interpolation.  
+   
+   See the low-level functions RIDGEINTERP and QUADINTERP for details.
+   _______________________________________________________________________
+
+   See also <a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">WAVETRANS</a>, <a href="ridgemap.html" class="code" title="function[varargout]=ridgemap(varargin)">RIDGEMAP</a>.
+
+   'ridgewalk --t' runs a test.
+   'ridgewalk --f' generates a sample figure.
+
+   Usage: [ir,jr,wr,fr]=ridgewalk(w,fs);
+          [ir,jr,wr,fr]=ridgewalk(w,fs,{L,CHI});
+          [ir,jr,wr,fr]=ridgewalk(dt,w,fs,{L,CHI});
+          [ir,jr,wxr,wyr,fxr,fyr]=ridgewalk(dt,wx,wy,fs,{L,CHI});
+          [ir,jr,wr,fr,br,cr]=ridgewalk(dt,wx,wy,fs,{L,CHI},'mat');
+          [ir,jr,wr,fr]=ridgewalk(dt,w,fs,bool,{L,CHI});
+   _______________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2004--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="cellength.html" class="code" title="function[s]=cellength(x)">cellength</a>	CELLENGTH  Length of each element in a cell array.</li><li><a href="col2cell.html" class="code" title="function[varargout]=col2cell(varargin)">col2cell</a>	COL2CELL  Converts 'column-appended' data into cell arrays of column vectors.</li><li><a href="colbreaks.html" class="code" title="function[varargout]=colbreaks(varargin)">colbreaks</a>	COLBREAKS  Insert NANs into discontinuties in a vector.</li><li><a href="fillbad.html" class="code" title="function[datao]=fillbad(data,i2,i3,i4)">fillbad</a>	FILLBAD  Linearly interpolate over bad data points.</li><li><a href="flipmap.html" class="code" title="function[]=flipmap">flipmap</a>	FLIPMAP Flips the current colormap upside-down.</li><li><a href="fontsize.html" class="code" title="function[]=fontsize(i1,i2,i3,i4)">fontsize</a>	FONTSIZE Rapidly set title, axes, label, and text fontsizes.</li><li><a href="instmom.html" class="code" title="function[varargout]=instmom(varargin)">instmom</a>	INSTMOM  Univariate and multivariate instantaneous moments.</li><li><a href="inticks.html" class="code" title="function[]=inticks">inticks</a>	INTICKS  Sets the 'tickdir' property of the current axis to 'in'.</li><li><a href="isridgepoint.html" class="code" title="function[bool,rq,w,om]=isridgepoint(w,fs,chi,str,fmin,fmax,mask)">isridgepoint</a>	ISRIDGEPOINT  Finds wavelet ridge points using one of several criterion.</li><li><a href="latlon2uv.html" class="code" title="function[u,v]=latlon2uv(num,lat,lon,str)">latlon2uv</a>	LATLON2UV  Converts latitude and longitude to horizontal velocity.</li><li><a href="latlon2xy.html" class="code" title="function[varargout]=latlon2xy(varargin)">latlon2xy</a>	LATLON2XY  Converts latitude and longitude into local Cartesian coordinates.</li><li><a href="linestyle.html" class="code" title="function[]=linestyle(varargin)">linestyle</a>	LINESTYLE  Rapidly set color, style, and width properties of lines.</li><li><a href="morseprops.html" class="code" title="function[p,skew,kurt]=morseprops(ga,be)">morseprops</a>	MORSEPROPS  Properties of the demodulated generalized Morse wavelets.</li><li><a href="morsespace.html" class="code" title="function[fs]=morsespace(varargin)">morsespace</a>	MORSESPACE  Logarithmically-spaced frequencies for generalized Morse wavelets.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="ridgechains.html" class="code" title="function[id,ii,jj,xr,fr]=ridgechains(fs,N,bool,x,f,alpha,mask)">ridgechains</a>	RIDGECHAINS  Forms ridge curves by connecting transform ridge points.</li><li><a href="ridgeinterp.html" class="code" title="function[varargout]=ridgeinterp(varargin)">ridgeinterp</a>	RIDGEINTERP  Interpolate quantity values onto ridge locations.</li><li><a href="ridgemap.html" class="code" title="function[varargout]=ridgemap(varargin)">ridgemap</a>	RIDGEMAP  Maps ridge quantities back onto the time series.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li><li><a href="squared.html" class="code" title="function[y]=squared(x)">squared</a>	SQUARED   Squares the modulus of its argument:  SQUARED(X)=ABS(X).^2</li><li><a href="tmat.html" class="code" title="function[x]=tmat()">tmat</a>	TMAT  2x2 complex grouping matrix.  TMAT = [1  i; 1 -i] / SQRT(2)</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vdiff.html" class="code" title="function[varargout]=vdiff(varargin)">vdiff</a>	VDIFF	Length-preserving first central difference.</li><li><a href="vectmult.html" class="code" title="function[varargout]=vectmult(varargin)">vectmult</a>	VECTMULT  Matrix multiplication for arrays of vectors.</li><li><a href="vmean.html" class="code" title="function[varargout] = vmean(varargin)">vmean</a>	VMEAN  Mean over finite elements along a specified dimension.</li><li><a href="vrep.html" class="code" title="function[varargout]=vrep(varargin)">vrep</a>	VREP  Replicates an array along a specified dimension.</li><li><a href="vsum.html" class="code" title="function[varargout] = vsum(varargin)">vsum</a>	VSUM  Sum over finite elements along a specified dimension.</li><li><a href="wavespecplot.html" class="code" title="function[h,hl]=wavespecplot(varargin)">wavespecplot</a>	WAVESPECPLOT  Plot of wavelet spectra together with time series.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ellband.html" class="code" title="function[upa,upb,upc,upd,upe,upf]=ellband(varargin)">ellband</a>	ELLBAND  Bandwidth of modulated elliptical signals in two or three dimensions.</li><li><a href="ellrossby.html" class="code" title="function[Ro]=ellrossby(lat,lambda,omega)">ellrossby</a>	ELLROSSBY  Ellipse Rossby number, for oceanographic applications.</li><li><a href="jlab_makefigs.html" class="code" title="function[varargout]=jlab_makefigs(namestr,str)">jlab_makefigs</a>	JLAB_MAKEFIGS  Makes figures for papers by J.M. Lilly.</li><li><a href="jridges.html" class="code" title="">jridges</a>	jRidges:  Wavelet ridge analysis of modulated oscillatory signals</li><li><a href="ridgemap.html" class="code" title="function[varargout]=ridgemap(varargin)">ridgemap</a>	RIDGEMAP  Maps ridge quantities back onto the time series.</li><li><a href="ridgewalk.html" class="code" title="function[varargout]=ridgewalk(varargin)">ridgewalk</a>	RIDGEWALK  Extract wavelet transform ridges, including bias estimates.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

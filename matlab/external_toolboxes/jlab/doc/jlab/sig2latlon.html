@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of sig2latlon</title>
+  <meta name="keywords" content="sig2latlon">
+  <meta name="description" content="SIG2LATLON  Converts an oscillatory signal to lat/lon displacements.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; sig2latlon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>sig2latlon
+</h1>
+
+<div class="fragment"><pre class="comment">SIG2LATLON  Converts an oscillatory signal to lat/lon displacements.
+
+   [LATRES,LONRES]=SIG2LATLON(X,Y,LAT,LON) where X and Y are zonal and
+   meridional displacements, in kilometers, about some time-varying 
+   position wiht latitude LAT and longitude LON, returns the residuals
+   between the signal and the position curve.
+
+   [LATRES,LONRES,DLAT,DLON]=SIG2LATLON(X,Y,LAT,LON) also returns the
+   latitude and longitude displacements associated with X and Y.  
+
+   The residuals are output first because this is usually what is desired.
+   These are essentially LAT-DLAT and LON-DLON, apart from an unwrapping 
+   correction for longitude.
+
+   All input arguments are arrays of the same size.  
+   ____________________________________________________________________
+   
+   Cell array input/output
+
+   If SIG2LATLON is given cell array input, it returns cell array output.
+
+   Thus X, Y, LAT, and LON may each be cell arrays of the same size, 
+   where each element in the cell array is a numerical array. The output
+   arguments will then also be cell arrays of this size.
+   ____________________________________________________________________
+
+   'sig2latlon --t' runs a test.
+
+   Usage: [latres,lonres]=sig2latlon(x,y,lat,lon);
+          [latres,lonres,dlat,dlon]=sig2latlon(x,y,lat,lon);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2014--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="frac.html" class="code" title="function[y]=frac(x1,x2)">frac</a>	FRAC  Fraction: FRAC(A,B)=A./B</li><li><a href="radearth.html" class="code" title="function[R]=radearth">radearth</a>	RADEARTH  The radius of the earth in kilometers.</li><li><a href="rot.html" class="code" title="function[x]=rot(x)">rot</a>	ROT Complex-valued rotation:  ROT(X)=EXP(SQRT(-1)*X)</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jellipse.html" class="code" title="">jellipse</a>	jEllipse:  Analysis of modulated elliptical, or bivariate, signals</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

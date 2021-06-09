@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of timeseries_boundary</title>
+  <meta name="keywords" content="timeseries_boundary">
+  <meta name="description" content="TIMESERIES_BOUNDARY  Apply boundary conditions to data before transform.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; timeseries_boundary.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>timeseries_boundary
+</h1>
+
+<div class="fragment"><pre class="comment">TIMESERIES_BOUNDARY  Apply boundary conditions to data before transform.
+
+   TIMESERIES_BOUNDARY is a low-level function called by WAVETRANS and
+   ANATRANS.
+
+   TIMESERIES_BOUNDARY applies periodic, zero-padded, or mirror boundary
+   conditions to a time series.  See ANATRANS or WAVETRANS.
+
+   This is a low-level function, not meant to be user called by users.
+
+   TIMESERIES_BOUNDARY(X,STR,DETRENDSTR) applies boundary conditions 
+   specified by STR to time series X.  If DETRENDSTR='detrend', X is first
+   detrended.  STR may be 'periodic', 'zeros', 'mirror', or 'reverse':
+
+      'periodic' wraps the beginning around to the end, and vice versa
+      'zeros'    extends the time series with zeros at both edges
+      'mirror'   reflects the time series about the beginning and the end
+      'reverse'  is like mirror, but with a change in sign, and a shift
+                   to make the time series be continuous at both edges
+
+   TIMESERIES_BOUNDARY(X,DIM,STR) applies the boundary conditions
+   specified by STR along dimension DIM.  By default, DIM=1.  Note that
+   no detrending is possible for DIM not equal to one.  Also, 'reverse'
+   only works for the default case of DIM=1.  
+
+   Usage: y=timeseries_boundary(x,str,detrendstr);
+   __________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 2011--2015 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="aresame.html" class="code" title="function[bool]=aresame(x1,x2,tol)">aresame</a>	ARESAME Test whether two N-D arrays are the same.</li><li><a href="reporttest.html" class="code" title="function[]=reporttest(str,bool)">reporttest</a>	REPORTTEST  Reports the result of an m-file function auto-test.</li><li><a href="timeseries_boundary.html" class="code" title="function[y]=timeseries_boundary(varargin)">timeseries_boundary</a>	TIMESERIES_BOUNDARY  Apply boundary conditions to data before transform.</li><li><a href="use.html" class="code" title="function[]=use(x)">use</a>	USE  Copies structure fields into named variables in workspace.</li><li><a href="vindexinto.html" class="code" title="function[varargout]=vindexinto(varargin)">vindexinto</a>	VINDEXINTO  Indexes into N-D array along a specified dimension.</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="anatrans.html" class="code" title="function[varargout]=anatrans(varargin)">anatrans</a>	ANATRANS  Analytic part of signal.</li><li><a href="jspectral.html" class="code" title="">jspectral</a>	jSpectral:  Multitaper spectral analysis, and other time series tools</li><li><a href="timeseries_boundary.html" class="code" title="function[y]=timeseries_boundary(varargin)">timeseries_boundary</a>	TIMESERIES_BOUNDARY  Apply boundary conditions to data before transform.</li><li><a href="wavetrans.html" class="code" title="function[varargout]=wavetrans(varargin)">wavetrans</a>	WAVETRANS  Continuous wavelet transform.</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

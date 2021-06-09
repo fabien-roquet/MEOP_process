@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of provec</title>
+  <meta name="keywords" content="provec">
+  <meta name="description" content="PROVEC  Generate progressive vector diagrams (simple and fancy).">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../menu.html">Home</a> &gt;  <a href="menu.html">jlab</a> &gt; provec.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../menu.html"><img id="small" alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for jlab&nbsp;<img id="small" alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>provec
+</h1>
+
+<div class="fragment"><pre class="comment">PROVEC  Generate progressive vector diagrams (simple and fancy).
+
+   Simple provecs:
+
+     PROVEC(U,V,DELTAT) generates a simple progressive vector diagram
+     plotting cumsum(U*DELTAT) vs cumsum(V*DELTAT).  U and V are
+     column vectors, or matrices with time oriented in columns.
+     DELTAT (optional) must be in units of seconds and defaults to
+     one hour (3600 s).  U and V must have units of cm/s.
+  
+     PROVEC(CV,DELTAT), where CV=U+iV, also works.
+
+     INT=PROVEC(...) outputs the integrated dispacement INT in km.
+     
+   Fancy provecs:
+
+     A fancy provec use SCATTER to plot change the color and/or sizes
+     of the points according to another parameter, say density.  A
+     colorbar is also plotted.
+
+     PROVEC(U,V,C,DELTAT) uses C as the symbol color.  The array C
+     must have the same size as U and V.
+
+     PROVEC(U,V,C,S,DELTAT) also uses S as the symbol size.  The
+     array S must have the same size as U and V.
+    
+     PROVEC(CV,C,DELTAT) and PROVEC(CV,C,S,DELTAT) also work.
+
+     Note that since SCATTER is slow for large datasets, it is useful
+     to decimate the data before plotting.  This is accomplished
+     using PROVEC(...,INDEX,[DELTAT]), where INDEX is placed just
+     before the optional DELTAT.  Then only the points INT(INDEX,:)
+     of the integrated trajectory are plotted.
+
+     [INT,H,HC]=PROVEC returns the intergrated displacement INT, the
+     handle H to the data, and the handle HC to the colorbar axis.
+
+   PROVEC(DCOL,...), where DCOL is a scalar or a row vector,
+   specifies that the columns of the data are to by offset by amount
+   DCOL after plotting, for both simple and fancy provecs.  
+
+   If DCOL is a scalar, then successive columns after the first are
+   offset by amount -DCOL.  If DCOL is a row vector, then it
+   specifies the offset for each column of the data.
+
+   As an example,
+  
+          load bravo94
+          th=100*detrend(bravo.cat.th(:,3));
+          [int,h,hc]=provec(bravo.rcm.cv(:,3),th,20+0*th,[1:10:4000]);
+          caxis([-8 8])
+
+   makes part of Figure 6b of Lilly and Rhines (2002) JPO.
+         
+   Usage: int=provec(cv);
+          [int,h,hc]=provec(cv,c,index);
+          [int,h,hc]=provec(cv,c,s,index);
+          [int,h,hc]=provec(cv,c,s,index,deltat);
+          [int,h,hc]=provec(dcol,cv,c,s,index,deltat);
+   _________________________________________________________________
+   This is part of JLAB --- type 'help jlab' for more information
+   (C) 1999--2012 J.M. Lilly --- type 'help jlab_license' for details</pre></div>
+
+<!-- crossreference -->    
+<h4>This function calls:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="allall.html" class="code" title="function[b]=allall(x)">allall</a>	ALLALL(X)=ALL(X(:))</li><li><a href="vcolon.html" class="code" title="function[varargout]=vcolon(varargin)">vcolon</a>	VCOLON  Condenses its arguments, like X(:).</li><li><a href="vswap.html" class="code" title="function[varargout]=vswap(varargin)">vswap</a>	VSWAP  VSWAP(X,A,B) replaces A with B in numeric array X.</li></ul>
+<h4>This function is called by:</h4>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="jgraph.html" class="code" title="">jgraph</a>	jGraph:  Plotting tools and refinements for making high-quality figures</li><li><a href="joceans.html" class="code" title="">joceans</a>	jOceans:  Oceanography-specific data and model analysis tools</li></ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 14-Apr-2015 10:37:27 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
