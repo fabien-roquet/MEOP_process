@@ -15,6 +15,7 @@ import cmocean.cm as cmo
 
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+#warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 # list variables
@@ -38,7 +39,6 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 #  plot_TSdiag(self,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10))
 #  plot_section(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10),title=None,rolling=0,**kwargs)
 #  plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None)
-#  plot_TSsections(self,SUFFIX_PARAM='_ADJUSTED',namefig=None,figsize=(12, 10),rolling=0,**kwargs)
 
 
 
@@ -143,6 +143,8 @@ def open_dataset(ncfile_name):
         for dim in ds.dims:
             ds[dim] = ((dim), ds[dim])
             ds.set_coords([dim])
+        ds['JULD'].values = [dt.replace(microsecond=0)  for dt in ds['JULD'].values]
+        ds['JULD_LOCATION'] = ds.JULD
     else:
         print('No file: ',ncfile_name)
         return None
@@ -187,6 +189,8 @@ def add_sigma0(self,SUFFIX_PARAM='_ADJUSTED'):
     ds = self    
     if ('SIG0'+SUFFIX_PARAM) not in ds.variables:
         ds['SIG0'+SUFFIX_PARAM] = gsw.sigma0(ds['PSAL'+SUFFIX_PARAM],ds['TEMP'+SUFFIX_PARAM])
+        ds['SIG0'+SUFFIX_PARAM+'_QC'] = ds['TEMP'+SUFFIX_PARAM+'_QC'].copy()
+        ds['SIG0'+SUFFIX_PARAM+'_QC'].where(~ds['PSAL'+SUFFIX_PARAM+'_QC'].isin([b'4']),'4')
     return ds
 
 
@@ -213,17 +217,20 @@ def list_metadata(self):
 @add_method(xr.Dataset)
 def add_mld(self,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):    
 
-    ds=self
+    ds = self
+    mld = compute_mld(ds,SUFFIX_PARAM=SUFFIX_PARAM,density_threshold=density_threshold)
+    ds['MLD'+SUFFIX_PARAM] = mld
+    return ds
+
+
+def compute_mld(ds,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):
     ds = ds.add_sigma0(SUFFIX_PARAM=SUFFIX_PARAM)
     density = ds['SIG0'+SUFFIX_PARAM].bfill(dim='N_LEVELS',limit=50)
     dens10 = density[:,9]
     pressure = ds.PRES.where(density-dens10<density_threshold,np.nan)
     mld = pressure.max(dim='N_LEVELS')
     mld[mld<5] = np.nan
-    ds['MLD'+SUFFIX_PARAM] = mld
-    return ds
-            
-            
+    return mld
             
             
 
@@ -256,10 +263,10 @@ def plot_map(self,ax=None,namefig=None,title='',figsize=(10, 10),draw_background
     
     if scatter_plot:
         if list(color):
-            h = ds.plot.scatter(ax=ax,x='LONGITUDE',y='LATITUDE',
+            h = ds.plot.scatter(ax=ax,x='LONGITUDE',y='LATITUDE',s=5,
                           color=color,add_guide=False,transform=ccrs.PlateCarree())
         else:
-            h = ds.plot.scatter(ax=ax,x='LONGITUDE',y='LATITUDE',hue='N_PROF',hue_style='continuous',
+            h = ds.plot.scatter(ax=ax,x='LONGITUDE',y='LATITUDE',s=5,hue='N_PROF',hue_style='continuous',
                           add_guide=False,transform=ccrs.PlateCarree())
     else:
         if list(color):
@@ -324,7 +331,7 @@ def plot_profiles(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
             ax.plot(ds[PARAM+SUFFIX_PARAM].T,ds['PRES'+SUFFIX_PARAM].T,linewidth=.6)
             
         if 'MLD_ADJUSTED' in ds.variables:
-            ax.scatter(ds[PARAM+SUFFIX_PARAM].sel(N_LEVELS=ds.MLD_ADJUSTED),ds.MLD_ADJUSTED,color='k')
+            ax.scatter(ds[PARAM+SUFFIX_PARAM].sel(N_LEVELS=ds.MLD_ADJUSTED),ds.MLD_ADJUSTED,s=2,color='k')
             
         ax.set_ylim([pmax,0])
 
@@ -392,11 +399,16 @@ def plot_TSdiag(self,SUFFIX_PARAM='_ADJUSTED',mode='line',ax=None,namefig=None,f
 
 
 @add_method(xr.Dataset)
-def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10),title=None,rolling=0,pmax=1000,**kwargs):
+def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10),title=None,rolling=0,plot_mld=True,density_threshold=0.02,pmax=1000,**kwargs):
 
 
     ds = self
 
+    if plot_mld:
+        mld = compute_mld(ds,SUFFIX_PARAM=SUFFIX_PARAM,density_threshold=density_threshold)
+        if rolling>0:
+            mld = mld.rolling(N_PROF=rolling,min_periods=min([3,rolling]),center=True).mean()
+    
     if isinstance(PARAM,str):
         
         if not ax:
@@ -422,6 +434,9 @@ def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
         else:
             var = ds[PARAM+SUFFIX_PARAM]
         var.T.plot(ax=ax,**kwargs)    
+
+        if plot_mld:
+            mld.plot(ax=ax)
 
         if not title:
             number_profiles = np.sum(N_PARAM(ds,PARAM+SUFFIX_PARAM).data>0)
@@ -450,21 +465,6 @@ def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
                 plt.savefig(namefig,dpi=300,bbox_inches='tight')
 
             return fig, ax
-
-        
-@add_method(xr.Dataset)
-def plot_TSsections(self,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10),title=None,rolling=0,pmax=1000,**kwargs):
-
-    ds = self
-    
-    fig, ax = ds.plot_sections(['TEMP','PSAL'],\
-                                 SUFFIX_PARAM=SUFFIX_PARAM,ax=ax,namefig=namefig,figsize=figsize,title=title,pmax=pmax,rolling=rolling,**kwargs)
-    if SUFFIX_PARAM=='_ADJUSTED':
-        ds.add_mld()
-        mld = ds.MLD_ADJUSTED.rolling(N_PROF=rolling,min_periods=3,center=True).mean()
-        for a in ax:
-            mld.plot(ax=a)
-    return fig, ax
 
 
         
