@@ -1,4 +1,4 @@
-.ipynb_checkpoints/
+**/.ipynb_checkpoints/
 calibration_plots/
 doc_latex/
 final_dataset_prof/
@@ -9,5 +9,4 @@ list_*.pkl
 plots/
 share/
 temporary/
-python/.ipynb_checkpoints/
-*.pyc
+**/__pycache__/
