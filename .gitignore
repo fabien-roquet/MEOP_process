@@ -10,3 +10,4 @@ plots/
 share/
 temporary/
 python/.ipynb_checkpoints/
+*.pyc
