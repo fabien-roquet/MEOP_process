@@ -121,7 +121,7 @@ def plot_data_deployments(deployment,namefig=None):
     ax['S'] = fig.add_subplot(gs[1, 1])
     ax['D'] = fig.add_subplot(gs[1, 2])
     ax['TS'] = fig.add_subplot(gs[0, 2:])
-    with meop.read_ncfile(list_fname_prof[0]) as ds:
+    with meop.open_dataset(list_fname_prof[0]) as ds:
         ax['xy'] = fig.add_subplot(gs[0, :2],projection=ccrs.PlateCarree(ds.central_longitude()))
     for key in ax:
         ax[key].set_prop_cycle(custom_cycler)
@@ -133,7 +133,7 @@ def plot_data_deployments(deployment,namefig=None):
 
     list_ds = []
     for fname_prof in list_fname_prof:
-        ds = meop.read_ncfile(fname_prof)
+        ds = meop.open_dataset(fname_prof)
         ds = ds.add_N_PARAM()
         list_ds.append(ds)
     

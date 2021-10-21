@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 #  fname_plots(smru_name,deployment='',qf='lr0',suffix='_plot')
 #  N_PARAM(ds,PARAM)
 #  copy_file(file_name,src_dir,dst_dir)
-#  read_ncfile(ncfile_name)
+#  open_dataset(ncfile_name)
 #
 # list of methods added to xr.Dataset objets loaded from ncARGO file
 #  Decorator: @add_method(xr.Dataset)
@@ -135,7 +135,7 @@ def copy_file(file_name,src_dir,dst_dir):
     
 #-----------------------------------  read ncARGO file  -------------------------------------#    
 # read a netCDF file and return a xarray dataset structure
-def read_ncfile(ncfile_name):
+def open_dataset(ncfile_name):
     
     ncfile_name = Path(ncfile_name)
     if ncfile_name.is_file():

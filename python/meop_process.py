@@ -150,7 +150,7 @@ def generate_descriptive_plots(smru_name='',deployment=''):
 
         for smru_name in meop.list_smru_name(smru_name,deployment,qf=qf):
             namefile = meop.fname_prof(smru_name,qf=qf)
-            ds = meop.read_ncfile(namefile)
+            ds = meop.open_dataset(namefile)
             ds.plot_data_tags('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='profiles'))
             ds.plot_TSsections('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='sections'))
             ds.close()

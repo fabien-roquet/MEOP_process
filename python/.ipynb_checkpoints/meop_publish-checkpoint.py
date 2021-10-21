@@ -77,7 +77,7 @@ def create_ncfile_all(smru_name,folder_out):
 # publish meop-ctd data in 
 def create_tag_plots(fname,folder_out,prefix_name,var_suffix):
 
-    with meop.read_ncfile(fname) as ds:
+    with meop.open_dataset(fname) as ds:
         namefig = folder_out / (prefix_name+'_data_description.png')
         if not namefig.exists():
             fig, ax = ds.plot_data_tags('_ADJUSTED',namefig=namefig)

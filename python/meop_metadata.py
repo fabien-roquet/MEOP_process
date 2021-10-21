@@ -46,7 +46,7 @@ def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof
         # concatenate df by deployments
         for ncfile in list_fname:
             if ncfile.exists():
-                with meop.read_ncfile(ncfile) as ds:
+                with meop.open_dataset(ncfile) as ds:
                     df = ds.list_metadata()
                 list_df.append(df)
                 
