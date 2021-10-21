@@ -23,6 +23,11 @@ import meop_metadata
 
 processdir = Path.home() / 'MEOP_process'
 
+# copy a file
+def copy_file(file_name,src_dir,dst_dir):
+    shutil.copyfile(Path(src_dir)/file_name,Path(dst_dir)/file_name)
+
+    
 # get the name of folder where to publish in the congs.json file
 def get_folder_public_name(config='jupyter_froqu_pc207_linux'):
     path = pd.read_json(processdir / 'configs.json').configs[config]['public']

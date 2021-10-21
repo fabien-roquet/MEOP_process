@@ -10,7 +10,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from importlib import reload
 import meop
-
+import meop_filenames
 
 # list functions
 
@@ -107,7 +107,7 @@ def plot_map_deployments(df,namefig=None,groupby='SMRU_PLATFORM_CODE',title='',l
 
 def plot_data_deployments(deployment,namefig=None):
     
-    list_fname_prof = meop.list_fname_prof(deployment=deployment,qf='hr1')
+    list_fname_prof = meop_filenames.list_fname_prof(deployment=deployment,qf='hr1')
 
     from cycler import cycler
     cmap = plt.get_cmap('viridis',len(list_fname_prof))

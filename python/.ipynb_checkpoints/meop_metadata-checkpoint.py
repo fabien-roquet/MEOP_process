@@ -6,9 +6,9 @@ import numpy as np
 import gsw
 import netCDF4 as nc
 import meop
+import meop_filenames
 
-
-processdir = meop.processdir
+processdir = meop_filenames.processdir
 
 # list functions
 
@@ -20,12 +20,32 @@ processdir = meop.processdir
 #  filter_country(country, lprofiles, ltags, ldeployments)
 
 
-# list_deployment obtained with meop.read_list_deployment()
+# read list_deployment.csv file in processdir and return pandas dataframe
+def read_list_deployment(filename=(processdir/'list_deployment.csv')):    
+    if filename.is_file():
+        list_deployment = pd.read_csv(filename)
+        newnames = {}
+        for var in list_deployment:
+            newnames[var] = var.upper()
+        return list_deployment.rename(columns=newnames).set_index('DEPLOYMENT_CODE')
+    print('File',filename,'not found')
+    return []
+
+# read list_deployment.csv file in processdir and return pandas dataframe
+def read_list_deployment_hr(filename=(processdir / 'list_deployment_hr.csv')):
+    if filename.is_file():
+        return pd.read_csv(filename, dtype={'prefix': str,'instr_id':str,'year':str})
+    print('File',filename,'not found')
+    return []
+
+
+
+# list_deployment obtained with read_list_deployment()
 def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof'), \
                         deployment='',country='',deployments=[],countries=[], \
                         public_only=False,file_pkl=''):
     
-    df = meop.read_list_deployment().reset_index()
+    df = read_list_deployment().reset_index()
     if deployments:
         df = df[df.DEPLOYMENT_CODE.isin(deployments)]
     if deployment:
@@ -41,12 +61,12 @@ def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof
     list_df=[]
 
     for deployment in df.DEPLOYMENT_CODE:
-        list_fname = meop.list_fname_prof(deployment=deployment,qf=qf)
+        list_fname = meop_filenames.list_fname_prof(deployment=deployment,qf=qf)
         
         # concatenate df by deployments
         for ncfile in list_fname:
             if ncfile.exists():
-                with meop.read_ncfile(ncfile) as ds:
+                with meop.open_dataset(ncfile) as ds:
                     df = ds.list_metadata()
                 list_df.append(df)
                 
@@ -84,7 +104,7 @@ def list_tags_deployments_from_profiles(lprofiles):
        'N_PROF_PSAL': sum, 'N_PROF_CHLA': sum}
     ldeployments = ltags.groupby('DEPLOYMENT_CODE').agg(agg_ops)
     ldeployments['N_TAGS'] = ltags.groupby('DEPLOYMENT_CODE').DEPLOYMENT_CODE.count()
-    ldeployments = ldeployments.merge(meop.read_list_deployment(),on='DEPLOYMENT_CODE',how='left')
+    ldeployments = ldeployments.merge(read_list_deployment(),on='DEPLOYMENT_CODE',how='left')
     drop_list = ['START_DATE','END_DATE','START_DATE_JUL']
     ldeployments = ldeployments.drop(drop_list,axis='columns')
     
@@ -107,7 +127,7 @@ def list_tags_deployments_from_profiles(lprofiles):
         ltags = ltags.merge(variable_offset,left_on='SMRU_PLATFORM_CODE',right_on='smru_platform_code',how='left')\
             .drop('smru_platform_code', axis='columns')
 
-    list_deployment_hr = meop.read_list_deployment_hr()
+    list_deployment_hr = read_list_deployment_hr()
     if not isinstance(list_deployment_hr,list):
         ltags = ltags.merge(list_deployment_hr,left_on='SMRU_PLATFORM_CODE',right_on='smru_platform_code',how='left')        
         ltags = ltags.drop('smru_platform_code', axis='columns')

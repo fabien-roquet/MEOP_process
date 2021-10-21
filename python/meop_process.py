@@ -12,9 +12,10 @@ import netCDF4
 from importlib import reload
 import io
 import meop
+import meop_filenames
 
+processdir = meop_filenames.processdir
 
-processdir = meop.processdir
 
 #--------------------  MATLAB  ----------------------------#
 

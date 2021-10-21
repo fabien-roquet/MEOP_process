@@ -15,123 +15,10 @@ import cmocean.cm as cmo
 
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
-#warnings.filterwarnings("ignore", category=FutureWarning)
-
-
-# list variables
-#  processdir
-#
-# list functions
-#  deployment_from_smru_name(smru_name)
-#  fname_prof(smru_name,deployment='',qf='lr0')
-#  list_fname_prof(smru_name='',deployment='',qf='*')
-#  list_smru_name(smru_name='',deployment='',qf='*')
-#  fname_plots(smru_name,deployment='',qf='lr0',suffix='_plot')
-#  N_PARAM(ds,PARAM)
-#  copy_file(file_name,src_dir,dst_dir)
-#  open_dataset(ncfile_name)
-#
-# list of methods added to xr.Dataset objets loaded from ncARGO file
-#  Decorator: @add_method(xr.Dataset)
-#  central_longitude(self)
-#  plot_map(self,ax=None,namefig=None,title='',figsize=(10, 10))
-#  plot_profiles(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10))
-#  plot_TSdiag(self,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10))
-#  plot_section(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10),title=None,rolling=0,**kwargs)
-#  plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 
-processdir = Path.home() / 'MEOP_process'
-
-#-----------------------------------   utils     --------------------------------------------#
-
-# 1. utils to reconstruct name of ncfiles
-def deployment_from_smru_name(smru_name):
-    return smru_name.split("-")[0]
-
-# return ncARGO filename corresponding to a smru_name
-def fname_prof(smru_name,deployment='',qf='lr0'):
-    if not deployment:
-        deployment = deployment_from_smru_name(smru_name)
-    return Path(processdir,'final_dataset_prof',deployment,smru_name+'_'+qf+'_prof.nc')
-
-# return list of ncARGO filename
-def list_fname_prof(smru_name='',deployment='',qf='*'):
-    if not deployment:
-        deployment = deployment_from_smru_name(smru_name)
-    dirEXP = Path(processdir,'final_dataset_prof',deployment)
-    if smru_name:
-        prefix = smru_name
-    else:
-        prefix = deployment+'-*'
-    list_fname = [ncfile for ncfile in dirEXP.glob(f'{prefix}_{qf}_prof.nc')]
-    return list(set(list_fname))
-
-# return smru_name
-def list_smru_name(smru_name='',deployment='',qf='*'):
-    list_smru_name = [ncfile.name.split('_')[0] for ncfile in list_fname_prof(smru_name,deployment,qf)]
-    return list(set(list_smru_name))
-
-# return ncARGO filename
-def fname_plots(smru_name,deployment='',qf='lr0',suffix='_plot'):
-    if not deployment:
-        deployment = deployment_from_smru_name(smru_name)
-    return processdir / 'plots' / deployment / (smru_name+'_'+qf+'_'+suffix+'.png')
-
-# return ncARGO filename
-def list_fname_plots(smru_name='',deployment='',qf='*',suffix='_plot'):
-    if not deployment:
-        deployment = deployment_from_smru_name(smru_name)
-    dirEXP = processdir / 'plots' / deployment
-    if smru_name:
-        prefix = smru_name
-    else:
-        prefix = deployment+'-*'
-    list_fname = [ncfile for ncfile in dirEXP.glob(f'{prefix}_{qf}_{suffix}.png')]
-    return list_fname
-
-
-
-
-# 2. utils to read list of deployments
-# read list_deployment.csv file in processdir and return pandas dataframe
-def read_list_deployment(filename=(processdir/'list_deployment.csv')):    
-    if filename.is_file():
-        list_deployment = pd.read_csv(filename)
-        newnames = {}
-        for var in list_deployment:
-            newnames[var] = var.upper()
-        return list_deployment.rename(columns=newnames).set_index('DEPLOYMENT_CODE')
-    print('File',filename,'not found')
-    return []
-
-# read list_deployment.csv file in processdir and return pandas dataframe
-def read_list_deployment_hr(filename=(processdir / 'list_deployment_hr.csv')):
-    if filename.is_file():
-        return pd.read_csv(filename, dtype={'prefix': str,'instr_id':str,'year':str})
-    print('File',filename,'not found')
-    return []
-
-# return a DaraArray with the number of valid profile for the given PARAM
-def N_PARAM(ds,PARAM):
-    if PARAM+'_QC' in list(ds.variables):
-        N_PARAM = np.sum(ds[PARAM+'_QC'].isin([b'1',b'8']),axis=1)
-        N_PARAM = N_PARAM.where(N_PARAM!=0,np.nan)
-    else:
-        N_PARAM = xr.DataArray(np.empty(ds.dims['N_PROF']), dims=['N_PROF'])
-        N_PARAM = np.nan
-    return N_PARAM
-
-# copy a file
-def copy_file(file_name,src_dir,dst_dir):
-    shutil.copyfile(Path(src_dir)/file_name,Path(dst_dir)/file_name)
-
-
-    
-    
-
-    
     
 #-----------------------------------  read ncARGO file  -------------------------------------#    
 # read a netCDF file and return a xarray dataset structure
@@ -170,6 +57,18 @@ def add_method(cls):
     
 
 # compute number of valid profile by sensor type
+def N_PARAM(ds,PARAM):
+    if PARAM+'_QC' in list(ds.variables):
+        N_PARAM = np.sum(ds[PARAM+'_QC'].isin([b'1',b'8']),axis=1)
+        N_PARAM = N_PARAM.where(N_PARAM!=0,np.nan)
+    else:
+        N_PARAM = xr.DataArray(np.empty(ds.dims['N_PROF']), dims=['N_PROF'])
+        N_PARAM = np.nan
+    return N_PARAM
+
+
+
+# compute number of valid profile by sensor type
 @add_method(xr.Dataset)
 def add_N_PARAM(self):
     ds = self
@@ -183,7 +82,7 @@ def add_N_PARAM(self):
 
 
             
-# compute density and append to the dataset
+# compute sigma0 and append to the dataset (SIG0 or SIG0_ADJUSTED), as well as its corresponding QC
 @add_method(xr.Dataset)
 def add_sigma0(self,SUFFIX_PARAM='_ADJUSTED'):    
     ds = self    
@@ -200,7 +99,7 @@ def list_metadata(self):
 
     ds=self
     data = {
-        'DEPLOYMENT_CODE': deployment_from_smru_name(ds.smru_platform_code),
+        'DEPLOYMENT_CODE': ds.deployment_code,
         'SMRU_PLATFORM_CODE': ds.smru_platform_code,
         'CYCLE_NUMBER': ds['CYCLE_NUMBER'].astype(int),
         'JULD': ds['JULD'],
@@ -214,15 +113,6 @@ def list_metadata(self):
             
 
 # compute mixed layer depth and append to the dataframe
-@add_method(xr.Dataset)
-def add_mld(self,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):    
-
-    ds = self
-    mld = compute_mld(ds,SUFFIX_PARAM=SUFFIX_PARAM,density_threshold=density_threshold)
-    ds['MLD'+SUFFIX_PARAM] = mld
-    return ds
-
-
 def compute_mld(ds,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):
     ds = ds.add_sigma0(SUFFIX_PARAM=SUFFIX_PARAM)
     density = ds['SIG0'+SUFFIX_PARAM].bfill(dim='N_LEVELS',limit=50)
@@ -233,6 +123,14 @@ def compute_mld(ds,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):
     return mld
             
             
+# compute mixed layer depth and append to the dataframe
+@add_method(xr.Dataset)
+def add_mld(self,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):    
+
+    ds = self
+    mld = compute_mld(ds,SUFFIX_PARAM=SUFFIX_PARAM,density_threshold=density_threshold)
+    ds['MLD'+SUFFIX_PARAM] = mld
+    return ds
 
             
             
