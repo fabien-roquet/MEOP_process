@@ -76,11 +76,6 @@ def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof
     # concatenate list of dataframes into one dataframe
     lprofiles = pd.concat(list_df)
 
-    # add label regions
-    df_tag = lprofiles.groupby('SMRU_PLATFORM_CODE').mean()
-    mask = label_regions(df_tag).MASK
-    lprofiles = lprofiles.merge(mask,on='SMRU_PLATFORM_CODE')
-
     if file_pkl:
         lprofiles.to_pickle(processdir / file_pkl)
 
@@ -157,24 +152,34 @@ def label_regions(ltags):
         'Southern-Ocean':'Southern Ocean',
         'E.Antarctica':'Southern Ocean',
         'W.Antarctica':'Southern Ocean',
-        'Arctic-Ocean':'North Atlantic',
         'N.Pacific-Ocean':'North Pacific',
         'C.North-America':'North Pacific', 
         'W.North-America':'North Pacific',
+        'N.W.North-America':'North Pacific',
+        'N.Central-America':'North Pacific',
+        'S.Central-America':'North Pacific',
+        'Russian-Arctic':'North Pacific',
+        'Arctic-Ocean':'North Atlantic',
         'N.E.North-America':'North Atlantic',
         'E.North-America':'North Atlantic',
         'Greenland/Iceland':'North Atlantic',
         'N.Atlantic-Ocean':'North Atlantic',
-        'N.W.North-America':'North Pacific',
         'N.Europe':'North Atlantic',
-        'S.Australia':'Australia',
-        'N.Central-America':'North Pacific',
-        'N.South-America':'Tropical Atlantic',
+        'S.E.South-America':'South Atlantic',
         'S.South-America':'South Atlantic',
         'S.Atlantic-Ocean':'South Atlantic',
-    }
+        'E.Australia':'South Pacific',
+        'S.Australia':'South Pacific',
+        'New-Zealand':'South Pacific',
+        'S.Pacific-Ocean':'South Pacific',
+        'Caribbean':'Tropical Atlantic',
+        'N.South-America':'Tropical Atlantic',
+        'Equatorial.Atlantic-Ocean':'Tropical Atlantic',
+        'N.E.South-America':'Tropical Atlantic',
+     }
     ltags['MASK'] = ltags.MASK.map(map_regions)
-
+    ltags.loc[(ltags.MASK=='South Pacific')&(ltags.LONGITUDE<0)&(ltags.LONGITUDE>-100),'MASK'] = 'South Atlantic'
+    
     return ltags
 
 
@@ -186,11 +191,11 @@ def filter_public_data(lprofiles, ltags, ldeployments):
     return lprofiles, ltags, ldeployments
 
 
-# select only profiles with data points
+# select only profiles with T data points
 def filter_profiles_with_Tdata(lprofiles, ltags, ldeployments):    
     ltags = ltags[ltags.N_PROF_TEMP!=0]
     ldeployments = ldeployments.merge(ltags.DEPLOYMENT_CODE,on='DEPLOYMENT_CODE')
-    lprofiles = lprofiles.loc[lprofiles.N_TEMP!=0]
+    lprofiles = lprofiles.loc[~((lprofiles.N_TEMP==0) | lprofiles.N_TEMP.isnull())]
     return lprofiles, ltags, ldeployments
 
 
@@ -220,6 +225,12 @@ def read_lists_metadata(file_pkl='',rebuild=False,\
         if save_to_pkl:
             lprofiles.to_pickle(file_pkl)
     
+    # add label regions
+    df_tag = lprofiles.groupby('SMRU_PLATFORM_CODE').median()
+    mask = label_regions(df_tag).MASK
+    lprofiles.drop('MASK',axis=1,inplace=True)
+    lprofiles = lprofiles.merge(mask,on='SMRU_PLATFORM_CODE')
+
     # track tags with issues
     tag_problem = ltags.loc[ltags.SMRU_PLATFORM_CODE.isnull(),:]
     if len(tag_problem.instr_id):

@@ -12,6 +12,8 @@ from importlib import reload
 import meop
 import meop_filenames
 
+plt.rcParams.update({'font.size': 12})
+
 # list functions
 
 # utils
@@ -57,19 +59,29 @@ def central_longitude(ds):
         
         
 
-def plot_map_deployments(df,namefig=None,groupby='SMRU_PLATFORM_CODE',title='',legend=True,folder='.'):
+def plot_map_deployments(df,namefig=None,groupby='SMRU_PLATFORM_CODE',
+                         title='',legend=True,folder='.',
+                         figsize=(15, 15)
+                        ):
 
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree(central_longitude=central_longitude(df)))
+    
     df = df.reset_index()
-    list_group = sorted(df[groupby].unique())
-    prop_cycle = plt.rcParams['axes.prop_cycle']
-    colors = prop_cycle.by_key()['color']
+    list_group = df[groupby].unique()
+    colors = [
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a',
+        '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94',
+        '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d',
+        '#17becf', '#9edae5']
+    colors = plt.cm.jet(np.linspace(0, 1, len(list_group)))
+    #prop_cycle = plt.rcParams['axes.prop_cycle']
+    #colors = prop_cycle.by_key()['color']
+    
     dict_cmap = {list_group[i]: colors[i%len(colors)] for i in range(len(list_group))}
     if 'SMRU_PLATFORM_CODE' not in groupby:
         groupby = [groupby,'SMRU_PLATFORM_CODE']
     
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree(central_longitude=central_longitude(df)))
-
     grouped = df.groupby(groupby)
     dict_label = {}
     for name,group in grouped:
@@ -84,7 +96,7 @@ def plot_map_deployments(df,namefig=None,groupby='SMRU_PLATFORM_CODE',title='',l
             dict_label[name_group] = 1
         lon = np.where(np.abs(group['LONGITUDE'].diff())>100,np.nan,group['LONGITUDE'])
         lat = group['LATITUDE']
-        ax.plot(lon,lat,transform=ccrs.PlateCarree(),color=dict_cmap[name_group],label=label)
+        ax.plot(lon,lat,transform=ccrs.PlateCarree(),color=dict_cmap[name_group],label=label, linewidth=1)
 
     gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
               linewidth=2, color='gray', alpha=0.5, linestyle='--')
@@ -93,9 +105,9 @@ def plot_map_deployments(df,namefig=None,groupby='SMRU_PLATFORM_CODE',title='',l
     ax.coastlines()
     ax.gridlines(xlocs=ax.get_xticks(),ylocs=ax.get_yticks())
     if legend:
-        ax.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+        ax.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', fontsize=12)
     if title:
-        ax.set_title(title)
+        ax.set_title(title, fontsize=14)
 
     plt.tight_layout()
     if namefig:
