@@ -14,7 +14,6 @@ processdir = meop_filenames.processdir
 
 #  read_list_profiles(rebuild=False,verbose=False,public=False,Tdata=False,country=None,qf='lr0')
 
-#  label_regions(ltags):
 #  filter_public_data(lprofiles, ltags, ldeployments)
 #  filter_profiles_with_Tdata(lprofiles, ltags, ldeployments)
 #  filter_country(country, lprofiles, ltags, ldeployments)
@@ -31,6 +30,7 @@ def read_list_deployment(filename=(processdir/'list_deployment.csv')):
     print('File',filename,'not found')
     return []
 
+
 # read list_deployment.csv file in processdir and return pandas dataframe
 def read_list_deployment_hr(filename=(processdir / 'list_deployment_hr.csv')):
     if filename.is_file():
@@ -41,21 +41,11 @@ def read_list_deployment_hr(filename=(processdir / 'list_deployment_hr.csv')):
 
 
 # list_deployment obtained with read_list_deployment()
-def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof'), \
-                        deployment='',country='',deployments=[],countries=[], \
-                        public_only=False,file_pkl=''):
+def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof')):
     
+
+    # read list of deployments
     df = read_list_deployment().reset_index()
-    if deployments:
-        df = df[df.DEPLOYMENT_CODE.isin(deployments)]
-    if deployment:
-        df = df[df.DEPLOYMENT_CODE.isin([deployment])]
-    if countries:
-        df = df[df.COUNTRY.isin(countries)]
-    if country:
-        df = df[df.COUNTRY.isin([country])]
-    if public_only:
-        df = df[df.PUBLIC==1]
     
     # list of deployment dataframes
     list_df=[]
@@ -63,7 +53,7 @@ def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof
     for deployment in df.DEPLOYMENT_CODE:
         list_fname = meop_filenames.list_fname_prof(deployment=deployment,qf=qf)
         
-        # concatenate df by deployments
+        # get list of metadata for each tag and store in a list
         for ncfile in list_fname:
             if ncfile.exists():
                 with meop.open_dataset(ncfile) as ds:
@@ -75,17 +65,30 @@ def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof
     
     # concatenate list of dataframes into one dataframe
     lprofiles = pd.concat(list_df)
+    return lprofiles
 
-    if file_pkl:
-        lprofiles.to_pickle(processdir / file_pkl)
 
-    ltags, ldeployments = list_tags_deployments_from_profiles(lprofiles)
-    lprofiles[['year','month','day']] = [[lprofiles.JULD[kk].year,lprofiles.JULD[kk].month,lprofiles.JULD[kk].day] for kk in range(len(lprofiles))]
+# update lprofiles for a given smru tag    
+def update_lprofiles(lprofiles,list_smru_name,qf='lr0'):
     
-    return lprofiles, ltags, ldeployments
-   
+    list_df = []
     
+    for smru_name in list_smru_name:
+        # remove rows for tag smru_name from lprofiles
+        index = lprofiles[lprofiles.SMRU_PLATFORM_CODE == smru_name].index
+        lprofiles = lprofiles.drop(index,axis=0)
+
+        # load updated information and concatenate
+        name_file = meop_filenames.fname_prof(smru_name,qf=qf)
+        with meop.open_dataset(name_file) as ds:
+            df = ds.list_metadata()
+            list_df.append(df)
     
+    list_df.append(lprofiles)
+    lprofiles = pd.concat(list_df)
+    return lprofiles
+
+
 # read table files and append information about tags and deployments
 def list_tags_deployments_from_profiles(lprofiles):
     
@@ -132,57 +135,6 @@ def list_tags_deployments_from_profiles(lprofiles):
     return ltags, ldeployments
     
     
-# determine region for each tag
-def label_regions(ltags):
-
-    # set a new columns called MASK with a regional label
-    from scipy.interpolate import RegularGridInterpolator
-    import regionmask
-
-    basins = regionmask.defined_regions.ar6.all
-    label = basins.names
-    lon = np.arange(-179.5, 180)
-    lat = np.arange(-89.5, 90)
-    mask = basins.mask(lon,lat)
-    f = RegularGridInterpolator((lon, lat), mask.transpose().values,method='nearest')
-    ltags["MASK"] = f(ltags[['LONGITUDE','LATITUDE']].values)
-    ltags["MASK"] = ltags.MASK.map(dict(enumerate(label)))
-    
-    map_regions = {
-        'Southern-Ocean':'Southern Ocean',
-        'E.Antarctica':'Southern Ocean',
-        'W.Antarctica':'Southern Ocean',
-        'N.Pacific-Ocean':'North Pacific',
-        'C.North-America':'North Pacific', 
-        'W.North-America':'North Pacific',
-        'N.W.North-America':'North Pacific',
-        'N.Central-America':'North Pacific',
-        'S.Central-America':'North Pacific',
-        'Russian-Arctic':'North Pacific',
-        'Arctic-Ocean':'North Atlantic',
-        'N.E.North-America':'North Atlantic',
-        'E.North-America':'North Atlantic',
-        'Greenland/Iceland':'North Atlantic',
-        'N.Atlantic-Ocean':'North Atlantic',
-        'N.Europe':'North Atlantic',
-        'S.E.South-America':'South Atlantic',
-        'S.South-America':'South Atlantic',
-        'S.Atlantic-Ocean':'South Atlantic',
-        'E.Australia':'South Pacific',
-        'S.Australia':'South Pacific',
-        'New-Zealand':'South Pacific',
-        'S.Pacific-Ocean':'South Pacific',
-        'Caribbean':'Tropical Atlantic',
-        'N.South-America':'Tropical Atlantic',
-        'Equatorial.Atlantic-Ocean':'Tropical Atlantic',
-        'N.E.South-America':'Tropical Atlantic',
-     }
-    ltags['MASK'] = ltags.MASK.map(map_regions)
-    ltags.loc[(ltags.MASK=='South Pacific')&(ltags.LONGITUDE<0)&(ltags.LONGITUDE>-100),'MASK'] = 'South Atlantic'
-    
-    return ltags
-
-
 # select only public data
 def filter_public_data(lprofiles, ltags, ldeployments):    
     ltags = ltags[ltags.PUBLIC == 1]
@@ -210,27 +162,21 @@ def filter_country(country, lprofiles, ltags, ldeployments):
 # read MEOP data list from pickle file and return the dataframe.
 # If filename_pkl is not found, the list file is generated.
 def read_lists_metadata(file_pkl='',rebuild=False,\
-                       save_to_pkl=True,\
                        verbose=False,public=False,Tdata=False,country=None,
                        qf='lr0',datadir=(processdir / 'final_dataset_prof')):
 
     if not file_pkl:
         file_pkl = processdir / f'list_profiles_{qf}.pkl'
         
-    if file_pkl.is_file() and (not rebuild):
-        lprofiles = pd.read_pickle(file_pkl)
-        ltags, ldeployments = list_tags_deployments_from_profiles(lprofiles)
+    if rebuild or (not file_pkl):
+        lprofiles = list_profiles_from_ncfile(qf=qf, datadir=datadir)
+        lprofiles.to_pickle(file_pkl)
     else:
-        lprofiles, ltags, ldeployments = list_profiles_from_ncfile(qf=qf, datadir=datadir, public_only=public)
-        if save_to_pkl:
-            lprofiles.to_pickle(file_pkl)
+        lprofiles = pd.read_pickle(file_pkl)
+                
+    ltags, ldeployments = list_tags_deployments_from_profiles(lprofiles)
     
-    # add label regions
-    df_tag = lprofiles.groupby('SMRU_PLATFORM_CODE').median()
-    mask = label_regions(df_tag).MASK
-    lprofiles.drop('MASK',axis=1,inplace=True)
-    lprofiles = lprofiles.merge(mask,on='SMRU_PLATFORM_CODE')
-
+    
     # track tags with issues
     tag_problem = ltags.loc[ltags.SMRU_PLATFORM_CODE.isnull(),:]
     if len(tag_problem.instr_id):
@@ -289,7 +235,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     lprofiles, ltags, ldeployments = \
-        read_list_profiles(rebuild=args.rebuild,verbose=args.verbose,public=args.public,Tdata=args.Tdata,qf=args.qf)
+        read_lists_metadata(rebuild=args.rebuild,verbose=args.verbose,public=args.public,Tdata=args.Tdata,qf=args.qf)
     
     
 

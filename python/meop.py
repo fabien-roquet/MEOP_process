@@ -93,25 +93,6 @@ def add_sigma0(self,SUFFIX_PARAM='_ADJUSTED'):
     return ds
 
 
-# build list metadata in MEOP and return as dataframe
-@add_method(xr.Dataset)
-def list_metadata(self):
-
-    ds=self
-    data = {
-        'DEPLOYMENT_CODE': ds.deployment_code,
-        'SMRU_PLATFORM_CODE': ds.smru_platform_code,
-        'CYCLE_NUMBER': ds['CYCLE_NUMBER'].astype(int),
-        'JULD': ds['JULD'],
-        'LATITUDE': ds['LATITUDE'],
-        'LONGITUDE': ds['LONGITUDE'],
-        'N_TEMP' : meop.N_PARAM(ds,'TEMP'),
-        'N_PSAL' : meop.N_PARAM(ds,'PSAL'),
-        'N_CHLA' : meop.N_PARAM(ds,'CHLA')}
-    df = pd.DataFrame(data)
-    return df
-            
-
 # compute mixed layer depth and append to the dataframe
 def compute_mld(ds,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):
     ds = ds.add_sigma0(SUFFIX_PARAM=SUFFIX_PARAM)
@@ -414,5 +395,81 @@ def plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None):
 
     return fig, ax
 
+
+##    function to attach a geographic location to a tag  ##
+# determine region for each tag
+from scipy.interpolate import RegularGridInterpolator
+import regionmask
+
+basins = regionmask.defined_regions.ar6.all
+label = basins.names
+f_region_mask = RegularGridInterpolator((np.arange(-179.5, 180), np.arange(-89.5, 90)), \
+                                        basins.mask(np.arange(-179.5, 180), np.arange(-89.5, 90)).transpose().values, \
+                                        method='nearest')
+
+def label_regions(ltags):
+
+    # set a new columns called MASK with a regional label
+    ltags["MASK"] = f_region_mask(ltags[['LONGITUDE','LATITUDE']].values)
+    ltags["MASK"] = ltags.MASK.map(dict(enumerate(label)))
+    
+    map_regions = {
+        'Southern-Ocean':'Southern Ocean',
+        'E.Antarctica':'Southern Ocean',
+        'W.Antarctica':'Southern Ocean',
+        'N.Pacific-Ocean':'North Pacific',
+        'C.North-America':'North Pacific', 
+        'W.North-America':'North Pacific',
+        'N.W.North-America':'North Pacific',
+        'N.Central-America':'North Pacific',
+        'S.Central-America':'North Pacific',
+        'Russian-Arctic':'North Pacific',
+        'Arctic-Ocean':'North Atlantic',
+        'N.E.North-America':'North Atlantic',
+        'E.North-America':'North Atlantic',
+        'Greenland/Iceland':'North Atlantic',
+        'N.Atlantic-Ocean':'North Atlantic',
+        'N.Europe':'North Atlantic',
+        'S.E.South-America':'South Atlantic',
+        'S.South-America':'South Atlantic',
+        'S.Atlantic-Ocean':'South Atlantic',
+        'E.Australia':'South Pacific',
+        'S.Australia':'South Pacific',
+        'New-Zealand':'South Pacific',
+        'S.Pacific-Ocean':'South Pacific',
+        'Caribbean':'Tropical Atlantic',
+        'N.South-America':'Tropical Atlantic',
+        'Equatorial.Atlantic-Ocean':'Tropical Atlantic',
+        'N.E.South-America':'Tropical Atlantic',
+     }
+    ltags['MASK'] = ltags.MASK.map(map_regions)
+    ltags.loc[(ltags.MASK=='South Pacific')&(ltags.LONGITUDE<0)&(ltags.LONGITUDE>-100),'MASK'] = 'South Atlantic'
+    
+    return ltags
+
+
+# build list metadata in MEOP and return as dataframe
+@add_method(xr.Dataset)
+def list_metadata(self):
+
+    ds=self
+    data = {
+        'DEPLOYMENT_CODE': ds.deployment_code,
+        'SMRU_PLATFORM_CODE': ds.smru_platform_code,
+        'CYCLE_NUMBER': ds['CYCLE_NUMBER'].astype(int),
+        'JULD': ds['JULD'],
+        'LATITUDE': ds['LATITUDE'],
+        'LONGITUDE': ds['LONGITUDE'],
+        'N_TEMP' : meop.N_PARAM(ds,'TEMP'),
+        'N_PSAL' : meop.N_PARAM(ds,'PSAL'),
+        'N_CHLA' : meop.N_PARAM(ds,'CHLA')}
+    df = pd.DataFrame(data)
+    df[['year','month','day']] = [[df.JULD[kk].year,df.JULD[kk].month,df.JULD[kk].day] for kk in range(len(df))]
+    ltags = df.groupby('SMRU_PLATFORM_CODE').median()
+    mask = label_regions(ltags).MASK
+    df = df.merge(mask,on='SMRU_PLATFORM_CODE')
+
+    return df
+            
 
 

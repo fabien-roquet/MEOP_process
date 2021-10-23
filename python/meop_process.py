@@ -47,6 +47,7 @@ def print_matlab(namevar):
         eng.eval(namevar,nargout=0,stdout=out,stderr=out)
         print(out.getvalue())
     
+    
 def run_command(cmd,verbose=True):
     # execute a matlab command
     with io.StringIO() as out, io.StringIO() as err:
@@ -107,72 +108,6 @@ def generate_calibration_plots(deployment='',smru_name=''):
 
 
 
-# update metadata
-def update_metadata(deployment='',smru_name=''):
-
-    path_meta = processdir / 'table_meta.csv'
-    if not path_meta.exists():
-        print(f'Warning: File {path_meta} not found. Metadata not updated.')
-        return
-    
-    df_meta = pd.read_csv(path_meta).set_index('smru_platform_code')
-
-    if smru_name in df_meta.index:
-        df_meta = df_meta.loc[[smru_name],:]
-    elif deployment:
-        df_meta['deployment'] = df_meta.index
-        df_meta['deployment'] = df_meta.deployment.str.split('-').apply(lambda x: x[0])
-        df_meta = df_meta.loc[df_meta.deployment == deployment,:]
-
-    modes = ['lr0','lr1','hr0','hr1','fr0','fr1']
-    for smru_name in df_meta.index:
-
-        meta_row = df_meta.loc[smru_name,:].dropna()
-
-        for qf in modes:
-
-            namefile = meop.fname_prof(smru_name,qf=qf)        
-            if Path(namefile).exists():
-
-                with netCDF4.Dataset(namefile,'a') as f:
-                    for col in meta_row.keys():
-                        if f.location != meta_row[col]:
-                            f.location = meta_row[col]
-
-    return
-
-
-def generate_descriptive_plots(smru_name='',deployment=''):
-    import meop
-    
-    list_qf = ['lr0','hr1','fr1']
-    
-    for qf in list_qf:
-
-        for smru_name in meop.list_smru_name(smru_name,deployment,qf=qf):
-            namefile = meop.fname_prof(smru_name,qf=qf)
-            ds = meop.open_dataset(namefile)
-            ds.plot_data_tags('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='profiles'))
-            ds.plot_TSsections('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='sections'))
-            ds.close()
-    
-
-    
-# create a netcdf file combining data on original levels and interp data
-def create_final_ncfile(smru_name='',deployment=''):
-    
-    # copy lr1 in all
-    ncfile_lr1 = meop.fname_prof(smru_name,qf='lr1')
-    ncfile_hr1 = meop.fname_prof(smru_name,qf='hr1')
-    ncfile_out = meop.fname_prof(smru_name,qf='all')
-
-    if ncfile_lr1.is_file() and ncfile_hr1.is_file():
-        print('copy: '+ncfile_lr1.name)
-        shutil.copyfile(ncfile_hr1,ncfile_out)
-
-    return ncfile_out
-
-
 # Execute in terminal command line
 if __name__ == "__main__":
 
@@ -186,9 +121,7 @@ if __name__ == "__main__":
     parser.add_argument("--deployment", default ='', help = "Process all tags in DEPLOYMENT_CODE")
     parser.add_argument("--do_all", help = "Process data and produce plots", action='store_true')
     parser.add_argument("--process_data", help = "Process data", action='store_true')
-    parser.add_argument("--metadata", help = "Update metadata", action='store_true')
     parser.add_argument("--calibration_plots", help = "Produce calibration plots", action='store_true')
-    parser.add_argument("--descriptive_plots", help = "Produce descriptive plots", action='store_true')
     
     # parse the arguments
     args = parser.parse_args()
@@ -202,14 +135,10 @@ if __name__ == "__main__":
         conf = init_mirounga()
         if args.process_data or args.do_all:
             process_tags(deployment=deployment,smru_name=smru_name)
-        if args.metadata or args.do_all:
-            update_metadata(table_meta = table_meta, deployment=deployment,smru_name=smru_name)
         if args.calibration_plots or args.do_all:
             generate_calibration_plots(deployment=deployment,smru_name=smru_name)
         stop_matlab()
     
-    if args.descriptive_plots or args.do_all:
-        generate_descriptive_plots(smru_name=smru_name,deployment=deployment)
         
 
         
