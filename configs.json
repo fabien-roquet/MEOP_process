@@ -12,12 +12,12 @@
   "information":"Run config_id in matlab to determine default name of your machine",
   "jupyter_froqu_pc207_linux":
     {
-    "datadir":"/media/disk2/roquet/RAW_MEOP_DATA/",
+    "datadir":"/home/jupyter-froqu/MEOP_dropbox/RAW_MEOP_DATA/",
     "processdir":"/media/disk2/roquet/MEOP_process/",
     "matlabdir":"/home/jupyter-froqu/MEOP_process/matlab/",
     "inputdir":"/home/smru/datadir/all/",
-    "refdir":"/media/disk2/roquet/REF_DATASETS/",
-    "public":"",
+    "refdir":"/home/jupyter-froqu/MEOP_dropbox/REF_DATASETS/",
+    "public":"/home/jupyter-froqu/public/",
     "pdflatex":"pdflatex"
     }, 
   "froqu_pc207_linux":

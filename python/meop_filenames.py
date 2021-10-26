@@ -6,6 +6,14 @@ import shutil
 
 
 processdir = Path.home() / 'MEOP_process'
+datadir = Path.home() / 'MEOP_dropbox' / 'RAW_MEOP_DATA/'
+processdir = Path('/media/disk2/roquet') / 'MEOP_process'
+matlabdir = processdir / 'matlab'
+inputdir = Path('/home/smru/datadir/all/')
+refdir = Path.home() / 'MEOP_dropbox' / 'REF_DATASETS'
+public = Path.home() / 'public' / 'MEOP-CTD_2020-10-26'
+public_CTD = public / 'MEOP-CTD_2020-10-26'
+
 
 # 1. utils to reconstruct name of ncfiles
 def deployment_from_smru_name(smru_name):
@@ -55,3 +63,7 @@ def list_fname_plots(smru_name='',deployment='',qf='*',suffix='_plot'):
 # copy a file
 def copy_file(file_name,src_dir,dst_dir):
     shutil.copyfile(Path(src_dir)/file_name,Path(dst_dir)/file_name)
+
+
+
+
