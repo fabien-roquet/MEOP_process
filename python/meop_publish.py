@@ -53,15 +53,15 @@ def copy_netcdf_variable(nc_in,var_name_in,var_dims_in,nc_out,var_name_out,var_d
 def create_ncfile_all(smru_name,folder_out):
     
     # copy lr1 in all
-    ncfile_in = meop.fname_prof(smru_name,qf='lr1')
-    ncfile_out = folder_out / meop.fname_prof(smru_name,qf='all').name
+    ncfile_in = meop_filenames.fname_prof(smru_name,qf='lr1')
+    ncfile_out = folder_out / meop_filenames.fname_prof(smru_name,qf='all').name
 
     if ncfile_in.is_file():
         
         shutil.copyfile(ncfile_in,ncfile_out)
 
         # copy ADJUSTED values in hr1 in INTERP variables
-        ncfile_add = meop.fname_prof(smru_name,qf='hr1')
+        ncfile_add = meop_filenames.fname_prof(smru_name,qf='hr1')
         copy_netcdf_variable(ncfile_add,'PRES_ADJUSTED',('N_PROF', 'N_LEVELS'),\
                                   ncfile_out,'PRES_INTERP',('N_PROF', 'N_INTERP'))
         copy_netcdf_variable(ncfile_add,'TEMP_ADJUSTED',('N_PROF', 'N_LEVELS'),\
@@ -123,15 +123,15 @@ def publish_meop_ctd(folder_public, publish=True, genplots=True):
             for smru_name in ltags_country.SMRU_PLATFORM_CODE.unique():
             
                 # copy ncfile: 'fr1 'if exists, otherwise 'all' with both low res and interp data
-                is_done = (folder_data / meop.fname_prof(smru_name,qf='fr1').name).is_file() or \
-                    (folder_data / meop.fname_prof(smru_name,qf='all').name).is_file()
+                is_done = (folder_data / meop_filenames.fname_prof(smru_name,qf='fr1').name).is_file() or \
+                    (folder_data / meop_filenames.fname_prof(smru_name,qf='all').name).is_file()
                 if not is_done:
-                    print('Publish:',tag)
-                    fname = meop.fname_prof(smru_name,qf='fr1')
+                    print('Publish:',smru_name)
+                    fname = meop_filenames.fname_prof(smru_name,qf='fr1')
                     if fname.exists():
                         shutil.copyfile(fname,folder_data / fname.name)
                     else:
-                        fname = create_ncfile_all(tag,folder_data)
+                        fname = create_ncfile_all(smru_name,folder_data)
             
         if genplots:
 
@@ -142,11 +142,11 @@ def publish_meop_ctd(folder_public, publish=True, genplots=True):
                 if not namefig.is_file():
                     print('Generate plot:',smru_name)
                     # figure based on fr1 if possible. Otherwise based on adjusted profiles
-                    fname = folder_data / meop.fname_prof(smru_name,qf='fr1').name
+                    fname = folder_data / meop_filenames.fname_prof(smru_name,qf='fr1').name
                     if fname.is_file():
                         create_tag_plots(fname,folder_plots,smru_name,'_ADJUSTED')
                     else:
-                        fname = folder_data / meop.fname_prof(smru_name,qf='all').name
+                        fname = folder_data / meop_filenames.fname_prof(smru_name,qf='all').name
                         if fname.is_file():
                             create_tag_plots(fname,folder_plots,smru_name,'_INTERP')
         
@@ -173,7 +173,7 @@ if __name__ == "__main__":
     if args.path_public:
         folder_public = Path(args.path_public)
     else:
-        folder_public = meop_filenames.public_CTD
+        folder_public = meop_filenames.publicdir_CTD
     print('Publish in public folder: '+str(folder_public))
     
     publish_meop_ctd(folder_public, publish=args.publish, genplots=args.genplots)

@@ -11,8 +11,8 @@ processdir = Path('/media/disk2/roquet') / 'MEOP_process'
 matlabdir = processdir / 'matlab'
 inputdir = Path('/home/smru/datadir/all/')
 refdir = Path.home() / 'MEOP_dropbox' / 'REF_DATASETS'
-public = Path.home() / 'public' / 'MEOP-CTD_2020-10-26'
-public_CTD = public / 'MEOP-CTD_2020-10-26'
+publicdir = Path.home() / 'MEOP_process' / 'public'
+publicdir_CTD = publicdir / 'MEOP-CTD_2021-10-26'
 
 
 # 1. utils to reconstruct name of ncfiles

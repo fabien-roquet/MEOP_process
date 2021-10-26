@@ -105,8 +105,9 @@ def list_tags_deployments_from_profiles(lprofiles):
     ldeployments = ldeployments.merge(read_list_deployment(),on='DEPLOYMENT_CODE',how='left')
     drop_list = ['START_DATE','END_DATE','START_DATE_JUL']
     ldeployments = ldeployments.drop(drop_list,axis='columns')
+    ldeployments = ldeployments.reset_index()
     
-    list_public = ldeployments.reset_index()[['DEPLOYMENT_CODE','PUBLIC']]
+    list_public = ldeployments[['DEPLOYMENT_CODE','PUBLIC']]
     ltags = ltags.reset_index().merge(list_public,on='DEPLOYMENT_CODE')
 
     # add correction coefficients in ltags
@@ -153,7 +154,7 @@ def filter_profiles_with_Tdata(lprofiles, ltags, ldeployments):
 
 # select only profiles with data points
 def filter_country(country, lprofiles, ltags, ldeployments):    
-    ldeployments = ldeployments.loc[ldeployments.COUNTRY==country]
+    ldeployments = ldeployments[ldeployments.COUNTRY==country]
     ltags = ltags[ltags.DEPLOYMENT_CODE.isin(ldeployments.DEPLOYMENT_CODE)]
     lprofiles = lprofiles[lprofiles.SMRU_PLATFORM_CODE.isin(ltags.SMRU_PLATFORM_CODE)]
     return lprofiles, ltags, ldeployments
