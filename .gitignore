@@ -9,5 +9,6 @@ list_*.pkl
 plots/
 share/
 temporary/
+public/
 python/__pycache__/
 python/.ipynb_checkpoints/
