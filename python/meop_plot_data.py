@@ -59,10 +59,15 @@ def central_longitude(ds):
         
         
 
-def plot_map_deployments(df,namefig=None,groupby='SMRU_PLATFORM_CODE',
-                         title='',legend=True,folder='.',
+def plot_map_deployments(df,groupby='SMRU_PLATFORM_CODE',rebuild=False,
+                         namefig=None,folder='.',
+                         show_plot=True,
+                         title='',legend=True,legend_horiz=False,
                          figsize=(15, 15)
                         ):
+
+    if (Path(folder) / namefig).exists() and (not rebuild) and (not show_plot):
+        return None
 
     fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree(central_longitude=central_longitude(df)))
@@ -104,8 +109,19 @@ def plot_map_deployments(df,namefig=None,groupby='SMRU_PLATFORM_CODE',
     ax.stock_img()
     ax.coastlines()
     ax.gridlines(xlocs=ax.get_xticks(),ylocs=ax.get_yticks())
+
     if legend:
-        ax.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', fontsize=12)
+        if legend_horiz:
+            ncol=len(dict_cmap)
+            if ncol < 10:
+                ax.legend(bbox_to_anchor=(0, -0.05, 1, 0), loc="upper left", ncol = 10, fontsize=12)
+            elif ncol < 50:
+                ax.legend(bbox_to_anchor=(0, -0.05, 1, 0), loc="upper left", mode="expand", ncol = 10, fontsize=12)
+            else:
+                ax.legend(bbox_to_anchor=(0, -0.1, 1, 0), loc="upper left", mode="expand", ncol = 10, fontsize=12)
+        else:
+            ax.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', fontsize=12)
+
     if title:
         ax.set_title(title, fontsize=14)
 
@@ -113,14 +129,22 @@ def plot_map_deployments(df,namefig=None,groupby='SMRU_PLATFORM_CODE',
     if namefig:
         plt.savefig((Path(folder) / namefig),dpi=300,bbox_inches='tight')
 
-    return fig, ax
+    if show_plot:
+        return fig, ax
+    else:
+        plt.close(fig=fig)
+        return None
 
 
 
-def plot_data_deployments(deployment,namefig=None):
+def plot_data_deployments(deployment,namefig=None,rebuild=False,list_fname_prof=None):
     
-    list_fname_prof = meop_filenames.list_fname_prof(deployment=deployment,qf='hr1')
-
+    if namefig and Path(namefig).exists() and (not rebuild):
+        return
+    
+    if not list_fname_prof:
+        list_fname_prof = meop_filenames.list_fname_prof(deployment=deployment,qf='hr1')
+    
     from cycler import cycler
     cmap = plt.get_cmap('viridis',len(list_fname_prof))
     custom_cycler = cycler(color=cmap.colors)
@@ -195,8 +219,11 @@ def plot_data_deployments(deployment,namefig=None):
     # save figure
     if namefig:
         plt.savefig(namefig,dpi=300)
+        plt.close(fig=fig)
+        return
     
-    return fig, ax
+    else:
+        return fig, ax
 
 
 

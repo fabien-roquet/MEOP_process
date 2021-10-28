@@ -43,13 +43,12 @@ def read_list_deployment_hr(filename=(processdir / 'list_deployment_hr.csv')):
 # list_deployment obtained with read_list_deployment()
 def list_profiles_from_ncfile(qf='lr0',datadir=(processdir / 'final_dataset_prof')):
     
-
     # read list of deployments
     df = read_list_deployment().reset_index()
     
     # list of deployment dataframes
     list_df=[]
-
+    
     for deployment in df.DEPLOYMENT_CODE:
         list_fname = meop_filenames.list_fname_prof(deployment=deployment,qf=qf)
         
@@ -93,7 +92,7 @@ def update_lprofiles(lprofiles,list_smru_name,qf='lr0'):
 def list_tags_deployments_from_profiles(lprofiles):
     
     ltags = lprofiles.groupby('SMRU_PLATFORM_CODE').first()\
-        .drop(['N_TEMP','N_PSAL','N_CHLA','CYCLE_NUMBER'],axis='columns')
+        .drop(['N_TEMP','N_PSAL','N_CHLA','CYCLE_NUMBER','year','month','day'],axis='columns')
     ltags['N_PROF_TEMP'] = lprofiles.groupby('SMRU_PLATFORM_CODE').N_TEMP.count()
     ltags['N_PROF_PSAL'] = lprofiles.groupby('SMRU_PLATFORM_CODE').N_PSAL.count()
     ltags['N_PROF_CHLA'] = lprofiles.groupby('SMRU_PLATFORM_CODE').N_CHLA.count()

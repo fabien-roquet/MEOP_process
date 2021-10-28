@@ -458,8 +458,8 @@ def list_metadata(self):
         'SMRU_PLATFORM_CODE': ds.smru_platform_code,
         'CYCLE_NUMBER': ds['CYCLE_NUMBER'].astype(int),
         'JULD': ds['JULD'],
-        'LATITUDE': ds['LATITUDE'],
-        'LONGITUDE': ds['LONGITUDE'],
+        'LATITUDE': ds['LATITUDE'].round(4),
+        'LONGITUDE': ds['LONGITUDE'].round(4),
         'N_TEMP' : meop.N_PARAM(ds,'TEMP'),
         'N_PSAL' : meop.N_PARAM(ds,'PSAL'),
         'N_CHLA' : meop.N_PARAM(ds,'CHLA')}

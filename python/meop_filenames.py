@@ -26,10 +26,10 @@ def fname_prof(smru_name,deployment='',qf='lr0'):
     return Path(processdir,'final_dataset_prof',deployment,smru_name+'_'+qf+'_prof.nc')
 
 # return list of ncARGO filename
-def list_fname_prof(smru_name='',deployment='',qf='*'):
+def list_fname_prof(smru_name='',deployment='',qf='*',folder=processdir):
     if not deployment:
         deployment = deployment_from_smru_name(smru_name)
-    dirEXP = Path(processdir,'final_dataset_prof',deployment)
+    dirEXP = Path(folder) / 'final_dataset_prof' / deployment
     if smru_name:
         prefix = smru_name
     else:
