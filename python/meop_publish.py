@@ -56,7 +56,7 @@ def create_ncfile_all(smru_name,folder_out):
     ncfile_in = meop_filenames.fname_prof(smru_name,qf='lr1')
     ncfile_out = folder_out / meop_filenames.fname_prof(smru_name,qf='all').name
 
-    if ncfile_in.is_file():
+    if ncfile_in.is_file() and not ncfile_out.is_file():
         
         shutil.copyfile(ncfile_in,ncfile_out)
 
@@ -79,7 +79,7 @@ def copy_license(folder_out):
 
 
 # list_deployment obtained with read_list_deployment()
-def load_list_profiles(publicdir_CTD, rebuild=False):
+def load_list_profiles(publicdir_CTD, public=True, rebuild=False):
     
     if rebuild or not (publicdir_CTD / 'list_profiles.csv').exists():
 
@@ -103,30 +103,87 @@ def load_list_profiles(publicdir_CTD, rebuild=False):
         if not list_df:
             return []
 
-        # concatenate list of dataframes into one dataframe
+        # concatenate list of dataframes into one dataframe 
         lprofiles = pd.concat(list_df)
+        
+        # save lists
         lprofiles.to_csv(publicdir_CTD / 'list_profiles.csv',index=False)
-
         ltags, ldeployments = meop_metadata.list_tags_deployments_from_profiles(lprofiles)
         ltags.to_csv(publicdir_CTD / 'list_tags.csv',index=False)
         ldeployments.to_csv(publicdir_CTD / 'list_deployments.csv',index=False)
-       
+
     else:
         
         lprofiles = pd.read_csv(publicdir_CTD / 'list_profiles.csv')
-        ltags, ldeployments = meop_metadata.list_tags_deployments_from_profiles(lprofiles)
+        
+    if public:
+        lprofiles = lprofiles[lprofiles.N_TEMP>0]
+        
+    ltags, ldeployments = meop_metadata.list_tags_deployments_from_profiles(lprofiles)
+       
+    if 'COUNTRY' not in lprofiles:
+        lprofiles = lprofiles.merge(ldeployments[['DEPLOYMENT_CODE','COUNTRY']],on='DEPLOYMENT_CODE',right_index=False,)
 
     return lprofiles, ltags, ldeployments
+
+
+# add plots
+def build_plots(publicdir_CTD, rebuild = False, verbose=False):
+
+    lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=False)
+    
+    for country in list(lprofiles.COUNTRY.unique()):
+        
+        ldepl_country = ldeployments[ldeployments.COUNTRY==country]
+        folder_country = publicdir_CTD / country
+        folder_data = folder_country / 'DATA'
+        folder_plots = folder_country / 'PLOTS'
+        
+        for depl in ldepl_country.DEPLOYMENT_CODE:
+
+            # info for each deployment
+            namefig= folder_country / f"info_{depl}.png"
+            if not (folder_country/namefig).exists() or rebuild:
+                list_ncfile = list(folder_country.glob(f'**/{depl}*_all_prof.nc'))
+                meop_plot_data.plot_data_deployments(depl,namefig=namefig,list_fname_prof=list_ncfile)
+
+            # info for each tag
+            lprof = lprofiles[lprofiles.DEPLOYMENT_CODE==depl]
+            for smru_name in list(lprof.SMRU_PLATFORM_CODE.unique()):
+
+                # create a plot for the tag
+                namefig = folder_plots / (smru_name+'_data_description.png')                
+                if not namefig.is_file() or rebuild:
+                    if verbose:
+                        print('Generate plot:',smru_name)
+                    # figure based on fr1 if possible. Otherwise based on adjusted profiles
+                    fname = folder_data / meop_filenames.fname_prof(smru_name,qf='all').name
+                    if fname.is_file():
+                        create_tag_plots(fname,folder_plots,smru_name,'_INTERP')
+
+            # info for each tag
+            lprof = lprofiles[lprofiles.DEPLOYMENT_CODE==depl]
+            for smru_name in list(lprof.SMRU_PLATFORM_CODE.unique()):
+
+                # figure based on all-INTERP. Otherwise based on adjusted profiles
+                fname = folder_data / meop_filenames.fname_prof(smru_name,qf='all').name
+                if fname.is_file():
+                    with meop.open_dataset(fname) as ds:
+                        namefig = folder_plots / (smru_name+'_data_description.png')
+                        if not namefig.is_file() or rebuild:
+                            ds.plot_data_tags('_INTERP',namefig=namefig)
+                    with meop.open_dataset(fname) as ds:
+                        namefig = folder_plots / (smru_name+'_data_sections.png')   
+                        if not namefig.is_file() or rebuild:
+                            ds.plot_sections(['TEMP','PSAL','SIG0'],rolling=1,density_threshold=0.03,namefig=namefig)
+
+    return
 
 
 # add maps
 def build_maps(publicdir_CTD, rebuild = False):
     
-    lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, rebuild=False)
-    lprofiles = lprofiles[lprofiles.N_TEMP>0]
-    ltags, ldeployments = meop_metadata.list_tags_deployments_from_profiles(lprofiles)
-    if 'COUNTRY' not in lprofiles:
-        lprofiles = lprofiles.merge(ldeployments[['DEPLOYMENT_CODE','COUNTRY']],on='DEPLOYMENT_CODE',right_index=False,)
+    lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=False)
 
     meop_plot_data.plot_map_deployments(lprofiles,
                               groupby='MASK',
@@ -187,61 +244,64 @@ def build_maps(publicdir_CTD, rebuild = False):
             if not (folder/namefig).exists() or rebuild:
                 meop_plot_data.plot_map_deployments(lprofiles[lprofiles.DEPLOYMENT_CODE==depl],\
                                                    folder = folder, namefig=namefig, show_plot=False)
-                
-            # info for each deployment
-            namefig= folder / f"info_{depl}.png"
-            if not (folder/namefig).exists() or rebuild:
-                list_ncfile = list(folder.glob(f'**/{depl}*_all_prof.nc'))
-                meop_plot_data.plot_data_deployments(depl,namefig=namefig,list_fname_prof=list_ncfile)
-                
-    return
-
-
-# publish meop-ctd data in 
-def create_tag_plots(fname,folder_out,prefix_name,var_suffix):
-
-    with meop.open_dataset(fname) as ds:
-        namefig = folder_out / (prefix_name+'_data_description.png')
-        if not namefig.exists():
-            fig, ax = ds.plot_data_tags('_ADJUSTED',namefig=namefig)
-            plt.close(fig=fig)
-
+                                
     return
 
 
 
+# compress files. Stored in the parent directory of publicdir_CTD
+def compress_public_data(publicdir_CTD):
+
+    
+    lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=False)
+    version = publicdir_CTD.name
+    
+    for COUNTRY in ldeployments.COUNTRY.unique():
+        zip_file = publicdir_CTD.parent / f"{version}_{COUNTRY}.zip"
+        if (publicdir_CTD / COUNTRY).exists() and not zip_file.exists():
+            bashCommand = f"zip -r {zip_file} {publicdir_CTD / COUNTRY}"
+            print(bashCommand)
+            os.system(bashCommand)
+            
+    zip_file = publicdir_CTD.parent / f"{version}_ALL.zip"
+    if zip_file.exists():
+        bashCommand = f"zip -r {zip_file} {publicdir_CTD / COUNTRY}"
+        print(bashCommand)
+        os.system(bashCommand)
+
+    return
+    
 
 # publish meop-ctd data in 
-def publish_meop_ctd(folder_public, publish=True, genplots=True, genmaps=True, verbose=False):
+def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False, genplots=False, genmaps=False, compress=False, verbose=False):
 
-    folder_public = Path(folder_public)
-    folder_public.mkdir(parents=True, exist_ok=True)
-    if len(os.listdir(folder_public)):
-        print(f'Warning: the public directory where to store public data {folder_public} is not empty. Risk of data corruption.')
+    publicdir_CTD.mkdir(parents=True, exist_ok=True)
+    if len(os.listdir(publicdir_CTD)):
+        print(f'Warning: the public directory where to store public data {publicdir_CTD} is not empty. Risk of data corruption.')
     
     # copy license information
-    copy_license(folder_public)
+    copy_license(publicdir_CTD)
 
-    lprofiles, ltags, ldeployments = meop_metadata.read_lists_metadata(rebuild=False,verbose=False,public=True,Tdata=False)
+    if copydata:
 
-    for COUNTRY in ldeployments.COUNTRY.unique():
-        
-        print(COUNTRY)
-        folder_country = folder_public / COUNTRY
-        folder_country.mkdir(parents=True, exist_ok=True)
-        folder_data = folder_country / 'DATA'
-        folder_data.mkdir(parents=True, exist_ok=True)
-        folder_plots = folder_public / COUNTRY / 'PLOTS'
-        folder_plots.mkdir(parents=True, exist_ok=True)
-        
-        lprofiles_country, ltags_country, ldeployments_country = \
-            meop_metadata.filter_country(COUNTRY, lprofiles, ltags, ldeployments)
-        
-        if publish:
-            
-            print('...Generation of netCDF files')
+        print('...Generation of netCDF files')
+        lprofiles, ltags, ldeployments = meop_metadata.read_lists_metadata(rebuild=False,verbose=False,public=True,Tdata=False)
+
+        for COUNTRY in ldeployments.COUNTRY.unique():
+
+            print(COUNTRY)
+            folder_country = publicdir_CTD / COUNTRY
+            folder_country.mkdir(parents=True, exist_ok=True)
+            folder_data = folder_country / 'DATA'
+            folder_data.mkdir(parents=True, exist_ok=True)
+            folder_plots = folder_country / 'PLOTS'
+            folder_plots.mkdir(parents=True, exist_ok=True)
+
+            lprofiles_country, ltags_country, ldeployments_country = \
+                meop_metadata.filter_country(COUNTRY, lprofiles, ltags, ldeployments)
+
             for smru_name in ltags_country.SMRU_PLATFORM_CODE.unique():
-            
+
                 # copy ncfile: 'fr1 'if exists, otherwise 'all' with both low res and interp data
                 is_done = (folder_data / meop_filenames.fname_prof(smru_name,qf='fr1').name).is_file() or \
                     (folder_data / meop_filenames.fname_prof(smru_name,qf='all').name).is_file()
@@ -254,30 +314,22 @@ def publish_meop_ctd(folder_public, publish=True, genplots=True, genmaps=True, v
                     else:
                         fname = create_ncfile_all(smru_name,folder_data)
             
-        if genplots:
+    if genplots:
 
-            print('...Generation of descriptive plots')
-            for smru_name in ltags_country.SMRU_PLATFORM_CODE.unique():
-            
-                # create a plot for the tag
-                namefig = folder_plots / (smru_name+'_data_description.png')                
-                if not namefig.is_file():
-                    if verbose:
-                        print('Generate plot:',smru_name)
-                    # figure based on fr1 if possible. Otherwise based on adjusted profiles
-                    fname = folder_data / meop_filenames.fname_prof(smru_name,qf='fr1').name
-                    if fname.is_file():
-                        create_tag_plots(fname,folder_plots,smru_name,'_ADJUSTED')
-                    else:
-                        fname = folder_data / meop_filenames.fname_prof(smru_name,qf='all').name
-                        if fname.is_file():
-                            create_tag_plots(fname,folder_plots,smru_name,'_INTERP')
+        print('...Generation of plots')
+        build_plots(publicdir_CTD)
+        
         
     if genmaps:
 
-        print('Generation of maps')
-        build_maps(folder_public)
+        print('...Generation of maps')
+        build_maps(publicdir_CTD)
             
+    if compress:
+        
+        print('...Compress files')
+        compress_public_data(publicdir_CTD)
+        
     return
 
 
@@ -292,9 +344,11 @@ if __name__ == "__main__":
 
     # add arguments to the parser
     parser.add_argument("--path_public", help = "Provide path to public folder")
-    parser.add_argument("--publish", help = "Publish data", action='store_true')
+    parser.add_argument("--version", help = "Provide version of database")
+    parser.add_argument("--copydata", help = "Copy data", action='store_true')
     parser.add_argument("--genplots", help = "Generate plots", action='store_true')
     parser.add_argument("--genmaps", help = "Generate maps", action='store_true')
+    parser.add_argument("--compress", help = "Compress files", action='store_true')
     
     # parse the arguments
     args = parser.parse_args()
@@ -302,8 +356,15 @@ if __name__ == "__main__":
     if args.path_public:
         folder_public = Path(args.path_public)
     else:
-        folder_public = meop_filenames.publicdir_CTD
-    print('Publish in public folder: '+str(folder_public))
+        folder_public = meop_filenames.publicdir
+        
+    if args.version:
+        version = args.version
+    else:
+        version = meop_filenames.version
+ 
+    publicdir_CTD = folder_public / version
+    print('Publish in public folder: '+str(publicdir_CTD))
     
-    publish_meop_ctd(folder_public, publish=args.publish, genplots=args.genplots, genmaps=args.genmaps)
+    publish_meop_ctd(publicdir_CTD, copydata=args.copydata, genplots=args.genplots, genmaps=args.compress, compress=args.compress)
     

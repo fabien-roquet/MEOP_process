@@ -57,13 +57,13 @@ def add_method(cls):
     
 
 # compute number of valid profile by sensor type
-def N_PARAM(ds,PARAM):
-    if PARAM+'_QC' in list(ds.variables):
-        N_PARAM = np.sum(ds[PARAM+'_QC'].isin([b'1',b'8']),axis=1)
+def N_PARAM(ds,PARAM,SUFFIX_PARAM='_ADJUSTED'):
+    if PARAM+SUFFIX_PARAM+'_QC' in list(ds.variables):
+        N_PARAM = np.sum(ds[PARAM+SUFFIX_PARAM+'_QC'].isin([b'1',b'8']),axis=1)
         N_PARAM = N_PARAM.where(N_PARAM!=0,np.nan)
     else:
-        N_PARAM = xr.DataArray(np.empty(ds.dims['N_PROF']), dims=['N_PROF'])
-        N_PARAM = np.nan
+        N_PARAM = (~ds[PARAM+SUFFIX_PARAM].isnull()).sum(axis=1)
+        N_PARAM = N_PARAM.where(N_PARAM!=0,np.nan)
     return N_PARAM
 
 
@@ -85,21 +85,28 @@ def add_N_PARAM(self):
 # compute sigma0 and append to the dataset (SIG0 or SIG0_ADJUSTED), as well as its corresponding QC
 @add_method(xr.Dataset)
 def add_sigma0(self,SUFFIX_PARAM='_ADJUSTED'):    
-    ds = self    
+    ds = self
     if ('SIG0'+SUFFIX_PARAM) not in ds.variables:
+        if SUFFIX_PARAM=='_INTERP':
+            ds = ds.add_interp('TEMP')
+            ds = ds.add_interp('PSAL')
         ds['SIG0'+SUFFIX_PARAM] = gsw.sigma0(ds['PSAL'+SUFFIX_PARAM],ds['TEMP'+SUFFIX_PARAM])
-        ds['SIG0'+SUFFIX_PARAM+'_QC'] = ds['TEMP'+SUFFIX_PARAM+'_QC'].copy()
-        ds['SIG0'+SUFFIX_PARAM+'_QC'].where(~ds['PSAL'+SUFFIX_PARAM+'_QC'].isin([b'4']),'4')
+        if not SUFFIX_PARAM=='_INTERP':
+            ds['SIG0'+SUFFIX_PARAM+'_QC'] = ds['TEMP'+SUFFIX_PARAM+'_QC'].copy()
+            ds['SIG0'+SUFFIX_PARAM+'_QC'].where(~ds['PSAL'+SUFFIX_PARAM+'_QC'].isin([b'4']),'4')
     return ds
 
 
 # compute mixed layer depth and append to the dataframe
 def compute_mld(ds,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):
+    N_LEVELS = 'N_LEVELS'
+    if SUFFIX_PARAM=='_INTERP':
+        N_LEVELS = 'N_INTERP'
     ds = ds.add_sigma0(SUFFIX_PARAM=SUFFIX_PARAM)
-    density = ds['SIG0'+SUFFIX_PARAM].bfill(dim='N_LEVELS',limit=50)
+    density = ds['SIG0'+SUFFIX_PARAM].bfill(dim=N_LEVELS,limit=50)
     dens10 = density[:,9]
-    pressure = ds.PRES.where(density-dens10<density_threshold,np.nan)
-    mld = pressure.max(dim='N_LEVELS')
+    pressure = ds['PRES'+SUFFIX_PARAM].where(density-dens10<density_threshold,np.nan)
+    mld = pressure.max(dim=N_LEVELS)
     mld[mld<5] = np.nan
     return mld
             
@@ -115,7 +122,24 @@ def add_mld(self,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):
 
             
             
-            
+
+# interpolate data pon a regular verticl grid and append to the dataframe
+@add_method(xr.Dataset)
+def add_interp(self,PARAM,SUFFIX_PARAM='_ADJUSTED',pmax=1000):
+    ds = self
+    if PARAM+'_INTERP' not in ds.variables:
+        if (PARAM+'_ADJUSTED') not in ds.variables.keys():
+            return ds
+        N_INTERP = pmax
+        data = np.zeros([ds.dims['N_PROF'],N_INTERP])*np.nan
+        ds = ds.assign_coords(dict(N_INTERP=("N_INTERP", np.arange(0,N_INTERP))))
+        da = xr.DataArray(data,dims=["N_PROF", "N_INTERP"],coords=dict(N_PROF=("N_PROF", ds.coords['N_PROF'].values),N_INTERP=("N_INTERP", ds.coords['N_INTERP'].values)))
+        for i in range(ds.dims['N_PROF']):
+            da[i,:] = np.interp(da.N_INTERP,ds['PRES_ADJUSTED'].values[i,:],ds[PARAM+'_ADJUSTED'].values[i,:])
+        ds[PARAM+'_INTERP'] = da
+    return ds
+
+
 # compute the value of central_longitude in order to create a map, based on the distribution of longitudes
 @add_method(xr.Dataset)
 def central_longitude(self):
@@ -193,12 +217,12 @@ def plot_profiles(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
             fig = ax.get_figure()
 
         if PARAM=='SIG0':
-            ds.add_sigma0()
+            ds.add_sigma0(SUFFIX_PARAM=SUFFIX_PARAM)
 
         if PARAM=='SIG0':
-            number_profiles = np.sum((N_PARAM(ds,'TEMP'+SUFFIX_PARAM)*N_PARAM(ds,'PSAL'+SUFFIX_PARAM)).data>0)
+            number_profiles = np.sum((N_PARAM(ds,'TEMP',SUFFIX_PARAM)*N_PARAM(ds,'PSAL',SUFFIX_PARAM)).data>0)
         else:
-            number_profiles = np.sum(N_PARAM(ds,PARAM+SUFFIX_PARAM).data>0)
+            number_profiles = np.sum(N_PARAM(ds,PARAM,SUFFIX_PARAM).data>0)
 
         if (PARAM+SUFFIX_PARAM) not in ds.variables.keys():
             return fig, ax
@@ -282,11 +306,6 @@ def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
 
 
     ds = self
-
-    if plot_mld:
-        mld = compute_mld(ds,SUFFIX_PARAM=SUFFIX_PARAM,density_threshold=density_threshold)
-        if rolling>0:
-            mld = mld.rolling(N_PROF=rolling,min_periods=min([3,rolling]),center=True).mean()
     
     if isinstance(PARAM,str):
         
@@ -295,8 +314,6 @@ def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
         else:
             fig = ax.get_figure()
 
-        if (PARAM+SUFFIX_PARAM) not in ds.variables.keys():
-            return fig, ax
 
         if 'cmap' not in kwargs:
             if PARAM=='TEMP':
@@ -305,30 +322,45 @@ def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
                 kwargs['cmap'] = cmo.haline
             else:
                 kwargs['cmap'] = cmo.solar
+                
         if 'yincrease' not in kwargs:
             kwargs['yincrease'] = False
 
+        if PARAM=='SIG0':
+            ds = ds.add_sigma0(SUFFIX_PARAM=SUFFIX_PARAM)
+            
+        if PARAM+'_INTERP' not in ds.variables:
+            ds = ds.add_interp(PARAM)
+            
+        da = ds[PARAM+'_INTERP']
         if rolling:
-            var = ds[PARAM+SUFFIX_PARAM].rolling(N_PROF=rolling, center=True, min_periods=1).mean()
-        else:
-            var = ds[PARAM+SUFFIX_PARAM]
-        var.T.plot(ax=ax,**kwargs)    
+            da = da.rolling(N_PROF=rolling, center=True, min_periods=1).mean()
+
+        da.T.plot(ax=ax,**kwargs)    
 
         if plot_mld:
+            mld = compute_mld(ds,SUFFIX_PARAM='_INTERP',density_threshold=density_threshold).interpolate_na(dim='N_PROF')
+            if rolling>0:
+                mld = mld.rolling(N_PROF=rolling,min_periods=min([3,rolling]),center=True).mean()        
             mld.plot(ax=ax)
 
         if not title:
-            number_profiles = np.sum(N_PARAM(ds,PARAM+SUFFIX_PARAM).data>0)
+            number_profiles = np.sum(N_PARAM(ds,PARAM,SUFFIX_PARAM).data>0)
             title = f"{ds.smru_platform_code}, {PARAM+SUFFIX_PARAM}: {number_profiles} profiles"
+            
         ax.set_ylim(pmax)
         ax.set_title(title)
         
         # save figure
         if namefig:
+            plt.tight_layout()
             plt.savefig(namefig,dpi=300)
+            plt.close()
+            return
+        else:
+            return fig, ax
 
-        return fig, ax
-
+        
     elif isinstance(PARAM,list):
         
         if len(PARAM)==1:
@@ -340,10 +372,16 @@ def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
                 fig = ax.get_figure()
             for kk,param in enumerate(PARAM):
                 ds.plot_sections(param,SUFFIX_PARAM=SUFFIX_PARAM,ax=ax[kk],title=title,rolling=rolling,pmax=pmax,**kwargs)
-            if namefig:
-                plt.savefig(namefig,dpi=300,bbox_inches='tight')
 
-            return fig, ax
+            # save figure
+            if namefig:
+                plt.tight_layout()
+                plt.savefig(namefig,dpi=300,bbox_inches='tight')
+                plt.close()
+                return
+            else:
+                plt.tight_layout()
+                return fig, ax
 
 
         
@@ -353,7 +391,11 @@ def plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None):
 
     ds = self
     
-    if ds['TEMP'+SUFFIX_PARAM].sum(dim='N_LEVELS').sum().data==0:
+    N_LEVELS = 'N_LEVELS'
+    if SUFFIX_PARAM=='_INTERP':
+        N_LEVELS = 'N_INTERP'
+        
+    if ds['TEMP'+SUFFIX_PARAM].sum(dim=N_LEVELS).sum().data==0:
         return None, None
     
     from cycler import cycler
@@ -392,8 +434,11 @@ def plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None):
     # save figure
     if namefig:
         plt.savefig(namefig,dpi=300)
-
-    return fig, ax
+        plt.close()
+        return
+    
+    else:
+        return fig, ax
 
 
 ##    function to attach a geographic location to a tag  ##

@@ -4,6 +4,8 @@ import shutil
 
 
 
+version = 'MEOP-CTD_2021-10-26'
+
 
 processdir = Path.home() / 'MEOP_process'
 datadir = Path.home() / 'MEOP_dropbox' / 'RAW_MEOP_DATA/'
@@ -12,8 +14,7 @@ matlabdir = processdir / 'matlab'
 inputdir = Path('/home/smru/datadir/all/')
 refdir = Path.home() / 'MEOP_dropbox' / 'REF_DATASETS'
 publicdir = Path.home() / 'MEOP_process' / 'public'
-publicdir_CTD = publicdir / 'MEOP-CTD_2021-10-26'
-
+publicdir_CTD = publicdir / version
 
 # 1. utils to reconstruct name of ncfiles
 def deployment_from_smru_name(smru_name):
