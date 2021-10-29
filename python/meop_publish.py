@@ -264,8 +264,8 @@ def compress_public_data(publicdir_CTD):
             os.system(bashCommand)
             
     zip_file = publicdir_CTD.parent / f"{version}_ALL.zip"
-    if zip_file.exists():
-        bashCommand = f"zip -r {zip_file} {publicdir_CTD / COUNTRY}"
+    if not zip_file.exists():
+        bashCommand = f"zip -r {zip_file} {publicdir_CTD}"
         print(bashCommand)
         os.system(bashCommand)
 

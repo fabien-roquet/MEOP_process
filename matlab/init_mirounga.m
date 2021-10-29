@@ -23,7 +23,6 @@ end
 conf.list_deployment = list_deployment;
 conf.list_deployment_code = list_deployment.deployment_code;
 
-
 %% pre-process old deployments (done once and for all)
 if 1==0,
     preprocessing_old_deployments;
@@ -56,7 +55,7 @@ for ii=1:length(deployment_json)
         if any(strcmp(EXP,list_old_repeated_deployments)),
             continue
         end
-        conf.list_deployment(EXP,:)={'',1,0,'UNKNOWN',0,'','',NaT,NaT,NaN};
+        conf.list_deployment(EXP,:)={'',1,0,'UNKNOWN','','',NaT,NaT,NaN};
         conf.list_deployment{EXP,'pi_code'} = {deployment_json(ii).pi_code};
         disp(sprintf('%s added in list_deployment.csv',deployment_json(ii).deployment_code));
         new_deployments = 1;

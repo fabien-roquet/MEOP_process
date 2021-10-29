@@ -64,7 +64,7 @@ def run_command(cmd,verbose=True):
         
 # init mirounga and load conf
 def init_mirounga():
-    eng.addpath(str(processdir))
+    eng.addpath(str(processdir / matlab))
     conf = eng.eval("init_config();",nargout=1)
     run_command("conf = init_mirounga;")
     return conf

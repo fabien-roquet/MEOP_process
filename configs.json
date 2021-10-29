@@ -17,7 +17,7 @@
     "matlabdir":"/home/jupyter-froqu/MEOP_process/matlab/",
     "inputdir":"/home/smru/datadir/all/",
     "refdir":"/home/jupyter-froqu/MEOP_dropbox/REF_DATASETS/",
-    "public":"/home/jupyter-froqu/public/",
+    "public":"/home/jupyter-froqu/MEOP_process/public/",
     "pdflatex":"pdflatex"
     }, 
   "froqu_pc207_linux":
