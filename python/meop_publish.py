@@ -314,18 +314,18 @@ def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False,
 
                 # copy ncfile: 'fr1' if exists
                 folder_data_fr = folder_country / 'DATA_FULL_RES'
-                folder_data_fr.mkdir(parents=True, exist_ok=True)
-                fname_orig = fmeop_filenames.fname_prof(smru_name,qf='fr1')
+                fname_orig = meop_filenames.fname_prof(smru_name,qf='fr1')
                 fname_copy = folder_data_fr / fname_orig.name
                 if rebuild and fname_copy.is_file():
                     os.remove(fname_copy)
-                if not fname_copy.is_file():
+                if not fname_copy.is_file() and fname_orig.is_file():
                     if verbose:
-                        print('Publish: ',fname_orig.name)
+                        print('Publish: ',fname_orig.name)          
+                    folder_data_fr.mkdir(parents=True, exist_ok=True)                        
                     shutil.copyfile(fname_orig,fname_copy)
                     
                 # copy ncfile: create 'all' from hr1 and lr1
-                fname_copy = folder_data / fmeop_filenames.fname_prof(smru_name,qf='all').name
+                fname_copy = folder_data / meop_filenames.fname_prof(smru_name,qf='all').name
                 if rebuild and fname_copy.is_file():
                     os.remove(fname_copy)
                 if not fname_copy.is_file():
