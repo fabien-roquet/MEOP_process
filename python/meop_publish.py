@@ -250,7 +250,7 @@ def build_maps(publicdir_CTD, rebuild = False):
 
 
 # compress files. Stored in the parent directory of publicdir_CTD
-def compress_public_data(publicdir_CTD):
+def compress_public_data(publicdir_CTD, rebuild = False):
 
     
     lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=False)
@@ -258,12 +258,16 @@ def compress_public_data(publicdir_CTD):
     
     for COUNTRY in ldeployments.COUNTRY.unique():
         zip_file = publicdir_CTD.parent / f"{version}_{COUNTRY}.zip"
+        if zip_file.exists() and rebuild:
+            os.remove(zip_file)
         if (publicdir_CTD / COUNTRY).exists() and not zip_file.exists():
             bashCommand = f"zip -r {zip_file} {publicdir_CTD / COUNTRY}"
             print(bashCommand)
             os.system(bashCommand)
             
     zip_file = publicdir_CTD.parent / f"{version}_ALL.zip"
+    if zip_file.exists() and rebuild:
+        os.remove(zip_file)
     if not zip_file.exists():
         bashCommand = f"zip -r {zip_file} {publicdir_CTD}"
         print(bashCommand)
@@ -273,7 +277,7 @@ def compress_public_data(publicdir_CTD):
     
 
 # publish meop-ctd data in 
-def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False, genplots=False, genmaps=False, compress=False, verbose=False):
+def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False, genplots=False, genmaps=False, compress=False, rebuild=False, verbose=False):
 
     publicdir_CTD.mkdir(parents=True, exist_ok=True)
     if len(os.listdir(publicdir_CTD)):
@@ -285,50 +289,65 @@ def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False,
     if copydata:
 
         print('...Generation of netCDF files')
+
         lprofiles, ltags, ldeployments = meop_metadata.read_lists_metadata(rebuild=False,verbose=False,public=True,Tdata=False)
 
         for COUNTRY in ldeployments.COUNTRY.unique():
-
-            print(COUNTRY)
             folder_country = publicdir_CTD / COUNTRY
             folder_country.mkdir(parents=True, exist_ok=True)
             folder_data = folder_country / 'DATA'
             folder_data.mkdir(parents=True, exist_ok=True)
             folder_plots = folder_country / 'PLOTS'
             folder_plots.mkdir(parents=True, exist_ok=True)
+    
+        for COUNTRY in ldeployments.COUNTRY.unique():
+
+            print(COUNTRY)
+            folder_country = publicdir_CTD / COUNTRY
+            folder_data = folder_country / 'DATA'
+            folder_plots = folder_country / 'PLOTS'
 
             lprofiles_country, ltags_country, ldeployments_country = \
                 meop_metadata.filter_country(COUNTRY, lprofiles, ltags, ldeployments)
 
             for smru_name in ltags_country.SMRU_PLATFORM_CODE.unique():
 
-                # copy ncfile: 'fr1 'if exists, otherwise 'all' with both low res and interp data
-                is_done = (folder_data / meop_filenames.fname_prof(smru_name,qf='fr1').name).is_file() or \
-                    (folder_data / meop_filenames.fname_prof(smru_name,qf='all').name).is_file()
-                if not is_done:
+                # copy ncfile: 'fr1' if exists
+                folder_data_fr = folder_country / 'DATA_FULL_RES'
+                folder_data_fr.mkdir(parents=True, exist_ok=True)
+                fname_orig = fmeop_filenames.fname_prof(smru_name,qf='fr1')
+                fname_copy = folder_data_fr / fname_orig.name
+                if rebuild and fname_copy.is_file():
+                    os.remove(fname_copy)
+                if not fname_copy.is_file():
                     if verbose:
-                        print('Publish:',smru_name)
-                    fname = meop_filenames.fname_prof(smru_name,qf='fr1')
-                    if fname.exists():
-                        shutil.copyfile(fname,folder_data / fname.name)
-                    else:
-                        fname = create_ncfile_all(smru_name,folder_data)
-            
+                        print('Publish: ',fname_orig.name)
+                    shutil.copyfile(fname_orig,fname_copy)
+                    
+                # copy ncfile: create 'all' from hr1 and lr1
+                fname_copy = folder_data / fmeop_filenames.fname_prof(smru_name,qf='all').name
+                if rebuild and fname_copy.is_file():
+                    os.remove(fname_copy)
+                if not fname_copy.is_file():
+                    if verbose:
+                        print('Publish: ',fname_orig.name)
+                    create_ncfile_all(smru_name,folder_data)
+                            
     if genplots:
 
         print('...Generation of plots')
-        build_plots(publicdir_CTD)
+        build_plots(publicdir_CTD,rebuild=rebuild)
         
         
     if genmaps:
 
         print('...Generation of maps')
-        build_maps(publicdir_CTD)
+        build_maps(publicdir_CTD,rebuild=rebuild)
             
     if compress:
         
         print('...Compress files')
-        compress_public_data(publicdir_CTD)
+        compress_public_data(publicdir_CTD,rebuild=rebuild)
         
     return
 
@@ -349,6 +368,7 @@ if __name__ == "__main__":
     parser.add_argument("--genplots", help = "Generate plots", action='store_true')
     parser.add_argument("--genmaps", help = "Generate maps", action='store_true')
     parser.add_argument("--compress", help = "Compress files", action='store_true')
+    parser.add_argument("--rebuild", help = "delete and replace previous version of file", action='store_true')
     
     # parse the arguments
     args = parser.parse_args()
@@ -366,5 +386,5 @@ if __name__ == "__main__":
     publicdir_CTD = folder_public / version
     print('Publish in public folder: '+str(publicdir_CTD))
     
-    publish_meop_ctd(publicdir_CTD, copydata=args.copydata, genplots=args.genplots, genmaps=args.compress, compress=args.compress)
+    publish_meop_ctd(publicdir_CTD, copydata=args.copydata, genplots=args.genplots, genmaps=args.genmaps, compress=args.compress, rebuild=args.rebuild)
     
