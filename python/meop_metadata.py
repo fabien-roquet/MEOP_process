@@ -93,6 +93,11 @@ def list_tags_deployments_from_profiles(lprofiles):
     
     ltags = lprofiles.groupby('SMRU_PLATFORM_CODE').first()\
         .drop(['N_TEMP','N_PSAL','N_CHLA','CYCLE_NUMBER','year','month','day'],axis='columns')
+    
+    lprofiles['N_TEMP'] = lprofiles.N_TEMP.where(lprofiles.N_TEMP!=0,np.nan)
+    lprofiles['N_PSAL'] = lprofiles.N_PSAL.where(lprofiles.N_PSAL!=0,np.nan)
+    lprofiles['N_CHLA'] = lprofiles.N_CHLA.where(lprofiles.N_CHLA!=0,np.nan)
+
     ltags['N_PROF_TEMP'] = lprofiles.groupby('SMRU_PLATFORM_CODE').N_TEMP.count()
     ltags['N_PROF_PSAL'] = lprofiles.groupby('SMRU_PLATFORM_CODE').N_PSAL.count()
     ltags['N_PROF_CHLA'] = lprofiles.groupby('SMRU_PLATFORM_CODE').N_CHLA.count()

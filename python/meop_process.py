@@ -28,10 +28,12 @@ def start_matlab():
     try:
         eng.eval("disp('matlab already started')",nargout=0)
         print('matlab already started')
+        run_command(f"cd {processdir};")
         print('PWD:',eng.pwd())
     except:
         eng = matlab.engine.start_matlab()
         print('matlab started')
+        run_command(f"cd {processdir};")
         print('PWD:',eng.pwd())
     return
 
@@ -64,7 +66,7 @@ def run_command(cmd,verbose=True):
         
 # init mirounga and load conf
 def init_mirounga():
-    eng.addpath(str(processdir / matlab))
+    eng.addpath(str(processdir / 'matlab'))
     conf = eng.eval("init_config();",nargout=1)
     run_command("conf = init_mirounga;")
     return conf
@@ -77,6 +79,37 @@ def load_info_deployment(deployment='',smru_name=''):
     eng.eval("info_deployment=load_info_deployment(conf,EXP,one_smru_name);",nargout=0)
 
     
+# update metadata
+def update_metadata(deployment='',smru_name=''):
+
+    path_meta = processdir / 'table_meta.csv'
+    if not path_meta.exists():
+        print(f'Warning: File {path_meta} not found. Metadata not updated.')
+        return
+    
+    df_meta = pd.read_csv(path_meta).set_index('smru_platform_code')
+
+    if smru_name in df_meta.index:
+        df_meta = df_meta.loc[[smru_name],:]
+    elif deployment:
+        df_meta['deployment'] = df_meta.index
+        df_meta['deployment'] = df_meta.deployment.str.split('-').apply(lambda x: x[0])
+        df_meta = df_meta.loc[df_meta.deployment == deployment,:]
+
+    modes = ['lr0','hr0','fr0']
+    for smru_name in df_meta.index:
+        meta_row = df_meta.loc[smru_name,:].dropna()
+        for qf in modes:
+            namefile = meop.fname_prof(smru_name,qf=qf)        
+            if Path(namefile).exists():
+                with netCDF4.Dataset(namefile,'a') as f:
+                    for col in meta_row.keys():
+                        if f.location != meta_row[col]:
+                            f.location = meta_row[col]
+
+    return
+
+
 def process_tags(deployment='',smru_name=''):
     load_info_deployment(deployment=deployment,smru_name=smru_name)
     if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
@@ -89,6 +122,7 @@ def process_tags(deployment='',smru_name=''):
         return False
     if not run_command("update_metadata(conf,EXP,one_smru_name);"):
         return False
+    update_metadata(deployment=deployment,smru_name=smru_name)
     if not run_command("apply_adjustments(conf,EXP,one_smru_name);"):
         return False
     if not run_command("apply_tlc(conf,EXP,one_smru_name);"):
@@ -130,7 +164,7 @@ if __name__ == "__main__":
     deployment = args.deployment
     
     
-    if (smru_name or deployment) and (args.process_data or args.metadata or args.calibration_plots):
+    if (smru_name or deployment) and (args.do_all or args.process_data or args.calibration_plots):
         start_matlab()
         conf = init_mirounga()
         if args.process_data or args.do_all:

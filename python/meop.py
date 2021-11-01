@@ -65,7 +65,8 @@ def N_PARAM(ds,PARAM,SUFFIX_PARAM='_ADJUSTED'):
         N_PARAM = (~ds[PARAM+SUFFIX_PARAM].isnull()).sum(axis=1)
         N_PARAM = N_PARAM.where(N_PARAM!=0,np.nan)
     else:
-        N_PARAM = xr.DataArray(np.zeros(ds.dims['N_PROF']),dims=['N_PROF'],coords={'N_PROF':np.arange(ds.dims['N_PROF'])})
+        # filled with NaNs
+        N_PARAM = xr.DataArray(dims=['N_PROF'],coords={'N_PROF':np.arange(ds.dims['N_PROF'])})
     return N_PARAM
 
 
