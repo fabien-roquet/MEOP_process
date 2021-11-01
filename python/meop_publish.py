@@ -56,7 +56,7 @@ def create_ncfile_all(smru_name,folder_out):
     ncfile_in = meop_filenames.fname_prof(smru_name,qf='lr1')
     ncfile_out = folder_out / meop_filenames.fname_prof(smru_name,qf='all').name
 
-    if ncfile_in.is_file() and not ncfile_out.is_file():
+    if ncfile_in.is_file() and (not ncfile_out.is_file()):
         
         shutil.copyfile(ncfile_in,ncfile_out)
 
@@ -81,7 +81,7 @@ def copy_license(folder_out):
 # list_deployment obtained with read_list_deployment()
 def load_list_profiles(publicdir_CTD, public=True, rebuild=False):
     
-    if rebuild or not (publicdir_CTD / 'list_profiles.csv').exists():
+    if rebuild or (not (publicdir_CTD / 'list_profiles.csv').exists()):
 
         # list of deployment dataframes
         list_df=[]
@@ -90,8 +90,8 @@ def load_list_profiles(publicdir_CTD, public=True, rebuild=False):
         for ncfile in publicdir_CTD.glob('**/*_all_prof.nc'):
 
             if ncfile.exists():
-                with meop.open_dataset(ncfile) as ds:
 
+                with meop.open_dataset(ncfile) as ds:
                     csv_list_file = ncfile.parent / f"{ncfile.stem.split('_')[0]}_list.csv"
                     if not csv_list_file.exists():
                         df = ds.list_metadata()
@@ -127,13 +127,67 @@ def load_list_profiles(publicdir_CTD, public=True, rebuild=False):
     return lprofiles, ltags, ldeployments
 
 
+# copy netcdf files
+def copy_data(publicdir_CTD, rebuild=False, verbose=True):
+
+    lprofiles, ltags, ldeployments = meop_metadata.read_lists_metadata(rebuild=False,verbose=False,public=True,Tdata=False)
+
+    for COUNTRY in ldeployments.COUNTRY.unique():
+        # create folders if not already there
+        folder_country = publicdir_CTD / COUNTRY
+        folder_country.mkdir(parents=True, exist_ok=True)
+        folder_data = folder_country / 'DATA'
+        folder_data.mkdir(parents=True, exist_ok=True)
+        folder_plots = folder_country / 'PLOTS'
+        folder_plots.mkdir(parents=True, exist_ok=True)
+
+    for COUNTRY in ldeployments.COUNTRY.unique():
+        if verbose:
+            print(COUNTRY)
+        folder_country = publicdir_CTD / COUNTRY
+        folder_data = folder_country / 'DATA'
+        folder_plots = folder_country / 'PLOTS'
+
+        lprofiles_country, ltags_country, ldeployments_country = \
+            meop_metadata.filter_country(COUNTRY, lprofiles, ltags, ldeployments)
+
+        for smru_name in ltags_country.SMRU_PLATFORM_CODE.unique():
+
+            # copy ncfile: 'fr1' if exists
+            folder_data_fr = folder_country / 'DATA_FULL_RES'
+            fname_orig = meop_filenames.fname_prof(smru_name,qf='fr1')
+            fname_copy = folder_data_fr / fname_orig.name
+            if rebuild and fname_copy.is_file():
+                os.remove(fname_copy)
+            if (not fname_copy.is_file()) and fname_orig.is_file():
+                if verbose:
+                    print('Publish: ',fname_orig.name,fname_orig.is_file())          
+                folder_data_fr.mkdir(parents=True, exist_ok=True)                        
+                shutil.copyfile(fname_orig,fname_copy)
+
+            # copy ncfile: create 'all' from hr1 and lr1
+            fname_orig1 = meop_filenames.fname_prof(smru_name,qf='lr1')
+            fname_orig2 = meop_filenames.fname_prof(smru_name,qf='hr1')
+            fname_copy = folder_data / meop_filenames.fname_prof(smru_name,qf='all').name
+            if rebuild and fname_copy.is_file():
+                os.remove(fname_copy)
+            if (not fname_copy.is_file()) and fname_orig1.is_file() and fname_orig2.is_file():
+                if verbose:
+                    print('Publish: ',fname_copy.name)
+                create_ncfile_all(smru_name,folder_data)
+    return
+
+
 # add plots
-def build_plots(publicdir_CTD, rebuild = False, verbose=False):
+def build_plots(publicdir_CTD, rebuild = False, verbose=True):
 
     lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=False)
     
     for country in list(lprofiles.COUNTRY.unique()):
         
+        if verbose:
+            print(country)
+            
         ldepl_country = ldeployments[ldeployments.COUNTRY==country]
         folder_country = publicdir_CTD / country
         folder_data = folder_country / 'DATA'
@@ -146,20 +200,6 @@ def build_plots(publicdir_CTD, rebuild = False, verbose=False):
             if not (folder_country/namefig).exists() or rebuild:
                 list_ncfile = list(folder_country.glob(f'**/{depl}*_all_prof.nc'))
                 meop_plot_data.plot_data_deployments(depl,namefig=namefig,list_fname_prof=list_ncfile)
-
-            # info for each tag
-            lprof = lprofiles[lprofiles.DEPLOYMENT_CODE==depl]
-            for smru_name in list(lprof.SMRU_PLATFORM_CODE.unique()):
-
-                # create a plot for the tag
-                namefig = folder_plots / (smru_name+'_data_description.png')                
-                if not namefig.is_file() or rebuild:
-                    if verbose:
-                        print('Generate plot:',smru_name)
-                    # figure based on fr1 if possible. Otherwise based on adjusted profiles
-                    fname = folder_data / meop_filenames.fname_prof(smru_name,qf='all').name
-                    if fname.is_file():
-                        create_tag_plots(fname,folder_plots,smru_name,'_INTERP')
 
             # info for each tag
             lprof = lprofiles[lprofiles.DEPLOYMENT_CODE==depl]
@@ -289,50 +329,9 @@ def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False,
     if copydata:
 
         print('...Generation of netCDF files')
-
-        lprofiles, ltags, ldeployments = meop_metadata.read_lists_metadata(rebuild=False,verbose=False,public=True,Tdata=False)
-
-        for COUNTRY in ldeployments.COUNTRY.unique():
-            folder_country = publicdir_CTD / COUNTRY
-            folder_country.mkdir(parents=True, exist_ok=True)
-            folder_data = folder_country / 'DATA'
-            folder_data.mkdir(parents=True, exist_ok=True)
-            folder_plots = folder_country / 'PLOTS'
-            folder_plots.mkdir(parents=True, exist_ok=True)
-    
-        for COUNTRY in ldeployments.COUNTRY.unique():
-
-            print(COUNTRY)
-            folder_country = publicdir_CTD / COUNTRY
-            folder_data = folder_country / 'DATA'
-            folder_plots = folder_country / 'PLOTS'
-
-            lprofiles_country, ltags_country, ldeployments_country = \
-                meop_metadata.filter_country(COUNTRY, lprofiles, ltags, ldeployments)
-
-            for smru_name in ltags_country.SMRU_PLATFORM_CODE.unique():
-
-                # copy ncfile: 'fr1' if exists
-                folder_data_fr = folder_country / 'DATA_FULL_RES'
-                fname_orig = meop_filenames.fname_prof(smru_name,qf='fr1')
-                fname_copy = folder_data_fr / fname_orig.name
-                if rebuild and fname_copy.is_file():
-                    os.remove(fname_copy)
-                if not fname_copy.is_file() and fname_orig.is_file():
-                    if verbose:
-                        print('Publish: ',fname_orig.name)          
-                    folder_data_fr.mkdir(parents=True, exist_ok=True)                        
-                    shutil.copyfile(fname_orig,fname_copy)
-                    
-                # copy ncfile: create 'all' from hr1 and lr1
-                fname_copy = folder_data / meop_filenames.fname_prof(smru_name,qf='all').name
-                if rebuild and fname_copy.is_file():
-                    os.remove(fname_copy)
-                if not fname_copy.is_file():
-                    if verbose:
-                        print('Publish: ',fname_orig.name)
-                    create_ncfile_all(smru_name,folder_data)
+        copy_data(publicdir_CTD,rebuild=rebuild)
                             
+
     if genplots:
 
         print('...Generation of plots')

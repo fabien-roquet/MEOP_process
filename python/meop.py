@@ -61,9 +61,11 @@ def N_PARAM(ds,PARAM,SUFFIX_PARAM='_ADJUSTED'):
     if PARAM+SUFFIX_PARAM+'_QC' in list(ds.variables):
         N_PARAM = np.sum(ds[PARAM+SUFFIX_PARAM+'_QC'].isin([b'1',b'8']),axis=1)
         N_PARAM = N_PARAM.where(N_PARAM!=0,np.nan)
-    else:
+    elif PARAM+SUFFIX_PARAM in list(ds.variables):
         N_PARAM = (~ds[PARAM+SUFFIX_PARAM].isnull()).sum(axis=1)
         N_PARAM = N_PARAM.where(N_PARAM!=0,np.nan)
+    else:
+        N_PARAM = xr.DataArray(np.zeros(ds.dims['N_PROF']),dims=['N_PROF'],coords={'N_PROF':np.arange(ds.dims['N_PROF'])})
     return N_PARAM
 
 
@@ -394,7 +396,10 @@ def plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None):
     N_LEVELS = 'N_LEVELS'
     if SUFFIX_PARAM=='_INTERP':
         N_LEVELS = 'N_INTERP'
-        
+    
+    if 'TEMP'+SUFFIX_PARAM not in ds.variables:
+        return None, None
+    
     if ds['TEMP'+SUFFIX_PARAM].sum(dim=N_LEVELS).sum().data==0:
         return None, None
     
@@ -505,9 +510,9 @@ def list_metadata(self):
         'JULD': ds['JULD'],
         'LATITUDE': ds['LATITUDE'].round(4),
         'LONGITUDE': ds['LONGITUDE'].round(4),
-        'N_TEMP' : meop.N_PARAM(ds,'TEMP'),
-        'N_PSAL' : meop.N_PARAM(ds,'PSAL'),
-        'N_CHLA' : meop.N_PARAM(ds,'CHLA')}
+        'N_TEMP' : N_PARAM(ds,'TEMP'),
+        'N_PSAL' : N_PARAM(ds,'PSAL'),
+        'N_CHLA' : N_PARAM(ds,'CHLA')}
     df = pd.DataFrame(data)
     df[['year','month','day']] = [[df.JULD[kk].year,df.JULD[kk].month,df.JULD[kk].day] for kk in range(len(df))]
     ltags = df.groupby('SMRU_PLATFORM_CODE').median()
