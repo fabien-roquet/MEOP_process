@@ -26,6 +26,12 @@ def fname_prof(smru_name,deployment='',qf='lr0'):
         deployment = deployment_from_smru_name(smru_name)
     return Path(processdir,'final_dataset_prof',deployment,smru_name+'_'+qf+'_prof.nc')
 
+# return ncARGO filename corresponding to a smru_name
+def fname_traj(smru_name,deployment=''):
+    if not deployment:
+        deployment = deployment_from_smru_name(smru_name)
+    return Path(processdir,'final_dataset_prof',deployment,smru_name+'_traj.nc')
+
 # return list of ncARGO filename
 def list_fname_prof(smru_name='',deployment='',qf='*',folder=processdir):
     if not deployment:

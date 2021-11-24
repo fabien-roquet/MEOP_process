@@ -22,7 +22,7 @@ d = jsondecode(fileread('configs.json'));
 if isempty(d.config),
     d.config = config_id();    
 end
-disp(['config name: ',d.config])
+%disp(['config name: ',d.config])
 
 try
     conf = getfield(d.configs,d.config);

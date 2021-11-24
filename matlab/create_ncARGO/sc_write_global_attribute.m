@@ -77,7 +77,7 @@ K2=find(ismember(conf.table_meta.smru_platform_code,smru_prefix));
 if length(K2)==1,
     var = conf.table_meta.Properties.VariableNames;
     for kk=1:length(var)
-        if iscell(conf.table_meta{K2,kk}),
+        if iscell(conf.table_meta{K2,kk}) && length(conf.table_meta{K2,kk}{:}),
             ncwriteatt(name_prof,'/',var{kk},conf.table_meta{K2,kk}{:});
         end
     end

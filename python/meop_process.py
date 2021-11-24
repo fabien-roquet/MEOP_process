@@ -100,7 +100,7 @@ def update_metadata(deployment='',smru_name=''):
     for smru_name in df_meta.index:
         meta_row = df_meta.loc[smru_name,:].dropna()
         for qf in modes:
-            namefile = meop.fname_prof(smru_name,qf=qf)        
+            namefile = meop_filenames.fname_prof(smru_name,qf=qf)        
             if Path(namefile).exists():
                 with netCDF4.Dataset(namefile,'a') as f:
                     for col in meta_row.keys():
@@ -111,6 +111,14 @@ def update_metadata(deployment='',smru_name=''):
 
 
 def process_tags(deployment='',smru_name=''):
+    
+    if smru_name:
+        print('Process tag :'+smru_name)
+        print('')
+    elif deployment:
+        print('Process deployment :'+deployment)
+        print('')
+    
     load_info_deployment(deployment=deployment,smru_name=smru_name)
     if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
         return False
