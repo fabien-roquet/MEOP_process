@@ -140,6 +140,23 @@ def process_tags(deployment='',smru_name=''):
     return True
 
 
+def create_hr2(deployment='',smru_name=''):
+    
+    if smru_name:
+        print('Process tag :'+smru_name)
+        print('')
+    elif deployment:
+        print('Process deployment :'+deployment)
+        print('')
+    
+    load_info_deployment(deployment=deployment,smru_name=smru_name)
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
+        return False
+    if not run_command("create_hr2(conf,EXP,one_smru_name);"):
+        return False
+    return True
+
+
 def generate_calibration_plots(deployment='',smru_name=''):
     load_info_deployment(deployment=deployment,smru_name=smru_name)
     if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
@@ -148,20 +165,6 @@ def generate_calibration_plots(deployment='',smru_name=''):
         return False
     return True
 
-
-def generate_descriptive_plots(smru_name='',deployment=''):
-    
-    list_qf = ['lr0','hr1','fr1']
-    
-    for qf in list_qf:
-
-        for smru_name in meop.list_smru_name(smru_name,deployment,qf=qf):
-            namefile = meop.fname_prof(smru_name,qf=qf)
-            ds = meop.open_dataset(namefile)
-            ds.plot_data_tags('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='profiles'))
-            ds.plot_TSsections('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='sections'))
-            ds.close()
-    
 
 # Execute in terminal command line
 if __name__ == "__main__":
@@ -176,8 +179,8 @@ if __name__ == "__main__":
     parser.add_argument("--deployment", default ='', help = "Process all tags in DEPLOYMENT_CODE")
     parser.add_argument("--do_all", help = "Process data and produce plots", action='store_true')
     parser.add_argument("--process_data", help = "Process data", action='store_true')
+    parser.add_argument("--create_hr2", help = "Create a netcdf combining hr1 and fr1", action='store_true')
     parser.add_argument("--calibration_plots", help = "Produce calibration plots", action='store_true')
-    parser.add_argument("--descriptive_plots", help = "Produce descriptive plots", action='store_true')
     
     # parse the arguments
     args = parser.parse_args()
@@ -186,19 +189,17 @@ if __name__ == "__main__":
     deployment = args.deployment
     
     
-    if (smru_name or deployment) and (args.do_all or args.process_data or args.calibration_plots):
+    if (smru_name or deployment) and (args.do_all or args.process_data or args.create_hr2 or args.calibration_plots):
         start_matlab()
         conf = init_mirounga()
         if args.process_data or args.do_all:
             process_tags(deployment=deployment,smru_name=smru_name)
+        if args.create_hr2 or args.do_all:
+            create_hr2(deployment=deployment,smru_name=smru_name)
         if args.calibration_plots or args.do_all:
             generate_calibration_plots(deployment=deployment,smru_name=smru_name)
         stop_matlab()
-    
-    if (smru_name or deployment) and (args.do_all or args.descriptive_plots):
-        if args.descriptive_plots or args.do_all:
-            generate_descriptive_plots(smru_name=smru_name,deployment=deployment)
-        
+            
 
         
 

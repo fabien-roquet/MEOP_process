@@ -25,7 +25,7 @@ for ll=1:length(list_tag),
     name_prof_fr1 = gen_name_prof(smru_prefix,Nsplit,'fr1',info_deployment.dir);
     name_prof_hr2 = gen_name_prof(smru_prefix,Nsplit,'hr2',info_deployment.dir);
     
-    if ~ismember(smru_name,conf.hr_smru_name),
+    if ~ismember(smru_name,conf.hr_smru_name) || ~isfile(name_prof_fr1),
         disp(['  ' smru_name ': hr1 --> hr2'])
         copyfile(name_prof_hr1, name_prof_hr2,'f');
         continue;
