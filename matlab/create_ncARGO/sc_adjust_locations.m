@@ -49,7 +49,13 @@ for index=1:length(list_tag),
     velo = diff(dist)./diff(jul)/86.4; % in m/s
     I=find(velo>3); Ibad = intersect(I,I+1); Ibad=setdiff(Ibad,[1 length(dist)]);
     if length(Ibad)>0
-        jul1=jul; jul1(Ibad)=[]; lat1=newlat; lat1(Ibad)=[]; lon1=newlon; lon1(Ibad)=[];
+        jul1=jul; jul1(Ibad)=[]; 
+        lat1=newlat; lat1(Ibad)=[]; 
+        lon1=newlon; lon1(Ibad)=[];
+        I = find(diff(jul1)==0);
+        if length(I)
+            jul1(I)=[]; lat1(I)=[]; lon1(I)=[];
+        end
         newlat(Ibad) = interp1(jul1,lat1,jul(Ibad));
         newlon(Ibad) = interp1(jul1,lon1,jul(Ibad));
     end

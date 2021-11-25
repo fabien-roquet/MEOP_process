@@ -52,19 +52,6 @@ def remove_bad_locations():
             lprofiles.to_pickle(file_pkl)
 
 
-def generate_descriptive_plots(smru_name='',deployment=''):
-    
-    list_qf = ['lr0','hr1','fr1']
-    
-    for qf in list_qf:
-
-        for smru_name in meop.list_smru_name(smru_name,deployment,qf=qf):
-            namefile = meop.fname_prof(smru_name,qf=qf)
-            ds = meop.open_dataset(namefile)
-            ds.plot_data_tags('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='profiles'))
-            ds.plot_TSsections('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='sections'))
-            ds.close()
-    
 
     
 
@@ -78,19 +65,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # add arguments to the parser
-    parser.add_argument("--smru_name", default ='', help = "Process only SMRU PLATFORM CODE. Value of DEPLOYMENT_CODE not considered.")
-    parser.add_argument("--deployment", default ='', help = "Process all tags in DEPLOYMENT_CODE")
     parser.add_argument("--do_all", help = "Process data and produce plots", action='store_true')
-    parser.add_argument("--descriptive_plots", help = "Produce descriptive plots", action='store_true')
+    parser.add_argument("--remove_bad_locations", help = "Produce descriptive plots", action='store_true')
     
     # parse the arguments
     args = parser.parse_args()
-
-    smru_name = args.smru_name
-    deployment = args.deployment
     
-    if args.descriptive_plots or args.do_all:
-        generate_descriptive_plots(smru_name=smru_name,deployment=deployment)
+    if args.remove_bad_locations or args.do_all:
+        remove_bad_locations()
         
 
         

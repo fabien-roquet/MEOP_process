@@ -4,7 +4,7 @@ import shutil
 
 
 
-version = 'MEOP-CTD_2021-10-26'
+version = 'MEOP-CTD_2021-11-26'
 
 
 processdir = Path.home() / 'MEOP_process'

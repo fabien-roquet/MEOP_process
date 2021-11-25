@@ -54,20 +54,35 @@ def copy_netcdf_variable(nc_in,var_name_in,var_dims_in,nc_out,var_name_out,var_d
 def create_ncfile_all(smru_name,folder_out):
     
     # copy lr1 in all
-    ncfile_in = meop_filenames.fname_prof(smru_name,qf='lr1')
+    ncfile_in_lr1 = meop_filenames.fname_prof(smru_name,qf='lr1')
+    ncfile_in_fr1 = meop_filenames.fname_prof(smru_name,qf='fr1')
+    ncfile_in_hr1 = meop_filenames.fname_prof(smru_name,qf='hr1')
+    ncfile_in_hr2 = meop_filenames.fname_prof(smru_name,qf='hr2')
     ncfile_out = folder_out / meop_filenames.fname_prof(smru_name,qf='all').name
 
-    if ncfile_in.is_file() and (not ncfile_out.is_file()):
+    if ncfile_in_fr1.is_file() and (not ncfile_out.is_file()):
         
-        shutil.copyfile(ncfile_in,ncfile_out)
-
-        # copy ADJUSTED values in hr1 in INTERP variables
-        ncfile_add = meop_filenames.fname_prof(smru_name,qf='hr1')
-        copy_netcdf_variable(ncfile_add,'PRES_ADJUSTED',('N_PROF', 'N_LEVELS'),\
+        shutil.copyfile(ncfile_in_hr2,ncfile_out)
+        
+        # copy ADJUSTED values in hr2 in INTERP variables. In this case, ADJUSTED = INTERP
+        copy_netcdf_variable(ncfile_in_hr2,'PRES_ADJUSTED',('N_PROF', 'N_LEVELS'),\
                                   ncfile_out,'PRES_INTERP',('N_PROF', 'N_INTERP'))
-        copy_netcdf_variable(ncfile_add,'TEMP_ADJUSTED',('N_PROF', 'N_LEVELS'),\
+        copy_netcdf_variable(ncfile_in_hr2,'TEMP_ADJUSTED',('N_PROF', 'N_LEVELS'),\
                                   ncfile_out,'TEMP_INTERP',('N_PROF', 'N_INTERP'))
-        copy_netcdf_variable(ncfile_add,'PSAL_ADJUSTED',('N_PROF', 'N_LEVELS'),\
+        copy_netcdf_variable(ncfile_in_hr2,'PSAL_ADJUSTED',('N_PROF', 'N_LEVELS'),\
+                                  ncfile_out,'PSAL_INTERP',('N_PROF', 'N_INTERP'))
+    
+        
+    elif ncfile_in_lr1.is_file() and (not ncfile_out.is_file()):
+        
+        shutil.copyfile(ncfile_in_lr1,ncfile_out)
+
+        # copy ADJUSTED values in hr1 in INTERP variables       
+        copy_netcdf_variable(ncfile_in_hr1,'PRES_ADJUSTED',('N_PROF', 'N_LEVELS'),\
+                                  ncfile_out,'PRES_INTERP',('N_PROF', 'N_INTERP'))
+        copy_netcdf_variable(ncfile_in_hr1,'TEMP_ADJUSTED',('N_PROF', 'N_LEVELS'),\
+                                  ncfile_out,'TEMP_INTERP',('N_PROF', 'N_INTERP'))
+        copy_netcdf_variable(ncfile_in_hr1,'PSAL_ADJUSTED',('N_PROF', 'N_LEVELS'),\
                                   ncfile_out,'PSAL_INTERP',('N_PROF', 'N_INTERP'))
     
     return ncfile_out
@@ -76,6 +91,7 @@ def create_ncfile_all(smru_name,folder_out):
 # publish meop-ctd data in 
 def copy_license(folder_out):
     shutil.copyfile((processdir / 'README_licenseODbl.txt'),(Path(folder_out) / 'README_licenseODbl.txt'))
+    shutil.copyfile((processdir / 'seamammal_user_manual_version1.2.pdf'),(Path(folder_out) / 'seamammal_user_manual_version1.2.pdf'))
     return
 
 
@@ -400,42 +416,37 @@ def compress_public_data(publicdir_CTD, rebuild = False):
     
 
 # publish meop-ctd data in 
-def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False, global_attributes=False, genplots=False, genmaps=False, compress=False, rebuild=False, verbose=False):
+def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False, global_attributes=False, genplots=False, genmaps=False, compress=False, rebuild=False, verbose=False, create_list_profile = False):
 
     publicdir_CTD.mkdir(parents=True, exist_ok=True)
-    lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=rebuild)
-    
     if len(os.listdir(publicdir_CTD)):
         print(f'Warning: the public directory where to store public data {publicdir_CTD} is not empty. Risk of data corruption.')
+        
+    if copydata:
+        print('...Generation of netCDF files')
+        copy_data(publicdir_CTD,rebuild=rebuild)
+                            
+    if create_list_profile:
+        lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=True)
+    else:
+        lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=False)
     
     # copy license information
     copy_license(publicdir_CTD)
 
-    if copydata:
-
-        print('...Generation of netCDF files')
-        copy_data(publicdir_CTD,rebuild=rebuild)
-                            
-
     if global_attributes:
-
         print('...Update global attributes')
         update_global_attributes(publicdir_CTD)
                             
-
     if genplots:
-
         print('...Generation of plots')
         build_plots(publicdir_CTD,rebuild=rebuild)
-        
-        
+                
     if genmaps:
-
         print('...Generation of maps')
         build_maps(publicdir_CTD,rebuild=rebuild)
             
-    if compress:
-        
+    if compress:        
         print('...Compress files')
         compress_public_data(publicdir_CTD,rebuild=rebuild)
         
@@ -454,7 +465,9 @@ if __name__ == "__main__":
     # add arguments to the parser
     parser.add_argument("--path_public", help = "Provide path to public folder")
     parser.add_argument("--version", help = "Provide version of database")
+    parser.add_argument("--do_all", help = "Do all", action='store_true')
     parser.add_argument("--copydata", help = "Copy data", action='store_true')
+    parser.add_argument("--create_list_profile", help = "Create csv files with list of profiles", action='store_true')
     parser.add_argument("--global_attributes", help = "Update a few global attributes", action='store_true')    
     parser.add_argument("--genplots", help = "Generate plots", action='store_true')
     parser.add_argument("--genmaps", help = "Generate maps", action='store_true')
@@ -477,5 +490,21 @@ if __name__ == "__main__":
     publicdir_CTD = folder_public / version
     print('Publish in public folder: '+str(publicdir_CTD))
     
-    publish_meop_ctd(publicdir_CTD, copydata=args.copydata, global_attributes=args.global_attributes, genplots=args.genplots, genmaps=args.genmaps, compress=args.compress, rebuild=args.rebuild)
+    if args.do_all:
+        args.copydata = True
+        args.create_list_profile = True
+        args.global_attributes = True
+        args.genplots = True
+        args.genmaps = True
+        args.compress = True
+        
+    publish_meop_ctd(publicdir_CTD, \
+                     copydata=args.copydata, \
+                     create_list_profile = args.create_list_profile, \
+                     global_attributes=args.global_attributes, \
+                     genplots=args.genplots, \
+                     genmaps=args.genmaps, \
+                     compress=args.compress, \
+                     rebuild=args.rebuild, \
+                     )
     

@@ -149,6 +149,19 @@ def generate_calibration_plots(deployment='',smru_name=''):
     return True
 
 
+def generate_descriptive_plots(smru_name='',deployment=''):
+    
+    list_qf = ['lr0','hr1','fr1']
+    
+    for qf in list_qf:
+
+        for smru_name in meop.list_smru_name(smru_name,deployment,qf=qf):
+            namefile = meop.fname_prof(smru_name,qf=qf)
+            ds = meop.open_dataset(namefile)
+            ds.plot_data_tags('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='profiles'))
+            ds.plot_TSsections('_ADJUSTED',namefig=meop.fname_plots(smru_name,qf=qf,suffix='sections'))
+            ds.close()
+    
 
 # Execute in terminal command line
 if __name__ == "__main__":
@@ -164,6 +177,7 @@ if __name__ == "__main__":
     parser.add_argument("--do_all", help = "Process data and produce plots", action='store_true')
     parser.add_argument("--process_data", help = "Process data", action='store_true')
     parser.add_argument("--calibration_plots", help = "Produce calibration plots", action='store_true')
+    parser.add_argument("--descriptive_plots", help = "Produce descriptive plots", action='store_true')
     
     # parse the arguments
     args = parser.parse_args()
@@ -181,6 +195,10 @@ if __name__ == "__main__":
             generate_calibration_plots(deployment=deployment,smru_name=smru_name)
         stop_matlab()
     
+    if (smru_name or deployment) and (args.do_all or args.descriptive_plots):
+        if args.descriptive_plots or args.do_all:
+            generate_descriptive_plots(smru_name=smru_name,deployment=deployment)
         
 
         
+

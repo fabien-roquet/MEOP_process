@@ -15,19 +15,20 @@
 #python meop_process.py --deployment ft23 --do_all
 #python meop_process.py --deployment ct81 --do_all
 #python meop_process.py --deployment ct125 --do_all
-
-#problem with location!?
-python meop_process.py --deployment ct104 --do_all
-
+#python meop_process.py --deployment ct104 --do_all
 #python meop_process.py --deployment ct134 --do_all
 #python meop_process.py --deployment ct10 --do_all
 #python meop_process.py --deployment ct107 --do_all
 
+python meop_postprocess.py --do_all
 
-python meop_publish.py --copydata --rebuild
+#python meop_publish.py --do_all
+
+python meop_publish.py --copydata
 python meop_publish.py --global_attributes
-python meop_publish.py --genplots --rebuild
-python meop_publish.py --genmaps --rebuild
-python meop_publish.py --compress --rebuild
+python meop_publish.py --create_list_profile
+python meop_publish.py --genplots
+python meop_publish.py --genmaps
+python meop_publish.py --compress
 
 
