@@ -26,16 +26,16 @@ For any questions, contact info@meop.net or fabien.roquet@gu.se
 
 DATA FORMATS
 
-Binary netCDF formats for hydrographic profiles:
-The ncARGO format: For a thorough scientific use of the data, or for oceanographic data centers, it is advised to use the marine mammal netCDF format (files in DATA_ncARGO) as it serves as the reference. This format can be easily read in Ocean Data View  using the Import/ARGO profiles/Float profiles menu, or using your favorite data processing software (e.g. Python, Matlab, IDL). Matlab tools and python tools are also available publicly to read and manipulate files in netCDF format. 
+Data is distributed using a standardized data format using the netCDF binary format, the SEA-MAMMALS NETCDF DATA FORMAT. We are currently using the version 1.2 of this format
+
+netCDF formats for hydrographic profiles:
+The netCDF profile format: For a thorough scientific use of the data, or for oceanographic data centers, it is advised to use the sea mammal netCDF format as it serves as the reference. This format can be easily read in Ocean Data View  using the Import/ARGO profiles/Float profiles menu, or using your favorite data processing software (e.g. Python, Matlab, IDL). Matlab and python tools are also available publicly to read and manipulate files in netCDF format. 
+
+csv files listing all profiles, loggers and deployments:
+To facilitate the exploration of MEOP-CTD data, csv files have been created that list all the available profiles (list_profiles.csv), all available tags (list_tags.csv) and all available deployments (list_deployments.csv). The information listed in these tables is derived from the netCDF files and includes geolocation, platform names, dates, owner, etc.
 
 Binary netCDF formats for timeseries:
-DATA_ncTRAJ: This is the format used to store and distribute timeseries data.
-
-Text-file Formats :
-DATA_csv_interp: A csv format (ASCII) is also provided (files in DATA_csv_interp) which can be opened with Excel or any text editor. Here, only data flagged as good are included, and are given on a regular vertical grid (1dbar spacing).
-METADATA: Complementary text files compiling the names and values of metadata in a simple text file. The metadata found in this file consists of the list of global attributes and their values in the corresponding netCDF file.
-
+The netCDF traj format: This format is used to store and distribute trajectory  ata obtained when data archiving loggers are retrieved. In this netCDF format, data are given as a function of time (given as Julian days since 01-01-1950) and hydrographic data are non-adjusted. 
 
 
 
