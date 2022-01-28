@@ -16,12 +16,11 @@ end
 % don't process it if no raw odv file
 info_deployment=load_info_deployment(conf,EXP,one_smru_name);
 if ~exist([conf.rawdir info_deployment.nomfic]),
-    error(sprintf('%s: no raw file. not processed.',EXP));
+    disp(sprintf('%s: no raw file. not processed.',EXP));
+else,
+    delete([conf.plotdir EXP '/' one_smru_name '*.png'])
+    delete([conf.calibplotdir EXP '/' one_smru_name '*.png'])
+    delete([info_deployment.dir '/' one_smru_name '*.nc'])
+    delete([info_deployment.dir '/' one_smru_name '*.txt'])
+    delete([info_deployment.dir '/' one_smru_name '*.json'])
 end
-
-delete([conf.plotdir EXP '/' one_smru_name '*.png'])
-delete([conf.calibplotdir EXP '/' one_smru_name '*.png'])
-delete([info_deployment.dir '/' one_smru_name '*.nc'])
-delete([info_deployment.dir '/' one_smru_name '*.txt'])
-delete([info_deployment.dir '/' one_smru_name '*.json'])
-

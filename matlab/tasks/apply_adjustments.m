@@ -20,7 +20,9 @@ info_deployment=load_info_deployment(conf,EXP,one_smru_name);
 list_tag = info_deployment.list_smru_name;
 for ktag=1:length(list_tag),
     if ~ismember(conf.table_coeff.Properties.RowNames,list_tag{ktag}),
-        conf.table_coeff{list_tag{ktag},:}=[zeros(1,6) NaN];
+        new_tag = {0,0,0,0,0,0,'no comment'};
+        conf.table_coeff=[conf.table_coeff;new_tag];
+        conf.table_coeff.Properties.RowNames{end}=list_tag{ktag};
         name_file=[conf.processdir 'table_coeff.csv'];
         writetable(conf.table_coeff,name_file,'WriteRowNames',1,'Delimiter',',');
     end
