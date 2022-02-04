@@ -390,7 +390,7 @@ def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
         
         
 @add_method(xr.Dataset)
-def plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None):
+def plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None,pmax=1000):
 
     ds = self
     
@@ -420,9 +420,9 @@ def plot_data_tags(self,SUFFIX_PARAM='_ADJUSTED',namefig=None):
     for key in ax:
         ax[key].set_prop_cycle(custom_cycler)
 
-    ds.plot_profiles('TEMP',SUFFIX_PARAM,ax=ax['T'])
-    ds.plot_profiles('PSAL',SUFFIX_PARAM,ax=ax['S'])
-    ds.plot_profiles('SIG0',SUFFIX_PARAM,ax=ax['D'])
+    ds.plot_profiles('TEMP',SUFFIX_PARAM,ax=ax['T'],pmax=pmax)
+    ds.plot_profiles('PSAL',SUFFIX_PARAM,ax=ax['S'],pmax=pmax)
+    ds.plot_profiles('SIG0',SUFFIX_PARAM,ax=ax['D'],pmax=pmax)
     ds.plot_TSdiag(SUFFIX_PARAM,ax=ax['TS'])
 
     # main title

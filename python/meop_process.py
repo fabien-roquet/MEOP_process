@@ -166,6 +166,23 @@ def generate_calibration_plots(deployment='',smru_name=''):
     return True
 
 
+def generate_doc_latex(deployment='',smru_name=''):
+    load_info_deployment(deployment=deployment,smru_name=smru_name)
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
+        return False
+    if not run_command("generate_plot2(conf,EXP,one_smru_name);"):
+        return False
+    return True
+
+def export_odv4(deployment='',smru_name=''):
+    load_info_deployment(deployment=deployment,smru_name=smru_name)
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
+        return False
+    if not run_command("generate_odv4(conf,EXP,one_smru_name);"):
+        return False
+    return True
+
+
 # Execute in terminal command line
 if __name__ == "__main__":
 
@@ -181,6 +198,8 @@ if __name__ == "__main__":
     parser.add_argument("--process_data", help = "Process data", action='store_true')
     parser.add_argument("--create_hr2", help = "Create a netcdf combining hr1 and fr1", action='store_true')
     parser.add_argument("--calibration_plots", help = "Produce calibration plots", action='store_true')
+    parser.add_argument("--doc_latex", help = "Generate a pdf document with latex", action='store_true')
+    parser.add_argument("--export_odv4", help = "Generate a pdf document with latex", action='store_true')
     
     # parse the arguments
     args = parser.parse_args()
@@ -198,6 +217,10 @@ if __name__ == "__main__":
             create_hr2(deployment=deployment,smru_name=smru_name)
         if args.calibration_plots or args.do_all:
             generate_calibration_plots(deployment=deployment,smru_name=smru_name)
+        if args.doc_latex or args.do_all:
+            generate_doc_latex(deployment=deployment,smru_name=smru_name)
+        if args.export_odv4 or args.do_all:
+            export_odv4(deployment=deployment,smru_name=smru_name)
         stop_matlab()
             
 

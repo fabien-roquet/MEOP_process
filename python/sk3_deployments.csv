@@ -1,0 +1,4 @@
+,ref,PTT,ON_DATE,OFF_DATE,SPECIES,LOCATION,HOME_LAT,HOME_LON,VMASK_THRESHOLD,PROG,PARMS,BODY,COMMENTS,N_PTTS,TEST_DATE,T_OFFSET,T_SCALE,GREF,NAME,YEAR,RECOVERED,WMO
+0,"""sk3-13219-15""",145018,"""08/05/15 00:00:00""",,"""Salmon shark""","""Alaska""",60.700,-146.192,20,"""SEALOG.145""","""SHAR_15A""",13219,"""Barbara Block; CTD twin tag;""",,"""07/10/15 00:00:00""",0.0,0.000,"""sk3""","""13219""",2015,"""N""",785
+1,"""sk3-14021-15""",145017,"""08/05/15 00:00:00""",,"""Salmon shark""","""Alaska""",60.700,-146.192,20,"""SEALOG.145""","""SHAR_15A""",14021,"""Barbara Block; CTD single tag;""",,"""07/10/15 00:00:00""",0.0,0.000,"""sk3""","""14021""",2015,"""N""",
+2,,,,,,,,,,,,,,,,,,,,,,
