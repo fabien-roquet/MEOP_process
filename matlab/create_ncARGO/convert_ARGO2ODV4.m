@@ -88,7 +88,11 @@ for ii=1:length(I),
         end
         if isoxy
             if Omask(pp,I(ii)),
-                str = sprintf('%s%8.4f\t0\t',str,DOXY(pp,I(ii)));
+                if DOXY(pp,I(ii))==1 ||DOXY(pp,I(ii))==0
+                    str = sprintf('%sNaN\t0\t',str);
+                else
+                    str = sprintf('%s%8.4f\t0\t',str,DOXY(pp,I(ii)));
+                end
             else
                 str = sprintf('%s\t1\t',str);
             end

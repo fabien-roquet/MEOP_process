@@ -23,10 +23,18 @@ end
 diary_file = [info_deployment.dir EXP '_diary.txt'];
 diary(diary_file)
 
+
+
+
+
+
+
+
+
+
 % create netcdf HR traj and prof if FR data exist
 list_tag = info_deployment.list_tag;
 list_deployment_hr = conf.list_deployment_hr;
-
 for index=1:length(list_tag)
     
     smru_name = info_deployment.list_smru_name{index};
@@ -87,7 +95,18 @@ for index=1:length(list_tag)
         [statdives,info_ana_dives,statdivestxt,datadives,datadivestxt,chg,daindexes] = ...
             ana_dives_fabien(tdr);
         Ibeg = daindexes(2,:)';
-        Iend = chg(2,:)';
+        seuil_depth=2;% pour avoir les profils jusqu'à la surface
+        Iend=[];
+        for kk=1:length(statdives)-1
+            K=find(tdr(chg(2,kk):chg(1,kk+1),2)<seuil_depth);
+            if length(K)>0
+               Iend(kk,1)=chg(2,kk)+K(1)-1; 
+            else
+                Iend(kk,1) = chg(2,kk);
+            end
+        
+        end
+        Iend(end+1)=chg(2,end);
     else
         Ibeg = [1;find(abs(diff(hrdata.P))>10)];
         Iend = [find(abs(diff(hrdata.P))>10)-1;length(Ibeg)];

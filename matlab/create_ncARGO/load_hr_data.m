@@ -11,13 +11,23 @@ function hrdata = load_hr_data(name_hr_file,continuous)
     Fluo = [strfind(tline,'Fluo') strfind(tline,'FLUORO')];
     Oxy = strfind(tline,'Oxy');
     Light = strfind(tline,'PPFD');
+    % sur les nouveaux fichiers hr il y a 3 colonnes de pressions en plus
+    newfile=strfind(tline,'PRESSURE_RE_SURFACE');
     hrdata.isfluo=length(Fluo); hrdata.isoxy=length(Oxy); hrdata.islight=length(Light);
     hrdata.continuous = continuous;
     
     try
-        if ~hrdata.isfluo & ~hrdata.isoxy & ~hrdata.islight
+        if ~hrdata.isfluo & ~hrdata.isoxy & ~hrdata.islight & ~newfile % ancien fichier HR ctd
             [str_date,P,T,S] = ...
                 textread(name_hr_file,'%s%f%f%*f%f%*[^\n]',...
+                'delimiter','\t','headerlines',1);
+            hrdata.F=T.*NaN;
+            hrdata.O=T.*NaN;
+            hrdata.L=T.*NaN;
+            
+        elseif  ~hrdata.isfluo & ~hrdata.isoxy & ~hrdata.islight & newfile % nouveau fichier HR ctd
+            [str_date,P,T,S] = ...
+                textread(name_hr_file,'%s%f%*f%*f%f%*f%f%*[^\n]',...
                 'delimiter','\t','headerlines',1);
             hrdata.F=T.*NaN;
             hrdata.O=T.*NaN;
@@ -82,10 +92,25 @@ function hrdata = load_hr_data(name_hr_file,continuous)
         disp(['Error reading file: ' name_hr_file]);
     end
     
-    hrdata.date = datenum(str_date,'yyyy/mm/dd HH:MM:SS');      
+    % correction des bugs temporelles des nouvelles CTD, dans le fichier
+    % csv il y a parfois 2 fois la même seconde répéété ce qui fait bugger
+    % l'interpolation par la suite. On supprime ici les secondes en double
+    datemat=datenum(str_date,'yyyy/mm/dd HH:MM:SS');
+    I=find(diff(datemat)<=0);
+    if length(I)>0
+        P(I)=[];
+        T(I)=[];
+        S(I)=[];
+        hrdata.F(I)=[];
+        hrdata.O(I)=[];
+        hrdata.L(I)=[];
+        datemat(I)=[];
+    end
+    hrdata.date = datemat;      
     hrdata.P=P;
     hrdata.T=T;
     hrdata.S=S;
+   
 
     % soucis dans les fichiers tres haute resolution la salinite a des
     % valeurs completements fausses a� la remontee ( svt egale a 0 ou negative)

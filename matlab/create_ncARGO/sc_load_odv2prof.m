@@ -43,13 +43,18 @@ elseif length(Fluo)==0 & length(Oxy)==0
         'delimiter',';','headerlines',2);
     F=T.*NaN;
     O=T.*NaN;
-    L=T.*NaN;    
-elseif length(Fluo)>0 & length(Oxy)>0    
+    L=T.*NaN;
+elseif length(Fluo)>0 & length(Oxy)>0 & length(Light)>0
+    [smru_names,numProf,date,lon,lat,P,T,S,F,L,O] = ...
+        textread([conf.rawdir info_deployment.nomfic],'%s%d%*s%s%f%f%*d%f%f%f%f%f%f',...
+        'delimiter',';','headerlines',2);
+    isfluo=double(length(find(F~=999))~=0); isoxy=double(length(find(O~=999))~=0);islight=double(length(find(L~=999))~=0);
+elseif length(Fluo)>0 & length(Oxy)>0
     [smru_names,numProf,date,lon,lat,P,T,S,F,O] = ...
         textread([conf.rawdir info_deployment.nomfic],'%s%d%*s%s%f%f%*d%f%f%f%f%f',...
         'delimiter',';','headerlines',2);
     isfluo=double(length(find(F~=999))~=0); isoxy=double(length(find(O~=999))~=0);
-    L=T.*NaN;    
+    L=T.*NaN;
 elseif length(Light)>0
     [smru_names,numProf,date,lon,lat,P,T,S,F,L] = ...
         textread([conf.rawdir info_deployment.nomfic],'%s%d%*s%s%f%f%*d%f%f%f%f%f',...
