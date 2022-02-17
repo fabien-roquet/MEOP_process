@@ -128,6 +128,8 @@ def process_tags(deployment='',smru_name=''):
         return False
     if not run_command("create_fr0(conf,EXP,one_smru_name);"):
         return False
+    if not run_command("create_fr0_without_lr0(conf,EXP,one_smru_name);"):
+        return False
     if not run_command("update_metadata(conf,EXP,one_smru_name);"):
         return False
     update_metadata(deployment=deployment,smru_name=smru_name)
