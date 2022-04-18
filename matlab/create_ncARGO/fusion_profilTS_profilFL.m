@@ -1,6 +1,5 @@
   
-EXP='ct165';
-cd('D:\Documents\MATLAB');
+function fusion_profilTS_profilFL(EXP)
 fid = fopen([EXP '_ODV.txt']);
 tline = fgetl(fid);
 tline = fgetl(fid);
@@ -142,65 +141,6 @@ Tbis(I)=999;
 I=find(isnan(Sbis));
 Sbis(I)=999;
 
-%%
-% for ii=2:length(profil)
-%     Ideb=find(strcmp(date,profil(ii)) & strcmp(tag(ia(ii)),tag));
-%     Ifin=find(numProf(Ideb+1:end)~=0);
-%     if Ifin
-%         Ifin=Ideb+Ifin(1)-1;
-%     else
-%         Ifin=length(numProf);
-%     end
-%     start=find(strcmp(datefl,profil(ii)) & strcmp(tag(ia(ii)),tagfl));
-%     if start
-%         for jj=1:length(start)
-%             Jdeb=start(jj);
-%             Jfin=find(numProffl(Jdeb+1:end)~=0);
-%             if Jfin
-%                 Jfin=Jdeb+Jfin(1)-1;
-%             else
-%                 Jfin=length(numProffl);
-%             end
-%             if length(find(F(Jdeb:Jfin)~=999))>1
-%                 Fprof=interp1(Pfl(Jdeb:Jfin),F(Jdeb:Jfin),P(Ideb:Ifin));
-%             else
-%                 Fprof=F(Jdeb:Jfin);
-%             end
-%             if length(find(L(Jdeb:Jfin)~=999))>1
-%                 Lprof=interp1(Pfl(Jdeb:Jfin),L(Jdeb:Jfin),P(Ideb:Ifin));
-%             else
-%                 Lprof=L(Jdeb:Jfin);
-%             end
-%         end                    
-%         tagbis=[tagbis;tag(Ideb:Ifin)];
-%         numProfbis=[numProfbis;numProf(Ideb:Ifin)];
-%         datebis=[datebis;date(Ideb:Ifin)];
-%         lonbis=[lonbis;lon(Ideb:Ifin)];
-%         latbis=[latbis;lat(Ideb:Ifin)];
-%         Pbis=[Pbis;P(Ideb:Ifin)];
-%         Tbis=[Tbis;T(Ideb:Ifin)];
-%         Sbis=[Sbis;S(Ideb:Ifin)];
-%         Fbis=[Fbis;Fprof];
-%         Lbis=[Lbis;Lprof];
-%         
-% 
-%       
-%     else
-%         Fbis=[Fbis;T(Ideb:Ifin)*0+999];
-%         Lbis=[Lbis;T(Ideb:Ifin)*0+999];
-%         tagbis=[tagbis;tag(Ideb:Ifin)];
-%         numProfbis=[numProfbis;numProf(Ideb:Ifin)];
-%         datebis=[datebis;date(Ideb:Ifin)];
-%         lonbis=[lonbis;lon(Ideb:Ifin)];
-%         latbis=[latbis;lat(Ideb:Ifin)];
-%         Pbis=[Pbis;P(Ideb:Ifin)];
-%         Tbis=[Tbis;T(Ideb:Ifin)];
-%         Sbis=[Sbis;S(Ideb:Ifin)];
-%         
-%     end
-%    
-% end
-%%
 fid=fopen([EXP '_ODV_All.txt'],'w');
 fprintf(fid,'// Generic ODV file \n'); 
 fprintf(fid,'Cruise;Station;Type;yyyy-mm-dd hh:mm;Longitude [degrees_east];Latitude [degrees_north];Bot. Depth [m];Pressure [dbar];Temperature [C];Salinity [PSU];Fluorescence [mg/l];Light [ln(PPFD)];Oxygen \n');

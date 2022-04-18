@@ -29,7 +29,7 @@ if 1==0,
 end
 
 %% load deployment information
-name_json = [conf.json 'deployment2.json'];
+name_json = [conf.json 'deployment3.json'];
 filetext = fileread(name_json);
 deployment_json = jsondecode(filetext);
 
@@ -67,7 +67,7 @@ conf.list_deployment_json = {deployment_json(:).deployment_code};
 
 
 %% load platform information
-name_json = [conf.json 'platform2.json'];
+name_json = [conf.json 'platform3.json'];
 filetext = fileread(name_json);
 platform_json = jsondecode(filetext);
 deployment_code_json=unique({platform_json(:).deployment_code});
@@ -76,6 +76,7 @@ name_json = [conf.json 'platform2_patch.json'];
 filetext = fileread(name_json);
 platform_patch_json = jsondecode(filetext);
 for kk=1:length(platform_patch_json),
+    platform_patch_json(kk).cond_sensor='';
     if ismember(platform_patch_json(kk).deployment_code,conf.list_deployment_code) ...
             && ~ismember(platform_patch_json(kk).deployment_code,deployment_code_json),
         platform_json=[platform_json;platform_patch_json(kk)];
