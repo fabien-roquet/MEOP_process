@@ -20,6 +20,9 @@ publicdir_CTD = publicdir / version
 def deployment_from_smru_name(smru_name):
     return smru_name.split("-")[0]
 
+def smru_name_from_fname_prof(fname_prof):
+    return fname_prof.name.split('_')[0]
+
 # return ncARGO filename corresponding to a smru_name
 def fname_prof(smru_name,deployment='',qf='lr0'):
     if not deployment:

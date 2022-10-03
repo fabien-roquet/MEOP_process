@@ -66,7 +66,7 @@ def plot_map_deployments(df,groupby='SMRU_PLATFORM_CODE',rebuild=False,
                          figsize=(15, 15)
                         ):
 
-    if (Path(folder) / namefig).exists() and (not rebuild) and (not show_plot):
+    if namefig and (Path(folder) / namefig).exists() and (not rebuild) and (not show_plot):
         return None
 
     fig = plt.figure(figsize=figsize)

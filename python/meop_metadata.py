@@ -12,7 +12,7 @@ processdir = meop_filenames.processdir
 
 # list functions
 
-#  read_list_profiles(rebuild=False,verbose=False,public=False,Tdata=False,country=None,qf='lr0')
+#  read_lists_metadata(rebuild=False,verbose=False,public=False,Tdata=False,country=None,qf='lr0')
 
 #  filter_public_data(lprofiles, ltags, ldeployments)
 #  filter_profiles_with_Tdata(lprofiles, ltags, ldeployments)

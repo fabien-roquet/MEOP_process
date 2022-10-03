@@ -12,7 +12,7 @@ function hrdata = load_hr_data(name_hr_file,continuous)
     Oxy = strfind(tline,'Oxy');
     Light = strfind(tline,'PPFD');
     % sur les nouveaux fichiers hr il y a 3 colonnes de pressions en plus
-    newfile=strfind(tline,'PRESSURE_RE_SURFACE');
+    newfile = length(strfind(tline,'PRESSURE_RE_SURFACE'));
     hrdata.isfluo=length(Fluo); hrdata.isoxy=length(Oxy); hrdata.islight=length(Light);
     hrdata.continuous = continuous;
     

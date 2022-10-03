@@ -1754,8 +1754,8 @@ ct147-897-18,0,0,0,0,0,0,no comment
 ct147-898-18,0,0,0,0,0,0,no comment
 ct150-354BAT-16,0,0,0,0,0,0,no comment
 ct150-360BAT-16,0,0,0,0,0,0,no comment
-ct150-422BAT-16,0,0,0,0,0,0,no comment
-ct150-441BAT-16,0,0,0,0,0,0,no comment
+ct150-422BAT-16,0,0,0,0,0,0,double check
+ct150-441BAT-16,0,0,0,0,0,0,double check
 ct150-971-BULL-18,0,0,0,0,0,0,no comment
 ct150-972-BULL-18,0,0,0,0,0,0,no comment
 ct150-973-BULL-18,0,0,0,0,0,0,no comment
@@ -1763,8 +1763,8 @@ ct150-974-VERT-18,0,0,0,0,0,0,no comment
 ct150-975-VERT-18,0,0,0,0,0,0,no comment
 ct150-976-VERT-18,0,0,0,0,0,0,no comment
 ct150-977-VERT-18,0,0,0,0,0,0,no comment
-ct150-978-VERT-18,0,0,0,0,0,0,no comment
-ct150-979-VERT-18,0,0,0,0,0,0,no comment
+ct150-978-VERT-18,0,0,0,0,0,0,drift in temperature?
+ct150-979-VERT-18,0,0,0,0,1,0,too few profiles
 ct150-980-BULL-18,0,0,0,0,0,0,no comment
 ct150-981-BULL-18,0,0,0,0,0,0,no comment
 ct150-982-BULL-18,0,0,0,0,0,0,no comment
@@ -1895,20 +1895,51 @@ ct160-918BAT-18,0,0,0,0,0,0,no comment
 ct160-Oxy726-20,0,0,0,0,0,0,no comment
 sk3-13219-15,0,0,0,-0.1,0,0,shark data
 ct156-185BAT-15,0,0,0,0,0,0,no comment
-ct156-190BAT-15,0,0,0,0,0,0,no comment
+ct156-190BAT-15,0,0,0,0,1,0,no comment
 ct156-226-VERT-20,0,0,0,0,0,0,no comment
 ct156-227-VERT-20,0,0,0,0,0,0,no comment
 ct156-228-VERT-20,0,0,0,0,0,0,no comment
 ct156-229-VERT-20,0,0,0,0,0,0,no comment
 ct156-230-VERT-20,0,0,0,0,0,0,no comment
-ct156-232-VERT-20,0,0,0,0,0,0,no comment
+ct156-232-VERT-20,0,0,0,0,0,0,drift temperature?
 ct156-234-VERT-20,0,0,0,0,0,0,no comment
 ct156-235-VERT-20,0,0,0,0,0,0,no comment
 ct156-237-VERT-20,0,0,0,0,0,0,no comment
 ct156-361BAT-16,0,0,0,0,0,0,no comment
 ct156-419BAT-16,0,0,0,0,0,0,no comment
 ct156-440BAT-16,0,0,0,0,0,0,no comment
-ct156-822BAT-08,0,0,0,0,0,0,no comment
+ct156-822BAT-08,0,0,0,0,1,0,no comment
 ct156-879BAT-12,0,0,0,0,0,0,no comment
 ct156-R763BAT-10,0,0,0,0,0,0,no comment
 ct156-R881BAT-09,0,0,0,0,0,0,no comment
+wd16-329-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-330-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-333-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-334-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-335-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-337-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-343-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-344-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-345-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-346-20,0,0,0,0,1,0,no comment
+wd16-347-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-348-20,0,0,0,0,1,0,no comment
+wd16-349-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-350-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-351-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-352-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-353-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-354-20,0,0,0,0,1,0,no comment
+wd16-369-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-378-20,0,0,0,0,1,0,no comment
+wd16-G1-20,0,0,0,0,0,0,lots of profiles with low salinity surface data
+wd16-G4-20,0,0,0,0,1,0,no comment
+wd16-G5-20,0,0,0,0,0,0,weird temperatures
+wd17-450-21,0,0,0,0,1,0,no comment
+wd17-452-21,0,0,0,0,1,0,no comment
+wd17-453-21,0,0,0,0,0,0,no comment
+wd17-454-21,0,0,0,0,0,0,no comment
+wd17-455-21,0,0,0,0,0,0,no comment
+wd17-456-21,0,0,0,0,0,0,no comment
+wd17-458-21,0,0,0,0,0,0,no comment
+wd17-459-21,0,0,0,0,0,1,no comment

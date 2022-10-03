@@ -87,7 +87,7 @@ for index=1:length(list_tag)
         [statdives,info_ana_dives,statdivestxt,datadives,datadivestxt,chg,daindexes] = ...
             ana_dives_fabien(tdr);
         Ibeg = daindexes(2,:)';
-        seuil_depth=2;% pour avoir les profils jusqu'à la surface
+        seuil_depth=2;% pour avoir les profils jusqu a la surface
         Iend=[];
         for kk=1:length(statdives)-1
             K=find(tdr(chg(2,kk):chg(1,kk+1),2)<seuil_depth);
@@ -121,6 +121,10 @@ for index=1:length(list_tag)
         
     % associate locations
     name_hr_file_loc     = sprintf('%sLocations/%d/%d',conf.rawdir_hr,year,list_deployment_hr.instr_id(list_tag(index)));
+    if ~exist(name_hr_file_loc,'file'),
+        disp(sprintf('Location file for HR data missing: %s',name_hr_file_loc))
+        continue,
+    end
     file_loc=dir([name_hr_file_loc '*']);
     if contains(file_loc.name,'GPS')
         GPS_start=ncreadatt([file_loc.folder '/' file_loc.name],'/','dephist_deploy_datetime_start');

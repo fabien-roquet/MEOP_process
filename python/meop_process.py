@@ -4,6 +4,8 @@ import matlab.engine
 from pathlib import Path
 import os
 import shutil
+from shutil import copy
+import zipfile
 import xarray as xr
 import pandas as pd
 import numpy as np
@@ -78,7 +80,25 @@ def load_info_deployment(deployment='',smru_name=''):
     eng.workspace['one_smru_name'] = smru_name
     eng.eval("info_deployment=load_info_deployment(conf,EXP,one_smru_name);",nargout=0)
 
+
+def import_raw_data(deployment=''):
     
+    if not deployment:
+        return
+    
+    zipfile_orig = meop_filenames.inputdir / deployment / (deployment+'_ODV.zip')
+    zipfile_copy = meop_filenames.datadir / 'raw_smru_data_odv' / (deployment+'_ODV.zip')
+    copy(zipfile_orig,zipfile_copy)
+    with zipfile.ZipFile(zipfile_copy) as z:
+        for file in z.namelist():
+            print(file)
+        z.extractall(path = meop_filenames.datadir / 'raw_smru_data_odv')
+
+    output = run_command(f'deployment_code = \'{deployment}\';')
+    output = run_command('fusion_profilTS_profilFL(deployment_code,conf.rawdir);')
+    return
+
+
 # update metadata
 def update_metadata(deployment='',smru_name=''):
 
@@ -119,28 +139,42 @@ def process_tags(deployment='',smru_name=''):
         print('Process deployment :'+deployment)
         print('')
     
-    load_info_deployment(deployment=deployment,smru_name=smru_name)
+    load_info_deployment(deployment=deployment,smru_name=smru_name)    
     if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
         return False
-    if not run_command("import_ODV_data(conf,EXP);"):
-        return False
+    
     if not run_command("remove_deployment(conf,EXP,one_smru_name);"):
         return False
+    
     if not run_command("create_ncargo(conf,EXP,one_smru_name);"):
         return False
+    
     if not run_command("create_fr0(conf,EXP,one_smru_name);"):
         return False
+    
     if not run_command("create_fr0_without_lr0(conf,EXP,one_smru_name);"):
         return False
+    
     if not run_command("update_metadata(conf,EXP,one_smru_name);"):
         return False
+    
     update_metadata(deployment=deployment,smru_name=smru_name)
+    
     if not run_command("apply_adjustments(conf,EXP,one_smru_name);"):
         return False
-    if not run_command("apply_tlc(conf,EXP,one_smru_name);"):
+    
+    if not run_command("apply_notlc(conf,EXP,one_smru_name);"):
         return False
-    if not run_command("apply_tlc_fr(conf,EXP,one_smru_name);"):
+    
+    if not run_command("apply_notlc_fr(conf,EXP,one_smru_name);"):
         return False
+
+#     if not run_command("apply_tlc(conf,EXP,one_smru_name);"):
+#         return False
+    
+#     if not run_command("apply_tlc_fr(conf,EXP,one_smru_name);"):
+#         return False
+    
     return True
 
 
@@ -199,11 +233,12 @@ if __name__ == "__main__":
     parser.add_argument("--smru_name", default ='', help = "Process only SMRU PLATFORM CODE. Value of DEPLOYMENT_CODE not considered.")
     parser.add_argument("--deployment", default ='', help = "Process all tags in DEPLOYMENT_CODE")
     parser.add_argument("--do_all", help = "Process data and produce plots", action='store_true')
+    parser.add_argument("--import_data", help = "Import raw data", action='store_true')
     parser.add_argument("--process_data", help = "Process data", action='store_true')
     parser.add_argument("--create_hr2", help = "Create a netcdf combining hr1 and fr1", action='store_true')
     parser.add_argument("--calibration_plots", help = "Produce calibration plots", action='store_true')
     parser.add_argument("--doc_latex", help = "Generate a pdf document with latex", action='store_true')
-    parser.add_argument("--export_odv4", help = "Generate a pdf document with latex", action='store_true')
+    parser.add_argument("--export_odv4", help = "Export data in odv4 format", action='store_true')
     
     # parse the arguments
     args = parser.parse_args()
@@ -215,6 +250,8 @@ if __name__ == "__main__":
     if (smru_name or deployment) and (args.do_all or args.process_data or args.create_hr2 or args.calibration_plots):
         start_matlab()
         conf = init_mirounga()
+        if args.import_data or args.do_all:
+            import_raw_data(deployment=deployment)
         if args.process_data or args.do_all:
             process_tags(deployment=deployment,smru_name=smru_name)
         if args.create_hr2 or args.do_all:

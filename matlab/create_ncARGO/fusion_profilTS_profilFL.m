@@ -1,28 +1,42 @@
   
-function fusion_profilTS_profilFL(EXP)
-fid = fopen([EXP '_ODV.txt']);
+function fusion_profilTS_profilFL(EXP,path)
+
+namefile = [path  '/' EXP '_ODV.txt'];
+namefile_FL = [path  '/' EXP '_FL_ODV.txt'];
+namefile_CTD = [path  '/' EXP '_CTD_ODV.txt'];
+
+copyfile(namefile,namefile_CTD);
+
+fid = fopen(namefile_CTD);
 tline = fgetl(fid);
 tline = fgetl(fid);
 fclose(fid);
 
-clear F O C BD;
-
 [tag,numProf,type,date,lon,lat,bot,P,T,S,C] = ...
-        textread([EXP,'_ODV.txt'],'%s%d%s%s%f%f%d%f%f%f%f',...
+        textread(namefile_CTD,'%s%d%s%s%f%f%d%f%f%f%f',...
         'delimiter',';','headerlines',2);
    
   
-    
-    fid = fopen([EXP '_FL_ODV.txt']);
+
+fid = fopen(namefile_FL);
+allText = textscan(fid,'%s','delimiter','\n');
+numberOfLines = length(allText{1});
+fclose(fid);
+
+if numberOfLines < 3,
+   return
+end
+
+fid = fopen(namefile_FL);
 tline = fgetl(fid);
 tline = fgetl(fid);
 fclose(fid);
 
-clear F O C BD;
-
 [tagfl,numProffl,datefl,lonfl,latfl,Pfl,F,L,O] = ...
-        textread([EXP,'_FL_ODV.txt'],'%s%d%*s%s%f%f%*d%f%f%f%f%*f',...
+        textread(namefile_FL,'%s%d%*s%s%f%f%*d%f%f%f%f%*f',...
         'delimiter',';','headerlines',2);
+        
+        
 %%
 Obis=[];
 Fbis=[];
@@ -141,7 +155,7 @@ Tbis(I)=999;
 I=find(isnan(Sbis));
 Sbis(I)=999;
 
-fid=fopen([EXP '_ODV_All.txt'],'w');
+fid=fopen(namefile,'w');
 fprintf(fid,'// Generic ODV file \n'); 
 fprintf(fid,'Cruise;Station;Type;yyyy-mm-dd hh:mm;Longitude [degrees_east];Latitude [degrees_north];Bot. Depth [m];Pressure [dbar];Temperature [C];Salinity [PSU];Fluorescence [mg/l];Light [ln(PPFD)];Oxygen \n');
 

@@ -2,8 +2,8 @@
 "config":"",
 "version":
   {
-  "CTDnew":"MEOP-CTD_2021-05-13",
-  "CTDold":"MEOP-CTD_2018-04-10",
+  "CTDnew":"MEOP-CTD_2022-09-28",
+  "CTDold":"MEOP-CTD_2021-11-26",
   "SMSnew":"MEOP-SMS_2020-01-02",
   "SMSold":"MEOP-SMS_2019-05-17"
   },
@@ -15,9 +15,9 @@
     "datadir":"/home/jupyter-froqu/MEOP_dropbox/RAW_MEOP_DATA/",
     "processdir":"/media/disk2/roquet/MEOP_process/",
     "matlabdir":"/home/jupyter-froqu/MEOP_process/matlab/",
-    "inputdir":"/home/smru/all/",
+    "inputdir":"/home/smru/datadir/all/",
     "refdir":"/home/jupyter-froqu/MEOP_dropbox/REF_DATASETS/",
-    "public":"/home/jupyter-froqu/MEOP_process/public/",
+    "public":"/media/disk2/roquet/MEOP_public/",
     "pdflatex":"pdflatex"
     }, 
   "froqu_pc207_linux":
@@ -87,7 +87,7 @@
     "matlabdir":"/home/jupyter-bpicard/MEOP_process/matlab/",
     "inputdir":"/home/jupyter-bpicard/smru/all/",
     "refdir":"/home/jupyter-bpicard/MEOP_dropbox/REF_DATASETS/",
-    "public":"/home/jupyter-bpicard/MEOP_process/public/",
+    "public":"/media/disk2/roquet/MEOP_public/",
     "pdflatex":"pdflatex"
     }
   }

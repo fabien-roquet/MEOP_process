@@ -140,6 +140,8 @@ def add_interp(self,PARAM,SUFFIX_PARAM='_ADJUSTED',pmax=1000):
         for i in range(ds.dims['N_PROF']):
             da[i,:] = np.interp(da.N_INTERP,ds['PRES_ADJUSTED'].values[i,:],ds[PARAM+'_ADJUSTED'].values[i,:])
         ds[PARAM+'_INTERP'] = da
+        if 'PRES_INTERP' not in ds.variables:
+            ds['PRES_INTERP'] = np.arange(0,N_INTERP)
     return ds
 
 
@@ -305,7 +307,7 @@ def plot_TSdiag(self,SUFFIX_PARAM='_ADJUSTED',mode='line',ax=None,namefig=None,f
 
 
 @add_method(xr.Dataset)
-def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsize=(10, 10),title=None,rolling=0,plot_mld=True,density_threshold=0.02,pmax=1000,**kwargs):
+def plot_sections(self,PARAM=['TEMP','PSAL','SIG0'],SUFFIX_PARAM='_INTERP',ax=None,namefig=None,figsize=(10, 10),title=None,rolling=0,plot_mld=True,density_threshold=0.03,pmax=1000,**kwargs):
 
 
     ds = self
@@ -336,14 +338,15 @@ def plot_sections(self,PARAM,SUFFIX_PARAM='_ADJUSTED',ax=None,namefig=None,figsi
             ds = ds.add_interp(PARAM)
             
         da = ds[PARAM+'_INTERP']
-        if rolling:
+        if rolling and ds.dims['N_PROF']>rolling :
             da = da.rolling(N_PROF=rolling, center=True, min_periods=1).mean()
 
-        da.T.plot(ax=ax,**kwargs)    
+        if ds.dims['N_PROF']>10:
+            da.T.plot(ax=ax,**kwargs)    
 
         if plot_mld:
-            mld = compute_mld(ds,SUFFIX_PARAM='_INTERP',density_threshold=density_threshold).interpolate_na(dim='N_PROF')
-            if rolling>0:
+            mld = compute_mld(ds,SUFFIX_PARAM='_ADJUSTED',density_threshold=density_threshold).interpolate_na(dim='N_PROF')
+            if rolling and ds.dims['N_PROF']>rolling:
                 mld = mld.rolling(N_PROF=rolling,min_periods=min([3,rolling]),center=True).mean()        
             mld.plot(ax=ax)
 
@@ -515,7 +518,7 @@ def list_metadata(self):
         'N_PSAL' : N_PARAM(ds,'PSAL'),
         'N_CHLA' : N_PARAM(ds,'CHLA')}
     df = pd.DataFrame(data)
-    df[['year','month','day']] = [[df.JULD[kk].year,df.JULD[kk].month,df.JULD[kk].day] for kk in range(len(df))]
+    df['JULD'] = pd.to_datetime(df.JULD.astype(str))
     ltags = df.groupby('SMRU_PLATFORM_CODE').median()
     mask = label_regions(ltags).MASK
     df = df.merge(mask,on='SMRU_PLATFORM_CODE')

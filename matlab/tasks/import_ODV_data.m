@@ -6,12 +6,11 @@ function import_ODV_data(conf,deployment_code)
 unzip([conf.inputdir deployment_code '/' deployment_code '_ODV.zip'],[conf.inputdir deployment_code]);
 
 if length(dir([conf.inputdir deployment_code '\*FL*']))>0
-   fusion_profilTS_profilFL([conf.inputdir deployment_code '\' deployment_code])
-   copyfile([conf.inputdir deployment_code '\' deployment_code '_ODV_ALL.txt'],[conf.rawdir '/'])
-    
-else
-    copyfile([conf.inputdir deployment_code '\' deployment_code '_ODV.txt'],[conf.rawdir '/'])
+   fusion_profilTS_profilFL(deployment_code,[conf.inputdir deployment_code])
 end
+
+copyfile([conf.inputdir deployment_code '\' deployment_code '_ODV.txt'],[conf.rawdir '/'])
+
 disp(sprintf('%s: import in datadir',deployment_code));
 rmdir([conf.inputdir deployment_code],'s')
 
