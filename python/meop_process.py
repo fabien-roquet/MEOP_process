@@ -15,6 +15,7 @@ from importlib import reload
 import io
 import meop
 import meop_filenames
+import meop_metadata
 
 processdir = meop_filenames.processdir
 
@@ -86,16 +87,19 @@ def import_raw_data(deployment=''):
     if not deployment:
         return
     
-    zipfile_orig = meop_filenames.inputdir / deployment / (deployment+'_ODV.zip')
-    zipfile_copy = meop_filenames.datadir / 'raw_smru_data_odv' / (deployment+'_ODV.zip')
-    copy(zipfile_orig,zipfile_copy)
-    with zipfile.ZipFile(zipfile_copy) as z:
-        for file in z.namelist():
-            print(file)
-        z.extractall(path = meop_filenames.datadir / 'raw_smru_data_odv')
+    if (meop_filenames.inputdir / deployment).is_dir():
+        
+        zipfile_orig = meop_filenames.inputdir / deployment / (deployment+'_ODV.zip')
+        zipfile_copy = meop_filenames.datadir / 'raw_smru_data_odv' / (deployment+'_ODV.zip')
+        copy(zipfile_orig,zipfile_copy)
+        with zipfile.ZipFile(zipfile_copy) as z:
+            for file in z.namelist():
+                print(file)
+            z.extractall(path = meop_filenames.datadir / 'raw_smru_data_odv')
 
-    output = run_command(f'deployment_code = \'{deployment}\';')
-    output = run_command('fusion_profilTS_profilFL(deployment_code,conf.rawdir);')
+        output = run_command(f'deployment_code = \'{deployment}\';')
+        output = run_command('fusion_profilTS_profilFL(deployment_code,conf.rawdir);')
+        
     return
 
 
@@ -130,7 +134,7 @@ def update_metadata(deployment='',smru_name=''):
     return
 
 
-def process_tags(deployment='',smru_name=''):
+def process_tags(deployment='',smru_name='',notlc=False):
     
     if smru_name:
         print('Process tag :'+smru_name)
@@ -140,40 +144,23 @@ def process_tags(deployment='',smru_name=''):
         print('')
     
     load_info_deployment(deployment=deployment,smru_name=smru_name)    
-    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
-        return False
+    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
+    if eng.eval("info_deployment.invalid_code"): return False
     
-    if not run_command("remove_deployment(conf,EXP,one_smru_name);"):
-        return False
+    if not run_command("remove_deployment(conf,EXP,one_smru_name);"): return False    
+    if not run_command("create_ncargo(conf,EXP,one_smru_name);"): return False    
+    if not run_command("create_fr0(conf,EXP,one_smru_name);"): return False    
+    if not run_command("create_fr0_without_lr0(conf,EXP,one_smru_name);"): return False    
+    if not run_command("update_metadata(conf,EXP,one_smru_name);"): return False    
+    update_metadata(deployment=deployment,smru_name=smru_name)    
+    if not run_command("apply_adjustments(conf,EXP,one_smru_name);"): return False
     
-    if not run_command("create_ncargo(conf,EXP,one_smru_name);"):
-        return False
-    
-    if not run_command("create_fr0(conf,EXP,one_smru_name);"):
-        return False
-    
-    if not run_command("create_fr0_without_lr0(conf,EXP,one_smru_name);"):
-        return False
-    
-    if not run_command("update_metadata(conf,EXP,one_smru_name);"):
-        return False
-    
-    update_metadata(deployment=deployment,smru_name=smru_name)
-    
-    if not run_command("apply_adjustments(conf,EXP,one_smru_name);"):
-        return False
-    
-    if not run_command("apply_notlc(conf,EXP,one_smru_name);"):
-        return False
-    
-    if not run_command("apply_notlc_fr(conf,EXP,one_smru_name);"):
-        return False
-
-#     if not run_command("apply_tlc(conf,EXP,one_smru_name);"):
-#         return False
-    
-#     if not run_command("apply_tlc_fr(conf,EXP,one_smru_name);"):
-#         return False
+    if notlc:        
+        if not run_command("apply_notlc(conf,EXP,one_smru_name);"): return False
+        if not run_command("apply_notlc_fr(conf,EXP,one_smru_name);"): return False
+    else:        
+        if not run_command("apply_tlc(conf,EXP,one_smru_name);"): return False
+        if not run_command("apply_tlc_fr(conf,EXP,one_smru_name);"): return False
     
     return True
 
@@ -188,36 +175,32 @@ def create_hr2(deployment='',smru_name=''):
         print('')
     
     load_info_deployment(deployment=deployment,smru_name=smru_name)
-    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
-        return False
-    if not run_command("create_hr2(conf,EXP,one_smru_name);"):
-        return False
+    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
+    if eng.eval("info_deployment.invalid_code"): return False
+    if not run_command("create_hr2(conf,EXP,one_smru_name);"): return False
     return True
 
 
 def generate_calibration_plots(deployment='',smru_name=''):
     load_info_deployment(deployment=deployment,smru_name=smru_name)
-    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
-        return False
-    if not run_command("generate_plot1(conf,EXP,one_smru_name);"):
-        return False
+    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
+    if eng.eval("info_deployment.invalid_code"): return False
+    if not run_command("generate_plot1(conf,EXP,one_smru_name);"): return False
     return True
 
 
 def generate_doc_latex(deployment='',smru_name=''):
     load_info_deployment(deployment=deployment,smru_name=smru_name)
-    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
-        return False
-    if not run_command("generate_plot2(conf,EXP,one_smru_name);"):
-        return False
+    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
+    if eng.eval("info_deployment.invalid_code"): return False
+    if not run_command("generate_plot2(conf,EXP,one_smru_name);"): return False
     return True
 
 def export_odv4(deployment='',smru_name=''):
     load_info_deployment(deployment=deployment,smru_name=smru_name)
-    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"):
-        return False
-    if not run_command("generate_odv4(conf,EXP,one_smru_name);"):
-        return False
+    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
+    if eng.eval("info_deployment.invalid_code"): return False
+    if not run_command("generate_odv4(conf,EXP,one_smru_name);"): return False
     return True
 
 
