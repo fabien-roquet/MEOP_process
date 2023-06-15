@@ -170,11 +170,9 @@ def plot_map(self,ax=None,namefig=None,title='',figsize=(10, 10),draw_background
     
     if scatter_plot:
         if list(color):
-            h = ds.plot.scatter(ax=ax,x='LONGITUDE',y='LATITUDE',s=5,
-                          color=color,add_guide=False,transform=ccrs.PlateCarree())
+            ax.scatter(ds.LONGITUDE,ds.LATITUDE,s=5,c=color,transform=ccrs.PlateCarree())
         else:
-            h = ds.plot.scatter(ax=ax,x='LONGITUDE',y='LATITUDE',s=5,hue='N_PROF',hue_style='continuous',
-                          add_guide=False,transform=ccrs.PlateCarree())
+            ax.scatter(ds.LONGITUDE,ds.LATITUDE,s=5,c=ds.N_PROF,transform=ccrs.PlateCarree())
     else:
         if list(color):
             ax.plot(ds['LONGITUDE'].T,ds['LATITUDE'].T,linewidth=.6, color=color)
@@ -281,10 +279,10 @@ def plot_TSdiag(self,SUFFIX_PARAM='_ADJUSTED',mode='line',ax=None,namefig=None,f
     # add pressure
     if SUFFIX_PARAM == '_INTERP':
         name_coord_levels = "N_INTERP"
-        ds = ds.assign_coords(pressure=(name_coord_levels, ds.PRES_INTERP[0,:]))
+        ds = ds.assign_coords(pressure=(name_coord_levels, ds.PRES_INTERP[0,:].data))
     else: # processing = {'','_ADJUSTED'}
         name_coord_levels = "N_LEVELS"
-        ds = ds.assign_coords(pressure=(name_coord_levels, ds.PRES[0,:]))
+        ds = ds.assign_coords(pressure=(name_coord_levels, ds.PRES[0,:].data))
     
     if list(color):
         ax.plot(ds['PSAL'+SUFFIX_PARAM].T,ds['TEMP'+SUFFIX_PARAM].T,linewidth=.6,color=color)

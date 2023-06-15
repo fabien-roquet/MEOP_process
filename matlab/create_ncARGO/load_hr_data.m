@@ -12,12 +12,12 @@ function hrdata = load_hr_data(name_hr_file,continuous)
     Oxy = strfind(tline,'Oxy');
     Light = strfind(tline,'PPFD');
     % sur les nouveaux fichiers hr il y a 3 colonnes de pressions en plus
-    newfile = length(strfind(tline,'PRESSURE_RE_SURFACE'));
+    newfile=strfind(tline,'PRESSURE_RE_SURFACE');
     hrdata.isfluo=length(Fluo); hrdata.isoxy=length(Oxy); hrdata.islight=length(Light);
     hrdata.continuous = continuous;
     
     try
-        if ~hrdata.isfluo & ~hrdata.isoxy & ~hrdata.islight & ~newfile % ancien fichier HR ctd
+        if ~hrdata.isfluo & ~hrdata.isoxy & ~hrdata.islight & ~length(newfile) % ancien fichier HR ctd
             [str_date,P,T,S] = ...
                 textread(name_hr_file,'%s%f%f%*f%f%*[^\n]',...
                 'delimiter','\t','headerlines',1);

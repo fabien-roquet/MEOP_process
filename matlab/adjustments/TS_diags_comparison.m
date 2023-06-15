@@ -196,7 +196,7 @@ ax1=axes('position',[0 .55 .25 .4]);axis off
 
 ax2=axes('position',[.05 .55 .4 .4]);
 set(gca,'fontsize',7);
-xlabel('THETA-S RAW PROFILES','fontsize',8);
+xlabel('THETA-S COR PROFILES','fontsize',8);
 hold on
 set_tsdiag(conf.Slim,conf.Tlim,0,25:.2:28);
 for ss=[round(conf.Slim(1),1):.1:round(conf.Slim(2),1)]
@@ -386,7 +386,7 @@ end
 
 ax3=axes('position',[.55 .55 .4 .4]);
 set(gca,'fontsize',7);
-xlabel('THETA-S COR PROFILES','fontsize',8);
+xlabel('THETA-S RAW PROFILES','fontsize',8);
 hold on
 set_tsdiag(conf.Slim,conf.Tlim,0,25:.2:28);
 for ss=[round(conf.Slim(1),1):.1:round(conf.Slim(2),1)]
@@ -553,7 +553,7 @@ ax1=axes('position',[0 .55 .25 .4]);axis off
 
 ax2=axes('position',[.05 .55 .4 .4]);
 set(gca,'fontsize',7);
-xlabel('THETA-S RAW PROFILES','fontsize',8);
+xlabel('THETA-S COR PROFILES','fontsize',8);
 hold on
 set_tsdiag(conf.Slim,conf.Tlim,0,27:.2:28);
 for ss=[round(conf.Slim(1),1):.1:round(conf.Slim(2),1)]
@@ -639,7 +639,7 @@ end
 
 ax3=axes('position',[.55 .55 .4 .4]);
 set(gca,'fontsize',7);
-xlabel('THETA-S COR PROFILES','fontsize',8);
+xlabel('THETA-S RAW PROFILES','fontsize',8);
 hold on
 set_tsdiag(conf.Slim,conf.Tlim,0,27:.2:28);
 for ss=[round(conf.Slim(1),1):.1:round(conf.Slim(2),1)]
