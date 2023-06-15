@@ -92,7 +92,7 @@ def update_lprofiles(lprofiles,list_smru_name,qf='lr0'):
 def list_tags_deployments_from_profiles(lprofiles):
     
     ltags = lprofiles.groupby('SMRU_PLATFORM_CODE').first()\
-        .drop(['N_TEMP','N_PSAL','N_CHLA','CYCLE_NUMBER','year','month','day'],axis='columns')
+        .drop(['N_TEMP','N_PSAL','N_CHLA','CYCLE_NUMBER'],axis='columns')
     ltags['JULD_END'] = lprofiles.groupby('SMRU_PLATFORM_CODE').max().JULD
     
     lprofiles['N_TEMP'] = lprofiles.N_TEMP.where(lprofiles.N_TEMP!=0,np.nan)

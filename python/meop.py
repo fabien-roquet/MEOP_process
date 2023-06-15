@@ -284,7 +284,7 @@ def plot_TSdiag(self,SUFFIX_PARAM='_ADJUSTED',mode='line',ax=None,namefig=None,f
         name_coord_levels = "N_LEVELS"
         ds = ds.assign_coords(pressure=(name_coord_levels, ds.PRES[0,:].data))
     
-    if list(color):
+    if len(color):
         ax.plot(ds['PSAL'+SUFFIX_PARAM].T,ds['TEMP'+SUFFIX_PARAM].T,linewidth=.6,color=color)
     else:
         ax.plot(ds['PSAL'+SUFFIX_PARAM].T,ds['TEMP'+SUFFIX_PARAM].T,linewidth=.6)
