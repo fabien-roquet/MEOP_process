@@ -146,11 +146,11 @@ for Iprofile = 1:number_of_profiles
     dummy = 1e-3.*round(1e3.*p_i_tmp);
     p_i_tmp = dummy;
 
-    CTf_obs = gsw_CT_freezing_poly(SA_obs,p_obs);
-    if any(CT_obs < (CTf_obs - 0.1))
-        [Ifrozen] = find(CT_obs < (CTf_obs - 0.1));
-        CT_obs(Ifrozen) = CTf_obs(Ifrozen);
-    end
+    %CTf_obs = gsw_CT_freezing_poly(SA_obs,p_obs);
+    %if any(CT_obs < (CTf_obs - 0.1))
+    %    [Ifrozen] = find(CT_obs < (CTf_obs - 0.1));
+    %    CT_obs(Ifrozen) = CTf_obs(Ifrozen);
+    %end
     
     pl = length(p_obs);
     Ishallow = 1:(pl-1);

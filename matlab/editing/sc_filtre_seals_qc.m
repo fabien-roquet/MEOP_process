@@ -70,7 +70,8 @@ I=find(Mqc.PTMP(2,:)<7 & nS>5 & Mqc.SIG0(Ibot)-Mqc.SIG0(2,:)<-.03);
 
 N2=N2+nn1+nn2;
 % add default value for new tag in table_coeff
-if sum(strcmp(smru_name,conf.table_coeff.smru_platform_code))==0
+
+if sum(strcmp(smru_name,conf.table_coeff.deployment_code))==0
     new_tag = {0,0,0,0,0,0,'no comment'};
     conf.table_coeff=[conf.table_coeff;new_tag];
     conf.table_coeff.Properties.RowNames{end}=smru_name;

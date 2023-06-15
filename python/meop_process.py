@@ -144,8 +144,7 @@ def process_tags(deployment='',smru_name='',notlc=False):
         print('')
     
     load_info_deployment(deployment=deployment,smru_name=smru_name)    
-    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
-    if eng.eval("info_deployment.invalid_code"): return False
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
     
     if not run_command("remove_deployment(conf,EXP,one_smru_name);"): return False    
     if not run_command("create_ncargo(conf,EXP,one_smru_name);"): return False    
@@ -183,23 +182,23 @@ def create_hr2(deployment='',smru_name=''):
 
 def generate_calibration_plots(deployment='',smru_name=''):
     load_info_deployment(deployment=deployment,smru_name=smru_name)
-    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
-    if eng.eval("info_deployment.invalid_code"): return False
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
+
     if not run_command("generate_plot1(conf,EXP,one_smru_name);"): return False
     return True
 
 
 def generate_doc_latex(deployment='',smru_name=''):
     load_info_deployment(deployment=deployment,smru_name=smru_name)
-    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
-    if eng.eval("info_deployment.invalid_code"): return False
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
+
     if not run_command("generate_plot2(conf,EXP,one_smru_name);"): return False
     return True
 
 def export_odv4(deployment='',smru_name=''):
     load_info_deployment(deployment=deployment,smru_name=smru_name)
-    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
-    if eng.eval("info_deployment.invalid_code"): return False
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
+
     if not run_command("generate_odv4(conf,EXP,one_smru_name);"): return False
     return True
 
