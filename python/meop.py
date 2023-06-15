@@ -10,7 +10,6 @@ import cartopy
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import gsw
-from pathlib import Path
 import cmocean.cm as cmo
 
 import warnings
@@ -28,8 +27,8 @@ def open_dataset(ncfile_name):
     if ncfile_name.is_file():
         ds = xr.open_dataset(ncfile_name)
         for dim in ds.dims:
-            ds[dim] = ((dim), ds[dim])
-            ds.set_coords([dim])
+            ds[dim] = xr.DataArray( data = ds[dim], dims = [dim])
+            ds.set_coords(dim)
         ds['JULD'].values = [dt.replace(microsecond=0)  for dt in ds['JULD'].values]
         ds['JULD_LOCATION'] = ds.JULD
     else:
