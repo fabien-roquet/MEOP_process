@@ -1,5 +1,6 @@
 #! /bin/bash
 
+conda activate python_matlab
 
 # process a tag
 #python meop_process.py --smru_code ft23-C899-18

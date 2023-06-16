@@ -229,7 +229,15 @@ if __name__ == "__main__":
     deployment = args.deployment
     
     
-    if (smru_name or deployment) and (args.do_all or args.process_data or args.create_hr2 or args.calibration_plots):
+    if (smru_name or deployment) and \
+        (args.do_all or \
+         args.import_data or \
+         args.process_data or \
+         args.create_hr2 or \
+         args.calibration_plots or \
+         args.doc_latex or \
+         args.export_odv4):
+        
         start_matlab()
         conf = init_mirounga()
         if args.import_data or args.do_all:
