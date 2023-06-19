@@ -84,21 +84,26 @@ def load_info_deployment(deployment='',smru_name=''):
 
 def import_raw_data(deployment=''):
     
-    if not deployment:
-        return
+    import filecmp
+    
+    if not deployment: return
     
     if (meop_filenames.inputdir / deployment).is_dir():
         
         zipfile_orig = meop_filenames.inputdir / deployment / (deployment+'_ODV.zip')
+        if not zipfile_orig.exists(): return
+        
         zipfile_copy = meop_filenames.datadir / 'raw_smru_data_odv' / (deployment+'_ODV.zip')
-        copy(zipfile_orig,zipfile_copy)
-        with zipfile.ZipFile(zipfile_copy) as z:
-            for file in z.namelist():
-                print(file)
-            z.extractall(path = meop_filenames.datadir / 'raw_smru_data_odv')
+        
+        if (not zipfile_copy.exists()) or (not filecmp.cmp(zipfile_orig,zipfile_copy)):
+            copy(zipfile_orig,zipfile_copy)
+            with zipfile.ZipFile(zipfile_copy) as z:
+                for file in z.namelist():
+                    print(file)
+                z.extractall(path = meop_filenames.datadir / 'raw_smru_data_odv')
 
-        output = run_command(f'deployment_code = \'{deployment}\';')
-        output = run_command('fusion_profilTS_profilFL(deployment_code,conf.rawdir);')
+            output = run_command(f'deployment_code = \'{deployment}\';')
+            output = run_command('fusion_profilTS_profilFL(deployment_code,conf.rawdir);')
         
     return
 
