@@ -16,6 +16,7 @@ processdir = meop_filenames.processdir
 #########################################
 print('Process MEOP-CTD')
 file_done = processdir / 'python/list_done_viktor.csv'
+
 # create a file to track which tag status
 if file_done.is_file():
     ldone = pd.read_csv(file_done,index_col='DEPLOYMENT_CODE')

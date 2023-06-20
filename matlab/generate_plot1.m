@@ -14,7 +14,7 @@ if ~exist('one_smru_name','var') % all tags from EXP deployment
 elseif isempty(EXP),
     EXP=EXP_from_smru_name(one_smru_name);
 end
-conf.plot1_mode='slow'
+conf.plot1_mode='slow';
 if ~isfield(conf,'plot1_mode')
     conf.plot1_mode = 'fast';
 end

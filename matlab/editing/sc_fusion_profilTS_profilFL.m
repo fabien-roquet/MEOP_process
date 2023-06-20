@@ -140,7 +140,7 @@ Tbis(I)=999;
 I=find(isnan(Sbis));
 Sbis(I)=999;
 
-fid=fopen([EXP '_ODV_All.txt'],'w');
+fid=fopen([EXP '_ODV.txt'],'w');
 fprintf(fid,'// Generic ODV file \n');
 fprintf(fid,'Cruise;Station;Type;yyyy-mm-dd hh:mm;Longitude [degrees_east];Latitude [degrees_north];Bot. Depth [m];Pressure [dbar];Temperature [C];Salinity [PSU];Fluorescence [mg/l];Light [ln(PPFD)];Oxygen \n');
 

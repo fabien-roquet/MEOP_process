@@ -179,8 +179,7 @@ def create_hr2(deployment='',smru_name=''):
         print('')
     
     load_info_deployment(deployment=deployment,smru_name=smru_name)
-    if eng.eval("isfield(info_deployment,'invalid_code')"): return False
-    if eng.eval("info_deployment.invalid_code"): return False
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
     if not run_command("create_hr2(conf,EXP,one_smru_name);"): return False
     return True
 
@@ -217,7 +216,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # add arguments to the parser
-    parser.add_argument("--smru_name", default ='', help = "Process only SMRU PLATFORM CODE. Value of DEPLOYMENT_CODE not considered.")
+    parser.add_argument("--smru_name", default ='', help = "Process only SMRU PLATFORM CODE.")
     parser.add_argument("--deployment", default ='', help = "Process all tags in DEPLOYMENT_CODE")
     parser.add_argument("--do_all", help = "Process data and produce plots", action='store_true')
     parser.add_argument("--import_data", help = "Import raw data", action='store_true')
@@ -258,6 +257,9 @@ if __name__ == "__main__":
         if args.export_odv4 or args.do_all:
             export_odv4(deployment=deployment,smru_name=smru_name)
         stop_matlab()
+        
+
+
             
 
         

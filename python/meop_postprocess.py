@@ -26,7 +26,7 @@ def remove_bad_locations():
                 fid[var][index] = arr
         return fid
 
-    list_qf = ['lr0','lr1','hr0','hr1','fr0','fr1']
+    list_qf = ['lr0','lr1','hr0','hr1','fr0','fr1','hr2']
     list_var = ['TEMP_QC','TEMP_ADJUSTED_QC','PSAL_QC','PSAL_ADJUSTED_QC','CHLA_QC','CHLA_ADJUSTED_QC']
     
     for qf in list_qf:
