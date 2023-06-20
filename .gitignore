@@ -3,8 +3,9 @@ calibration_plots/
 doc_latex/
 final_dataset_prof/
 *.png
-list_*.csv
-list_*.txt
+list_deployment.csv
+list_deployment_hr.csv
+list_wmo_numbers.csv
 list_*.pkl
 plots/
 share/

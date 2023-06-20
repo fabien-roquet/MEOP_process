@@ -1,0 +1,26 @@
+# how to execute a command using screen
+
+
+# prepare environment
+cd /home/jupyter-froqu/MEOP_process/python
+conda activate /opt/tljh/user/envs/python_matlab
+
+
+# execute one task for a deployment
+DEPL='ct119'
+screen -dmSL ${DEPL} -Logfile ${DEPL}.log  bash -c "python meop_process.py --deployment ${DEPL} --doc_latex"
+
+# execute commands listed in a bash script file
+screen -dmSL process_data2 -Logfile process_data2.log ./process_data.sh
+
+# process everything
+screen -dmSL process_all -Logfile process_all.log bash -c "python ./meop_process_all.py"
+
+# list all screens
+screen -ls
+
+# detach a screen
+screen -d 229194.pts-15.pc207
+
+# kill a screen
+screen -X -S 229194.pts-15.pc207 quit
