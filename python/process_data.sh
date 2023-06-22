@@ -22,10 +22,10 @@ TASK='--do_all'
 #python meop_process.py --deployment ct134 ${TASK}
 #python meop_process.py --deployment ct10 ${TASK}
 #python meop_process.py --deployment ct107 ${TASK}
-python meop_process.py --deployment ct160 ${TASK}
+#python meop_process.py --deployment ct160 ${TASK}
 python meop_process.py --deployment ct161 ${TASK}
-python meop_process.py --deployment ct164 ${TASK}
-python meop_process.py --deployment ct166 ${TASK}
+#python meop_process.py --deployment ct164 ${TASK}
+#python meop_process.py --deployment ct166 ${TASK}
 python meop_process.py --deployment ct168 ${TASK}
 python meop_process.py --deployment ct171 ${TASK}
 

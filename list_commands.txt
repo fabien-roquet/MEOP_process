@@ -11,7 +11,7 @@ DEPL='ct119'
 screen -dmSL ${DEPL} -Logfile ${DEPL}.log  bash -c "python meop_process.py --deployment ${DEPL} --doc_latex"
 
 # execute commands listed in a bash script file
-screen -dmSL process_data2 -Logfile process_data2.log ./process_data.sh
+screen -dmSL process_data -Logfile process_data.log ./process_data.sh
 
 # process everything
 screen -dmSL process_all -Logfile process_all.log bash -c "python ./meop_process_all.py"
