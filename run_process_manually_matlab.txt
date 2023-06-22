@@ -9,5 +9,15 @@ if isfield(info_deployment,'invalid_code'), disp('problem'), end
 
 remove_deployment(conf,EXP,one_smru_name);
 create_ncargo(conf,EXP,one_smru_name);
+create_fr0(conf,EXP,one_smru_name);
+create_fr0_without_lr0(conf,EXP,one_smru_name);
+update_metadata(conf,EXP,one_smru_name);
+% some minor metadata update here that is done in python only
+apply_adjustments(conf,EXP,one_smru_name);
+apply_tlc(conf,EXP,one_smru_name);
+apply_tlc_fr(conf,EXP,one_smru_name);
+create_hr2(conf,EXP,one_smru_name);
 
-
+generate_plot1(conf,EXP,one_smru_name);
+generate_plot2(conf,EXP,one_smru_name);"
+generate_odv4(conf,EXP,one_smru_name);
