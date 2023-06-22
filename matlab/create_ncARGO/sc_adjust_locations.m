@@ -48,8 +48,10 @@ for index=1:length(list_tag),
     dist = spheredist(newlat,newlon);
     velo = diff(dist)./diff(jul)/86.4; % in m/s
     I=find(velo>3); Ibad = intersect(I,I+1); Ibad=setdiff(Ibad,[1 length(dist)]);
+    I=find(diff(jul)==0); Ibad = union(Ibad,I);
     if length(Ibad)>0
         jul1=jul; jul1(Ibad)=[]; lat1=newlat; lat1(Ibad)=[]; lon1=newlon; lon1(Ibad)=[];
+        if length(jul1)<3, continue, end 
         newlat(Ibad) = interp1(jul1,lat1,jul(Ibad));
         newlon(Ibad) = interp1(jul1,lon1,jul(Ibad));
     end

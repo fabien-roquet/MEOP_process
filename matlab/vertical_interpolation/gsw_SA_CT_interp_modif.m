@@ -287,7 +287,8 @@ for Iprofile = 1:number_of_profiles
     max_v_data = max_v_obs + abs(v_error_obs_plus_interp(I3(Imax_v_obs)));
     if any(max(v_i_obs_plus_interp) > max_v_data)
         toolight = 1;
-        while toolight == 1
+        while toolight < 10
+            toolight = toolight + 1;
             [Itoolight] = find(v_i_obs_plus_interp > max_v_data);
             [Ishallower] = find((I3 - Itoolight(1)) <= 0);
             Iabove = I2(Ishallower(end));
@@ -301,7 +302,7 @@ for Iprofile = 1:number_of_profiles
             CT_i_obs_plus_interp(Iabove_i:Ibelow_i) = CT_i_limiting_obs_plus_interp(Iabove_i:Ibelow_i);
             v_i_obs_plus_interp(Iabove_i:Ibelow_i) = v_i_limiting(Iabove_i:Ibelow_i);
             if ~any(max(v_i_obs_plus_interp) > max_v_data)
-                toolight = 0;
+                toolight = 10;
             end
         end
     end
@@ -310,7 +311,8 @@ for Iprofile = 1:number_of_profiles
     min_v_data = min_v_obs - abs(v_error_obs_plus_interp(I3(Imin_v_obs)));
     if any(min(v_i_obs_plus_interp) < min_v_data)
         tooheavy = 1;
-        while tooheavy == 1
+        while tooheavy < 10
+            tooheavy = tooheavy + 1;            
             [Itooheavy] = find(v_i_obs_plus_interp < min_v_data);
             [Ishallower] = find((I3 - Itooheavy(1)) <= 0);
             Iabove = I2(Ishallower(end));
@@ -323,41 +325,41 @@ for Iprofile = 1:number_of_profiles
             SA_i_obs_plus_interp(Iabove_i:Ibelow_i) = SA_i_limiting_obs_plus_interp(Iabove_i:Ibelow_i);
             CT_i_obs_plus_interp(Iabove_i:Ibelow_i) = CT_i_limiting_obs_plus_interp(Iabove_i:Ibelow_i);
             v_i_obs_plus_interp(Iabove_i:Ibelow_i) = v_i_limiting(Iabove_i:Ibelow_i);
-            if ~any(min(v_i_obs_plus_interp) < min_v_data)
-                tooheavy = 0;
-            end
+            %if ~any(min(v_i_obs_plus_interp) < min_v_data)
+                tooheavy = 10;
+            %end
         end
     end
     
-    CTf_i_tointerp = gsw_CT_freezing_poly(SA_i_obs_plus_interp,p_all(Iobs_plus_interp));
-    if any(CT_i_limiting_obs_plus_interp < (CTf_i_tointerp - 0.1))
-        [ICTf_i_obs] = find(CT_i_limiting_obs_plus_interp < (CTf_i_tointerp - 0.1));
-        CTf_i_tointerp(ICTf_i_obs) = CT_i_limiting_obs_plus_interp(ICTf_i_obs);
-    end
-    if any(CT_i_obs_plus_interp < (CTf_i_tointerp - 0.1))
-        frozen = 1;
-        while frozen == 1
-            [Ifrozen] = find(CT_i_obs_plus_interp < (CTf_i_tointerp - 0.1));
-            [Ishallower] = find((I3 - Ifrozen(1)) <= 0);
-            Iabove = I2(Ishallower(end));
-            Iabove_i = I3(Ishallower(end));
-            if (Iabove+1) > I3(end)
-                Ibelow_i = I3(end);
-            else
-                Ibelow_i = I3(Iabove + 1);
-            end
-            SA_i_obs_plus_interp(Iabove_i:Ibelow_i) = SA_i_limiting_obs_plus_interp(Iabove_i:Ibelow_i);
-            CT_i_obs_plus_interp(Iabove_i:Ibelow_i) = CT_i_limiting_obs_plus_interp(Iabove_i:Ibelow_i);
-            CTf_i_tointerp(Iabove_i:Ibelow_i) = gsw_CT_freezing_poly(SA_i_obs_plus_interp(Iabove_i:Ibelow_i),p_all(Iabove_i:Ibelow_i));
-            if any(CT_i_limiting_obs_plus_interp < (CTf_i_tointerp - 0.1))
-                [ICTf_i_obs] = find(CT_i_limiting_obs_plus_interp < (CTf_i_tointerp - 0.1));
-                CTf_i_tointerp(ICTf_i_obs) = CT_i_limiting_obs_plus_interp(ICTf_i_obs);
-            end
-            if ~any(CT_i_obs_plus_interp < (CTf_i_tointerp - 0.1))
-                frozen = 0;
-            end
-        end
-    end
+    %CTf_i_tointerp = gsw_CT_freezing_poly(SA_i_obs_plus_interp,p_all(Iobs_plus_interp));
+    %if any(CT_i_limiting_obs_plus_interp < (CTf_i_tointerp - 0.1))
+    %    [ICTf_i_obs] = find(CT_i_limiting_obs_plus_interp < (CTf_i_tointerp - 0.1));
+    %    CTf_i_tointerp(ICTf_i_obs) = CT_i_limiting_obs_plus_interp(ICTf_i_obs);
+    %end
+    %if any(CT_i_obs_plus_interp < (CTf_i_tointerp - 0.1))
+    %    frozen = 1;
+    %    while frozen == 1
+    %        [Ifrozen] = find(CT_i_obs_plus_interp < (CTf_i_tointerp - 0.1));
+    %        [Ishallower] = find((I3 - Ifrozen(1)) <= 0);
+    %        Iabove = I2(Ishallower(end));
+    %        Iabove_i = I3(Ishallower(end));
+    %        if (Iabove+1) > I3(end)
+    %            Ibelow_i = I3(end);
+    %        else
+    %            Ibelow_i = I3(Iabove + 1);
+    %        end
+    %        SA_i_obs_plus_interp(Iabove_i:Ibelow_i) = SA_i_limiting_obs_plus_interp(Iabove_i:Ibelow_i);
+    %        CT_i_obs_plus_interp(Iabove_i:Ibelow_i) = CT_i_limiting_obs_plus_interp(Iabove_i:Ibelow_i);
+    %        CTf_i_tointerp(Iabove_i:Ibelow_i) = gsw_CT_freezing_poly(SA_i_obs_plus_interp(Iabove_i:Ibelow_i),p_all(Iabove_i:Ibelow_i));
+    %        if any(CT_i_limiting_obs_plus_interp < (CTf_i_tointerp - 0.1))
+    %            [ICTf_i_obs] = find(CT_i_limiting_obs_plus_interp < (CTf_i_tointerp - 0.1));
+    %            CTf_i_tointerp(ICTf_i_obs) = CT_i_limiting_obs_plus_interp(ICTf_i_obs);
+    %        end
+    %        if ~any(CT_i_obs_plus_interp < (CTf_i_tointerp - 0.1))
+    %            frozen = 0;
+    %        end
+    %    end
+    %end
     
     [min_p_obs, Imin_p_obs] = min(p_obs);
     if min_p_obs ~= 0

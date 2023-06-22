@@ -62,7 +62,7 @@ for kprof=1:N_prof,
                 z_in_TS = sort(unique([z_in_T;z_in]));
                 t_in_TS = interp1(std_lev,t_std,z_in_TS);
                 s_in_TS = interp1(std_lev,s_std,z_in_TS);
-                [s_std, t_std] = gsw_SA_CT_interp(s_in_TS,t_in_TS,z_in_TS,std_lev);
+                [s_std, t_std] = gsw_SA_CT_interp_modif(s_in_TS,t_in_TS,z_in_TS,std_lev);
                 % s_1dbar = interp1(z_in,s_in,std_1dbar);
             end
             

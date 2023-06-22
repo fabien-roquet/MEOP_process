@@ -1,0 +1,13 @@
+cd ~/MEOP_process/
+addpath('./matlab');
+init_config();
+conf = init_mirounga;
+EXP='wd3';
+one_smru_name='';
+info_deployment=load_info_deployment(conf,EXP,one_smru_name);
+if isfield(info_deployment,'invalid_code'), disp('problem'), end
+
+remove_deployment(conf,EXP,one_smru_name);
+create_ncargo(conf,EXP,one_smru_name);
+
+

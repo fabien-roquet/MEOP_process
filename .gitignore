@@ -7,6 +7,7 @@ list_deployment.csv
 list_deployment_hr.csv
 list_wmo_numbers.csv
 list_*.pkl
+*.log
 plots/
 share/
 temporary/
@@ -16,3 +17,4 @@ python/.ipynb_checkpoints/
 python/out.txt
 python/Untitled.ipynb
 python/soap_credentials.txt
+matlab/create_ncARGO/.ipynb_checkpoints/
