@@ -29,6 +29,14 @@ for ii=1:length(list_tag),
     else
         descr=EXP';
     end
+    
+    %  smru_name=deblank(Mqc.smru_name{1});
+    if isfield (Mqc,'smru_platform_code')
+        smru_name=strrep(Mqc.smru_platform_code,'_','\_');
+    else
+        smru_name=strrep(Mqc.MEOP_CTD_NUMBER,'_','\_');
+    end
+
     Mqc.Tmask=double(Mqc.TEMP_QC<2); Mqc.TEMP(Mqc.TEMP_QC>2)=NaN;
     if isfield (Mqc,'PSAL')
         Mqc.Smask=double(Mqc.PSAL_QC<2); Mqc.PSAL(Mqc.PSAL_QC>2)=NaN;
@@ -83,16 +91,37 @@ for ii=1:length(list_tag),
     if isfield(plot_conf,'Scontour'), Scontour=plot_conf.Scontour; end
     if isfield(plot_conf,'is_lon_center_180'), is_lon_center_180=plot_conf.is_lon_center_180; end
         
+    config_plots = conf.table_config_plots;
+    Tmin=Tlim(1); Tmax=Tlim(2); Smin=Slim(1); Smax=Slim(2);
+    list_var = {'Tmin','Tmax','Smin','Smax'};
+    for kk = 1:length(list_var),
+        if ismember(smru_name,config_plots.Properties.RowNames) & ...
+                any(strcmp(list_var{kk},config_plots(smru_name,:).Properties.VariableNames)) & ...
+                config_plots{smru_name,list_var{kk}} & ~isnan(config_plots{smru_name,list_var{kk}})
+            eval([list_var{kk} ' = config_plots{smru_name,list_var{kk}};'])
+        end
+    end
+    Tlim=[Tmin Tmax]; 
+    Slim=[Smin Smax];
+    
+    config_plots = conf.table_config_plots;
+    lat_min=lim(1); lat_max=lim(2); lon_min=lim(3); lon_max=lim(4); 
+    list_var = {'lat_min','lat_max','lon_min','lon_max'};
+    for kk = 1:length(list_var),
+        if ismember(smru_name,config_plots.Properties.RowNames) & ...
+                any(strcmp(list_var{kk},config_plots(smru_name,:).Properties.VariableNames))
+            eval([list_var{kk} '= config_plots{smru_name,list_var{kk}};'])
+        end
+    end
+    if ~isnan(lat_min*lat_max*lon_min*lon_max)
+        lim = [lat_min,lat_max,lon_min,lon_max];
+    end
+
     % fiches
     Z=Mqc.JULD_LOCATION-min(Mqc.JULD_LOCATION);
     mZ=min(Z)-1; MZ=max(Z)+1; dZ=ceil((MZ-mZ)/10);
     edges=mZ:dZ:(MZ+dZ);
-    %  smru_name=deblank(Mqc.smru_name{1});
-    if isfield (Mqc,'smru_platform_code')
-        smru_name=strrep(Mqc.smru_platform_code,'_','\_');
-    else
-        smru_name=strrep(Mqc.MEOP_CTD_NUMBER,'_','\_');
-    end
+
     % calibration coefficient
     %I=find(strcmp(M.platform_number,M.list_descr{ii}));
     Tcoef = sscanf(calib.SCIENTIFIC_CALIB_COEFFICIENT(:,2,1,1)','t1= %f degC/km, t2= %f degC');

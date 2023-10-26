@@ -139,6 +139,38 @@ def update_metadata(deployment='',smru_name=''):
     return
 
 
+def process_only_one_tag(deployment='',smru_name='',notlc=False):
+    
+    if smru_name:
+        print('Process tag :'+smru_name)
+        print('')
+    elif deployment:
+        print('Process deployment :'+deployment)
+        print('')
+    
+    load_info_deployment(deployment=deployment,smru_name=smru_name)    
+    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
+    
+    if not run_command("remove_deployment(conf,EXP,one_smru_name);"): return False    
+    if not run_command("process_single_tag(one_smru_name);"): return False    
+
+    # if not run_command("create_ncargo(conf,EXP,one_smru_name);"): return False    
+    # if not run_command("create_fr0(conf,EXP,one_smru_name);"): return False    
+    # if not run_command("create_fr0_without_lr0(conf,EXP,one_smru_name);"): return False    
+    # if not run_command("update_metadata(conf,EXP,one_smru_name);"): return False    
+    # update_metadata(deployment=deployment,smru_name=smru_name)    
+    # if not run_command("apply_adjustments(conf,EXP,one_smru_name);"): return False
+    
+    # if notlc:        
+    #     if not run_command("apply_notlc(conf,EXP,one_smru_name);"): return False
+    #     if not run_command("apply_notlc_fr(conf,EXP,one_smru_name);"): return False
+    # else:        
+    #     if not run_command("apply_tlc(conf,EXP,one_smru_name);"): return False
+    #     if not run_command("apply_tlc_fr(conf,EXP,one_smru_name);"): return False
+    
+    return True
+
+
 def process_tags(deployment='',smru_name='',notlc=False):
     
     if smru_name:

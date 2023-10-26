@@ -39,7 +39,6 @@ else  % tag smru_tag only
     disp(['calibration plots: ' one_smru_name]);
 end 
 
-
 %% visualization of TS plots
 conf_clim.lon=[];
 conf_clim.lat=[];
@@ -100,6 +99,7 @@ else
     temp_max=5;
     temp_min=-2;
 end
+
 [I,J]=find(Mgroup.PSAL_QC==1);
 J=unique(J);
 if length(J)>0
@@ -120,6 +120,7 @@ else
     sal_max=36;
     sal_min=33;
 end
+   
 
 %% compute comparison plots
 for itag = 1:length(info_deployment.list_tag)
@@ -143,6 +144,7 @@ for itag = 1:length(info_deployment.list_tag)
     salinity_offsets = conf.table_salinity_offsets;
     
     smru_name = info_deployment.list_smru_name{itag};
+    conf_adjustement.smru_name = smru_name;
     P1=0; P2=0; T1=0; T2=0; S1=0; S2=0; F1=0.6; F2=0;
     list_var = {'T1','T2','S1','S2'};
     for kk = 1:length(list_var),
@@ -162,9 +164,33 @@ for itag = 1:length(info_deployment.list_tag)
     conf_adjustement.offset = load_salinity_offset(smru_name,salinity_offsets,conf_adjustement.N_profiles);
     
     conf_adjustement.pause=0;
-    conf_adjustement.Tlim=[temp_min temp_max]; 
-    conf_adjustement.Slim=[sal_min sal_max];
     conf_adjustement.hfig = 0;
+    
+    config_plots = conf.table_config_plots;
+    Tmin=temp_min; Tmax=temp_max; Smin=sal_min; Smax=sal_max;
+    list_var = {'Tmin','Tmax','Smin','Smax'};
+    for kk = 1:length(list_var),
+        if ismember(smru_name,config_plots.Properties.RowNames) & ...
+                any(strcmp(list_var{kk},config_plots(smru_name,:).Properties.VariableNames)) & ...
+                config_plots{smru_name,list_var{kk}} & ~isnan(config_plots{smru_name,list_var{kk}})
+            eval([list_var{kk} ' = config_plots{smru_name,list_var{kk}};'])
+        end
+    end
+    conf_adjustement.Tlim=[Tmin Tmax]; 
+    conf_adjustement.Slim=[Smin Smax];
+    
+    config_plots = conf.table_config_plots;
+    lat_min=NaN; lat_max=NaN; lon_min=NaN; lon_max=NaN; 
+    list_var = {'lat_min','lat_max','lon_min','lon_max'};
+    for kk = 1:length(list_var),
+        if ismember(smru_name,config_plots.Properties.RowNames) & ...
+                any(strcmp(list_var{kk},config_plots(smru_name,:).Properties.VariableNames))
+            eval([list_var{kk} '= config_plots{smru_name,list_var{kk}};'])
+        end
+    end
+    if ~isnan(lat_min*lat_max*lon_min*lon_max)
+        conf_adjustement.lim = [lat_min,lat_max,lon_min,lon_max];
+    end
     
     conf_adjustement.nomfig=sprintf('%s/%s/calibration_%s_0.png',...
         conf.calibplotdir,info_deployment.EXP,smru_name);

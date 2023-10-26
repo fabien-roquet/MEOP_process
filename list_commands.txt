@@ -24,3 +24,6 @@ screen -d 229194.pts-15.pc207
 
 # kill a screen
 screen -X -S 229194.pts-15.pc207 quit
+
+# restore a screen
+screen -r 229194.pts-15.pc207

@@ -191,6 +191,12 @@ if ~exist(name_file,'file')
 end
 conf.table_split_tags = readtable(name_file,'ReadRowNames',1,'Delimiter',',');
 
+name_file=[conf.processdir 'table_config_plots.csv'];
+if ~exist(name_file,'file')
+    error(['WARNING: the file ' name_file ' was not found!'])
+end
+conf.table_config_plots = readtable(name_file,'ReadRowNames',1,'Delimiter',',');
+
 
 %% load information about updated loc
 conf.crawl.list    = dir([conf.crawl.locdir,'*_argos_crawl.csv']);
