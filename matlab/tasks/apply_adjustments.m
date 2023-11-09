@@ -59,6 +59,9 @@ for kk=1:length(info_deployment.list_tag),
         salinity_offsets = conf.table_salinity_offsets;
         correct_offset_qc(name_prof,smru_name,coeff,salinity_offsets);
         
+        name_file=[conf.processdir 'table_param.csv'];
+        conf.table_param = readtable(name_file,'ReadRowNames',1,'Delimiter',',');
+        
         temp_error = conf.table_param{EXP,'temp_error'};
         psal_error = conf.table_param{EXP,'psal_error'};
         assign_error_estimate(name_prof,name_lr0,temp_error,psal_error)

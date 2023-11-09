@@ -1990,7 +1990,7 @@ ct168-F516-21,0,0,0,0,1,0,no comment
 ct168-F904-BAT2-19,0,-0.2,0,0.4,0,0,no comment
 ct161-198-BAT-19,0,-0.15,0,0,0,0,split?
 ct161-199-BAT-19,0,-0.1,0,0.2,0,0,T/S drift?
-ct161-405-20,0,-0.32,0,0.40,0,0,no comment
+ct161-405-20,0,-0.32,0,0.4,0,0,no comment
 ct161-407-20,0,0,0,0.13,0,0,part3 weird
 ct161-408-20,0,0,0,0,0,0,T/S gradient
 ct161-409-20,0,0,0,0,1,0,no comment
@@ -2123,3 +2123,27 @@ ct151-231-BAT3-14,0,0,0,0,0,0,no comment
 sk3-13219-15,0,0,0,0,0,0,no comment
 ct161-198-BAT-19-N1,0,0,0,0,0,0,no comment
 ct161-198-BAT-19-N2,0,0,0,0,0,0,no comment
+tu117-611-22,0,0,0,0,0,0,no comment
+tu117-612-22,0,0,0,0,0,0,no comment
+tu117-614-22,0,0,0,0,0,0,no comment
+tu117-616-22,0,0,0,0,0,0,no comment
+tu117-617-22,0,0,0,0,1,0,no comment
+tu117-664-22,0,0,0,0,0,0,no comment
+tu117-670-22,0,0,0,0,0,0,no comment
+tu117-671-22,0,0,0,0,0,0,no comment
+tu117-672-22,0,0,0,0,0,0,no comment
+tu117-673-22,0,0,0,0,0,0,no comment
+tu117-674-22,0,0,0,0,0,0,no comment
+tu117-675-22,0,0,0,0,0,0,no comment
+tu117-676-22,0,0,0,0,0,0,no comment
+tu117-677-22,0,0,0,0,0,0,no comment
+tu117-678-22,0,0,0,0,0,0,no comment
+tu117-679-22,0,0,0,0,0,0,no comment
+tu117-681-22,0,0,0,0,0,0,no comment
+tu117-684-22,0,0,0,0,0,0,no comment
+tu117-685-22,0,0,0,0,0,0,no comment
+tu117-686-22,0,0,0,0,0,0,no comment
+tu117-687-22,0,0,0,0,0,0,no comment
+tu117-688-22,0,0,0,0,0,0,no comment
+tu117-689-22,0,0,0,0,0,0,no comment
+tu117-751-22,0,0,0,0,0,0,no comment

@@ -77,7 +77,6 @@ if ~strcmp(get(hfig,'Tag'),'fiche_init')
         'ytick',maplim(2):-2:maplim(1),'yticklabels',maplim(1):10:maplim(2),...
         'tickdir','out','linestyle','none',...
         'XaxisLocation','bottom','YaxisLocation','left');
-
     m_gshhs_l('patch',[.7 .7 .7],'linestyle','none');
     hold on
     ax6=axes('position',[.65 .05 .3 .4]);set(gca,'fontsize',7);xlabel('THETA-S PROFILES','fontsize',8);hold on;grid on;

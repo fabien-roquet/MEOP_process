@@ -4,7 +4,7 @@ import matlab.engine
 from pathlib import Path
 import os
 import shutil
-from shutil import copy
+from shutil import copyfile
 import zipfile
 import xarray as xr
 import pandas as pd
@@ -16,6 +16,7 @@ import io
 import meop
 import meop_filenames
 import meop_metadata
+_ = os.umask(int('002', 8))
 
 processdir = meop_filenames.processdir
 
@@ -88,34 +89,24 @@ def update_config_files(conf):
     from datetime import datetime
     datenow = datetime.now().strftime('%Y%m%d')
 
-    deployment2_smru  = meop_filenames.inputdir / '../deployment2.json'
-    deployment2_local = meop_filenames.datadir / 'config_files' / 'deployment2.json'
-    deployment2_local_save = meop_filenames.datadir / 'config_files' / f'deployment2_{datenow}.json'
-    if deployment2_smru.exists():
-        if deployment2_local.exists():
-            if (not filecmp.cmp(deployment2_smru,deployment2_local)):
-                print('deployment2.json has been updated')
-                copy(deployment2_local,deployment2_local_save)
-                copy(deployment2_smru,deployment2_local)
-        else:
-            print('deployment2.json has been imported')
-            copy(deployment2_smru,deployment2_local)
- 
-    platform2_smru  = meop_filenames.inputdir / '../platform2.json'
-    platform2_local = meop_filenames.datadir / 'config_files' / 'platform2.json'
-    platform2_local_save = meop_filenames.datadir / 'config_files' / f'platform2_{datenow}.json'
-    if platform2_smru.exists():
-        if platform2_local.exists():
-            if (not filecmp.cmp(platform2_smru,platform2_local)):
-                print('platform2.json has been updated')
-                copy(platform2_local,platform2_local_save)
-                copy(platform2_smru,platform2_local)
-        else:
-            print('platform2.json has been imported')
-            copy(platform2_smru,platform2_local)
+    list_files = ['deployment2','deployment3','platform2','platform3']
+    
+    for file in list_files:
+        file_smru  = meop_filenames.inputdir / f'../{file}.json'
+        file_local = meop_filenames.datadir / 'config_files' / f'{file}.json'
+        file_local_save = meop_filenames.datadir / 'config_files' / f'{file}_{datenow}.json'
+        if file_smru.exists():
+            if file_local.exists():
+                if (not filecmp.cmp(file_smru,file_local)):
+                    print(f'{file}.json has been updated')
+                    copyfile(file_local,file_local_save)
+                    copyfile(file_smru,file_local)
+            else:
+                print(f'{file}.json has been imported')
+                copyfile(file_smru,file_local)
         
-    conf = init_mirounga()
-    return conf
+    
+    return init_mirounga()
 
     
 def import_raw_data(deployment=''):
@@ -132,7 +123,7 @@ def import_raw_data(deployment=''):
         zipfile_copy = meop_filenames.datadir / 'raw_smru_data_odv' / (deployment+'_ODV.zip')
         
         if (not zipfile_copy.exists()) or (not filecmp.cmp(zipfile_orig,zipfile_copy)):
-            copy(zipfile_orig,zipfile_copy)
+            copyfile(zipfile_orig,zipfile_copy)
             with zipfile.ZipFile(zipfile_copy) as z:
                 for file in z.namelist():
                     print(file)
@@ -140,6 +131,10 @@ def import_raw_data(deployment=''):
 
             output = run_command(f'deployment_code = \'{deployment}\';')
             output = run_command('fusion_profilTS_profilFL(deployment_code,conf.rawdir);')
+        
+    else:
+        
+        print(f"Folder with raw data is not found: {meop_filenames.inputdir / deployment}")
         
     return
 
@@ -175,42 +170,11 @@ def update_metadata(deployment='',smru_name=''):
     return
 
 
-def process_only_one_tag(deployment='',smru_name='',notlc=False):
-    
-    if smru_name:
-        print('Process tag :'+smru_name)
-        print('')
-    elif deployment:
-        print('Process deployment :'+deployment)
-        print('')
-    
-    load_info_deployment(deployment=deployment,smru_name=smru_name)    
-    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
-    
-    if not run_command("remove_deployment(conf,EXP,one_smru_name);"): return False    
-    if not run_command("process_single_tag(one_smru_name);"): return False    
-
-    # if not run_command("create_ncargo(conf,EXP,one_smru_name);"): return False    
-    # if not run_command("create_fr0(conf,EXP,one_smru_name);"): return False    
-    # if not run_command("create_fr0_without_lr0(conf,EXP,one_smru_name);"): return False    
-    # if not run_command("update_metadata(conf,EXP,one_smru_name);"): return False    
-    # update_metadata(deployment=deployment,smru_name=smru_name)    
-    # if not run_command("apply_adjustments(conf,EXP,one_smru_name);"): return False
-    
-    # if notlc:        
-    #     if not run_command("apply_notlc(conf,EXP,one_smru_name);"): return False
-    #     if not run_command("apply_notlc_fr(conf,EXP,one_smru_name);"): return False
-    # else:        
-    #     if not run_command("apply_tlc(conf,EXP,one_smru_name);"): return False
-    #     if not run_command("apply_tlc_fr(conf,EXP,one_smru_name);"): return False
-    
-    return True
-
-
 def process_tags(deployment='',smru_name='',notlc=False):
     
     if smru_name:
         print('Process tag :'+smru_name)
+        deployment = meop_filenames.deployment_from_smru_name(smru_name)
         print('')
     elif deployment:
         print('Process deployment :'+deployment)
@@ -218,6 +182,8 @@ def process_tags(deployment='',smru_name='',notlc=False):
     
     load_info_deployment(deployment=deployment,smru_name=smru_name)    
     if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
+    conf = update_config_files(conf)
+    import_raw_data(deployment=deployment)
     
     if not run_command("remove_deployment(conf,EXP,one_smru_name);"): return False    
     if not run_command("create_ncargo(conf,EXP,one_smru_name);"): return False    
@@ -287,6 +253,7 @@ if __name__ == "__main__":
     parser.add_argument("--smru_name", default ='', help = "Process only SMRU PLATFORM CODE.")
     parser.add_argument("--deployment", default ='', help = "Process all tags in DEPLOYMENT_CODE")
     parser.add_argument("--do_all", help = "Process data and produce plots", action='store_true')
+    parser.add_argument("--update_config_files", help = "Update config json files", action='store_true')
     parser.add_argument("--import_data", help = "Import raw data", action='store_true')
     parser.add_argument("--process_data", help = "Process data", action='store_true')
     parser.add_argument("--create_hr2", help = "Create a netcdf combining hr1 and fr1", action='store_true')
@@ -303,6 +270,7 @@ if __name__ == "__main__":
     
     if (smru_name or deployment) and \
         (args.do_all or \
+         args.update_config_files or \
          args.import_data or \
          args.process_data or \
          args.create_hr2 or \
@@ -312,8 +280,9 @@ if __name__ == "__main__":
         
         start_matlab()
         conf = init_mirounga()
-        if args.import_data or args.do_all:
+        if args.update_config_files or args.do_all:
             conf = update_config_files(conf)
+        if args.import_data or args.do_all:
             import_raw_data(deployment=deployment)
         if args.process_data or args.do_all:
             process_tags(deployment=deployment,smru_name=smru_name)
@@ -330,6 +299,4 @@ if __name__ == "__main__":
 
 
             
-
-        
 
