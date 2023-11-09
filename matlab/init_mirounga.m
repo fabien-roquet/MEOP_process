@@ -141,8 +141,8 @@ conf.list_deployment.start_date_jul = juldate;
 % update list_deployment.json
 name_list=[conf.processdir 'list_deployment.csv'];
 writetable(conf.list_deployment,name_list,'WriteRowNames',1,'Delimiter',',');
-if new_deployments | ismember(conf.list_group,'UNKNOWN'),
-    error(['Update information for new deployments in ' name_list]);
+if any(ismember(conf.list_group,'UNKNOWN')),
+    error(['NATION=UNKNOWN forbidden in ' name_list]);
 end
 
 %% read list deployment CTD HR

@@ -33,9 +33,9 @@ Pbot=argo_qc.JULD_LOCATION*NaN;
 Pmask=double(~isnan(P));
 Tmask=double(~isnan(T));
 Smask=double(~isnan(S));
-Ibot=sum(Pmask,1);
-for kk=1:N, 
-    if Ibot(kk), Pbot(kk)=P(Ibot(kk),kk); end, 
+Ibot=sum(Tmask,1);
+for kk=1:N,
+    if Ibot(kk), Pbot(kk)=max(P(~isnan(T(:,kk)),kk)); end,
 end
 year=argo_qc.JULD_LOCATION(:)/365.25;
 
@@ -43,22 +43,24 @@ year=argo_qc.JULD_LOCATION(:)/365.25;
 ax1=subplot(2,3,1);
 [n,xout]=hist(Pbot(sum(Smask.*Tmask,1)~=0),0:200:1000);
 [n2,xout2]=hist(Pbot(sum(Smask+Tmask,1)~=0),0:200:1000);
-bar(xout',[n2;n-n2]','stacked');set(gca,'xlim',[0 1000]);
+bar(xout',[n2;n2-n]','stacked');set(gca,'xlim',[0 1000]);
 title('BOTTOM PRES.');
 
 ax2=subplot(2,3,2);
-[n,xout]=hist(year(sum(Smask.*Tmask,1)~=0),2003.5:1:2022.5);
-[n2,xout2]=hist(year(sum(Smask+Tmask,1)~=0),2003.5:1:2022.5);
-bar(xout',[n2;n-n2]','stacked');
-set(gca,'xlim',[2004 2022],'xtick',2004.5:1:2022.5, ...
-    'xticklabel',{'','05','','','','','10','','','','','15','','','','','20','',''})
+yrmin = 2004;
+yrmax = 2025;
+[n,xout]=hist(year(sum(Smask.*Tmask,1)~=0),yrmin-.5:1:yrmax+.5);
+[n2,xout2]=hist(year(sum(Smask+Tmask,1)~=0),yrmin-.5:1:yrmax+.5);
+bar(xout',[n2;n2-n]','stacked');
+set(gca,'xlim',[yrmin yrmax],'xtick',yrmin+.5:1:yrmax+.5, ...
+    'xticklabel',{'','05','','','','','10','','','','','15','','','','','20','','','','','25'})
 title('DATE')
 
 ax3=subplot(2,3,3);
 month=(year-floor(year))*12;
 [n,xout]=hist(month(sum(Smask.*Tmask,1)~=0),.5:12.5);
 [n2,xout2]=hist(month(sum(Smask+Tmask,1)~=0),.5:12.5);
-bar(xout',[n2;n-n2]','stacked');
+bar(xout',[n2;n2-n]','stacked');
 set(gca,'xlim',[0 12],'xtick',.5:11.5, ...
     'xticklabel',{'J','F','M','A','M','J','J','A','S','O','N','D'})
 title('MONTH')

@@ -59,7 +59,6 @@ elseif hfig == 0
 else
     hfig=figure;
 end
-
 %% initialisation
 if ~strcmp(get(hfig,'Tag'),'fiche_init')
     clf,set(hfig,'Tag','fiche_init')
@@ -74,10 +73,11 @@ if ~strcmp(get(hfig,'Tag'),'fiche_init')
     ax5=axes('position',[.1 .05 .5 .42]);axis off
     m_proj('Equidistant Cylindrical',...
         'longitude',maplim(3:4),'latitude',maplim(1:2));
-    m_grid('box','on','xtick',mloc,'xticklabels',mloc,...
-        'ytick',maplim(1):10:maplim(2),'yticklabels',maplim(1):10:maplim(2),...
+    m_grid('box','on','xtick',5,'xticklabels',mloc,...
+        'ytick',maplim(2):-2:maplim(1),'yticklabels',maplim(1):10:maplim(2),...
         'tickdir','out','linestyle','none',...
         'XaxisLocation','bottom','YaxisLocation','left');
+
     m_gshhs_l('patch',[.7 .7 .7],'linestyle','none');
     hold on
     ax6=axes('position',[.65 .05 .3 .4]);set(gca,'fontsize',7);xlabel('THETA-S PROFILES','fontsize',8);hold on;grid on;
