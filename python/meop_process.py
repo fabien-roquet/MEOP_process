@@ -71,7 +71,7 @@ def run_command(cmd,verbose=True):
 def init_mirounga():
     eng.addpath(str(processdir / 'matlab'))
     conf = eng.eval("init_config();",nargout=1)
-    run_command("conf = init_mirounga;")
+    run_command("conf = init_mirounga;",verbose=False)
     return conf
 
 
@@ -82,6 +82,42 @@ def load_info_deployment(deployment='',smru_name=''):
     eng.eval("info_deployment=load_info_deployment(conf,EXP,one_smru_name);",nargout=0)
 
 
+def update_config_files(conf):
+    
+    import filecmp
+    from datetime import datetime
+    datenow = datetime.now().strftime('%Y%m%d')
+
+    deployment2_smru  = meop_filenames.inputdir / '../deployment2.json'
+    deployment2_local = meop_filenames.datadir / 'config_files' / 'deployment2.json'
+    deployment2_local_save = meop_filenames.datadir / 'config_files' / f'deployment2_{datenow}.json'
+    if deployment2_smru.exists():
+        if deployment2_local.exists():
+            if (not filecmp.cmp(deployment2_smru,deployment2_local)):
+                print('deployment2.json has been updated')
+                copy(deployment2_local,deployment2_local_save)
+                copy(deployment2_smru,deployment2_local)
+        else:
+            print('deployment2.json has been imported')
+            copy(deployment2_smru,deployment2_local)
+ 
+    platform2_smru  = meop_filenames.inputdir / '../platform2.json'
+    platform2_local = meop_filenames.datadir / 'config_files' / 'platform2.json'
+    platform2_local_save = meop_filenames.datadir / 'config_files' / f'platform2_{datenow}.json'
+    if platform2_smru.exists():
+        if platform2_local.exists():
+            if (not filecmp.cmp(platform2_smru,platform2_local)):
+                print('platform2.json has been updated')
+                copy(platform2_local,platform2_local_save)
+                copy(platform2_smru,platform2_local)
+        else:
+            print('platform2.json has been imported')
+            copy(platform2_smru,platform2_local)
+        
+    conf = init_mirounga()
+    return conf
+
+    
 def import_raw_data(deployment=''):
     
     import filecmp
@@ -277,6 +313,7 @@ if __name__ == "__main__":
         start_matlab()
         conf = init_mirounga()
         if args.import_data or args.do_all:
+            conf = update_config_files(conf)
             import_raw_data(deployment=deployment)
         if args.process_data or args.do_all:
             process_tags(deployment=deployment,smru_name=smru_name)

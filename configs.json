@@ -15,7 +15,7 @@
     "datadir":"/home/jupyter-froqu/MEOP_dropbox/RAW_MEOP_DATA/",
     "processdir":"/media/disk2/roquet/MEOP_process/",
     "matlabdir":"/home/jupyter-froqu/MEOP_process/matlab/",
-    "inputdir":"/home/smru/datadir/all/",
+    "inputdir":"/home/smru/smru/all/",
     "refdir":"/home/jupyter-froqu/MEOP_dropbox/REF_DATASETS/",
     "public":"/media/disk2/roquet/MEOP_public/",
     "pdflatex":"pdflatex"
@@ -25,7 +25,17 @@
     "datadir":"/home/jupyter-froqu/MEOP_dropbox/RAW_MEOP_DATA/",
     "processdir":"/media/disk2/roquet/MEOP_process/",
     "matlabdir":"/home/jupyter-froqu/MEOP_process/matlab/",
-    "inputdir":"/home/smru/datadir/all/",
+    "inputdir":"/home/smru/smru/all/",
+    "refdir":"/home/jupyter-froqu/MEOP_dropbox/REF_DATASETS/",
+    "public":"/media/disk2/roquet/MEOP_public/",
+    "pdflatex":"pdflatex"
+    }, 
+  "jupyter_ian_pc207_linux":
+    {
+    "datadir":"/home/jupyter-froqu/MEOP_dropbox/RAW_MEOP_DATA/",
+    "processdir":"/media/disk2/roquet/MEOP_process/",
+    "matlabdir":"/home/jupyter-froqu/MEOP_process/matlab/",
+    "inputdir":"/home/smru/smru/all/",
     "refdir":"/home/jupyter-froqu/MEOP_dropbox/REF_DATASETS/",
     "public":"/media/disk2/roquet/MEOP_public/",
     "pdflatex":"pdflatex"

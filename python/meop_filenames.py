@@ -1,19 +1,38 @@
 from pathlib import Path
 import os
 import shutil
-
-
-
-version = 'MEOP-CTD_2021-11-26'
+import json
 
 
 processdir = Path.home() / 'MEOP_process'
-datadir = Path.home() / 'MEOP_dropbox' / 'RAW_MEOP_DATA/'
-processdir = Path('/media/disk2/roquet') / 'MEOP_process'
-matlabdir = processdir / 'matlab'
-inputdir = Path('/home/smru/datadir/all/')
-refdir = Path.home() / 'MEOP_dropbox' / 'REF_DATASETS'
-publicdir = Path.home() / 'MEOP_process' / 'public'
+
+if (processdir / 'configs.json').exists():
+    with open(processdir / 'configs.json') as json_data:
+        d = json.load(json_data)
+        version = d['version']['CTDnew']
+else:
+    version = 'MEOP-CTD_yyyy-mm-dd'
+
+
+if (processdir / 'configs.json').exists():
+    with open(processdir / 'configs.json') as json_data:
+        config = f"{os.getenv('USER')}_{os.uname()[1]}_linux"
+        config = config.replace('.','_').replace('-','_')
+        if config in d['configs'].keys():
+            print(f'Load config {config} in configs.json')
+            datadir = Path(d['configs'][config]['datadir'])
+            matlabdir = Path(d['configs'][config]['matlabdir'])
+            inputdir = Path(d['configs'][config]['inputdir'])
+            refdir = Path(d['configs'][config]['refdir'])
+            publicdir = Path(d['configs'][config]['public'])
+else:
+    print('Unable to locate config in configs.json: default folder used instead')
+    # datadir = Path.home() / 'MEOP_dropbox' / 'RAW_MEOP_DATA/'
+    # matlabdir = processdir / 'matlab'
+    # inputdir = Path('/home/smru/datadir/all/')
+    # refdir = Path.home() / 'MEOP_dropbox' / 'REF_DATASETS'
+    # publicdir = Path.home() / 'MEOP_process' / 'public'
+
 publicdir_CTD = publicdir / version
 
 # 1. utils to reconstruct name of ncfiles
