@@ -182,6 +182,7 @@ def process_tags(deployment='',smru_name='',notlc=False):
     
     load_info_deployment(deployment=deployment,smru_name=smru_name)    
     if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
+    conf = init_mirounga()
     conf = update_config_files(conf)
     import_raw_data(deployment=deployment)
     
