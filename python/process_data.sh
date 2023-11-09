@@ -30,7 +30,7 @@ python meop_process.py --deployment ct10 ${TASK}
  python meop_process.py --deployment ct168 ${TASK}
  python meop_process.py --deployment ct171 ${TASK}
  python meop_process.py --deployment ct161 ${TASK}
-python meop_process.py --deployment ${DEPL} ${TASK}
+# python meop_process.py --deployment ${DEPL} ${TASK}
 
 
 #python meop_postprocess.py --do_all
