@@ -487,7 +487,7 @@ if __name__ == "__main__":
     else:
         version = meop_filenames.version
  
-    publicdir_CTD = folder_public / version
+    publicdir_CTD = meop_filenames.publicdir_CTD
     print('Publish in public folder: '+str(publicdir_CTD))
     
     if args.do_all:

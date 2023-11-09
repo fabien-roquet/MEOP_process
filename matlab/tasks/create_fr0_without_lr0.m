@@ -25,8 +25,13 @@ diary(diary_file)
 
 % create netcdf HR traj and prof if FR data exist
 %list_tag = info_deployment.list_tag;
+list_tag_names = info_deployment.list_smru_name;
 list_deployment_hr = conf.list_deployment_hr;
-list_tag=find(contains(list_deployment_hr.smru_platform_code,EXP));
+list_tag=[];
+    for i=list_tag_names(:).';
+        list_tag=[list_tag,find(contains(list_deployment_hr.smru_platform_code,i))];
+    end
+
 for index=1:length(list_tag)
     
     smru_name = char(list_deployment_hr.smru_platform_code(list_tag(index)));

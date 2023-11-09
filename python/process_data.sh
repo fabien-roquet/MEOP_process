@@ -13,15 +13,15 @@
 
 
 TASK='--do_all'
-DEPL='ct164'
+# DEPL='ct164'
 #TASK='--doc_latex'
  python meop_process.py --deployment wd3 ${TASK}
-#  python meop_process.py --deployment ft23 ${TASK}
-#  python meop_process.py --deployment ct81 ${TASK}
+ python meop_process.py --deployment ft23 ${TASK}
+ python meop_process.py --deployment ct81 ${TASK}
  python meop_process.py --deployment ct125 ${TASK}
  python meop_process.py --deployment ct104 ${TASK}
- python meop_process.py --deployment ct134 ${TASK}
- python meop_process.py --deployment ct10 ${TASK}
+python meop_process.py --deployment ct134 ${TASK}
+python meop_process.py --deployment ct10 ${TASK}
  python meop_process.py --deployment ct107 ${TASK}
  python meop_process.py --deployment ct160 ${TASK}
  python meop_process.py --deployment ct161 ${TASK}
@@ -30,7 +30,7 @@ DEPL='ct164'
  python meop_process.py --deployment ct168 ${TASK}
  python meop_process.py --deployment ct171 ${TASK}
  python meop_process.py --deployment ct161 ${TASK}
-# python meop_process.py --deployment ${DEPL} ${TASK}
+python meop_process.py --deployment ${DEPL} ${TASK}
 
 
 #python meop_postprocess.py --do_all
