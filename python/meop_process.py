@@ -80,7 +80,10 @@ def load_info_deployment(deployment='',smru_name=''):
     init_mirounga()
     eng.workspace['EXP'] = deployment
     eng.workspace['one_smru_name'] = smru_name
-    eng.eval("info_deployment=load_info_deployment(conf,EXP,one_smru_name);",nargout=0)
+    try :
+        eng.eval("info_deployment=load_info_deployment(conf,EXP,one_smru_name);",nargout=0)
+    except :
+        print("Check file list_deployment.csv for any UNKNOWN country")
 
 
 def update_config_files(conf):
@@ -181,7 +184,7 @@ def process_tags(deployment='',smru_name='',notlc=False):
         print('')
     
     load_info_deployment(deployment=deployment,smru_name=smru_name)    
-    if eng.eval("isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
+    if eng.eval( "isfield(info_deployment,'invalid_code')") and eng.eval("info_deployment.invalid_code"): return False
     conf = init_mirounga()
     conf = update_config_files(conf)
     import_raw_data(deployment=deployment)

@@ -147,7 +147,7 @@ def load_list_profiles(publicdir_CTD, public=True, rebuild=False):
 # copy netcdf files
 def copy_data(publicdir_CTD, rebuild=False, verbose=True):
 
-    lprofiles, ltags, ldeployments = meop_metadata.read_lists_metadata(rebuild=False,verbose=False,public=True,Tdata=False)
+    lprofiles, ltags, ldeployments = meop_metadata.read_lists_metadata(rebuild=rebuild,verbose=verbose,public=True,Tdata=False)
 
     for COUNTRY in ldeployments.COUNTRY.unique():
         # create folders if not already there
@@ -212,6 +212,7 @@ def copy_data(publicdir_CTD, rebuild=False, verbose=True):
 def update_global_attributes(publicdir_CTD, verbose=True):
 
     lprofiles, ltags, ldeployments = load_list_profiles(publicdir_CTD, public=True, rebuild=False)
+    print(publicdir_CTD)
     
     for country in list(lprofiles.COUNTRY.unique()):
         
@@ -491,6 +492,7 @@ if __name__ == "__main__":
     print('Publish in public folder: '+str(publicdir_CTD))
     
     if args.do_all:
+        args.rebuild = True
         args.copydata = True
         args.create_list_profile = True
         args.global_attributes = True

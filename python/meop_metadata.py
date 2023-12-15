@@ -140,7 +140,7 @@ def list_tags_deployments_from_profiles(lprofiles):
     
     return ltags, ldeployments
     
-    
+   
 # select only public data
 def filter_public_data(lprofiles, ltags, ldeployments):    
     ltags = ltags[ltags.PUBLIC == 1]

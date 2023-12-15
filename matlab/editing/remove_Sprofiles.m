@@ -82,6 +82,18 @@ else
             I=find(any(argo_qc.TEMP<value(2) & argo_qc.PSAL<value(2)));
         case 'T-S+',
             I=find(any(argo_qc.TEMP<value(2) & argo_qc.PSAL>value(2)));
+        case 'S-D-',
+            D = sw_dens0(argo_qc.PSAL,argo_qc.TEMP)-1000;
+            I=find(any(argo_qc.PSAL<value(1) & D<value(2)));
+        case 'S+D+',
+            D = sw_dens0(argo_qc.PSAL,argo_qc.TEMP)-1000;
+            I=find(any(argo_qc.PSAL>value(1) & D>value(2)));
+        case 'S-D+',
+            D = sw_dens0(argo_qc.PSAL,argo_qc.TEMP)-1000;
+            I=find(any(argo_qc.PSAL<value(1) & D>value(2)));
+        case 'S+D-',
+            D = sw_dens0(argo_qc.PSAL,argo_qc.TEMP)-1000;
+            I=find(any(argo_qc.PSAL>value(1) & D<value(2)));
         case 'date_min',
             Itag=1:length(argo_qc.JULD);
             date = argo_qc.JULD(Itag); date=date-min(date);
