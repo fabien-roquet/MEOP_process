@@ -139,7 +139,7 @@ def list_tags_deployments_from_profiles(lprofiles):
     ltags['comments'] = ltags['comments'].fillna('no comment')
     
     return ltags, ldeployments
-    
+
    
 # select only public data
 def filter_public_data(lprofiles, ltags, ldeployments):    

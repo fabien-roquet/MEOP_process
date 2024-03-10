@@ -1,5 +1,5 @@
 function [argo_data]=ARGO_concat(argo_data1,argo_data2);
-%   [argo_data]=ARGO_concat(argo_data1,argo_data2);;
+%   [argo_data]=ARGO_concat(argo_data1,argo_data2);
 %   concatenates argo_data1 and argo_data2
 %   Only fields present in both datasets are concatenated.
 %
@@ -7,8 +7,10 @@ function [argo_data]=ARGO_concat(argo_data1,argo_data2);
 
 if isempty(argo_data1) || length(argo_data1.LATITUDE)==0,
     argo_data=argo_data2;
+    list_descr = cellstr(argo_data.list_descr);
 elseif isempty(argo_data2) || length(argo_data2.LATITUDE)==0,
     argo_data=argo_data1;
+    list_descr = cellstr(argo_data.list_descr);
 else
     
     fldNames1=fieldnames(argo_data1);np1=length(argo_data1.JULD);
@@ -18,7 +20,7 @@ else
     fldNames2=setdiff(fldNames2,{'np','nr','nprof','index_tag','ntag','list_descr','Pmask','Tmask','Smask'},'stable');
     
     argo_data=[];
-    
+    list_descr = [argo_data1.list_descr argo_data2.list_descr] ; 
     %------------
     for iFld=1:length(fldNames1);
         eval(['tmp1=argo_data1.' fldNames1{iFld} ';']);
@@ -67,17 +69,24 @@ end
 %--------------------
 argo_data.np=length(argo_data.JULD);
 argo_data.nr=size(argo_data.PRES,1);
-[list_descr,m,n]=unique(cellstr(argo_data.platform_number'),'stable');
-argo_data.ntag=length(list_descr);
-argo_data.list_descr=list_descr;
-argo_data.index_tag = n;
-for kk=1:length(list_descr),
-    argo_data.nprof(kk) = length(find(n==kk));
+
+if ~isempty(argo_data2) && ~isempty(argo_data1),
+    list_prof = [argo_data1.nprof argo_data2.nprof];
+else
+    list_prof = [argo_data.np];
+end
+
+n = [];
+start=1;
+for k=1:length(list_prof),
+    n(start:start+list_prof(k)-1)=k;
+    length(n);
+    start=start+list_prof(k);
 end
 
 argo_data.ntag=length(list_descr);
 argo_data.list_descr=list_descr;
-argo_data.index_tag = n;
+argo_data.index_tag = n';
 for kk=1:length(list_descr),
     argo_data.nprof(kk) = length(find(n==kk));
 end

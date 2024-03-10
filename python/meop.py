@@ -106,10 +106,13 @@ def compute_mld(ds,SUFFIX_PARAM='_ADJUSTED',density_threshold=0.02):
         N_LEVELS = 'N_INTERP'
     ds = ds.add_sigma0(SUFFIX_PARAM=SUFFIX_PARAM)
     density = ds['SIG0'+SUFFIX_PARAM].bfill(dim=N_LEVELS,limit=50)
-    dens10 = density[:,9]
-    pressure = ds['PRES'+SUFFIX_PARAM].where(density-dens10<density_threshold,np.nan)
-    mld = pressure.max(dim=N_LEVELS)
-    mld[mld<5] = np.nan
+    if len(density.N_LEVELS)>=10:
+        dens10 = density[:,9]
+        pressure = ds['PRES'+SUFFIX_PARAM].where(density-dens10<density_threshold,np.nan)
+        mld = pressure.max(dim=N_LEVELS)
+        mld[mld<5] = np.nan
+    else:
+        mld= ds['PRES'+SUFFIX_PARAM]*np.nan
     return mld
             
             

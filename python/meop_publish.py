@@ -15,6 +15,7 @@ import meop
 import meop_plot_data
 import meop_metadata
 import meop_filenames
+import meop_process
 
 # list functions
 
@@ -23,6 +24,10 @@ import meop_filenames
 #  publish_meop_ctd(folder_public, publish=True, genplots=True)
 
 processdir = meop_filenames.processdir
+meop_process.start_matlab()
+conf = meop_process.init_mirounga()
+
+
 
 # copy a file
 def copy_file(file_name,src_dir,dst_dir):
@@ -452,8 +457,6 @@ def publish_meop_ctd(publicdir_CTD=meop_filenames.publicdir_CTD, copydata=False,
         compress_public_data(publicdir_CTD,rebuild=rebuild)
         
     return
-
-
 
 # Execute in terminal command line
 if __name__ == "__main__":

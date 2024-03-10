@@ -43,7 +43,7 @@ for deployment in ldone[ldone.DONE1.isin([0,9])].index:
     if (   
        meop_process.process_tags(deployment=deployment) and
        meop_process.create_hr2(deployment=deployment) and
-       meop_process.generate_doc_latex(deployment=deployment)
+       meop_process.generate_calibration_plots(deployment=deployment) 
     ):
         ldone.loc[deployment,'DONE1']=1
     else:
@@ -51,20 +51,18 @@ for deployment in ldone[ldone.DONE1.isin([0,9])].index:
     ldone.to_csv(file_done)
 
 
-for deployment in ldone[ldone.DONE1==1].index:
+for deployment in ldone[ldone.DONE1==1 & ldone.DONE2.isin([0,9])].index:
 
-    if ldone[ldone.DONE2.isin([0,9])].index:
-        print("Process ",deployment)
-        if (   
-           meop_process.generate_calibration_plots(deployment=deployment) and
-           meop_process.export_odv4(deployment=deployment)
-        ):
-            ldone.loc[deployment,'DONE2']=1
-        else:
-            ldone.loc[deployment,'DONE2']=9
-        ldone.to_csv(file_done)
+    if (
+        meop_process.generate_doc_latex(deployment=deployment) and
+        meop_process.export_odv4(deployment=deployment)
+    ):
+        ldone.loc[deployment,'DONE2']=1
+    else:
+        ldone.loc[deployment,'DONE2']=9
+    ldone.to_csv(file_done)
 
-    
+
 meop_process.stop_matlab()
 
 
