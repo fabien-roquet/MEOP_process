@@ -1,0 +1,105 @@
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+import numpy as np
+import xarray as xr
+
+from meop_process.catalog.filenames import fname_prof
+from meop_process.io.raw_odv import import_raw_data_zip
+from meop_process.metadata.patch import update_metadata_from_table
+from meop_process.models import Selection
+from meop_process.processing.adjustments import apply_adjustments
+from meop_process.processing.hr import create_hr0_python
+from meop_process.processing.ncargo import create_ncargo_python
+from meop_process.workflows.compare import compare_netcdf_outputs
+
+
+TIMESTAMP = datetime(2024, 3, 6, 2, 15, 16, tzinfo=timezone.utc)
+
+
+ADJUSTMENT_VARIABLES = [
+    "PRES_ADJUSTED",
+    "TEMP_ADJUSTED",
+    "PSAL_ADJUSTED",
+    "TEMP_ADJUSTED_ERROR",
+    "PSAL_ADJUSTED_ERROR",
+    "SCIENTIFIC_CALIB_COEFFICIENT",
+]
+
+
+
+def _open_any(path):
+    try:
+        return xr.open_dataset(path, decode_times=False)
+    except Exception:
+        return xr.open_dataset(path, engine="scipy", decode_times=False)
+
+
+
+def _stage_lr0(meop_config, stage_ct88_example):
+    staged = stage_ct88_example()
+    assert import_raw_data_zip(meop_config, "ct88") is True
+    create_ncargo_python(
+        meop_config,
+        Selection(deployment="ct88", smru_name="ct88-225-12"),
+        now=TIMESTAMP,
+    )
+    update_metadata_from_table(meop_config, smru_name="ct88-225-12", modes=("lr0",))
+    return staged
+
+
+
+def test_apply_adjustments_ct88_matches_reference_lr0_adjusted_fields(meop_config, stage_ct88_example) -> None:
+    staged = _stage_lr0(meop_config, stage_ct88_example)
+
+    result = apply_adjustments(
+        meop_config,
+        Selection(deployment="ct88", smru_name="ct88-225-12"),
+    )
+
+    assert result.processed_tags == ("ct88-225-12",)
+    candidate = fname_prof("ct88-225-12", qf="lr0", config=meop_config)
+    report = compare_netcdf_outputs(
+        staged["reference_lr0"],
+        candidate,
+        variables=ADJUSTMENT_VARIABLES,
+        attributes=(),
+        atol=1e-5,
+    )
+    assert report.is_equal, report.variable_differences + report.attribute_differences + report.dimension_differences
+
+
+
+def test_apply_adjustments_updates_hr0_from_lr0_coefficients_and_errors(meop_config, stage_ct88_example) -> None:
+    _stage_lr0(meop_config, stage_ct88_example)
+    create_hr0_python(
+        meop_config,
+        Selection(deployment="ct88", smru_name="ct88-225-12"),
+        now=TIMESTAMP,
+    )
+
+    result = apply_adjustments(
+        meop_config,
+        Selection(deployment="ct88", smru_name="ct88-225-12"),
+    )
+
+    assert fname_prof("ct88-225-12", qf="lr0", config=meop_config) in result.written_files
+    assert fname_prof("ct88-225-12", qf="hr0", config=meop_config) in result.written_files
+
+    hr0_path = fname_prof("ct88-225-12", qf="hr0", config=meop_config)
+    with _open_any(hr0_path) as hr0:
+        psal = hr0["PSAL"].values
+        psal_adjusted = hr0["PSAL_ADJUSTED"].values
+        mask = np.isfinite(psal) & np.isfinite(psal_adjusted)
+        assert mask.any()
+        np.testing.assert_allclose(psal_adjusted[mask] - psal[mask], 0.4, atol=1e-5)
+
+        temp_errors = hr0["TEMP_ADJUSTED_ERROR"].values
+        psal_errors = hr0["PSAL_ADJUSTED_ERROR"].values
+        assert np.isfinite(temp_errors).any()
+        assert np.isfinite(psal_errors).any()
+        unique_temp = np.unique(temp_errors[np.isfinite(temp_errors)])
+        unique_psal = np.unique(psal_errors[np.isfinite(psal_errors)])
+        assert all(np.isclose(value, 0.1) or np.isclose(value, 0.2) for value in unique_temp)
+        assert all(np.isclose(value, 0.2) or np.isclose(value, 0.4) for value in unique_psal)

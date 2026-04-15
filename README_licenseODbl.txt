@@ -29,7 +29,7 @@ DATA FORMATS
 Data is distributed using a standardized data format using the netCDF binary format, the SEA-MAMMALS NETCDF DATA FORMAT. We are currently using the version 1.2 of this format
 
 netCDF formats for hydrographic profiles:
-The netCDF profile format: For a thorough scientific use of the data, or for oceanographic data centers, it is advised to use the sea mammal netCDF format as it serves as the reference. This format can be easily read in Ocean Data View  using the Import/ARGO profiles/Float profiles menu, or using your favorite data processing software (e.g. Python, Matlab, IDL). Matlab and python tools are also available publicly to read and manipulate files in netCDF format. 
+The netCDF profile format: For a thorough scientific use of the data, or for oceanographic data centers, it is advised to use the sea mammal netCDF format as it serves as the reference. This format can be easily read in Ocean Data View  using the Import/ARGO profiles/Float profiles menu, or using your favorite data processing software (e.g. Python, R, IDL). Open tools are also available publicly to read and manipulate files in netCDF format. 
 
 csv files listing all profiles, loggers and deployments:
 To facilitate the exploration of MEOP-CTD data, csv files have been created that list all the available profiles (list_profiles.csv), all available tags (list_tags.csv) and all available deployments (list_deployments.csv). The information listed in these tables is derived from the netCDF files and includes geolocation, platform names, dates, owner, etc.

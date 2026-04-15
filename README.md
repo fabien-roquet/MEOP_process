@@ -23,7 +23,7 @@ Data are provided in three different formats.
 * _DATA_ncARGO:_ For a thourough scientific use of the data, or for oceanographic data centers, it is advised to use the 
 marine mammal netCDF format (files in DATA_ncARGO) as it serves as the reference. This format can be 
 easily read in Ocean Data View, using the Import/ARGO profiles/Float profiles menu, or using your 
-favorite data processing software (e.g. Python, Matlab, IDL). 
+favorite data processing software (e.g. Python, R, IDL). 
 * _DATA_ncARGO_interp:_ For ease of use, the DATA_ncARGO_interp provides the same data as in DATA_ncARGO, except it has
 been interpolated on a regular vertical grid (1dbar spacing).
 * _DATA_csv_interp:_ A csv format (ASCII) is also provided (files in DATA_csv_interp) which can be opened with Excel
@@ -87,6 +87,121 @@ licensed under a Creative Commons Attribution (CCBY) License,
 Primary data are also made available through PANGAEA. Please cite :
 doi10.1594/PANGAEA.150008 for data related to Marion Island (Southern Ocean Indian Sector)
 doi10.1594/PANGAEA.150009 for data related to King George Island (Southern Ocean Atlantic Sector)
-doi10.1594/PANGAEA.150010 for data related to Atka Bay, Drescher Inlet, Filchner Trough (Southern Ocean Atlantic Sector)    
+doi10.1594/PANGAEA.150010 for data related to Atka Bay, Drescher Inlet, Filchner Trough (Southern Ocean Atlantic Sector)
 
+## CURRENT SOFTWARE STATUS
 
+The repository now contains a pure-Python package under `src/meop_process/`.
+The current minimal functional pipeline covers:
+
+- deployment and tag discovery from catalog CSV files and JSON metadata;
+- raw ODV import and profile indexing;
+- `lr0`, QC/filtering, `hr0`, `hr1`, `lr1`, `fr0`, `fr1`, and `hr2`;
+- delayed-mode `apply_adjustments`;
+- standard diagnostics figures;
+- batch processing over multiple deployments with resumable state, readable reports, and per-deployment logs.
+
+The package now has a single Python execution path and no longer requires root-level table or catalog mirrors.
+
+## INSTALLATION
+
+A typical editable install is:
+
+```bash
+python -m pip install -e .
+```
+
+The current Python runtime expects at least:
+
+- `numpy`
+- `pandas`
+- `xarray`
+- `scipy`
+- `h5netcdf`
+- `h5py`
+- `matplotlib`
+- `gsw`
+
+If cartographic map backgrounds are desired in diagnostics, install `cartopy` as an additional optional dependency.
+
+## RUNTIME DATA LAYOUT
+
+The cleaned package expects data in explicit runtime locations:
+
+- packaged/default tables: `src/meop_process/resources/tables/`, synchronized into `data/tables/`
+- operator-managed catalog tables: `data/catalog/`
+- deployment/platform JSON files: `data/config_files/`
+- raw low-resolution ODV files: `data/raw_smru_data_odv/`
+- raw high-resolution text files: `data/raw_smru_hr_data/<year>/<instr_id>_ctd.txt`
+- references and comparison datasets: `references/`
+- processed outputs: `final_dataset_prof/`
+- diagnostics: `plots/`
+- batch logs and resumable state: `data/batch/`
+
+## RUNNING ONE DEPLOYMENT
+
+From an editable install:
+
+```bash
+meop-process --deployment ct88 --process_data --diagnostics
+```
+
+From the repository checkout:
+
+```bash
+python python/meop_process.py --deployment ct88 --process_data --diagnostics
+```
+
+## BATCH RERUN OVER ALL DEPLOYMENTS
+
+A resumable batch runner is available.
+It continues past errors, writes one log per deployment, generates a readable Markdown summary plus a CSV report, and does not redo successful deployments unless forced.
+
+Installed entry point:
+
+```bash
+meop-process-batch
+```
+
+Repository wrapper script:
+
+```bash
+python scripts/run_all_deployments.py
+```
+
+Useful options:
+
+```bash
+python scripts/run_all_deployments.py --diagnostics
+python scripts/run_all_deployments.py --force-failed
+python scripts/run_all_deployments.py --force
+python scripts/run_all_deployments.py --deployment ct96
+python scripts/run_all_deployments.py --notlc
+```
+
+Batch state and reports are stored under `data/batch/` by default:
+
+- `data/batch/latest/deployment_status.json`: latest persistent per-deployment state
+- `data/batch/runs/<timestamp>/logs/`: one log file per deployment
+- `data/batch/runs/<timestamp>/summary.md`: human-readable run report
+- `data/batch/runs/<timestamp>/summary.csv`: machine-readable run table
+
+## METADATA SUMMARY TABLES
+
+At the end of a batch run, the package refreshes `list_tags.csv` and `list_deployments.csv`.
+This update is incremental:
+
+- deployments processed in the current run are refreshed;
+- deployments whose tag inventory changed are refreshed;
+- unchanged deployments are preserved without reopening their netCDF files.
+
+The output directory is resolved automatically:
+
+- if an existing `list_tags.csv` / `list_deployments.csv` already exists under the configured public root, it is updated in place;
+- otherwise the files are written under `public/<version>/`.
+
+You can also refresh those summary CSVs without reprocessing deployments:
+
+```bash
+meop-process --refresh-metadata-summaries
+```

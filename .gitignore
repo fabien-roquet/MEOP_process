@@ -1,23 +1,114 @@
+# -----------------------------------------------------------------------------
+# MEOP_process: Python-only repository ignore rules
+# -----------------------------------------------------------------------------
+# This file is intentionally conservative:
+# - keep source, docs, tests, and small curated reference fixtures trackable
+# - ignore local runtime data, generated products, caches, and machine-specific files
+# -----------------------------------------------------------------------------
+
+# --- OS / editor cruft --------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+
+.vscode/
+.idea/
+
+# --- Python bytecode / tooling caches ----------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.nox/
+.tox/
 .ipynb_checkpoints/
-calibration_plots/
-doc_latex/
-final_dataset_prof/
-*.png
-list_deployment.csv
-list_deployment_hr.csv
-list_wmo_numbers.csv
-list_*.pkl
+
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# --- Virtual environments -----------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+
+# --- Build / packaging --------------------------------------------------------
+build/
+dist/
+site/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# --- Local environment / secrets ---------------------------------------------
+.env
+.env.*
+.python-version
+
+*.pem
+*.key
+*.crt
+*.p12
+*.token
+*.secret
+*credentials*
+soap_credentials.txt
+
+# --- Local runtime configuration ---------------------------------------------
+# The cleaned toolbox resolves runtime config from data/configs.json or an
+# explicit path. Any accidental root-level config files should stay untracked.
+/configs.json
+/config_files/
+
+# --- Legacy root-level files accidentally recreated by old workflows ---------
+/list_deployment.csv
+/list_deployment_hr.csv
+/list_wmo_numbers.csv
+/list_tags.csv
+/list_deployments.csv
+/table_*.csv
+/list_*.pkl
+
+# --- Package-managed runtime workspace ---------------------------------------
+# Private/process data live here and should not be committed.
+/data/
+
+# --- Generated products -------------------------------------------------------
+/final_dataset_prof/
+/plots/
+/maps/
+/doc_latex/
+/public/
+/share/
+/temporary/
+
+# --- Batch-processing state, logs, and reports -------------------------------
 *.log
-plots/
-share/
-temporary/
-public/
-python/__pycache__/
-python/.ipynb_checkpoints/
-python/out.txt
-python/Untitled.ipynb
-python/soap_credentials.txt
-matlab/create_ncARGO/.ipynb_checkpoints/
-table_old/
-python/sc_process_tags_*
-python/screenlog.0
+*.out
+*.err
+screenlog.0
+/data/batch/
+
+# --- Large / private reference datasets --------------------------------------
+# Keep small curated reference fixtures trackable (for example references/ct78,
+# references/ct96) but ignore heavyweight or private datasets.
+/references/WOD/
+/references/CORA/
+/references/MEOP-CTD_*/
+/references/private/
+/references/local/
+/references/cache/
+
+# --- Legacy scratch files -----------------------------------------------------
+/python/out.txt
+/python/screenlog.0
+

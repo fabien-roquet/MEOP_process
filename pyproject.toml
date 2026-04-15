@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meop-process"
+version = "0.1.0"
+description = "Modern package skeleton for the MEOP processing workflow"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "gsw>=3.6",
+  "h5netcdf>=1.0",
+  "h5py>=3.16.0",
+  "pandas>=2.2",
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "xarray>=2024.1",
+  "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4",
+]
+
+[project.scripts]
+meop-process = "meop_process.cli:main"
+meop-process-batch = "meop_process.batch.runner:main"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = ["-ra"]
+
+[tool.setuptools.package-data]
+meop_process = ["resources/**/*.csv", "resources/**/*.md", "resources/**/*.txt"]

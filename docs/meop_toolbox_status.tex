@@ -1,0 +1,557 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{lastpage}
+\usepackage{caption}
+\usepackage{multicol}
+\usepackage{pifont}
+
+\definecolor{meopblue}{HTML}{143C6B}
+\definecolor{meoplight}{HTML}{EAF1F8}
+\definecolor{meopmid}{HTML}{6B7C93}
+\definecolor{meopgreen}{HTML}{2E7D32}
+\definecolor{meopamber}{HTML}{B26A00}
+\definecolor{meopred}{HTML}{A3312B}
+\definecolor{codebg}{HTML}{F7F8FA}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=meopblue,
+  urlcolor=meopblue,
+  citecolor=meopblue,
+  pdftitle={MEOP Process Renovation Status and Toolbox Guide},
+  pdfauthor={OpenAI for the MEOP project}
+}
+
+\titleformat{\section}{\Large\bfseries\color{meopblue}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{meopblue}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{meopblue}}{\thesubsubsection}{0.7em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{meopmid}{MEOP Process renovation status}}
+\fancyhead[R]{\textcolor{meopmid}{March 22, 2026}}
+\fancyfoot[C]{\textcolor{meopmid}{\thepage}}
+\setlength{\headheight}{15pt}
+
+\lstdefinestyle{meopcode}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{black!10},
+  framerule=0.6pt,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true,
+  upquote=true
+}
+
+\newcommand{\done}{\textcolor{meopgreen}{\ding{51}}}
+\newcommand{\statusmarkpartial}{\textcolor{meopamber}{\ding{108}}}
+\newcommand{\todoitem}{\textcolor{meopred}{\ding{55}}}
+\newcommand{\pkg}[1]{\texttt{#1}}
+\newcommand{\statusdone}{\textcolor{meopgreen}{Done}}
+\newcommand{\statuspartial}{\textcolor{meopamber}{Partial}}
+\newcommand{\statusdeferred}{\textcolor{meopred}{Deferred}}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1.8cm}
+  {\Huge\bfseries\color{meopblue} MEOP Process\\[0.3em] Renovation Status and Toolbox Guide\par}
+  \vspace{0.8cm}
+  {\Large Current software snapshot, operating model, and migration plan\par}
+  \vspace{1.2cm}
+
+  \noindent\colorbox{meoplight}{%
+    \parbox{0.93\textwidth}{
+      \vspace{0.35cm}
+      \textbf{Purpose.} This document summarizes what the renovated MEOP processing toolbox does today, how it is organized, how data are expected to be found, how to install and use it, what is currently tested, and what remains to be ported from Matlab.
+      \vspace{0.35cm}
+    }
+  }
+
+  \vspace{1.2cm}
+
+  \begin{tabularx}{0.93\textwidth}{>{\bfseries}p{0.28\textwidth}X}
+    Snapshot date & March 22, 2026 \\
+    Repository state & Python package skeleton plus several scientific workflow ports \\
+    Main goal & Make the workflow importable, testable, and progressively independent from Matlab \\
+    Current priority already achieved & Matlab is no longer required for package import, runtime data discovery, deployment resolution, or raw ODV import \\
+    Primary regression example & Deployment \pkg{ct88}, including the reference file \pkg{ct88-225-12\_lr0\_prof.nc} \\
+    Test suite status & 29 tests passed in the current development snapshot \\
+  \end{tabularx}
+
+  \vfill
+
+  {\large Prepared for the MEOP toolbox renovation effort\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Executive summary}
+
+The renovation has moved the project from a Matlab-centered operator workspace toward a standard Python package with an explicit runtime layout, a stable public API, a CLI, and a growing set of Python-native scientific steps.
+
+The most important architectural change is that Matlab is no longer required for routine software use cases such as importing the package, locating data, reading configuration, bootstrapping the runtime tree, validating the expected layout, loading deployment metadata, or importing low-resolution raw ODV files. Matlab is now only needed for the workflow stages that have not yet been ported.
+
+At the time of writing, the following workflow elements are already implemented in Python:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item package configuration, runtime path resolution, and data-store bootstrapping;
+  \item deployment and tag catalog loading, including JSON fallback and raw ODV-driven discovery;
+  \item raw ODV import and profile indexing;
+  \item \pkg{lr0} generation via a Python replacement for \pkg{create\_ncargo};
+  \item the \pkg{lr0} QC and filtering block;
+  \item \pkg{hr0} generation on a regular 1 dbar grid;
+  \item the \pkg{hr1} no-TLC branch;
+  \item delayed-mode \pkg{apply\_adjustments};
+  \item comparison and regression helpers used in tests.
+\end{itemize}
+
+The main scientific steps still deferred are the \pkg{fr0/fr1} branch, the thermal-lag pathway, the density-stabilization logic associated with that pathway, and most diagnostic and reporting outputs. A placeholder exists for the historical location-adjustment stage so that the workflow boundary remains explicit.
+
+\section{General description of the toolbox so far}
+
+\subsection{Scientific intent}
+
+MEOP Process assembles and transforms marine mammal CTD observations into Argo-like profile products and derived outputs used for quality control, adjustment, plotting, and public release. The renovated toolbox preserves that mission while reorganizing the software around a Python package structure.
+
+\subsection{Current software intent}
+
+The renovated toolbox now has three simultaneous roles:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item \textbf{Operational wrapper} around the legacy Matlab tasks that are still authoritative.
+  \item \textbf{Python-native processing engine} for the workflow parts that have already been ported.
+  \item \textbf{Compatibility layer} that keeps the familiar function names from the historical \pkg{python/meop\_process.py} entry point while redirecting behavior through the new package.
+\end{enumerate}
+
+\subsection{High-level workflow state}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.28\textwidth} >{\raggedright\arraybackslash}p{0.17\textwidth} >{\raggedright\arraybackslash}p{0.47\textwidth}}
+\toprule
+\textbf{Workflow element} & \textbf{Current owner} & \textbf{Notes} \\
+\midrule
+\endhead
+Configuration loading and path resolution & Python & Repository-local defaults plus optional \pkg{configs.json} machine entries. \\
+Runtime data discovery and validation & Python & No Matlab required. \\
+Sync of deployment/platform JSON metadata & Python & Mirrored into \pkg{data/config\_files/}. \\
+Deployment and tag discovery & Python & Uses catalogs, JSON metadata, and raw ODV indexing. \\
+Raw ODV import & Python & Mirrors and extracts from \pkg{input/<deployment>/}. \\
+\pkg{create\_ncargo} / \pkg{lr0} & Python & Includes Argo-like NetCDF output generation. \\
+QC/filter block for \pkg{lr0} & Python & Uses Python logic and prefers \pkg{gsw} for density-based criteria. \\
+Location adjustment & Placeholder & Explicit placeholder retained for future work. \\
+\pkg{hr0} & Python & 1 dbar interpolation. \\
+\pkg{hr1} no-TLC branch & Python & Available today. \\
+\pkg{apply\_adjustments} & Python & Updates existing \pkg{lr0/lr1/hr0/hr1/fr0/fr1} when present. \\
+\pkg{fr0} / \pkg{create\_fr0\_without\_lr0} & Matlab & Deferred for later port. \\
+TLC pathway and density stabilization & Matlab & Deferred for later port. \\
+\pkg{hr2} generation & Matlab wrapper & Python API exists, implementation still delegated. \\
+Calibration plots, LaTeX report, ODV4 export & Matlab wrapper & Public API exists, implementation still delegated. \\
+\bottomrule
+\end{longtable}
+
+\section{What has been done}
+
+\subsection{Repository and packaging}
+
+The codebase has been restructured into a standard \pkg{src/} layout with a package root at \pkg{src/meop\_process/}. A \pkg{pyproject.toml} file now declares the build system, dependencies, and CLI entry point. A compatibility wrapper remains at \pkg{python/meop\_process.py} so the historical invocation style is preserved.
+
+The package now exposes a stable public surface through \pkg{meop\_process.api}. This API keeps the old workflow vocabulary but no longer relies on import-time Matlab startup.
+
+\subsection{Backend separation}
+
+A backend interface now separates Python-owned workflow stages from Matlab-owned ones:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \pkg{runtime/matlab\_backend.py} starts Matlab lazily and only when a Matlab task is actually needed.
+  \item \pkg{runtime/python\_backend.py} is the execution target for the growing pure-Python path.
+\end{itemize}
+
+This separation is the key enabler for progressive migration.
+
+\subsection{Data layout and runtime ownership}
+
+The package now makes data resolution explicit. Runtime roots such as \pkg{data/tables/}, \pkg{data/catalog/}, \pkg{data/config\_files/}, \pkg{data/raw\_smru\_data\_odv/}, and \pkg{data/raw\_smru\_hr\_data/} are created and validated directly by Python.
+
+This is especially important because some operational datasets are private and not tracked in GitHub. The package now knows where those datasets are expected to live even when the files themselves are absent from the repository.
+
+\subsection{Catalog and metadata discovery}
+
+Deployment and tag resolution is now Python-native. The loader can combine information from:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \pkg{list\_deployment.csv};
+  \item \pkg{list\_deployment\_hr.csv};
+  \item mirrored JSON metadata such as \pkg{deployment2.json}, \pkg{platform2.json}, \pkg{deployment2\_patch.json}, and \pkg{platform2\_patch.json};
+  \item raw ODV profile indexing when catalog rows are incomplete.
+\end{itemize}
+
+The \pkg{ct88} example already demonstrates this behavior: the software can recover deployment and platform information from the JSON metadata and the raw ODV files even when the catalog CSV is incomplete.
+
+\subsection{Raw ODV import and \pkg{lr0} creation}
+
+Low-resolution raw files in ODV form are now discovered, mirrored, parsed, and converted in Python. The main result is a Python implementation of the \pkg{create\_ncargo} stage that writes \pkg{*\_lr0\_prof.nc} files.
+
+The current port already covers the core Argo-like structure, platform metadata, timestamps, geolocation, parameters, and profile matrices. The \pkg{ct88-225-12} regression case is used as the reference target.
+
+\subsection{QC/filter block}
+
+The first major scientific filter stage has been ported. The current Python implementation reproduces the historical \pkg{lr0} QC/filter logic closely enough for the \pkg{ct88-225-12} regression case to match the reference file on the key QC arrays and profile counts.
+
+Density-related checks prefer the Python \pkg{gsw} package. In environments where \pkg{gsw} is not available, a fallback remains in place so that the code is still importable and testable, but the intended direction is to rely on \pkg{gsw} as the standard oceanographic engine.
+
+\subsection{High-resolution products and adjustments}
+
+Two further steps are now Python-native:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{\pkg{hr0}} generation on the regular 1 dbar grid.
+  \item \textbf{\pkg{hr1}} generation for the no-TLC branch.
+\end{itemize}
+
+In addition, \pkg{apply\_adjustments} is now implemented in Python. It reads runtime coefficient and offset tables, updates adjusted variables and error estimates, and writes those changes back into the available products.
+
+\subsection{Tests and regression harness}
+
+A real automated test suite now exists. The current snapshot passes 29 tests. These tests cover package configuration, data layout, sync helpers, raw import, ODV parsing, \pkg{lr0} generation, QC filtering, \pkg{hr0}, \pkg{hr1} for the no-TLC branch, adjustments, workflow sequencing, and CLI behavior.
+
+The most valuable regression example is the provided \pkg{ct88} case, which includes raw ODV input and a reference \pkg{lr0} NetCDF file. That example now anchors the scientific validation of the Python ports.
+
+\section{How data are expected to be found}
+
+A core requirement of the renovation is that the software must know where every class of data belongs, even when those files are not committed to GitHub.
+
+\subsection{Data classes}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}p{0.30\textwidth} >{\raggedright\arraybackslash}p{0.38\textwidth}}
+\toprule
+\textbf{Data class} & \textbf{Canonical location} & \textbf{Examples} \\
+\midrule
+\endhead
+Packaged CSV defaults & \pkg{src/meop\_process/resources/tables/} mirrored to \pkg{data/tables/} & \pkg{table\_coeff.csv}, \pkg{table\_filter.csv}, \pkg{table\_meta.csv}, \pkg{table\_param.csv} \\
+Operator-maintained catalogs & \pkg{data/catalog/} & \pkg{list\_deployment.csv}, \pkg{list\_deployment\_hr.csv} \\
+Mirrored JSON metadata & \pkg{data/config\_files/} & \pkg{deployment2.json}, \pkg{platform2.json}, patch files \\
+Incoming raw low-resolution data & \pkg{input/<deployment>/} & \pkg{ct88\_ODV.zip}, raw text files \\
+Mirrored/extracted low-resolution working data & \pkg{data/raw\_smru\_data\_odv/} & extracted ODV and CTD/FL text files \\
+High-resolution raw data & \pkg{data/raw\_smru\_hr\_data/} & instrument HR CTD text files resolved from the HR catalog \\
+Reference datasets & \pkg{references/} & WOD, CORA, stable MEOP release, future climatologies \\
+Outputs & \pkg{final\_dataset\_prof/}, \pkg{plots/}, \pkg{maps/}, \pkg{doc\_latex/}, \pkg{public/<version>/} & processed products and reports \\
+\bottomrule
+\end{longtable}
+
+\subsection{Resolution policy}
+
+The package uses explicit resolution rules instead of relying on Matlab working-directory state.
+
+\begin{itemize}[leftmargin=1.5em]
+  \item Tables are looked for first in \pkg{data/tables/}, then in the repository root, then in packaged defaults.
+  \item Catalogs are looked for first in \pkg{data/catalog/}, then in root-level compatibility copies.
+  \item Deployment and platform metadata can be recovered from mirrored JSON files when catalog CSV information is incomplete.
+  \item Raw ODV archives are expected in \pkg{input/<deployment>/} and are mirrored into \pkg{data/raw\_smru\_data\_odv/} for actual processing.
+\end{itemize}
+
+\subsection{Operational consequence}
+
+This means that private or large datasets do not need to be stored inside the GitHub repository. What must be stable is the runtime contract: the package must know where each dataset is expected to appear, and must expose helpers to bootstrap and validate that contract.
+
+\section{Installation}
+
+\subsection{Python environment}
+
+A minimal editable installation from the repository root is:
+
+\begin{lstlisting}[style=meopcode]
+python -m venv .venv
+source .venv/bin/activate
+pip install -U pip
+pip install -e .[dev]
+\end{lstlisting}
+
+Current declared core dependencies are:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \pkg{numpy}
+  \item \pkg{xarray}
+  \item \pkg{h5netcdf}
+  \item \pkg{scipy}
+  \item \pkg{gsw}
+\end{itemize}
+
+\subsection{Matlab dependency}
+
+Matlab is now optional for several tasks. It is only required when the chosen backend must execute legacy workflow steps that have not yet been ported.
+
+In practical terms:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{No Matlab needed:} package import, config loading, data bootstrap, layout inspection, deployment discovery, raw ODV import, \pkg{lr0}, \pkg{hr0}, \pkg{hr1} for the no-TLC branch, and \pkg{apply\_adjustments}.
+  \item \textbf{Matlab still needed:} \pkg{fr0/fr1}, TLC pathway, \pkg{hr2}, calibration plots, LaTeX report generation from the historical Matlab route, and ODV4 export.
+\end{itemize}
+
+\subsection{Configuration}
+
+The package can operate with repository-local defaults, but it also supports a machine entry from \pkg{configs.json}. The loader accepts:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item an explicit process directory;
+  \item an explicit config file;
+  \item a machine key;
+  \item environment variables such as \pkg{MEOP\_CONFIG\_FILE} and \pkg{MEOP\_MACHINE}.
+\end{itemize}
+
+\subsection{Bootstrap and layout validation}
+
+Before the first run, the new utilities can prepare and inspect the runtime tree:
+
+\begin{lstlisting}[style=meopcode]
+meop-process --bootstrap-data --show-data-layout
+meop-process --validate-data-layout
+\end{lstlisting}
+
+These commands create the expected runtime folders, seed packaged CSV tables, and print or validate the full data layout.
+
+\section{Usage}
+
+\subsection{Command-line usage}
+
+The package exposes a console script named \pkg{meop-process}. Example calls are:
+
+\begin{lstlisting}[style=meopcode]
+# Import raw ODV data for one deployment
+meop-process --deployment ct88 --import_data
+
+# Run the currently available pure-Python path for one tag, no TLC branch
+meop-process --smru_name ct88-225-12 --backend python --process_data --notlc
+
+# Apply delayed-mode adjustments to existing products
+meop-process --smru_name ct88-225-12 --apply-adjustments
+\end{lstlisting}
+
+\subsection{Python API usage}
+
+The stable import surface is \pkg{meop\_process.api}. Example usage:
+
+\begin{lstlisting}[style=meopcode]
+from meop_process.api import (
+    bootstrap_data_store,
+    describe_runtime_data_layout,
+    import_raw_data,
+    load_info_deployment,
+    process_tags,
+)
+from meop_process.runtime.python_backend import PythonBackend
+
+bootstrap_data_store()
+print(describe_runtime_data_layout(as_text=True))
+
+info = load_info_deployment(deployment="ct88")
+print(info["raw_profile_count_by_smru"]["ct88-225-12"])
+
+ok = process_tags(
+    deployment="ct88",
+    smru_name="ct88-225-12",
+    notlc=True,
+    backend=PythonBackend(),
+)
+\end{lstlisting}
+
+\subsection{Current processing boundary}
+
+For the main workflow, \pkg{process\_tags()} currently behaves as follows:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item prepare runtime directories and sync mirrored metadata;
+  \item load deployment and tag information in Python;
+  \item import raw ODV data in Python;
+  \item clean previous outputs;
+  \item create \pkg{lr0} in Python;
+  \item run the location-adjustment placeholder;
+  \item create \pkg{hr0} in Python;
+  \item run Matlab only if required for remaining unported stages;
+  \item patch metadata and apply delayed-mode adjustments in Python;
+  \item create \pkg{hr1} in Python for the no-TLC branch, or fall back to Matlab for the TLC branch.
+\end{enumerate}
+
+\section{Test cases and validation}
+
+\subsection{Current automated tests}
+
+The current development snapshot passes 29 tests. The suite covers the following areas:
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.28\textwidth} >{\raggedright\arraybackslash}p{0.60\textwidth}}
+\toprule
+\textbf{Area} & \textbf{What is checked} \\
+\midrule
+\endhead
+Configuration and packaging & Config loader behavior, CLI wiring, src-layout imports, runtime defaults \\
+Data layout and sync & Runtime data tree bootstrapping, validation, mirrored JSON sync, packaged tables \\
+Catalog resolution & Deployment discovery from CSV and JSON metadata, including fallback cases \\
+Raw ODV import & Import from \pkg{input/<deployment>/}, discovery of CTD/FL/raw files, extraction and indexing \\
+\pkg{ct88} ODV regression & 6497 profiles, 19 tags, 306 profiles for \pkg{ct88-225-12}, and preservation of profile structure \\
+\pkg{lr0} regression & Core NetCDF dimensions, variables, metadata, QC arrays, and count attributes against the provided reference file \\
+\pkg{hr0/hr1} regression & Interpolation behavior and no-TLC \pkg{hr1} product creation \\
+Adjustments & Adjusted variables, offset application, error fields, and coefficient metadata \\
+Workflow sequencing & Hybrid Python/Matlab task order and pure-Python no-TLC route \\
+\bottomrule
+\end{longtable}
+
+\subsection{Primary reference case}
+
+The \pkg{ct88} deployment is the key reference case used so far. It provides:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item representative raw ODV input;
+  \item deployment and platform metadata examples;
+  \item a reference \pkg{ct88-225-12\_lr0\_prof.nc} output;
+  \item a realistic basis for testing end-to-end parity of the ported workflow stages.
+\end{itemize}
+
+\subsection{Validation philosophy}
+
+The current strategy is to port a workflow step, then validate it against a reference dataset before moving on. This is preferable to a wholesale rewrite because it keeps scientific equivalence testable at each transition point.
+
+\section{API overview}
+
+The most important public functions currently exposed through \pkg{meop\_process.api} are listed below.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.25\textwidth} >{\raggedright\arraybackslash}p{0.66\textwidth}}
+\toprule
+\textbf{Function} & \textbf{Purpose} \\
+\midrule
+\endhead
+\pkg{bootstrap\_data\_store()} & Create runtime folders and seed packaged tables. \\
+\pkg{describe\_runtime\_data\_layout()} & Return the expected data layout, either structured or formatted as text. \\
+\pkg{validate\_runtime\_data\_layout()} & Check required and optional runtime paths. \\
+\pkg{start\_matlab()}, \pkg{stop\_matlab()} & Explicit backend lifecycle control when Matlab is needed. \\
+\pkg{load\_info\_deployment()} & Python-native deployment and tag resolution. \\
+\pkg{update\_config\_files()} & Mirror deployment and platform JSON files into the runtime data area. \\
+\pkg{import\_raw\_data()} & Mirror and extract raw ODV data from the input tree. \\
+\pkg{update\_metadata()} & Patch product metadata from \pkg{table\_meta.csv}. \\
+\pkg{apply\_adjustments()} & Apply delayed-mode coefficient and salinity-offset adjustments to existing products. \\
+\pkg{process\_tags()} & Run the main processing workflow using the chosen backend. \\
+\pkg{create\_hr2()} & Public wrapper for the \pkg{hr2} stage; implementation still delegated. \\
+\pkg{generate\_calibration\_plots()} & Public wrapper for the historical calibration plotting workflow. \\
+\pkg{generate\_doc\_latex()} & Public wrapper for the historical report-generation workflow. \\
+\pkg{export\_odv4()} & Public wrapper for the historical ODV4 export stage. \\
+\pkg{compare\_reference\_outputs()} & Compare candidate and reference NetCDF outputs. \\
+\bottomrule
+\end{longtable}
+
+\section{What remains to be done}
+
+\subsection{Deferred scientific processing}
+
+The following core scientific tasks still need work:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{\pkg{fr0} and \pkg{fr1}.} These remain on Matlab and are intentionally deferred for now.
+  \item \textbf{Thermal-lag correction pathway.} This includes the TLC branch itself and the related \pkg{apply\_tlc\_fr} logic.
+  \item \textbf{Density-stabilization logic.} The complex Matlab function used in the TLC/high-resolution pathway has not been ported yet.
+\end{itemize}
+
+\subsection{Location adjustment}
+
+The historical location-adjustment step is currently represented as a placeholder. This is deliberate: the workflow boundary is preserved, but the implementation is postponed until the surrounding priorities are ready.
+
+\subsection{Diagnostics and analyst support}
+
+A major remaining area is the diagnostic layer used to inspect the data and derive adjustments from historical profiles and climatological references. This work has barely started and will likely require dedicated design.
+
+The likely ingredients are:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item Python-native profile diagnostics and section views;
+  \item historical reference-data comparison tools;
+  \item climatology-based diagnostics;
+  \item analyst notebooks or structured reports;
+  \item eventually a reproducible workflow to propose and review delayed-mode adjustments.
+\end{itemize}
+
+\subsection{Remaining wrappers that still depend on Matlab}
+
+The public functions already exist for \pkg{create\_hr2}, calibration plots, LaTeX report generation, and ODV4 export, but the underlying implementations still delegate to Matlab.
+
+\subsection{Packaging and deployment polish}
+
+A few software-level tasks also remain:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item broaden dependency declarations once diagnostics and mapping mature;
+  \item add richer documentation around reference datasets and private-data mounting conventions;
+  \item create release notes and versioning rules for future public package releases;
+  \item decide how much backward compatibility to preserve in filenames, metadata, and CLI behavior.
+\end{itemize}
+
+\section{Planned strategy for future developments}
+
+\subsection{Guiding principles}
+
+The next stages should follow these principles:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item Preserve scientific behavior before optimizing implementation details.
+  \item Keep the public API stable while internals are migrated.
+  \item Prefer small, testable ports over large rewrites.
+  \item Use reference cases and comparison harnesses for every scientific transition.
+  \item Keep data-location rules explicit and package-owned.
+\end{enumerate}
+
+\subsection{Recommended near-term sequence}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.15\textwidth} >{\raggedright\arraybackslash}p{0.75\textwidth}}
+\toprule
+\textbf{Phase} & \textbf{Recommended scope} \\
+\midrule
+\endhead
+Phase 1 & Consolidate the current Python core, refresh internal documentation, and test with Matlab as soon as a license is available. Confirm parity of \pkg{lr0}, QC, \pkg{hr0}, \pkg{hr1} no-TLC, and \pkg{apply\_adjustments}. \\
+Phase 2 & Design the diagnostic layer: data-inspection plots, profile comparisons, and climatology interfaces. This will likely shape the future analyst workflow more than any remaining low-level refactor. \\
+Phase 3 & Port \pkg{fr0/fr1} only when the surrounding data model and diagnostics are already stable. \\
+Phase 4 & Revisit the TLC and density-stabilization pathway, likely as its own dedicated effort because scientific parity matters more than mechanical translation. \\
+Phase 5 & Port or redesign \pkg{hr2}, report generation, calibration plots, and ODV export once the underlying processing chain is settled. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Recommended diagnostic roadmap}
+
+Because diagnostics will be central for future delayed-mode work, a likely roadmap is:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item create reusable profile-selection and plotting utilities in Python;
+  \item build interfaces to historical reference datasets and climatologies;
+  \item define a standard comparison bundle for one tag: track map, T/S view, profile overlays, offset estimates, and candidate coefficients;
+  \item add regression tests for diagnostic input preparation and summary statistics;
+  \item only then decide whether the final analyst interface should be a CLI report, notebook workflow, or a small application.
+\end{enumerate}
+
+\section{Recommended immediate next actions}
+
+Given the current state, the most useful immediate actions are:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item test the current snapshot against Matlab as soon as the license is available;
+  \item verify the Python outputs on a few deployments beyond \pkg{ct88};
+  \item document the expected private-data mounting conventions for catalogs, raw data, and references;
+  \item start designing the diagnostic layer before reopening the deferred \pkg{fr0} and TLC tasks.
+\end{itemize}
+
+\section{Closing note}
+
+The renovation has already crossed the most important software threshold: MEOP Process is no longer locked inside Matlab just to be imported, configured, or pointed at data. The scientific core is not fully migrated yet, but the project now has a clean package skeleton, explicit data contracts, a test suite, and a validated reference case. That creates a much safer foundation for the next development stages.
+
+\end{document}
