@@ -83,6 +83,24 @@ def _seed_table_meta(meop_config: MeopConfig, rows: str) -> None:
     (meop_config.tablesdir / "table_meta.csv").write_text(rows, encoding="utf-8")
 
 
+def _seed_reference_catalogs(
+    meop_config: MeopConfig,
+    *,
+    deployment_rows: list[dict[str, str]],
+    hr_rows: list[dict[str, str]],
+) -> None:
+    """Seed the exact catalog rows needed by a reference fixture.
+
+    Processing regressions must not depend on the packaged sample catalogs. Those packaged CSVs
+    are useful for data-layout/bootstrap tests, but the FR/HR tests should stage the authoritative
+    `list_deployment.csv` and `list_deployment_hr.csv` rows explicitly.
+    """
+
+    meop_config.catalogdir.mkdir(parents=True, exist_ok=True)
+    write_indexed_csv_rows(meop_config.catalogdir / "list_deployment.csv", deployment_rows)
+    write_indexed_csv_rows(meop_config.catalogdir / "list_deployment_hr.csv", hr_rows)
+
+
 @pytest.fixture()
 def stage_ct88_example(meop_config: MeopConfig):
     fixtures_root = Path(__file__).resolve().parent / "fixtures" / "ct88"
@@ -92,7 +110,37 @@ def stage_ct88_example(meop_config: MeopConfig):
         meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(fixtures_root / "ct88_ODV.zip", meop_config.raw_odv_dir / "ct88_ODV.zip")
 
-        bootstrap_packaged_catalogs(meop_config)
+        _seed_reference_catalogs(
+            meop_config,
+            deployment_rows=[
+                {
+                    "row_name": deployment,
+                    "deployment_code": deployment,
+                    "pi_code": "COSTA",
+                    "process": "1",
+                    "public": "1",
+                    "country": "USA",
+                    "task_done": "",
+                    "first_version": "",
+                    "last_version": "",
+                    "start_date": "2012-02-05",
+                    "end_date": "2012-07-01",
+                    "start_date_jul": "",
+                    "description": "Weddell Seal CTD Jan 2012",
+                    "gts": "Y",
+                }
+            ],
+            hr_rows=[
+                {
+                    "row_name": "ct88-225-12",
+                    "smru_platform_code": "ct88-225-12",
+                    "instr_id": "12225",
+                    "year": "2012",
+                    "prefix": "",
+                    "continuous": "1",
+                }
+            ],
+        )
 
         _seed_config_jsons(
             meop_config,
@@ -148,7 +196,37 @@ def stage_ct78_example(meop_config: MeopConfig):
         meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(fixtures_root / "ct78_ODV.zip", meop_config.raw_odv_dir / "ct78_ODV.zip")
 
-        bootstrap_packaged_catalogs(meop_config)
+        _seed_reference_catalogs(
+            meop_config,
+            deployment_rows=[
+                {
+                    "row_name": deployment,
+                    "deployment_code": deployment,
+                    "pi_code": "IMOS",
+                    "process": "1",
+                    "public": "1",
+                    "country": "AUSTRALIA",
+                    "task_done": "",
+                    "first_version": "",
+                    "last_version": "",
+                    "start_date": "2012-01-01",
+                    "end_date": "2012-11-01",
+                    "start_date_jul": "",
+                    "description": "Southern elephant seal CTD 2012",
+                    "gts": "Y",
+                }
+            ],
+            hr_rows=[
+                {
+                    "row_name": "ct78-465-12",
+                    "smru_platform_code": "ct78-465-12",
+                    "instr_id": "11465",
+                    "year": "2012",
+                    "prefix": "",
+                    "continuous": "1",
+                }
+            ],
+        )
 
         _seed_config_jsons(
             meop_config,
@@ -208,7 +286,37 @@ def stage_ct96_example(meop_config: MeopConfig):
         hr_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(fixtures_root / "12664_ctd_shortened.txt", hr_dir / "12664_ctd.txt")
 
-        bootstrap_packaged_catalogs(meop_config)
+        _seed_reference_catalogs(
+            meop_config,
+            deployment_rows=[
+                {
+                    "row_name": deployment,
+                    "deployment_code": deployment,
+                    "pi_code": "IMOS",
+                    "process": "1",
+                    "public": "1",
+                    "country": "AUSTRALIA",
+                    "task_done": "",
+                    "first_version": "",
+                    "last_version": "",
+                    "start_date": "2013-02-05",
+                    "end_date": "2014-02-01",
+                    "start_date_jul": "",
+                    "description": "Southern elephant seal CTD 2013",
+                    "gts": "Y",
+                }
+            ],
+            hr_rows=[
+                {
+                    "row_name": "ct96-24-13",
+                    "smru_platform_code": "ct96-24-13",
+                    "instr_id": "12664",
+                    "year": "2013",
+                    "prefix": "",
+                    "continuous": "1",
+                }
+            ],
+        )
 
         _seed_config_jsons(
             meop_config,
