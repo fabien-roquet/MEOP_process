@@ -1,0 +1,4 @@
+,deployment_code,pi_code,process,public,country,task_done,first_version,last_version,start_date,end_date,start_date_jul,description,gts
+ct78,ct78,IMOS,1,1,AUSTRALIA,,,,2012-01-01,2012-11-01,,Southern elephant seal CTD 2012,Y
+ct88,ct88,COSTA,1,1,USA,,,,2012-02-05,2012-07-01,,Weddell Seal CTD Jan 2012,Y
+ct96,ct96,IMOS,1,1,AUSTRALIA,,,,2013-02-05,2014-02-01,,Southern elephant seal CTD 2013,Y

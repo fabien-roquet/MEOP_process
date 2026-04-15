@@ -38,5 +38,14 @@ You can now use the package to:
 - stage JSON metadata under `data/config_files/`
 - place raw ODV and HR files directly under `data/`
 - process deployments without any external engine selection
+- resolve HR raw filenames strictly from `data/catalog/list_deployment_hr.csv`
+
+## HR filename resolution
+
+For FR processing, the raw HR text filename is determined only from the catalog row in `list_deployment_hr.csv`:
+
+`data/raw_smru_hr_data/<year>/<prefix><instr_id>_ctd.txt`
+
+The code does not fall back to platform JSON metadata or filename guessing. Packaged sample copies of `list_deployment.csv` and `list_deployment_hr.csv` live under `src/meop_process/resources/catalog/` for tests and examples, but operational runs still read and write the authoritative catalog under `data/catalog/`.
 
 The remaining deferred work is scientific and analyst-facing, not orchestration-related.

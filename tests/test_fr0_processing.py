@@ -144,6 +144,36 @@ def test_create_fr0_python_matches_ct96_shortened_reference_core_fields(meop_con
         np.testing.assert_array_equal(dataset["PROFILE_PSAL_QC"].values.astype(str), reference["PROFILE_PSAL_QC"].values.astype(str))
 
 
+def test_create_fr0_python_uses_only_hr_catalog_filename_and_skips_missing_raw_file(meop_config, stage_ct96_example) -> None:
+    stage_ct96_example()
+
+    # Strict behavior: the HR filename comes only from list_deployment_hr.csv. If that catalog row
+    # points to a missing raw file, the FR pipeline must skip processing instead of guessing.
+    (meop_config.catalogdir / "list_deployment_hr.csv").write_text(
+        ",smru_platform_code,instr_id,year,prefix,continuous\n"
+        "ct96-24-13,ct96-24-13,12661,2013,,1\n",
+        encoding="utf-8",
+    )
+
+    assert import_raw_data_zip(meop_config, "ct96") is True
+    create_ncargo_python(
+        meop_config,
+        Selection(deployment="ct96", smru_name="ct96-24-13"),
+        now=TIMESTAMP,
+    )
+    _seed_table_param_min_profiles_one(meop_config)
+
+    result = create_fr0_python(
+        meop_config,
+        Selection(deployment="ct96", smru_name="ct96-24-13"),
+        now=TIMESTAMP,
+    )
+
+    assert result.processed_tags == ()
+    fr0_path = fname_prof("ct96-24-13", qf="fr0", config=meop_config)
+    assert not fr0_path.exists()
+
+
 def test_create_fr0_python_writes_ct96_traj_file(meop_config, stage_ct96_example) -> None:
     staged = _stage_ct96_lr0(meop_config, stage_ct96_example)
     create_fr0_python(

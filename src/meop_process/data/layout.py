@@ -21,6 +21,13 @@ PACKAGE_TABLES: dict[str, str] = {
     "table_split_tags.csv": "Split-tag handling rules.",
 }
 
+
+PACKAGE_CATALOGS: dict[str, str] = {
+    "list_deployment.csv": "Packaged sample deployment catalog used by tests and examples.",
+    "list_deployment_hr.csv": "Packaged sample high-resolution catalog used by tests and examples.",
+    "list_wmo_numbers.csv": "Optional packaged WMO mapping sample used by tests and examples.",
+}
+
 PROCESS_TABLES: dict[str, str] = {
     "list_deployment.csv": "Deployment registry used to resolve deployments and tags.",
     "list_deployment_hr.csv": "High-resolution deployment registry keyed by smru_platform_code.",
@@ -82,6 +89,10 @@ class DataLayout:
     def packaged_tables_root(self):
         return self.package_root.joinpath("tables")
 
+    @property
+    def packaged_catalog_root(self):
+        return self.package_root.joinpath("catalog")
+
     def canonical_table_path(self, name: str) -> Path:
         return self.config.tablesdir / name
 
@@ -124,6 +135,27 @@ def bootstrap_packaged_tables(config: MeopConfig, *, names: list[str] | tuple[st
     for name in requested:
         canonical = layout.canonical_table_path(name)
         resource = layout.packaged_tables_root.joinpath(name)
+        if canonical.exists():
+            continue
+        if not resource.is_file():
+            continue
+        with as_file(resource) as resource_path:
+            if _copy_if_different(resource_path, canonical):
+                changed.append(canonical)
+    return changed
+
+
+def bootstrap_packaged_catalogs(config: MeopConfig, *, names: list[str] | tuple[str, ...] | None = None) -> list[Path]:
+    """Optionally seed ``data/catalog`` from packaged sample catalog CSV files."""
+
+    ensure_runtime_directories(config)
+    layout = _layout(config)
+    requested = list(names or PACKAGE_CATALOGS.keys())
+    changed: list[Path] = []
+
+    for name in requested:
+        canonical = layout.canonical_catalog_path(name)
+        resource = layout.packaged_catalog_root.joinpath(name)
         if canonical.exists():
             continue
         if not resource.is_file():
@@ -274,6 +306,10 @@ def describe_data_layout(config: MeopConfig) -> dict[str, Any]:
         "packaged_tables": [
             {"name": name, "path": str(config.tablesdir / name), "description": description}
             for name, description in PACKAGE_TABLES.items()
+        ],
+        "packaged_catalogs": [
+            {"name": name, "path": str(_layout(config).packaged_catalog_root.joinpath(name)), "description": description}
+            for name, description in PACKAGE_CATALOGS.items()
         ],
         "catalog_tables": [
             {"name": name, "path": str(config.catalogdir / name), "description": description}
