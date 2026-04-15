@@ -151,7 +151,7 @@ def test_create_fr0_python_uses_only_hr_catalog_filename_and_skips_missing_raw_f
     # points to a missing raw file, the FR pipeline must skip processing instead of guessing.
     (meop_config.catalogdir / "list_deployment_hr.csv").write_text(
         ",smru_platform_code,instr_id,year,prefix,continuous\n"
-        "ct96-24-13,ct96-24-13,12661,2013,,1\n",
+        "ct96-24-13,ct96-24-13,12664,2013,,1\n",
         encoding="utf-8",
     )
 
