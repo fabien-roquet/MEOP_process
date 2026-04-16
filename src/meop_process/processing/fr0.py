@@ -190,7 +190,10 @@ def load_hr_data(path: str | Path, *, continuous: bool) -> HrRawData:
 
     salinity[salinity < 3.0] = np.nan
     ref_ns = pd.Timestamp(JULD_REF).value
-    juld = (timestamp.astype("int64") - ref_ns).astype(np.float64) / 86400.0 / 1e9
+    # Note: timestamp.astype('int64') returns microseconds, not nanoseconds
+    # Convert to nanoseconds by multiplying by 1000
+    timestamp_ns = timestamp.astype("int64") * 1000
+    juld = (timestamp_ns - ref_ns).astype(np.float64) / 1e9 / 86400.0
 
     return HrRawData(
         timestamp=timestamp,
