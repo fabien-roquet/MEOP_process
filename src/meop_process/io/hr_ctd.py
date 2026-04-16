@@ -32,6 +32,8 @@ def _clean_prefix(raw: str) -> str:
     value = (raw or "").strip()
     if not value:
         return ""
+    if value.lower() in {"nan", "none"}:
+        return ""
     return value if value.endswith("_") else f"{value}_"
 
 
