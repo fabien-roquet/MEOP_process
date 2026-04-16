@@ -14,7 +14,7 @@ from typing import Iterable
 from ..catalog.deployments import load_deployment_catalog
 from ..config.loader import load_config
 from ..metadata.summaries import SummaryUpdateResult, update_metadata_summaries
-from ..models import MeopConfig
+from ..models import MeopConfig, Selection
 from ..plotting.diagnostics import generate_diagnostics as generate_diagnostics_plotting
 from ..workflows.process import process_tags as process_tags_workflow
 
@@ -290,17 +290,48 @@ def run_all_deployments(
         log_path = log_dir / f"{deployment}.log"
 
         if skip:
-            finished = _utc_now()
-            result = DeploymentRunResult(
-                deployment=deployment,
-                status="skipped",
-                started_at=started.isoformat(),
-                finished_at=finished.isoformat(),
-                duration_seconds=(finished - started).total_seconds(),
-                log_path=log_path,
-                message=reason,
-            )
-            log_path.write_text(f"[{deployment}] skipped: {reason}\n", encoding="utf-8")
+            if diagnostics:
+                with log_path.open("w", encoding="utf-8") as log_handle:
+                    tee = _Tee(log_handle)
+                    with contextlib.redirect_stdout(tee), contextlib.redirect_stderr(tee):
+                        print(f"[{deployment}] skipped processing, running diagnostics instead")
+                        try:
+                            selection = Selection(deployment=deployment, smru_name="").normalized()
+                            generated = generate_diagnostics_plotting(
+                                cfg,
+                                selection,
+                                qf=diagnostics_qf,
+                                adjusted=not diagnostics_raw,
+                            )
+                            print(f"[{deployment}] diagnostics generated: {len(generated)}")
+                            status = "success"
+                            message = "skipped processing; diagnostics generated"
+                        except Exception as exc:
+                            status = "failed"
+                            message = f"diagnostics failed: {exc}"
+                            traceback.print_exc()
+                finished = _utc_now()
+                result = DeploymentRunResult(
+                    deployment=deployment,
+                    status=status,
+                    started_at=started.isoformat(),
+                    finished_at=finished.isoformat(),
+                    duration_seconds=(finished - started).total_seconds(),
+                    log_path=log_path,
+                    message=message,
+                )
+            else:
+                finished = _utc_now()
+                result = DeploymentRunResult(
+                    deployment=deployment,
+                    status="skipped",
+                    started_at=started.isoformat(),
+                    finished_at=finished.isoformat(),
+                    duration_seconds=(finished - started).total_seconds(),
+                    log_path=log_path,
+                    message=reason,
+                )
+                log_path.write_text(f"[{deployment}] skipped: {reason}\n", encoding="utf-8")
             results.append(result)
             state[deployment] = {**result.as_dict(), "run_id": run_id}
             continue
@@ -313,10 +344,10 @@ def run_all_deployments(
                     started_timer = time.perf_counter()
                     ok = process_tags_workflow(cfg, deployment=deployment, smru_name="", notlc=notlc)
                     if ok and diagnostics:
+                        selection = Selection(deployment=deployment, smru_name="").normalized()
                         generated = generate_diagnostics_plotting(
                             cfg,
-                            deployment=deployment,
-                            smru_name="",
+                            selection,
                             qf=diagnostics_qf,
                             adjusted=not diagnostics_raw,
                         )

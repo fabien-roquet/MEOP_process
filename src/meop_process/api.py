@@ -207,7 +207,7 @@ def update_metadata_summaries(
     return update_metadata_summaries_metadata(
         cfg,
         output_dir=output_dir,
-        impacted_deployments=impacted_deployments,
+        processed_deployments=impacted_deployments,
         force=force,
     ).as_dict()
 
