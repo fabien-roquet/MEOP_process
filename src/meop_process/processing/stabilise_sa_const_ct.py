@@ -29,6 +29,7 @@ class SolverInfo:
     solver: str
     status: str
     success: bool
+    profile_index: int | None = None
 
 
 class StabilisationError(RuntimeError):
@@ -179,23 +180,30 @@ def _pav_non_decreasing(values: np.ndarray) -> np.ndarray:
     solution = y.copy()
     weights = np.ones(n, dtype=float)
     i = 0
-    while i < n - 1:
-        if solution[i] <= solution[i + 1]:
-            i += 1
-            continue
-        total = solution[i] * weights[i] + solution[i + 1] * weights[i + 1]
-        weight = weights[i] + weights[i + 1]
-        solution[i] = solution[i + 1] = total / weight
-        weights[i] = weights[i + 1] = weight
-        j = i
-        while j > 0 and solution[j - 1] > solution[j]:
-            total = solution[j - 1] * weights[j - 1] + solution[j] * weights[j]
-            weight = weights[j - 1] + weights[j]
-            solution[j - 1] = solution[j] = total / weight
-            weights[j - 1] = weights[j] = weight
-            j -= 1
-        i += 1
-    return np.maximum.accumulate(solution)
+    try:
+        with np.errstate(over="raise", invalid="raise"):
+            while i < n - 1:
+                if solution[i] <= solution[i + 1]:
+                    i += 1
+                    continue
+                total = solution[i] * weights[i] + solution[i + 1] * weights[i + 1]
+                weight = weights[i] + weights[i + 1]
+                solution[i] = solution[i + 1] = total / weight
+                weights[i] = weights[i + 1] = weight
+                j = i
+                while j > 0 and solution[j - 1] > solution[j]:
+                    total = solution[j - 1] * weights[j - 1] + solution[j] * weights[j]
+                    weight = weights[j - 1] + weights[j]
+                    solution[j - 1] = solution[j] = total / weight
+                    weights[j - 1] = weights[j] = weight
+                    j -= 1
+                i += 1
+            out = np.maximum.accumulate(solution)
+    except FloatingPointError as exc:
+        raise StabilisationError(f"numeric overflow while pooling density profile: {exc}") from exc
+    if not np.all(np.isfinite(out)):
+        raise StabilisationError("non-finite isotonic target produced during density stabilisation")
+    return out
 
 
 def _sigma0_from_sa_ct(sa: np.ndarray, ct: np.ndarray) -> np.ndarray:
@@ -224,12 +232,16 @@ def _invert_sigma0_to_salinity(target_sigma: np.ndarray, ct: np.ndarray, initial
 def _stabilise_sa_isotonic(sa_in: np.ndarray, ct: np.ndarray, p: np.ndarray) -> tuple[np.ndarray, SolverInfo]:
     _ = p
     sigma = _sigma0_from_sa_ct(sa_in, ct)
-    if not np.isfinite(sigma).any() or np.all(np.diff(sigma[np.isfinite(sigma)]) >= 0.0):
+    if not np.all(np.isfinite(sigma)):
+        raise StabilisationError("non-finite sigma0 values computed from salinity and conservative temperature")
+    if np.all(np.diff(sigma) >= 0.0):
         solver = "isotonic-gsw" if _gsw is not None else "isotonic-eos80"
         return sa_in.copy(), SolverInfo(solver=solver, status="already_stable", success=True)
     target = _pav_non_decreasing(sigma)
     target += np.linspace(0.0, 1e-7, target.size)
     sa_stable = _invert_sigma0_to_salinity(target, ct, sa_in)
+    if not np.all(np.isfinite(sa_stable)):
+        raise StabilisationError("non-finite salinity values produced while inverting stabilised density")
     solver = "isotonic-gsw" if _gsw is not None else "isotonic-eos80"
     return sa_stable, SolverInfo(solver=solver, status="approximate", success=True)
 
@@ -242,6 +254,7 @@ def stabilise_SA_const_CT(
     solver: Literal["auto", "scipy", "isotonic"] = "auto",
     copy: bool = True,
     return_metadata: bool = False,
+    smru_name: str = "",
 ) -> np.ndarray | tuple[np.ndarray, list[SolverInfo | None]]:
     sa, sa_was_1d = _as_2d_column_major(SA_in, "SA_in")
     ct_arr, ct_was_1d = _as_2d_column_major(CT, "CT")
@@ -262,9 +275,26 @@ def stabilise_SA_const_CT(
         if sa_prof.size < 2:
             continue
         if solver in ("auto", "isotonic"):
-            sa_stable, info = _stabilise_sa_isotonic(sa_prof, ct_prof, p_prof)
+            try:
+                sa_stable, info = _stabilise_sa_isotonic(sa_prof, ct_prof, p_prof)
+            except StabilisationError as exc:
+                solver_name = "isotonic-gsw" if _gsw is not None else "isotonic-eos80"
+                label = smru_name or "unknown"
+                print(f"stabilisation skipped smru_name={label} profile_index={j}: {exc}")
+                metadata[j] = SolverInfo(
+                    solver=solver_name,
+                    status=f"skipped: {exc}",
+                    success=False,
+                    profile_index=j,
+                )
+                continue
             sa_out[idx, j] = sa_stable
-            metadata[j] = info
+            metadata[j] = SolverInfo(
+                solver=info.solver,
+                status=info.status,
+                success=info.success,
+                profile_index=j,
+            )
             continue
         if _gsw is None:
             raise StabilisationError("gsw is required for scipy TEOS-10 stabilisation")
@@ -280,7 +310,12 @@ def stabilise_SA_const_CT(
         x_lower = -sa_prof
         x, info = _solve_qp_scipy(a=a, b_u=b_u, x_lower=x_lower)
         sa_out[idx, j] = sa_prof + x
-        metadata[j] = info
+        metadata[j] = SolverInfo(
+            solver=info.solver,
+            status=info.status,
+            success=info.success,
+            profile_index=j,
+        )
 
     if sa_was_1d and ct_was_1d:
         sa_out = sa_out[:, 0]
@@ -293,11 +328,12 @@ def stabilise_SP_const_CT(
     SP_in: ArrayLike,
     CT: ArrayLike,
     p: ArrayLike,
+    smru_name: str = "",
     **kwargs,
 ) -> np.ndarray | tuple[np.ndarray, list[SolverInfo | None]]:
     sp = np.asarray(SP_in, dtype=float)
     sa = sp * SA_SCALE
-    result = stabilise_SA_const_CT(sa, CT, p, **kwargs)
+    result = stabilise_SA_const_CT(sa, CT, p, smru_name=smru_name, **kwargs)
     if isinstance(result, tuple):
         sa_out, metadata = result
         return np.asarray(sa_out, dtype=float) / SA_SCALE, metadata

@@ -12,6 +12,7 @@ from meop_process.metadata.patch import update_metadata_from_table
 from meop_process.models import Selection
 from meop_process.processing.adjustments import apply_adjustments
 from meop_process.processing.hr import create_hr0_python, create_hr1_python
+from meop_process.processing.stabilise_sa_const_ct import SolverInfo
 from meop_process.processing.ncargo import create_ncargo_python
 
 
@@ -204,3 +205,42 @@ def test_create_hr1_python_passes_level_major_pressure_to_stabiliser(meop_config
     dp = np.diff(first_profile[np.isfinite(first_profile)])
     assert dp.size > 0
     assert np.all(dp > 0)
+
+
+def test_create_hr1_python_records_skipped_stabilisation_profile_indices(meop_config, stage_ct88_example, monkeypatch) -> None:
+    _stage_hr0_adjusted(meop_config, stage_ct88_example)
+
+    import meop_process.processing.hr as hr_module
+
+    def _fake_stabilise(sp, ct, p, **kwargs):
+        _ = ct, p, kwargs
+        metadata = [None] * sp.shape[1]
+        metadata[7] = SolverInfo(
+            solver="isotonic-gsw",
+            status="skipped: numeric overflow while pooling density profile",
+            success=False,
+            profile_index=7,
+        )
+        for index in range(sp.shape[1]):
+            if metadata[index] is None:
+                metadata[index] = SolverInfo(
+                    solver="isotonic-gsw",
+                    status="already_stable",
+                    success=True,
+                    profile_index=index,
+                )
+        return np.asarray(sp, dtype=np.float64), metadata
+
+    monkeypatch.setattr(hr_module, 'stabilise_SP_const_CT', _fake_stabilise)
+
+    create_hr1_python(
+        meop_config,
+        Selection(deployment='ct88', smru_name='ct88-225-12'),
+        thermal_lag=False,
+        now=TIMESTAMP,
+    )
+
+    hr1_path = fname_prof("ct88-225-12", qf="hr1", config=meop_config)
+    with _open_any(hr1_path) as hr1:
+        assert hr1.attrs["stabilisation_skipped_profile_indices"] == "7"
+        assert int(hr1.attrs["stabilisation_skipped_profile_count"]) == 1

@@ -318,6 +318,7 @@ def _build_hr1_dataset(source: xr.Dataset, *, thermal_lag: bool, now: datetime) 
         ct.T,
         pres_adjusted.T,
         return_metadata=True,
+        smru_name=str(source.attrs.get("smru_platform_code", "")).strip(),
     )
     psal_stable = np.asarray(psal_stable_levels, dtype=np.float64).T
 
@@ -336,8 +337,12 @@ def _build_hr1_dataset(source: xr.Dataset, *, thermal_lag: bool, now: datetime) 
         result.attrs["density_inversion_adjustment"] = "python-gsw" if _gsw is not None else "python-fallback"
     result.attrs["ct_method"] = ct_method
     successful = sum(1 for item in metadata if item is not None and item.success)
+    skipped = [str(index) for index, item in enumerate(metadata) if item is not None and not item.success]
     if successful:
         result.attrs["stabilised_profiles"] = int(successful)
+    if skipped:
+        result.attrs["stabilisation_skipped_profile_indices"] = ",".join(skipped)
+        result.attrs["stabilisation_skipped_profile_count"] = len(skipped)
     _update_update_timestamps(result, now)
     return result
 
