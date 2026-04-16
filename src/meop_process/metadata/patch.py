@@ -10,11 +10,18 @@ from ..models import MeopConfig
 
 
 def _write_attrs_in_place(path: Path, attributes: dict[str, str]) -> None:
-    import h5netcdf
+    try:
+        import netCDF4 as nc4
+        opener = nc4.Dataset
+        write_attr = lambda handle, key, value: handle.setncattr(key, value)
+    except ImportError:
+        import h5netcdf
+        opener = h5netcdf.File
+        write_attr = lambda handle, key, value: setattr(handle.attrs, key, value)
 
-    with h5netcdf.File(path, "a") as handle:
+    with opener(path, "a") as handle:
         for key, value in attributes.items():
-            handle.attrs[key] = value
+            write_attr(handle, key, value)
 
 
 def update_metadata_from_table(

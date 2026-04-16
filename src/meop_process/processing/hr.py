@@ -9,6 +9,7 @@ import xarray as xr
 
 from ..catalog.filenames import fname_prof, list_fname_prof
 from ..models import MeopConfig, Selection
+from .netcdf import DEFAULT_FORMAT, save_dataset_with_compression
 from .conductivity import smooth_profile, thermal_cell_correction
 from .qc import _WorkingState, _to_numeric_qc
 from .stabilise_sa_const_ct import SA_SCALE, stabilise_SP_const_CT
@@ -59,6 +60,10 @@ def _selected_tags(config: MeopConfig, selection: Selection, *, source_qf: str) 
 def _as_utc(now: datetime | None) -> datetime:
     return (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
 
+
+
+def _save_dataset_with_compression(dataset: xr.Dataset, path: Path, format: str = DEFAULT_FORMAT) -> None:
+    save_dataset_with_compression(dataset, path, format=format)
 
 
 def _update_update_timestamps(dataset: xr.Dataset, now: datetime) -> None:
@@ -415,7 +420,7 @@ def create_hr0_python(config: MeopConfig, selection: Selection, *, now: datetime
             target_dataset = _build_hr0_dataset(dataset, now=timestamp)
             target_path = fname_prof(smru_name, deployment=selection.deployment, qf="hr0", config=config)
             target_path.parent.mkdir(parents=True, exist_ok=True)
-            target_dataset.to_netcdf(target_path, engine="h5netcdf")
+            _save_dataset_with_compression(target_dataset, target_path)
             written.append(target_path)
         finally:
             dataset.close()
@@ -462,14 +467,14 @@ def _create_adjusted_profile_dataset(
             target_dataset = _build_hr1_dataset(source_dataset, thermal_lag=thermal_lag, now=timestamp)
             target_path = fname_prof(smru_name, deployment=selection.deployment, qf=target_qf, config=config)
             target_path.parent.mkdir(parents=True, exist_ok=True)
-            target_dataset.to_netcdf(target_path, engine="h5netcdf")
+            _save_dataset_with_compression(target_dataset, target_path)
             written.append(target_path)
 
             if projected_dataset is not None and projected_target_qf is not None:
                 projected_target_dataset = _build_lr1_dataset(projected_dataset, target_dataset, thermal_lag=thermal_lag, now=timestamp)
                 projected_target_path = fname_prof(smru_name, deployment=selection.deployment, qf=projected_target_qf, config=config)
                 projected_target_path.parent.mkdir(parents=True, exist_ok=True)
-                projected_target_dataset.to_netcdf(projected_target_path, engine="h5netcdf")
+                _save_dataset_with_compression(projected_target_dataset, projected_target_path)
                 written.append(projected_target_path)
 
             processed.append(smru_name)

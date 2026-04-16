@@ -14,6 +14,7 @@ from ..io.hr_ctd import resolve_hr_ctd_path
 from ..io.raw_odv import OdvProfile
 from ..models import MeopConfig, Selection
 from .hr import STANDARD_HR_LEVELS, _interp_sensor, _prepare_profile_input
+from .netcdf import save_dataset_with_compression
 from .ncargo import NcargoResult, _build_ncargo_dataset
 from .qc import apply_lr0_qc_filters
 
@@ -584,7 +585,7 @@ def _write_traj_file(
 
     target = fname_traj(smru_name, deployment=info.EXP, config=config)
     target.parent.mkdir(parents=True, exist_ok=True)
-    dataset.to_netcdf(target, engine="h5netcdf")
+    save_dataset_with_compression(dataset, target)
     return target
 
 
@@ -626,7 +627,7 @@ def create_fr0_python(
         dataset.attrs["profile_source"] = "full-resolution"
         target = fname_prof(smru_name, deployment=info.EXP, qf="fr0", config=config)
         target.parent.mkdir(parents=True, exist_ok=True)
-        dataset.to_netcdf(target, engine="h5netcdf")
+        save_dataset_with_compression(dataset, target)
         written.append(target)
 
         traj_path = _write_traj_file(

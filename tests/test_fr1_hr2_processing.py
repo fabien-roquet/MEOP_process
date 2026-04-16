@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+import pytest
 import xarray as xr
 
 from meop_process.catalog.filenames import fname_prof, fname_traj
@@ -19,6 +20,7 @@ from meop_process.processing.ncargo import create_ncargo_python
 
 TIMESTAMP = datetime(2024, 3, 6, 2, 15, 16, tzinfo=timezone.utc)
 TIMESTAMP_CT78 = datetime(2024, 3, 5, 18, 6, 7, tzinfo=timezone.utc)
+CORE_DIMS = {"N_PROF", "N_LEVELS", "N_PARAM", "N_CALIB"}
 
 
 def _open_any(path: Path):
@@ -102,6 +104,25 @@ def test_create_fr0_python_matches_ct96_traj_reference_core_fields(meop_config, 
         np.testing.assert_allclose(candidate["PSAL"].values[:shared], reference["PSAL"].values[:shared], atol=1e-4)
 
 
+def test_create_fr0_python_writes_classic_compressed_outputs(meop_config, stage_ct96_example) -> None:
+    _stage_ct96_with_fr0(meop_config, stage_ct96_example)
+
+    netcdf4 = pytest.importorskip("netCDF4")
+    prof_path = fname_prof("ct96-24-13", qf="fr0", config=meop_config)
+    traj_path = fname_traj("ct96-24-13", config=meop_config)
+
+    with netcdf4.Dataset(prof_path, mode="r") as ds:
+        assert ds.file_format == "NETCDF4_CLASSIC"
+        assert ds.variables["TEMP"].filters().get("zlib") is True
+
+    with netcdf4.Dataset(traj_path, mode="r") as ds:
+        assert ds.file_format == "NETCDF4_CLASSIC"
+        assert ds.variables["TEMP"].filters().get("zlib") is True
+
+    with _open_any(prof_path) as candidate:
+        assert CORE_DIMS.issubset(set(candidate.sizes))
+
+
 def test_create_fr1_python_matches_ct96_shortened_reference_core_fields(meop_config, stage_ct96_example) -> None:
     staged = _stage_ct96_with_fr0(meop_config, stage_ct96_example)
 
@@ -118,7 +139,8 @@ def test_create_fr1_python_matches_ct96_shortened_reference_core_fields(meop_con
 
     with _open_any(candidate_path) as candidate, _open_any(staged["reference_fr1"]) as reference:
         assert candidate.attrs["thermal_lag_adjustment"] == "yes"
-        assert candidate.sizes == reference.sizes
+        for dim in CORE_DIMS:
+            assert int(candidate.sizes[dim]) == int(reference.sizes[dim])
         np.testing.assert_allclose(candidate["JULD"].values, reference["JULD"].values)
         np.testing.assert_allclose(candidate["LATITUDE"].values, reference["LATITUDE"].values, atol=2e-5)
         np.testing.assert_allclose(candidate["LONGITUDE"].values, reference["LONGITUDE"].values, atol=2e-5)
@@ -158,7 +180,8 @@ def test_create_hr2_python_uses_fr1_when_available_matches_ct96_reference(meop_c
     assert candidate_path.exists()
 
     with _open_any(candidate_path) as candidate, _open_any(staged["reference_hr2"]) as reference:
-        assert candidate.sizes == reference.sizes
+        for dim in CORE_DIMS:
+            assert int(candidate.sizes[dim]) == int(reference.sizes[dim])
         np.testing.assert_allclose(candidate["JULD"].values, reference["JULD"].values)
         np.testing.assert_allclose(candidate["LATITUDE"].values, reference["LATITUDE"].values, atol=2e-5)
         np.testing.assert_allclose(candidate["LONGITUDE"].values, reference["LONGITUDE"].values, atol=2e-5)

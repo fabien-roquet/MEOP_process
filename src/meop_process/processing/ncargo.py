@@ -15,6 +15,7 @@ from ..catalog.tables import read_csv_rows
 from ..data.layout import resolve_table_path
 from ..io.raw_odv import OdvProfile, discover_raw_odv_files, load_raw_odv_profiles
 from ..models import DeploymentInfo, MeopConfig, Selection
+from .netcdf import DEFAULT_FORMAT, save_dataset_with_compression
 from .qc import apply_lr0_qc_filters
 
 
@@ -122,8 +123,29 @@ def _format_global_datetime(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _string_array(shape: tuple[int, ...], value: str) -> np.ndarray:
-    return np.full(shape, value, dtype=object)
+def _char_array(shape: tuple[int, ...], value: str) -> np.ndarray:
+    width = shape[-1]
+    fill = value.encode("ascii", "replace")[:width].ljust(width, b" ")
+    return np.full(shape, fill, dtype="S1")
+
+
+def _char_array_from_strings(values: list[str], width: int) -> np.ndarray:
+    out = np.full((len(values), width), b" ", dtype="S1")
+    for index, value in enumerate(values):
+        encoded = value.encode("ascii", "replace")[:width].ljust(width, b" ")
+        out[index, :] = np.frombuffer(encoded, dtype="S1")
+    return out
+
+
+def _char_array_from_string_matrix(values: list[list[str]], width: int) -> np.ndarray:
+    n_rows = len(values)
+    n_cols = len(values[0]) if values else 0
+    out = np.full((n_rows, n_cols, width), b" ", dtype="S1")
+    for row, row_values in enumerate(values):
+        for col, value in enumerate(row_values):
+            encoded = value.encode("ascii", "replace")[:width].ljust(width, b" ")
+            out[row, col, :] = np.frombuffer(encoded, dtype="S1")
+    return out
 
 
 def _numeric_matrix(profiles: list[OdvProfile], field: str, *, fill: float = np.nan) -> np.ndarray:
@@ -138,11 +160,11 @@ def _numeric_matrix(profiles: list[OdvProfile], field: str, *, fill: float = np.
 
 def _qc_matrix(data: np.ndarray) -> np.ndarray:
     valid = np.isfinite(data)
-    return np.where(valid, "1", "9").astype(object)
+    return np.where(valid, "1", "9").astype('U1')
 
 
 def _profile_qc(level_qc: np.ndarray) -> np.ndarray:
-    return np.where(np.any(level_qc == "1", axis=1), "A", "F").astype(object)
+    return np.where(np.any(level_qc == "1", axis=1), "A", "F").astype('U1')
 
 
 def _valid_profile_count(*matrices: np.ndarray) -> int:
@@ -213,10 +235,8 @@ def _platform_metadata_for_tag(config: MeopConfig, smru_name: str) -> dict[str, 
 
 
 def _build_station_parameter_array(n_prof: int, n_param: int, parameter_names: list[str]) -> np.ndarray:
-    data = np.empty((n_prof, n_param), dtype=object)
-    for index, name in enumerate(parameter_names):
-        data[:, index] = name
-    return data
+    rows = [parameter_names for _ in range(n_prof)]
+    return _char_array_from_string_matrix(rows, 16)
 
 
 def _calibration_equations(parameter_names: list[str]) -> list[str]:
@@ -278,44 +298,44 @@ def _build_ncargo_dataset(
         platform_number_value = "00000000"
 
     station_parameters = _build_station_parameter_array(n_prof, n_param, parameter_names)
-    parameter_array = station_parameters[:, np.newaxis, :]
-    calib_equations = np.empty((n_prof, 1, n_param), dtype=object)
-    calib_coefficients = np.empty((n_prof, 1, n_param), dtype=object)
+    parameter_array = station_parameters[:, np.newaxis, :, :]
+    calib_equations = np.full((n_prof, 1, n_param, 256), b" ", dtype="S1")
+    calib_coefficients = np.full((n_prof, 1, n_param, 256), b" ", dtype="S1")
     for index, equation in enumerate(_calibration_equations(parameter_names)):
-        calib_equations[:, 0, index] = equation
-        calib_coefficients[:, 0, index] = " "
+        encoded = equation.encode("ascii", "replace")[:256].ljust(256, b" ")
+        calib_equations[:, 0, index, :] = np.frombuffer(encoded, dtype="S1")
 
     juld = np.array([_juld_from_timestamp(profile.timestamp) for profile in profiles], dtype=np.float64)
     latitude = np.array([profile.latitude for profile in profiles], dtype=np.float64)
     longitude = np.array([profile.longitude for profile in profiles], dtype=np.float64)
     timestamps = [_parse_timestamp(profile.timestamp) for profile in profiles]
 
-    data_vars: dict[str, tuple[tuple[str, ...], np.ndarray | str]] = {
-        "DATA_TYPE": ((), np.array("Argo profile", dtype=object)),
-        "FORMAT_VERSION": ((), np.array("3.0 ", dtype=object)),
-        "HANDBOOK_VERSION": ((), np.array("3.0 ", dtype=object)),
-        "REFERENCE_DATE_TIME": ((), np.array("19500101000000", dtype=object)),
-        "DATE_CREATION": ((), np.array(_format_argo_datetime(now), dtype=object)),
-        "DATE_UPDATE": ((), np.array(_format_argo_datetime(now), dtype=object)),
-        "PLATFORM_NUMBER": (("N_PROF",), _string_array((n_prof,), platform_number_value)),
-        "PROJECT_NAME": (("N_PROF",), _string_array((n_prof,), "MEOP")),
-        "PI_NAME": (("N_PROF",), _string_array((n_prof,), info.PI or str(platform.get("pi_code", "")).strip())),
-        "STATION_PARAMETERS": (("N_PROF", "N_PARAM"), station_parameters),
+    data_vars: dict[str, tuple[tuple[str, ...], np.ndarray]] = {
+        "DATA_TYPE": (("STRING16",), _char_array((16,), "Argo profile")),
+        "FORMAT_VERSION": (("STRING4",), _char_array((4,), "3.0 ")),
+        "HANDBOOK_VERSION": (("STRING4",), _char_array((4,), "3.0 ")),
+        "REFERENCE_DATE_TIME": (("DATE_TIME",), _char_array((14,), "19500101000000")),
+        "DATE_CREATION": (("DATE_TIME",), _char_array((14,), _format_argo_datetime(now))),
+        "DATE_UPDATE": (("DATE_TIME",), _char_array((14,), _format_argo_datetime(now))),
+        "PLATFORM_NUMBER": (("N_PROF", "STRING8"), _char_array((n_prof, 8), platform_number_value)),
+        "PROJECT_NAME": (("N_PROF", "STRING64"), _char_array((n_prof, 64), "MEOP")),
+        "PI_NAME": (("N_PROF", "STRING64"), _char_array((n_prof, 64), info.PI or str(platform.get("pi_code", "")).strip())),
+        "STATION_PARAMETERS": (("N_PROF", "N_PARAM", "STRING16"), station_parameters),
         "CYCLE_NUMBER": (("N_PROF",), np.arange(1, n_prof + 1, dtype=np.int32)),
-        "DIRECTION": (("N_PROF",), _string_array((n_prof,), "A")),
-        "DATA_CENTRE": (("N_PROF",), _string_array((n_prof,), "IF")),
-        "DC_REFERENCE": (("N_PROF",), np.array([f"{info.EXP[:24]:>24}{index + 1:08d}" for index in range(n_prof)], dtype=object)),
-        "DATA_STATE_INDICATOR": (("N_PROF",), _string_array((n_prof,), " ")),
-        "DATA_MODE": (("N_PROF",), _string_array((n_prof,), "D")),
-        "INST_REFERENCE": (("N_PROF",), _string_array((n_prof,), " ")),
-        "WMO_INST_TYPE": (("N_PROF",), _string_array((n_prof,), "995 ")),
+        "DIRECTION": (("N_PROF",), np.full((n_prof,), b"A", dtype="S1")),
+        "DATA_CENTRE": (("N_PROF", "STRING2"), _char_array((n_prof, 2), "IF")),
+        "DC_REFERENCE": (("N_PROF", "STRING32"), _char_array((n_prof, 32), f"{info.EXP[:24]:>24}{index + 1:08d}")),
+        "DATA_STATE_INDICATOR": (("N_PROF", "STRING4"), _char_array((n_prof, 4), " ")),
+        "DATA_MODE": (("N_PROF",), np.full((n_prof,), b"D", dtype="S1")),
+        "INST_REFERENCE": (("N_PROF", "STRING64"), _char_array((n_prof, 64), " ")),
+        "WMO_INST_TYPE": (("N_PROF", "STRING4"), _char_array((n_prof, 4), "995 ")),
         "JULD": (("N_PROF",), juld),
-        "JULD_QC": (("N_PROF",), _string_array((n_prof,), "1")),
+        "JULD_QC": (("N_PROF",), np.full((n_prof,), b"1", dtype="S1")),
         "JULD_LOCATION": (("N_PROF",), juld),
         "LATITUDE": (("N_PROF",), latitude),
         "LONGITUDE": (("N_PROF",), longitude),
-        "POSITION_QC": (("N_PROF",), _string_array((n_prof,), "1")),
-        "POSITIONING_SYSTEM": (("N_PROF",), _string_array((n_prof,), _positioning_system_value(platform.get("loc_algorithm")))),
+        "POSITION_QC": (("N_PROF",), np.full((n_prof,), b"1", dtype="S1")),
+        "POSITIONING_SYSTEM": (("N_PROF", "STRING8"), _char_array((n_prof, 8), _positioning_system_value(platform.get("loc_algorithm")))),
         "PROFILE_PRES_QC": (("N_PROF",), _profile_qc(pres_qc)),
         "PROFILE_PSAL_QC": (("N_PROF",), _profile_qc(psal_qc)),
         "PROFILE_TEMP_QC": (("N_PROF",), _profile_qc(temp_qc)),
@@ -334,9 +354,9 @@ def _build_ncargo_dataset(
         "PSAL_ADJUSTED": (("N_PROF", "N_LEVELS"), salinity.copy()),
         "PSAL_ADJUSTED_QC": (("N_PROF", "N_LEVELS"), psal_qc.copy()),
         "PSAL_ADJUSTED_ERROR": (("N_PROF", "N_LEVELS"), np.full((n_prof, n_levels), np.nan, dtype=np.float32)),
-        "PARAMETER": (("N_PROF", "N_CALIB", "N_PARAM"), parameter_array),
-        "SCIENTIFIC_CALIB_EQUATION": (("N_PROF", "N_CALIB", "N_PARAM"), calib_equations),
-        "SCIENTIFIC_CALIB_COEFFICIENT": (("N_PROF", "N_CALIB", "N_PARAM"), calib_coefficients),
+        "PARAMETER": (("N_PROF", "N_CALIB", "N_PARAM", "STRING16"), parameter_array),
+        "SCIENTIFIC_CALIB_EQUATION": (("N_PROF", "N_CALIB", "N_PARAM", "STRING256"), calib_equations),
+        "SCIENTIFIC_CALIB_COEFFICIENT": (("N_PROF", "N_CALIB", "N_PARAM", "STRING256"), calib_coefficients),
     }
 
     if has_fluorescence:
@@ -361,7 +381,15 @@ def _build_ncargo_dataset(
         data_vars["LIGHT_ADJUSTED_QC"] = (("N_PROF", "N_LEVELS"), light_qc.copy())
         data_vars["LIGHT_ADJUSTED_ERROR"] = (("N_PROF", "N_LEVELS"), np.full((n_prof, n_levels), np.nan, dtype=np.float32))
 
-    dataset = xr.Dataset(data_vars=data_vars, coords={"N_PROF": np.arange(n_prof), "N_LEVELS": np.arange(n_levels), "N_PARAM": np.arange(n_param), "N_CALIB": np.arange(1)})
+    dataset = xr.Dataset(
+        data_vars=data_vars,
+        coords={
+            "N_PROF": np.arange(n_prof),
+            "N_LEVELS": np.arange(n_levels),
+            "N_PARAM": np.arange(n_param),
+            "N_CALIB": np.arange(1),
+        }
+    )
 
     fill_float = 99999.0
     for name in [
@@ -525,6 +553,7 @@ def create_ncargo_python(
     selection: Selection,
     *,
     now: datetime | None = None,
+    format: str = DEFAULT_FORMAT,
 ) -> NcargoResult:
     """Create core ``*_lr0_prof.nc`` files directly from ODV raw text.
 
@@ -557,7 +586,7 @@ def create_ncargo_python(
         dataset = _build_ncargo_dataset(config, info, smru_name, grouped[smru_name], now=timestamp)
         dataset = apply_lr0_qc_filters(config, info, smru_name, dataset).dataset
         target = fname_prof(smru_name, deployment=info.EXP, qf="lr0", config=config)
-        dataset.to_netcdf(target, engine="h5netcdf")
+        save_dataset_with_compression(dataset, target, format=format)
         written.append(target)
 
     return NcargoResult(written_files=tuple(written), processed_tags=selected_tags)

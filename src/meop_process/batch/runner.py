@@ -249,6 +249,13 @@ def _write_markdown(path: Path, run_id: str, results: Iterable[DeploymentRunResu
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _diagnostics_count(result: object) -> int:
+    written = getattr(result, "written_files", None)
+    if written is not None:
+        return len(written)
+    return len(result)
+
+
 def run_all_deployments(
     *,
     config: MeopConfig | None = None,
@@ -303,7 +310,7 @@ def run_all_deployments(
                                 qf=diagnostics_qf,
                                 adjusted=not diagnostics_raw,
                             )
-                            print(f"[{deployment}] diagnostics generated: {len(generated)}")
+                            print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
                             status = "success"
                             message = "skipped processing; diagnostics generated"
                         except Exception as exc:
@@ -351,7 +358,7 @@ def run_all_deployments(
                             qf=diagnostics_qf,
                             adjusted=not diagnostics_raw,
                         )
-                        print(f"[{deployment}] diagnostics generated: {len(generated)}")
+                        print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
                     finished_timer = time.perf_counter()
                 if ok:
                     status = "success"
@@ -380,7 +387,7 @@ def run_all_deployments(
         state[deployment] = {**result.as_dict(), "run_id": run_id}
         _write_state(state_path, state)
 
-    metadata_summary = update_metadata_summaries(cfg, impacted_deployments=processed_for_summary, force=force)
+    metadata_summary = update_metadata_summaries(cfg, processed_deployments=processed_for_summary, force=force)
     summary_csv = output_dir / "summary.csv"
     summary_markdown = output_dir / "summary.md"
     _write_csv(summary_csv, results)

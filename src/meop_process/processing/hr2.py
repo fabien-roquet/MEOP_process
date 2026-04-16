@@ -6,6 +6,7 @@ from pathlib import Path
 from ..catalog.filenames import fname_prof
 from ..models import MeopConfig, Selection
 from .hr import HrResult, _as_utc, _open_dataset, _selected_tags, _update_update_timestamps
+from .netcdf import save_dataset_with_compression
 
 
 def _candidate_tags(config: MeopConfig, selection: Selection) -> tuple[str, ...]:
@@ -48,7 +49,7 @@ def create_hr2_python(
             _update_update_timestamps(result, timestamp)
             target = fname_prof(smru_name, deployment=selection.deployment, qf="hr2", config=config)
             target.parent.mkdir(parents=True, exist_ok=True)
-            result.to_netcdf(target, engine="h5netcdf")
+            save_dataset_with_compression(result, target)
             written.append(target)
             processed.append(smru_name)
         finally:

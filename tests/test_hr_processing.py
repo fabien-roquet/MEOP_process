@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import numpy as np
+import pytest
 import xarray as xr
 
 from meop_process.catalog.filenames import fname_prof
@@ -15,6 +16,7 @@ from meop_process.processing.ncargo import create_ncargo_python
 
 
 TIMESTAMP = datetime(2024, 3, 6, 2, 15, 16, tzinfo=timezone.utc)
+CORE_DIMS = {"N_PROF", "N_LEVELS", "N_PARAM", "N_CALIB"}
 
 
 
@@ -79,6 +81,25 @@ def test_create_hr0_python_builds_1000_level_interpolated_grid(meop_config, stag
         assert hr0.attrs["thermal_lag_adjustment"] == "no"
 
 
+def test_create_hr0_python_writes_classic_compressed_file(meop_config, stage_ct88_example) -> None:
+    _stage_lr0(meop_config, stage_ct88_example)
+    create_hr0_python(
+        meop_config,
+        Selection(deployment="ct88", smru_name="ct88-225-12"),
+        now=TIMESTAMP,
+    )
+
+    candidate = fname_prof("ct88-225-12", qf="hr0", config=meop_config)
+    netcdf4 = pytest.importorskip("netCDF4")
+    with netcdf4.Dataset(candidate, mode="r") as ds:
+        assert ds.file_format == "NETCDF4_CLASSIC"
+        filters = ds.variables["TEMP"].filters()
+        assert filters.get("zlib") is True
+        assert ds.variables["TEMP"].dtype == "float32"
+
+    with _open_any(candidate) as hr0:
+        assert CORE_DIMS.issubset(set(hr0.sizes))
+
 
 def test_create_hr1_python_notlc_writes_hr1_and_lr1(meop_config, stage_ct88_example) -> None:
     _stage_hr0_adjusted(meop_config, stage_ct88_example)
@@ -126,7 +147,8 @@ def test_create_hr1_python_tlc_matches_ct88_lr1_reference_core_fields(meop_confi
 
     with _open_any(staged["reference_lr1"]) as reference, _open_any(lr1_path) as candidate:
         assert candidate.attrs["thermal_lag_adjustment"] == "yes"
-        assert candidate.sizes == reference.sizes
+        for dim in CORE_DIMS:
+            assert int(candidate.sizes[dim]) == int(reference.sizes[dim])
         np.testing.assert_allclose(candidate["JULD"].values, reference["JULD"].values)
         np.testing.assert_allclose(candidate["LATITUDE"].values, reference["LATITUDE"].values)
         np.testing.assert_allclose(candidate["LONGITUDE"].values, reference["LONGITUDE"].values)

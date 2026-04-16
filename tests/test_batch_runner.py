@@ -51,7 +51,7 @@ def test_run_all_deployments_resumes_success_and_continues_after_failure(meop_co
         out.write_text("ok", encoding="utf-8")
         return True
 
-    def fake_summaries(config, impacted_deployments=None, force=False, output_dir=None):
+    def fake_summaries(config, processed_deployments=None, force=False, output_dir=None):
         root = config.publicdir_ctd
         root.mkdir(parents=True, exist_ok=True)
         tags = root / "list_tags.csv"
@@ -62,7 +62,7 @@ def test_run_all_deployments_resumes_success_and_continues_after_failure(meop_co
             output_dir=root,
             list_tags_path=tags,
             list_deployments_path=deps,
-            impacted_deployments=tuple(impacted_deployments or []),
+            impacted_deployments=tuple(processed_deployments or []),
             written=True,
         )
 
@@ -121,7 +121,7 @@ def test_run_all_deployments_runs_diagnostics_for_already_successful_deployments
         diagnostics_calls.append((selection.deployment, qf, adjusted))
         return ["diag"]
 
-    def fake_summaries(config, impacted_deployments=None, force=False, output_dir=None):
+    def fake_summaries(config, processed_deployments=None, force=False, output_dir=None):
         root = config.publicdir_ctd
         root.mkdir(parents=True, exist_ok=True)
         tags = root / "list_tags.csv"
@@ -132,7 +132,7 @@ def test_run_all_deployments_runs_diagnostics_for_already_successful_deployments
             output_dir=root,
             list_tags_path=tags,
             list_deployments_path=deps,
-            impacted_deployments=tuple(impacted_deployments or []),
+            impacted_deployments=tuple(processed_deployments or []),
             written=True,
         )
 

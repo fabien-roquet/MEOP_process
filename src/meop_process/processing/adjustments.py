@@ -12,6 +12,7 @@ from ..catalog.tables import read_csv_rows
 from ..data.layout import resolve_table_path
 from ..models import MeopConfig, Selection
 from .hr import _open_dataset, create_fr1_python, create_hr1_python
+from .netcdf import save_dataset_with_compression
 from .qc import _load_coeff_row, _to_numeric_qc, ensure_processing_parameters
 
 
@@ -92,7 +93,7 @@ def _ensure_default_coefficients(config: MeopConfig, smru_names: Iterable[str]) 
 def _atomic_write_dataset(dataset: xr.Dataset, path: Path) -> None:
     tmp_path = path.with_suffix(path.suffix + ".tmp")
     path.parent.mkdir(parents=True, exist_ok=True)
-    dataset.to_netcdf(tmp_path, engine="h5netcdf")
+    save_dataset_with_compression(dataset, tmp_path)
     tmp_path.replace(path)
 
 
