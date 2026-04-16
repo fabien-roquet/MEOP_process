@@ -67,6 +67,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--force-failed", action="store_true", help="Re-run deployments whose latest status is failed.")
     parser.add_argument("--include-disabled", action="store_true", help="Include deployments whose PROCESS flag is disabled in the catalog.")
     parser.add_argument("--state-dir", default=None, help="Override the directory used for batch state and reports.")
+    parser.add_argument("-j", "--jobs", type=int, default=1, help="Run up to N deployments in parallel during batch mode (default: 1).")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Print batch deployment logs to the terminal.")
     return parser
 
 
@@ -122,6 +124,8 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
             include_disabled=args.include_disabled,
             deployments=[args.deployment] if args.deployment else [],
             state_dir=args.state_dir,
+            jobs=args.jobs,
+            verbose=args.verbose,
         )
         print(result["summary_markdown"])
         return 0 if result.get("failed_count", 0) == 0 else 1

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import concurrent.futures
+
 from meop_process.batch.runner import SummaryUpdateResult, run_all_deployments
 from meop_process.catalog.tables import write_indexed_csv_rows
 
@@ -152,3 +154,141 @@ def test_run_all_deployments_runs_diagnostics_for_already_successful_deployments
     assert second.skipped_count == 0
     assert calls == []
     assert diagnostics_calls == [("DEP001", "lr1", True)]
+
+
+def test_run_all_deployments_verbose_prints_deployment_logs(meop_config, monkeypatch, capsys):
+    write_indexed_csv_rows(
+        meop_config.catalogdir / "list_deployment.csv",
+        [
+            {
+                "row_name": "DEP001",
+                "deployment_code": "DEP001",
+                "pi_code": "PI1",
+                "process": "1",
+                "public": "1",
+                "country": "SE",
+                "task_done": "",
+                "first_version": "",
+                "last_version": "",
+                "start_date": "2020-01-01",
+                "end_date": "2020-12-31",
+                "start_date_jul": "",
+            },
+        ],
+    )
+    write_indexed_csv_rows(meop_config.catalogdir / "list_deployment_hr.csv", [])
+
+    def fake_process_tags(config, *, deployment: str, smru_name: str = "", notlc: bool = False):
+        print(f"processing {deployment} verbose")
+        out = meop_config.final_dataset_dir / deployment / f"{deployment}-AAA_hr2_prof.nc"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text("ok", encoding="utf-8")
+        return True
+
+    def fake_summaries(config, processed_deployments=None, force=False, output_dir=None):
+        root = config.publicdir_ctd
+        root.mkdir(parents=True, exist_ok=True)
+        tags = root / "list_tags.csv"
+        deps = root / "list_deployments.csv"
+        tags.write_text("SMRU_PLATFORM_CODE,DEPLOYMENT_CODE\n", encoding="utf-8")
+        deps.write_text("DEPLOYMENT_CODE\n", encoding="utf-8")
+        return SummaryUpdateResult(
+            output_dir=root,
+            list_tags_path=tags,
+            list_deployments_path=deps,
+            impacted_deployments=tuple(processed_deployments or []),
+            written=True,
+        )
+
+    monkeypatch.setattr("meop_process.batch.runner.process_tags_workflow", fake_process_tags)
+    monkeypatch.setattr("meop_process.batch.runner.update_metadata_summaries", fake_summaries)
+
+    run_all_deployments(config=meop_config, state_dir=meop_config.datadir / "batch_state", verbose=True)
+    captured = capsys.readouterr()
+    assert "processing DEP001 verbose" in captured.out
+
+
+def test_run_all_deployments_jobs_uses_parallel_executor(meop_config, monkeypatch):
+    write_indexed_csv_rows(
+        meop_config.catalogdir / "list_deployment.csv",
+        [
+            {
+                "row_name": "DEP001",
+                "deployment_code": "DEP001",
+                "pi_code": "PI1",
+                "process": "1",
+                "public": "1",
+                "country": "SE",
+                "task_done": "",
+                "first_version": "",
+                "last_version": "",
+                "start_date": "2020-01-01",
+                "end_date": "2020-12-31",
+                "start_date_jul": "",
+            },
+            {
+                "row_name": "DEP002",
+                "deployment_code": "DEP002",
+                "pi_code": "PI2",
+                "process": "1",
+                "public": "1",
+                "country": "SE",
+                "task_done": "",
+                "first_version": "",
+                "last_version": "",
+                "start_date": "2020-01-01",
+                "end_date": "2020-12-31",
+                "start_date_jul": "",
+            },
+        ],
+    )
+    write_indexed_csv_rows(meop_config.catalogdir / "list_deployment_hr.csv", [])
+
+    calls: list[str] = []
+    observed_workers: list[int] = []
+
+    def fake_process_tags(config, *, deployment: str, smru_name: str = "", notlc: bool = False):
+        calls.append(deployment)
+        out = meop_config.final_dataset_dir / deployment / f"{deployment}-AAA_hr2_prof.nc"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text("ok", encoding="utf-8")
+        return True
+
+    def fake_summaries(config, processed_deployments=None, force=False, output_dir=None):
+        root = config.publicdir_ctd
+        root.mkdir(parents=True, exist_ok=True)
+        tags = root / "list_tags.csv"
+        deps = root / "list_deployments.csv"
+        tags.write_text("SMRU_PLATFORM_CODE,DEPLOYMENT_CODE\n", encoding="utf-8")
+        deps.write_text("DEPLOYMENT_CODE\n", encoding="utf-8")
+        return SummaryUpdateResult(
+            output_dir=root,
+            list_tags_path=tags,
+            list_deployments_path=deps,
+            impacted_deployments=tuple(processed_deployments or []),
+            written=True,
+        )
+
+    class FakeExecutor:
+        def __init__(self, *, max_workers):
+            observed_workers.append(max_workers)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def submit(self, fn, **kwargs):
+            future = concurrent.futures.Future()
+            future.set_result(fn(**kwargs))
+            return future
+
+    monkeypatch.setattr("meop_process.batch.runner.process_tags_workflow", fake_process_tags)
+    monkeypatch.setattr("meop_process.batch.runner.update_metadata_summaries", fake_summaries)
+    monkeypatch.setattr("meop_process.batch.runner._PARALLEL_EXECUTOR_FACTORY", FakeExecutor)
+
+    result = run_all_deployments(config=meop_config, state_dir=meop_config.datadir / "batch_state", jobs=2)
+    assert result.success_count == 2
+    assert set(calls) == {"DEP001", "DEP002"}
+    assert observed_workers == [2]

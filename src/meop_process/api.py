@@ -248,6 +248,8 @@ def run_all_deployments(
     include_disabled: bool = False,
     deployments: list[str] | tuple[str, ...] | None = None,
     state_dir: str | os.PathLike[str] | None = None,
+    jobs: int = 1,
+    verbose: bool = False,
 ) -> dict[str, Any]:
     cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
     return run_all_deployments_batch(
@@ -261,4 +263,6 @@ def run_all_deployments(
         include_disabled=include_disabled,
         deployments=deployments,
         state_dir=state_dir,
+        jobs=jobs,
+        verbose=verbose,
     ).as_dict()

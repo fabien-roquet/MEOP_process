@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import contextlib
 import io
 import json
+import os
+import sys
 import time
 import traceback
 from dataclasses import dataclass
@@ -21,6 +24,7 @@ from ..workflows.process import process_tags as process_tags_workflow
 
 STATE_FILE_NAME = "deployment_status.json"
 SUCCESS_STATUSES = {"success", "skipped"}
+_PARALLEL_EXECUTOR_FACTORY = concurrent.futures.ProcessPoolExecutor
 
 
 @dataclass(frozen=True)
@@ -82,6 +86,14 @@ class BatchRunResult:
             "metadata_summary": self.metadata_summary.as_dict(),
             "deployment_results": [item.as_dict() for item in self.deployment_results],
         }
+
+
+@dataclass(frozen=True)
+class _PendingDeployment:
+    index: int
+    deployment: str
+    log_path: Path
+    diagnostics_only: bool = False
 
 
 class _Tee(io.TextIOBase):
@@ -256,6 +268,160 @@ def _diagnostics_count(result: object) -> int:
     return len(result)
 
 
+def _print_log_to_stdout(deployment: str, log_path: Path) -> None:
+    text = log_path.read_text(encoding="utf-8") if log_path.exists() else ""
+    if not text:
+        return
+    print(f"[{deployment}] log start")
+    print(text, end="" if text.endswith("\n") else "\n")
+    print(f"[{deployment}] log end")
+
+
+def _execute_deployment(
+    *,
+    cfg: MeopConfig,
+    deployment: str,
+    log_path: Path,
+    notlc: bool,
+    diagnostics: bool,
+    diagnostics_qf: str,
+    diagnostics_raw: bool,
+    diagnostics_only: bool,
+    stream_stdout: bool,
+) -> tuple[DeploymentRunResult, bool]:
+    started = _utc_now()
+    targets: list[io.TextIOBase] = []
+    if stream_stdout:
+        targets.append(sys.stdout)
+    with log_path.open("w", encoding="utf-8") as log_handle:
+        targets.insert(0, log_handle)
+        tee = _Tee(*targets)
+        try:
+            with contextlib.redirect_stdout(tee), contextlib.redirect_stderr(tee):
+                if diagnostics_only:
+                    print(f"[{deployment}] skipped processing, running diagnostics instead")
+                    generated = generate_diagnostics_plotting(
+                        cfg,
+                        Selection(deployment=deployment, smru_name="").normalized(),
+                        qf=diagnostics_qf,
+                        adjusted=not diagnostics_raw,
+                    )
+                    print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
+                    status = "success"
+                    message = "skipped processing; diagnostics generated"
+                    processed_for_summary = False
+                else:
+                    print(f"[{deployment}] notlc={notlc} diagnostics={diagnostics}")
+                    started_timer = time.perf_counter()
+                    ok = process_tags_workflow(cfg, deployment=deployment, smru_name="", notlc=notlc)
+                    if ok and diagnostics:
+                        generated = generate_diagnostics_plotting(
+                            cfg,
+                            Selection(deployment=deployment, smru_name="").normalized(),
+                            qf=diagnostics_qf,
+                            adjusted=not diagnostics_raw,
+                        )
+                        print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
+                    finished_timer = time.perf_counter()
+                    if ok:
+                        status = "success"
+                        message = ""
+                        processed_for_summary = True
+                    else:
+                        status = "failed"
+                        message = "workflow returned False"
+                        processed_for_summary = False
+        except Exception as exc:  # pragma: no cover - exercised by dedicated tests
+            finished_timer = time.perf_counter()
+            status = "failed"
+            message = f"diagnostics failed: {exc}" if diagnostics_only else str(exc)
+            processed_for_summary = False
+            with contextlib.redirect_stdout(tee), contextlib.redirect_stderr(tee):
+                traceback.print_exc()
+        finished = _utc_now()
+        duration = (
+            finished_timer - started_timer
+            if not diagnostics_only and "started_timer" in locals()
+            else (finished - started).total_seconds()
+        )
+        result = DeploymentRunResult(
+            deployment=deployment,
+            status=status,
+            started_at=started.isoformat(),
+            finished_at=finished.isoformat(),
+            duration_seconds=duration,
+            log_path=log_path,
+            message=message,
+        )
+    return result, processed_for_summary
+
+
+def _run_pending_deployments(
+    *,
+    cfg: MeopConfig,
+    pending: list[_PendingDeployment],
+    notlc: bool,
+    diagnostics: bool,
+    diagnostics_qf: str,
+    diagnostics_raw: bool,
+    jobs: int,
+    verbose: bool,
+):
+    if jobs <= 1 or len(pending) <= 1:
+        for task in pending:
+            result, processed = _execute_deployment(
+                cfg=cfg,
+                deployment=task.deployment,
+                log_path=task.log_path,
+                notlc=notlc,
+                diagnostics=diagnostics,
+                diagnostics_qf=diagnostics_qf,
+                diagnostics_raw=diagnostics_raw,
+                diagnostics_only=task.diagnostics_only,
+                stream_stdout=verbose,
+            )
+            yield task.index, result, processed
+        return
+
+    max_workers = min(jobs, len(pending))
+    with _PARALLEL_EXECUTOR_FACTORY(max_workers=max_workers) as executor:
+        futures: dict[concurrent.futures.Future, _PendingDeployment] = {}
+        for task in pending:
+            future = executor.submit(
+                _execute_deployment,
+                cfg=cfg,
+                deployment=task.deployment,
+                log_path=task.log_path,
+                notlc=notlc,
+                diagnostics=diagnostics,
+                diagnostics_qf=diagnostics_qf,
+                diagnostics_raw=diagnostics_raw,
+                diagnostics_only=task.diagnostics_only,
+                stream_stdout=False,
+            )
+            futures[future] = task
+        for future in concurrent.futures.as_completed(futures):
+            task = futures[future]
+            try:
+                result, processed = future.result()
+            except Exception as exc:  # pragma: no cover - defensive
+                finished = _utc_now()
+                task.log_path.write_text(f"[{task.deployment}] worker failure: {exc}\n", encoding="utf-8")
+                result = DeploymentRunResult(
+                    deployment=task.deployment,
+                    status="failed",
+                    started_at=finished.isoformat(),
+                    finished_at=finished.isoformat(),
+                    duration_seconds=0.0,
+                    log_path=task.log_path,
+                    message=str(exc),
+                )
+                processed = False
+            if verbose:
+                _print_log_to_stdout(task.deployment, task.log_path)
+            yield task.index, result, processed
+
+
 def run_all_deployments(
     *,
     config: MeopConfig | None = None,
@@ -271,7 +437,11 @@ def run_all_deployments(
     include_disabled: bool = False,
     deployments: Iterable[str] | None = None,
     state_dir: str | Path | None = None,
+    jobs: int = 1,
+    verbose: bool = False,
 ) -> BatchRunResult:
+    if jobs < 1:
+        raise ValueError("jobs must be at least 1")
     cfg = config or load_config(processdir=processdir, config_file=config_file, machine=machine)
     root = _state_root(cfg, state_dir)
     run_id = _timestamp()
@@ -282,10 +452,11 @@ def run_all_deployments(
     state = _load_state(state_path)
 
     selected_deployments = _eligible_deployments(cfg, include_disabled=include_disabled, selected=deployments)
-    results: list[DeploymentRunResult] = []
+    results_by_index: list[tuple[int, DeploymentRunResult]] = []
     processed_for_summary: list[str] = []
+    pending: list[_PendingDeployment] = []
 
-    for deployment in selected_deployments:
+    for index, deployment in enumerate(selected_deployments):
         skip, reason = _should_skip(
             deployment,
             state=state,
@@ -298,35 +469,8 @@ def run_all_deployments(
 
         if skip:
             if diagnostics:
-                with log_path.open("w", encoding="utf-8") as log_handle:
-                    tee = _Tee(log_handle)
-                    with contextlib.redirect_stdout(tee), contextlib.redirect_stderr(tee):
-                        print(f"[{deployment}] skipped processing, running diagnostics instead")
-                        try:
-                            selection = Selection(deployment=deployment, smru_name="").normalized()
-                            generated = generate_diagnostics_plotting(
-                                cfg,
-                                selection,
-                                qf=diagnostics_qf,
-                                adjusted=not diagnostics_raw,
-                            )
-                            print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
-                            status = "success"
-                            message = "skipped processing; diagnostics generated"
-                        except Exception as exc:
-                            status = "failed"
-                            message = f"diagnostics failed: {exc}"
-                            traceback.print_exc()
-                finished = _utc_now()
-                result = DeploymentRunResult(
-                    deployment=deployment,
-                    status=status,
-                    started_at=started.isoformat(),
-                    finished_at=finished.isoformat(),
-                    duration_seconds=(finished - started).total_seconds(),
-                    log_path=log_path,
-                    message=message,
-                )
+                pending.append(_PendingDeployment(index=index, deployment=deployment, log_path=log_path, diagnostics_only=True))
+                continue
             else:
                 finished = _utc_now()
                 result = DeploymentRunResult(
@@ -339,53 +483,31 @@ def run_all_deployments(
                     message=reason,
                 )
                 log_path.write_text(f"[{deployment}] skipped: {reason}\n", encoding="utf-8")
-            results.append(result)
+            if verbose:
+                _print_log_to_stdout(deployment, log_path)
+            results_by_index.append((index, result))
             state[deployment] = {**result.as_dict(), "run_id": run_id}
             continue
 
-        with log_path.open("w", encoding="utf-8") as log_handle:
-            tee = _Tee(log_handle)
-            try:
-                with contextlib.redirect_stdout(tee), contextlib.redirect_stderr(tee):
-                    print(f"[{deployment}] notlc={notlc} diagnostics={diagnostics}")
-                    started_timer = time.perf_counter()
-                    ok = process_tags_workflow(cfg, deployment=deployment, smru_name="", notlc=notlc)
-                    if ok and diagnostics:
-                        selection = Selection(deployment=deployment, smru_name="").normalized()
-                        generated = generate_diagnostics_plotting(
-                            cfg,
-                            selection,
-                            qf=diagnostics_qf,
-                            adjusted=not diagnostics_raw,
-                        )
-                        print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
-                    finished_timer = time.perf_counter()
-                if ok:
-                    status = "success"
-                    message = ""
-                    processed_for_summary.append(deployment)
-                else:
-                    status = "failed"
-                    message = "workflow returned False"
-            except Exception as exc:  # pragma: no cover - exercised by dedicated tests
-                finished_timer = time.perf_counter()
-                status = "failed"
-                message = str(exc)
-                with contextlib.redirect_stdout(tee), contextlib.redirect_stderr(tee):
-                    traceback.print_exc()
-            finished = _utc_now()
-            result = DeploymentRunResult(
-                deployment=deployment,
-                status=status,
-                started_at=started.isoformat(),
-                finished_at=finished.isoformat(),
-                duration_seconds=finished_timer - started_timer if 'started_timer' in locals() else (finished - started).total_seconds(),
-                log_path=log_path,
-                message=message,
-            )
-        results.append(result)
-        state[deployment] = {**result.as_dict(), "run_id": run_id}
+        pending.append(_PendingDeployment(index=index, deployment=deployment, log_path=log_path))
+
+    for index, result, processed in _run_pending_deployments(
+        cfg=cfg,
+        pending=pending,
+        notlc=notlc,
+        diagnostics=diagnostics,
+        diagnostics_qf=diagnostics_qf,
+        diagnostics_raw=diagnostics_raw,
+        jobs=jobs,
+        verbose=verbose,
+    ):
+        results_by_index.append((index, result))
+        state[result.deployment] = {**result.as_dict(), "run_id": run_id}
+        if processed and result.status == "success":
+            processed_for_summary.append(result.deployment)
         _write_state(state_path, state)
+
+    results = [result for _, result in sorted(results_by_index, key=lambda item: item[0])]
 
     metadata_summary = update_metadata_summaries(cfg, processed_deployments=processed_for_summary, force=force)
     summary_csv = output_dir / "summary.csv"
@@ -420,6 +542,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--include-disabled", action="store_true", help="Include deployments whose PROCESS flag is disabled in the catalog.")
     parser.add_argument("--deployment", action="append", default=[], help="Restrict the run to one deployment; may be supplied multiple times.")
     parser.add_argument("--state-dir", default=None, help="Override the directory used for batch state and reports.")
+    parser.add_argument("-j", "--jobs", type=int, default=1, help="Run up to N deployments in parallel (default: 1).")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Print deployment log output to the terminal.")
     return parser
 
 
@@ -439,6 +563,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         include_disabled=args.include_disabled,
         deployments=args.deployment,
         state_dir=args.state_dir,
+        jobs=args.jobs,
+        verbose=args.verbose,
     )
     print(result.summary_markdown)
     return 0 if result.failed_count == 0 else 1
