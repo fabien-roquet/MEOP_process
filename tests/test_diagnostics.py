@@ -48,9 +48,11 @@ def test_generate_diagnostics_ct88_writes_overview_and_section_pngs(stage_ct88_e
 
     overview = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="diags_TS_adj", config=meop_config)
     section = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="transect_adj", config=meop_config)
+    deployment = meop_config.plots_by_deployment_dir / "ct88" / "ct88_lr1_deployment_overview_adj.png"
     assert result.processed_tags == ("ct88-225-12",)
     _assert_nonempty_png(overview)
     _assert_nonempty_png(section)
+    _assert_nonempty_png(deployment)
 
 
 def test_generate_diagnostics_ct78_writes_overview_and_section_pngs(stage_ct78_example, meop_config) -> None:
@@ -61,9 +63,26 @@ def test_generate_diagnostics_ct78_writes_overview_and_section_pngs(stage_ct78_e
 
     overview = fname_plots("ct78-465-12", deployment="ct78", qf="lr1", suffix="diags_TS_adj", config=meop_config)
     section = fname_plots("ct78-465-12", deployment="ct78", qf="lr1", suffix="transect_adj", config=meop_config)
+    deployment = meop_config.plots_by_deployment_dir / "ct78" / "ct78_lr1_deployment_overview_adj.png"
     assert result.processed_tags == ("ct78-465-12",)
     _assert_nonempty_png(overview)
     _assert_nonempty_png(section)
+    _assert_nonempty_png(deployment)
+
+
+def test_generate_diagnostics_by_deployment_writes_deployment_overview(stage_ct88_example, meop_config) -> None:
+    example = stage_ct88_example()
+    _stage_reference_product(meop_config, "ct88", "ct88-225-12", example["reference_lr1"])
+
+    result = generate_diagnostics(deployment="ct88", qf="lr1", config=meop_config)
+
+    overview = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="diags_TS_adj", config=meop_config)
+    section = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="transect_adj", config=meop_config)
+    deployment = meop_config.plots_by_deployment_dir / "ct88" / "ct88_lr1_deployment_overview_adj.png"
+    assert result.processed_tags == ("ct88-225-12",)
+    _assert_nonempty_png(overview)
+    _assert_nonempty_png(section)
+    _assert_nonempty_png(deployment)
 
 
 def test_generate_diagnostics_all_nan_track_still_writes_pngs(stage_ct88_example, meop_config) -> None:
@@ -80,6 +99,25 @@ def test_generate_diagnostics_all_nan_track_still_writes_pngs(stage_ct88_example
 
     overview = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="diags_TS_adj", config=meop_config)
     section = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="transect_adj", config=meop_config)
+    deployment = meop_config.plots_by_deployment_dir / "ct88" / "ct88_lr1_deployment_overview_adj.png"
     assert result.processed_tags == ("ct88-225-12",)
     _assert_nonempty_png(overview)
     _assert_nonempty_png(section)
+    _assert_nonempty_png(deployment)
+
+
+def test_generate_diagnostics_all_deployments_writes_global_overview(stage_ct88_example, stage_ct78_example, meop_config) -> None:
+    ct88 = stage_ct88_example()
+    ct78 = stage_ct78_example()
+    _stage_reference_product(meop_config, "ct88", "ct88-225-12", ct88["reference_lr1"])
+    _stage_reference_product(meop_config, "ct78", "ct78-465-12", ct78["reference_lr1"])
+
+    result = generate_diagnostics(qf="lr1", config=meop_config)
+
+    ct88_deployment = meop_config.plots_by_deployment_dir / "ct88" / "ct88_lr1_deployment_overview_adj.png"
+    ct78_deployment = meop_config.plots_by_deployment_dir / "ct78" / "ct78_lr1_deployment_overview_adj.png"
+    overview = meop_config.plots_overview_dir / "all_deployments_lr1_overview_adj.png"
+    assert set(result.processed_tags) == {"ct88-225-12", "ct78-465-12"}
+    _assert_nonempty_png(ct88_deployment)
+    _assert_nonempty_png(ct78_deployment)
+    _assert_nonempty_png(overview)

@@ -19,11 +19,11 @@ The package resolves runtime data from package-managed roots under `data/` and f
 - `data/data_traj/`
   - generated trajectory products
 - `data/plots_by_tags/`
-  - diagnostics figures grouped by deployment
+  - per-tag diagnostics figures grouped by deployment
 - `data/plots_by_deployments/`
-  - deployment-level plots and summaries
+  - deployment-level recap plots and summaries
 - `data/plots_overview/`
-  - cross-deployment overview plots
+  - cross-deployment overview summary plots
 - `data/maps/`
   - map outputs
 - `data/batch/`

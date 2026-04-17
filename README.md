@@ -135,8 +135,8 @@ The cleaned package expects data in explicit runtime locations:
 - raw high-resolution text files: `data/data_raw/raw_smru_hr_data/<year>/<instr_id>_ctd.txt`
 - processed profile outputs: `data/data_prof/`
 - processed trajectory outputs: `data/data_traj/`
-- diagnostics by tag: `data/plots_by_tags/`
-- overview and deployment plots: `data/plots_by_deployments/`, `data/plots_overview/`
+- diagnostics by tag: `data/plots_by_tags/` for per-tag overview and section figures
+- overview and deployment plots: `data/plots_by_deployments/`, `data/plots_overview/` for deployment recaps and cross-deployment overview summaries
 - maps: `data/maps/`
 - batch logs and resumable state: `data/batch/`
 

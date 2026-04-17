@@ -36,6 +36,8 @@ python scripts/run_all_deployments.py
 
 Run diagnostics for successful deployments:
 
+This writes the standard per-tag figures under `data/plots_by_tags/`, a deployment recap figure under `data/plots_by_deployments/` for each processed deployment, and cross-deployment overview summaries under `data/plots_overview/` when diagnostics are run across multiple deployments.
+
 ```bash
 meop-process --run-all-deployments --diagnostics
 ```
