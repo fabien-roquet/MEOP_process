@@ -7,7 +7,7 @@ from typing import Iterable
 import numpy as np
 import xarray as xr
 
-from ..catalog.tables import read_csv_rows, read_indexed_csv_rows, write_indexed_csv_rows
+from ..catalog.tables import read_csv_rows, read_indexed_csv_rows
 from ..data.layout import resolve_table_path
 from ..models import DeploymentInfo, MeopConfig
 
@@ -24,22 +24,6 @@ DEFAULT_PARAM_ROW: dict[str, str] = {
     "pmax_fluo": "200",
     "is_lon_centre_180": "0",
 }
-
-TABLE_PARAM_FIELD_ORDER = [
-    "temp_error",
-    "psal_error",
-    "minT",
-    "maxT",
-    "minS",
-    "maxS",
-    "min_Nprof",
-    "pmax",
-    "pmax_fluo",
-    "is_lon_centre_180",
-]
-
-TABLE_COEFF_FIELD_ORDER = ["smru_platform_code", "T1", "T2", "S1", "S2", "remove", "Sremove", "comment"]
-
 
 @dataclass(frozen=True)
 class QcFilterResult:
@@ -231,13 +215,9 @@ def apply_lr0_qc_filters(config: MeopConfig, info: DeploymentInfo, smru_name: st
 def ensure_processing_parameters(config: MeopConfig, deployment: str) -> dict[str, str]:
     rows = _load_indexed_runtime_rows(config, "table_param.csv")
     for row in rows:
-        if row.get("row_name") == deployment:
+        if row.get("row_name") == deployment or row.get("deployment_code") == deployment:
             return row
-
-    new_row = {"row_name": deployment, **DEFAULT_PARAM_ROW}
-    rows.append(new_row)
-    _write_runtime_indexed_rows(config, "table_param.csv", rows, field_order=TABLE_PARAM_FIELD_ORDER)
-    return new_row
+    return {"row_name": deployment, "deployment_code": deployment, **DEFAULT_PARAM_ROW}
 
 
 def _load_filter_rows(config: MeopConfig, deployment: str, smru_name: str) -> list[dict[str, str]]:
@@ -257,27 +237,8 @@ def _load_coeff_row(config: MeopConfig, smru_name: str) -> dict[str, str]:
 
 
 def _set_coeff_flag(config: MeopConfig, smru_name: str, field: str, value: str) -> None:
-    rows = _load_indexed_runtime_rows(config, "table_coeff.csv")
-    target: dict[str, str] | None = None
-    for row in rows:
-        if row.get("row_name") == smru_name or row.get("smru_platform_code") == smru_name:
-            target = row
-            break
-    if target is None:
-        target = {
-            "row_name": smru_name,
-            "smru_platform_code": smru_name,
-            "T1": "0",
-            "T2": "0",
-            "S1": "0",
-            "S2": "0",
-            "remove": "0",
-            "Sremove": "0",
-            "comment": "no comment",
-        }
-        rows.append(target)
-    target[field] = value
-    _write_runtime_indexed_rows(config, "table_coeff.csv", rows, field_order=TABLE_COEFF_FIELD_ORDER)
+    _ = (config, smru_name, field, value)
+    return None
 
 
 def _load_indexed_runtime_rows(config: MeopConfig, name: str) -> list[dict[str, str]]:
@@ -285,11 +246,6 @@ def _load_indexed_runtime_rows(config: MeopConfig, name: str) -> list[dict[str, 
     if not path.exists():
         return []
     return read_indexed_csv_rows(path)
-
-
-def _write_runtime_indexed_rows(config: MeopConfig, name: str, rows: list[dict[str, str]], *, field_order: Iterable[str]) -> Path:
-    path = resolve_table_path(config, name, required=False)
-    return write_indexed_csv_rows(path, rows, field_order=field_order)
 
 
 def _optional_numeric_qc(dataset: xr.Dataset, name: str) -> np.ndarray | None:
