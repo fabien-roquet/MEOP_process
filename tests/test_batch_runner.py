@@ -292,3 +292,60 @@ def test_run_all_deployments_jobs_uses_parallel_executor(meop_config, monkeypatc
     assert result.success_count == 2
     assert set(calls) == {"DEP001", "DEP002"}
     assert observed_workers == [2]
+
+
+def test_run_all_deployments_records_explicit_workflow_failure_reason(meop_config, monkeypatch):
+    write_indexed_csv_rows(
+        meop_config.catalogdir / "list_deployment.csv",
+        [
+            {
+                "row_name": "DEP001",
+                "deployment_code": "DEP001",
+                "pi_code": "PI1",
+                "process": "1",
+                "public": "1",
+                "country": "SE",
+                "task_done": "",
+                "first_version": "",
+                "last_version": "",
+                "start_date": "2020-01-01",
+                "end_date": "2020-12-31",
+                "start_date_jul": "",
+            },
+        ],
+    )
+    write_indexed_csv_rows(meop_config.catalogdir / "list_deployment_hr.csv", [])
+
+    class FakeWorkflowResult:
+        def __init__(self, success: bool, reason: str) -> None:
+            self.success = success
+            self.reason = reason
+
+        def __bool__(self) -> bool:
+            return self.success
+
+    def fake_process_tags(config, *, deployment: str, smru_name: str = "", notlc: bool = False):
+        return FakeWorkflowResult(False, "no HR2 files written")
+
+    def fake_summaries(config, processed_deployments=None, force=False, output_dir=None):
+        root = config.publicdir_ctd
+        root.mkdir(parents=True, exist_ok=True)
+        tags = root / "list_tags.csv"
+        deps = root / "list_deployments.csv"
+        tags.write_text("SMRU_PLATFORM_CODE,DEPLOYMENT_CODE\n", encoding="utf-8")
+        deps.write_text("DEPLOYMENT_CODE\n", encoding="utf-8")
+        return SummaryUpdateResult(
+            output_dir=root,
+            list_tags_path=tags,
+            list_deployments_path=deps,
+            impacted_deployments=tuple(processed_deployments or []),
+            written=True,
+        )
+
+    monkeypatch.setattr("meop_process.batch.runner.process_tags_workflow", fake_process_tags)
+    monkeypatch.setattr("meop_process.batch.runner.update_metadata_summaries", fake_summaries)
+
+    result = run_all_deployments(config=meop_config, state_dir=meop_config.datadir / "batch_state")
+
+    assert result.failed_count == 1
+    assert result.deployment_results[0].message == "no HR2 files written"

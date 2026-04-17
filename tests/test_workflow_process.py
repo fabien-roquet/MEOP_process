@@ -61,9 +61,10 @@ def test_process_tags_runs_pure_python_tlc_sequence(meop_config, monkeypatch, se
         lambda config, selection: hr2_calls.append((selection.deployment, selection.smru_name)) or HrResult(written_files=(Path("hr2.nc"),), processed_tags=(selection.smru_name or "DEP001-AAA",)),
     )
 
-    success = process_module.process_tags(meop_config, deployment="DEP001")
+    result = process_module.process_tags(meop_config, deployment="DEP001")
 
-    assert success is True
+    assert result.success is True
+    assert bool(result) is True
     assert fr0_calls == [("DEP001", "")]
     assert metadata_calls == [("DEP001", "")]
     assert adjustment_calls == [("DEP001", "")]
@@ -120,9 +121,10 @@ def test_process_tags_uses_python_notlc_branch(meop_config, monkeypatch, seed_ca
         lambda config, selection: hr2_calls.append((selection.deployment, selection.smru_name)) or HrResult(written_files=(Path("hr2.nc"),), processed_tags=(selection.smru_name or "DEP001-AAA",)),
     )
 
-    success = process_module.process_tags(meop_config, smru_name="DEP001-AAA", notlc=True)
+    result = process_module.process_tags(meop_config, smru_name="DEP001-AAA", notlc=True)
 
-    assert success is True
+    assert result.success is True
+    assert bool(result) is True
     assert notlc_calls == [("DEP001", "DEP001-AAA")]
     assert adjustment_calls == [("DEP001", "DEP001-AAA")]
     assert fr1_calls == [("DEP001", "DEP001-AAA")]
@@ -133,23 +135,76 @@ def test_process_tags_uses_python_notlc_branch(meop_config, monkeypatch, seed_ca
 def test_process_tags_stops_early_for_invalid_selection(meop_config, monkeypatch) -> None:
     monkeypatch.setattr(process_module, "sync_external_config_files", lambda config: [])
     monkeypatch.setattr(process_module, "import_raw_data_zip", lambda config, deployment: True)
-    assert process_module.process_tags(meop_config, deployment="DEP001") is False
+    result = process_module.process_tags(meop_config, deployment="DEP001")
+    assert result.success is False
+    assert result.reason == "invalid deployment code"
+    assert bool(result) is False
 
 
 
 def test_process_tags_notlc_creates_lr0_hr0_hr1_lr1_hr2(meop_config, stage_ct88_example) -> None:
     stage_ct88_example()
 
-    success = process_module.process_tags(
+    result = process_module.process_tags(
         meop_config,
         deployment="ct88",
         smru_name="ct88-225-12",
         notlc=True,
     )
 
-    assert success is True
+    assert result.success is True
+    assert bool(result) is True
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_lr0_prof.nc").exists()
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr0_prof.nc").exists()
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr1_prof.nc").exists()
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_lr1_prof.nc").exists()
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr2_prof.nc").exists()
+
+
+def test_process_tags_reports_missing_hr2_files(meop_config, monkeypatch, seed_catalog) -> None:
+    seed_catalog(deployment="DEP001", smru_name="DEP001-AAA")
+    monkeypatch.setattr(process_module, "sync_external_config_files", lambda config: [])
+    monkeypatch.setattr(process_module, "import_raw_data_zip", lambda config, deployment: True)
+    monkeypatch.setattr(process_module, "remove_deployment_outputs", lambda config, info: [])
+    monkeypatch.setattr(
+        process_module,
+        "create_ncargo_python",
+        lambda config, selection: HrResult(written_files=(Path("lr0.nc"),), processed_tags=(selection.smru_name or "DEP001-AAA",)),
+    )
+    monkeypatch.setattr(process_module, "apply_location_adjustment_placeholder", lambda config, selection: None)
+    monkeypatch.setattr(
+        process_module,
+        "create_hr0_python",
+        lambda config, selection: HrResult(written_files=(Path("hr0.nc"),), processed_tags=(selection.smru_name or "DEP001-AAA",)),
+    )
+    monkeypatch.setattr(
+        process_module,
+        "create_fr0_python",
+        lambda config, selection: HrResult(written_files=(Path("fr0.nc"),), processed_tags=(selection.smru_name or "DEP001-AAA",)),
+    )
+    monkeypatch.setattr(process_module, "update_metadata_from_table", lambda config, deployment, smru_name: [])
+    monkeypatch.setattr(
+        process_module,
+        "apply_adjustments",
+        lambda config, selection: AdjustmentResult(written_files=(Path("lr0.nc"),), processed_tags=(selection.smru_name or "DEP001-AAA",)),
+    )
+    monkeypatch.setattr(
+        process_module,
+        "apply_tlc",
+        lambda config, selection: HrResult(written_files=(Path("hr1.nc"), Path("lr1.nc")), processed_tags=(selection.smru_name or "DEP001-AAA",)),
+    )
+    monkeypatch.setattr(
+        process_module,
+        "apply_tlc_fr",
+        lambda config, selection: HrResult(written_files=(Path("fr1.nc"),), processed_tags=(selection.smru_name or "DEP001-AAA",)),
+    )
+    monkeypatch.setattr(
+        process_module,
+        "create_hr2_python",
+        lambda config, selection: HrResult(written_files=(), processed_tags=(selection.smru_name or "DEP001-AAA",)),
+    )
+
+    result = process_module.process_tags(meop_config, deployment="DEP001")
+
+    assert result.success is False
+    assert result.reason == "no HR2 files written"

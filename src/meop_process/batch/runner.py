@@ -268,6 +268,13 @@ def _diagnostics_count(result: object) -> int:
     return len(result)
 
 
+def _workflow_failure_message(result: object) -> str:
+    reason = getattr(result, "reason", "")
+    if isinstance(reason, str) and reason.strip():
+        return reason.strip()
+    return "workflow returned False"
+
+
 def _print_log_to_stdout(deployment: str, log_path: Path) -> None:
     text = log_path.read_text(encoding="utf-8") if log_path.exists() else ""
     if not text:
@@ -313,7 +320,8 @@ def _execute_deployment(
                 else:
                     print(f"[{deployment}] notlc={notlc} diagnostics={diagnostics}")
                     started_timer = time.perf_counter()
-                    ok = process_tags_workflow(cfg, deployment=deployment, smru_name="", notlc=notlc)
+                    workflow_result = process_tags_workflow(cfg, deployment=deployment, smru_name="", notlc=notlc)
+                    ok = bool(workflow_result)
                     if ok and diagnostics:
                         generated = generate_diagnostics_plotting(
                             cfg,
@@ -329,7 +337,7 @@ def _execute_deployment(
                         processed_for_summary = True
                     else:
                         status = "failed"
-                        message = "workflow returned False"
+                        message = _workflow_failure_message(workflow_result)
                         processed_for_summary = False
         except Exception as exc:  # pragma: no cover - exercised by dedicated tests
             finished_timer = time.perf_counter()

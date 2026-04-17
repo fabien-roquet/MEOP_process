@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from ..catalog.deployments import load_info_deployment
 from ..config.paths import ensure_runtime_directories
 from ..config.sync import sync_external_config_files
@@ -15,13 +17,22 @@ from ..processing.locations import apply_location_adjustment_placeholder
 from ..processing.ncargo import create_ncargo_python
 
 
+@dataclass(frozen=True)
+class WorkflowResult:
+    success: bool
+    reason: str = ""
+
+    def __bool__(self) -> bool:
+        return self.success
+
+
 def process_tags(
     config: MeopConfig,
     *,
     deployment: str = "",
     smru_name: str = "",
     notlc: bool = False,
-) -> bool:
+) -> WorkflowResult:
     """Run the full pure-Python MEOP processing chain for one deployment or tag."""
 
     ensure_runtime_directories(config)
@@ -29,23 +40,23 @@ def process_tags(
     info = load_info_deployment(config, deployment=deployment, smru_name=smru_name)
     if info.invalid_code:
         print(f"{info.EXP} is not a valid deployment code. Update data/catalog/list_deployment.csv or data/config_files JSON metadata.")
-        return False
+        return WorkflowResult(False, "invalid deployment code")
 
     if not import_raw_data_zip(config, info.EXP):
-        return False
+        return WorkflowResult(False, "missing raw ODV input")
 
     remove_deployment_outputs(config, info)
     selection = info.selection
 
     lr0 = create_ncargo_python(config, selection)
     if not lr0.written_files:
-        return False
+        return WorkflowResult(False, "no LR0 files written")
 
     apply_location_adjustment_placeholder(config, selection)
 
     hr0 = create_hr0_python(config, selection)
     if not hr0.written_files:
-        return False
+        return WorkflowResult(False, "no HR0 files written")
 
     create_fr0_python(config, selection)
 
@@ -59,14 +70,18 @@ def process_tags(
     if notlc:
         hr1 = apply_notlc(config, selection)
         if not hr1.written_files:
-            return False
+            return WorkflowResult(False, "no HR1 files written")
         apply_notlc_fr(config, selection)
         hr2 = create_hr2_python(config, selection)
-        return bool(hr2.written_files)
+        if not hr2.written_files:
+            return WorkflowResult(False, "no HR2 files written")
+        return WorkflowResult(True)
 
     hr1 = apply_tlc(config, selection)
     if not hr1.written_files:
-        return False
+        return WorkflowResult(False, "no HR1 files written")
     apply_tlc_fr(config, selection)
     hr2 = create_hr2_python(config, selection)
-    return bool(hr2.written_files)
+    if not hr2.written_files:
+        return WorkflowResult(False, "no HR2 files written")
+    return WorkflowResult(True)

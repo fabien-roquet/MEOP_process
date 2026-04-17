@@ -129,7 +129,7 @@ def process_tags(
     machine: str | None = None,
 ) -> bool:
     cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
-    return process_tags_workflow(cfg, deployment=deployment, smru_name=smru_name, notlc=notlc)
+    return bool(process_tags_workflow(cfg, deployment=deployment, smru_name=smru_name, notlc=notlc))
 
 
 def apply_adjustments(
