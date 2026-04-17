@@ -4,6 +4,8 @@ import shutil
 from pathlib import Path
 
 import matplotlib.image as mpimg
+import numpy as np
+import xarray as xr
 
 from meop_process.api import generate_diagnostics
 from meop_process.catalog.filenames import fname_plots, fname_prof
@@ -60,5 +62,24 @@ def test_generate_diagnostics_ct78_writes_overview_and_section_pngs(stage_ct78_e
     overview = fname_plots("ct78-465-12", deployment="ct78", qf="lr1", suffix="diags_TS_adj", config=meop_config)
     section = fname_plots("ct78-465-12", deployment="ct78", qf="lr1", suffix="transect_adj", config=meop_config)
     assert result.processed_tags == ("ct78-465-12",)
+    _assert_nonempty_png(overview)
+    _assert_nonempty_png(section)
+
+
+def test_generate_diagnostics_all_nan_track_still_writes_pngs(stage_ct88_example, meop_config) -> None:
+    example = stage_ct88_example()
+    staged = _stage_reference_product(meop_config, "ct88", "ct88-225-12", example["reference_lr1"])
+
+    with xr.open_dataset(staged, decode_times=False) as dataset:
+        updated = dataset.load()
+    updated["LATITUDE"] = (updated["LATITUDE"].dims, np.full(updated["LATITUDE"].shape, np.nan, dtype=np.float64))
+    updated["LONGITUDE"] = (updated["LONGITUDE"].dims, np.full(updated["LONGITUDE"].shape, np.nan, dtype=np.float64))
+    updated.to_netcdf(staged)
+
+    result = generate_diagnostics(smru_name="ct88-225-12", qf="lr1", config=meop_config)
+
+    overview = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="diags_TS_adj", config=meop_config)
+    section = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="transect_adj", config=meop_config)
+    assert result.processed_tags == ("ct88-225-12",)
     _assert_nonempty_png(overview)
     _assert_nonempty_png(section)

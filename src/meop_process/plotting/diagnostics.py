@@ -297,6 +297,21 @@ def _plot_ts(ax, temp: np.ndarray, psal: np.ndarray, colors: np.ndarray, sigma0:
 
 
 def _plot_map(ax, lon: np.ndarray, lat: np.ndarray, colors: np.ndarray, *, title: str) -> None:
+    mask = np.isfinite(lon) & np.isfinite(lat)
+    if not np.any(mask):
+        ax.set_title(title)
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        ax.grid(True, alpha=0.25)
+        ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
+        ax.set_xlim(-180, 180)
+        ax.set_ylim(-90, 90)
+        return ax
+
+    lon = lon[mask]
+    lat = lat[mask]
+    colors = colors[mask]
+
     if ccrs is not None:
         projection = ccrs.PlateCarree(central_longitude=180 if np.nanmax(lon) - np.nanmin(lon) > 180 else 0)
         ax.remove()
