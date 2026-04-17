@@ -10,7 +10,6 @@ def test_load_config_falls_back_to_repo_local_defaults(tmp_path: Path) -> None:
     config = load_config(processdir=tmp_path)
     assert config.processdir == tmp_path
     assert config.datadir == tmp_path / "data"
-    assert config.refdir == tmp_path / "references"
     assert config.publicdir == tmp_path / "public"
 
 
@@ -22,7 +21,6 @@ def test_load_config_reads_selected_machine_entry(tmp_path: Path) -> None:
             "test_machine": {
                 "processdir": str(tmp_path / "checkout"),
                 "datadir": str(tmp_path / "external_data"),
-                "refdir": str(tmp_path / "external_refs"),
                 "public": str(tmp_path / "external_public"),
                 "pdflatex": "xelatex",
             }
@@ -35,6 +33,5 @@ def test_load_config_reads_selected_machine_entry(tmp_path: Path) -> None:
     assert config.version == "MEOP-CTD_2030-01-01"
     assert config.processdir == tmp_path / "checkout"
     assert config.datadir == tmp_path / "external_data"
-    assert config.refdir == tmp_path / "external_refs"
     assert config.publicdir == tmp_path / "external_public"
     assert config.pdflatex == "xelatex"

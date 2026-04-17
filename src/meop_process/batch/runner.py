@@ -174,8 +174,11 @@ def _eligible_deployments(config: MeopConfig, *, include_disabled: bool = False,
 
 
 def _has_any_outputs(config: MeopConfig, deployment: str) -> bool:
-    deployment_dir = config.final_dataset_dir / deployment
-    return deployment_dir.exists() and any(deployment_dir.glob(f"{deployment}-*_prof.nc"))
+    for root in config.final_dataset_search_dirs:
+        deployment_dir = root / deployment
+        if deployment_dir.exists() and any(deployment_dir.glob(f"{deployment}-*_prof.nc")):
+            return True
+    return False
 
 
 def _should_skip(

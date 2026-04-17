@@ -37,6 +37,7 @@ def test_describe_runtime_data_layout_reports_expected_sections(meop_config) -> 
     assert set(summary) == {"roots", "patterns", "packaged_tables", "packaged_catalogs", "catalog_tables"}
     assert summary["roots"]["tables_root"] == str(meop_config.tablesdir)
     assert summary["roots"]["catalog_root"] == str(meop_config.catalogdir)
+    assert summary["roots"]["data_raw_root"] == str(meop_config.data_raw_dir)
     assert summary["roots"]["raw_odv_root"] == str(meop_config.raw_odv_dir)
 
 

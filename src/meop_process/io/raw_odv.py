@@ -117,22 +117,28 @@ def _copy_if_needed(source: Path, destination: Path) -> bool:
 
 def discover_raw_odv_files(config: MeopConfig, deployment: str, *, root: Path | None = None) -> RawOdvFiles:
     ensure_runtime_directories(config)
-    raw_root = root or config.raw_odv_dir
-    archive = raw_root / f"{deployment}_ODV.zip"
-
-    combined = raw_root / f"{deployment}_ODV.txt"
-    ctd = raw_root / f"{deployment}_CTD_ODV.txt"
-    fl = raw_root / f"{deployment}_FL_ODV.txt"
-
-    return RawOdvFiles(
-        deployment=deployment,
-        raw_root=raw_root,
-        source_root=raw_root,
-        archive=archive,
-        combined_text=combined if combined.exists() else None,
-        ctd_text=ctd if ctd.exists() else None,
-        fl_text=fl if fl.exists() else None,
-    )
+    candidate_roots = (root,) if root is not None else config.raw_odv_search_dirs
+    fallback: RawOdvFiles | None = None
+    for raw_root in candidate_roots:
+        archive = raw_root / f"{deployment}_ODV.zip"
+        combined = raw_root / f"{deployment}_ODV.txt"
+        ctd = raw_root / f"{deployment}_CTD_ODV.txt"
+        fl = raw_root / f"{deployment}_FL_ODV.txt"
+        resolved = RawOdvFiles(
+            deployment=deployment,
+            raw_root=raw_root,
+            source_root=raw_root,
+            archive=archive,
+            combined_text=combined if combined.exists() else None,
+            ctd_text=ctd if ctd.exists() else None,
+            fl_text=fl if fl.exists() else None,
+        )
+        if archive.exists() or resolved.preferred_ctd_text is not None or resolved.has_fl_text:
+            return resolved
+        if fallback is None:
+            fallback = resolved
+    assert fallback is not None
+    return fallback
 
 
 def import_raw_data_zip(config: MeopConfig, deployment: str) -> bool:

@@ -7,7 +7,9 @@ from ..models import DeploymentInfo, MeopConfig
 
 OUTPUT_CLEANUP_ROOTS = (
     lambda cfg, info: cfg.plotdir / info.EXP,
+    lambda cfg, info: cfg.legacy_plotdir / info.EXP,
     lambda cfg, info: info.directory,
+    lambda cfg, info: cfg.legacy_final_dataset_dir / info.EXP,
 )
 
 OUTPUT_CLEANUP_SUFFIXES = (".nc", ".txt", ".json", ".png")

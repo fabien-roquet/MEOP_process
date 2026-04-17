@@ -43,17 +43,19 @@ MIRRORED_CONFIG_JSON: dict[str, str] = {
     "platform2_patch.json": "Platform patch metadata.",
 }
 
-REFERENCE_SUBTREES: dict[str, str] = {
-    "WOD_data": "World Ocean Database reference profiles.",
-    "CORA_data/CORA_ncfiles": "CORA climatology/reference profiles.",
-    "MEOP_last_stable_version": "Reference MEOP release used in comparisons.",
-}
-
 OPTIONAL_DATA_DIRECTORIES: dict[str, str] = {
-    "crawl_locations": "Updated Argos crawl locations.",
-    "smooth_cls_locations": "Smoothed CLS locations.",
-    "raw_smru_data_odv": "Low-resolution ODV zip/text inputs staged directly under data/.",
-    "raw_smru_hr_data": "High-resolution raw CTD text inputs staged directly under data/.",
+    "data_raw": "Operator-managed raw-data root.",
+    "data_raw/config_files": "Mirrored deployment/platform JSON metadata.",
+    "data_raw/crawl_locations": "Updated Argos crawl locations.",
+    "data_raw/smooth_cls_locations": "Smoothed CLS locations.",
+    "data_raw/raw_smru_data_odv": "Low-resolution ODV zip/text inputs.",
+    "data_raw/raw_smru_hr_data": "High-resolution raw CTD text inputs.",
+    "data_prof": "Processed profile netCDF outputs grouped by deployment.",
+    "data_traj": "Processed trajectory netCDF outputs grouped by deployment.",
+    "maps": "Map outputs and overview figures.",
+    "plots_by_tags": "Per-tag diagnostic plots grouped by deployment.",
+    "plots_by_deployments": "Deployment-level plots and summaries.",
+    "plots_overview": "Cross-deployment overview plots.",
 }
 
 
@@ -251,21 +253,8 @@ def validate_data_layout(config: MeopConfig) -> list[ValidationRecord]:
             )
         )
 
-    for relative, description in REFERENCE_SUBTREES.items():
-        path = config.refdir / relative
-        records.append(
-            ValidationRecord(
-                category="reference_dir",
-                name=relative,
-                path=path,
-                required=False,
-                exists=path.exists(),
-                description=description,
-            )
-        )
-
     for relative, description in OPTIONAL_DATA_DIRECTORIES.items():
-        path = config.datadir / relative
+        path = config.datadir / Path(relative)
         records.append(
             ValidationRecord(
                 category="data_dir",
@@ -288,14 +277,16 @@ def describe_data_layout(config: MeopConfig) -> dict[str, Any]:
             "data_root": str(config.datadir),
             "tables_root": str(config.tablesdir),
             "catalog_root": str(config.catalogdir),
+            "data_raw_root": str(config.data_raw_dir),
             "config_files_root": str(config.config_files_dir),
             "raw_odv_root": str(config.raw_odv_dir),
             "raw_hr_root": str(config.raw_hr_dir),
-            "references_root": str(config.refdir),
-            "final_dataset_root": str(config.final_dataset_dir),
-            "plots_root": str(config.plotdir),
+            "data_prof_root": str(config.final_dataset_dir),
+            "data_traj_root": str(config.trajectory_dataset_dir),
             "maps_root": str(config.mapsdir),
-            "doc_latex_root": str(config.texdir),
+            "plots_by_tags_root": str(config.plotdir),
+            "plots_by_deployments_root": str(config.plots_by_deployment_dir),
+            "plots_overview_root": str(config.plots_overview_dir),
             "public_release_root": str(config.publicdir_ctd),
         },
         "patterns": {
@@ -329,14 +320,16 @@ def format_data_layout(config: MeopConfig) -> str:
         f"- data root: {roots['data_root']}",
         f"- tables: {roots['tables_root']}",
         f"- catalog: {roots['catalog_root']}",
+        f"- raw-data root: {roots['data_raw_root']}",
         f"- config json: {roots['config_files_root']}",
         f"- raw ODV: {roots['raw_odv_root']}",
         f"- raw HR: {roots['raw_hr_root']}",
-        f"- references: {roots['references_root']}",
-        f"- final products: {roots['final_dataset_root']}",
-        f"- plots: {roots['plots_root']}",
+        f"- profile outputs: {roots['data_prof_root']}",
+        f"- trajectory outputs: {roots['data_traj_root']}",
         f"- maps: {roots['maps_root']}",
-        f"- LaTeX outputs: {roots['doc_latex_root']}",
+        f"- plots by tags: {roots['plots_by_tags_root']}",
+        f"- plots by deployments: {roots['plots_by_deployments_root']}",
+        f"- plots overview: {roots['plots_overview_root']}",
         f"- public release: {roots['public_release_root']}",
         "",
         "Expected raw inputs:",
@@ -348,6 +341,6 @@ def format_data_layout(config: MeopConfig) -> str:
         "- Packaged CSV defaults are seeded into data/tables only.",
         "- Catalog CSV files are read and written from data/catalog only.",
         "- No root-level configuration or table mirrors are required.",
-        "- Raw ODV and HR files are staged directly under data/.",
+        "- Raw ODV and HR files are staged under data/data_raw/.",
     ]
     return "\n".join(lines)

@@ -218,15 +218,16 @@ def _platform_metadata_for_tag(config: MeopConfig, smru_name: str) -> dict[str, 
     import json
 
     records: list[dict[str, object]] = []
-    for name in ("platform3.json", "platform2_patch.json", "platform2.json"):
-        path = config.config_files_dir / name
-        if not path.exists():
-            continue
-        payload = json.loads(path.read_text(encoding="utf-8"))
-        if isinstance(payload, dict):
-            payload = [payload]
-        if isinstance(payload, list):
-            records.extend(record for record in payload if isinstance(record, dict))
+    for root in config.config_files_search_dirs:
+        for name in ("platform3.json", "platform2_patch.json", "platform2.json"):
+            path = root / name
+            if not path.exists():
+                continue
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(payload, dict):
+                payload = [payload]
+            if isinstance(payload, list):
+                records.extend(record for record in payload if isinstance(record, dict))
     prefix = smru_name.split("-N")[0]
     for record in records:
         if str(record.get("smru_platform_code", "")).strip() == prefix:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-REQUIRED_CONFIG_KEYS = ("datadir", "refdir", "public")
+REQUIRED_CONFIG_KEYS = ("datadir", "public")
 
 
 def normalize_config_entry(entry: dict[str, Any] | None) -> dict[str, Any]:

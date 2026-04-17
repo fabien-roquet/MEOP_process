@@ -15,16 +15,22 @@ from meop_process.models import MeopConfig
 def meop_config(tmp_path: Path) -> MeopConfig:
     processdir = tmp_path / "repo"
     datadir = processdir / "data"
-    refdir = processdir / "references"
     publicdir = processdir / "public"
-    for path in (processdir, datadir, refdir, publicdir):
+    for path in (processdir, datadir, publicdir):
         path.mkdir(parents=True, exist_ok=True)
-    for path in (datadir / "tables", datadir / "catalog", datadir / "config_files", datadir / "raw_smru_data_odv", datadir / "raw_smru_hr_data"):
+    for path in (
+        datadir / "tables",
+        datadir / "catalog",
+        datadir / "data_raw" / "config_files",
+        datadir / "data_raw" / "raw_smru_data_odv",
+        datadir / "data_raw" / "raw_smru_hr_data",
+        datadir / "data_raw" / "crawl_locations",
+        datadir / "data_raw" / "smooth_cls_locations",
+    ):
         path.mkdir(parents=True, exist_ok=True)
     return MeopConfig(
         processdir=processdir,
         datadir=datadir,
-        refdir=refdir,
         publicdir=publicdir,
         version="MEOP-CTD_2099-01-01",
         machine="test_machine",

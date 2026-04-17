@@ -14,7 +14,6 @@ class MeopConfig:
 
     processdir: Path
     datadir: Path
-    refdir: Path
     publicdir: Path
     pdflatex: str = "pdflatex"
     version: str = DEFAULT_VERSION
@@ -34,71 +33,108 @@ class MeopConfig:
         return self.datadir / "catalog"
 
     @property
+    def data_raw_dir(self) -> Path:
+        return self.datadir / "data_raw"
+
+    @property
     def config_files_dir(self) -> Path:
+        return self.data_raw_dir / "config_files"
+
+    @property
+    def legacy_config_files_dir(self) -> Path:
         return self.datadir / "config_files"
 
     @property
+    def config_files_search_dirs(self) -> tuple[Path, ...]:
+        return _unique_paths(self.config_files_dir, self.legacy_config_files_dir)
+
+    @property
     def raw_odv_dir(self) -> Path:
+        return self.data_raw_dir / "raw_smru_data_odv"
+
+    @property
+    def legacy_raw_odv_dir(self) -> Path:
         return self.datadir / "raw_smru_data_odv"
 
     @property
+    def raw_odv_search_dirs(self) -> tuple[Path, ...]:
+        return _unique_paths(self.raw_odv_dir, self.legacy_raw_odv_dir)
+
+    @property
     def raw_hr_dir(self) -> Path:
+        return self.data_raw_dir / "raw_smru_hr_data"
+
+    @property
+    def legacy_raw_hr_dir(self) -> Path:
         return self.datadir / "raw_smru_hr_data"
 
     @property
+    def raw_hr_search_dirs(self) -> tuple[Path, ...]:
+        return _unique_paths(self.raw_hr_dir, self.legacy_raw_hr_dir)
+
+    @property
     def crawl_locdir(self) -> Path:
+        return self.data_raw_dir / "crawl_locations"
+
+    @property
+    def legacy_crawl_locdir(self) -> Path:
         return self.datadir / "crawl_locations"
 
     @property
+    def crawl_loc_search_dirs(self) -> tuple[Path, ...]:
+        return _unique_paths(self.crawl_locdir, self.legacy_crawl_locdir)
+
+    @property
     def cls_locdir(self) -> Path:
+        return self.data_raw_dir / "smooth_cls_locations"
+
+    @property
+    def legacy_cls_locdir(self) -> Path:
         return self.datadir / "smooth_cls_locations"
 
     @property
+    def cls_loc_search_dirs(self) -> tuple[Path, ...]:
+        return _unique_paths(self.cls_locdir, self.legacy_cls_locdir)
+
+    @property
     def final_dataset_dir(self) -> Path:
+        return self.datadir / "data_prof"
+
+    @property
+    def legacy_final_dataset_dir(self) -> Path:
         return self.processdir / "final_dataset_prof"
 
     @property
-    def mapsdir(self) -> Path:
-        return self.processdir / "maps"
+    def final_dataset_search_dirs(self) -> tuple[Path, ...]:
+        return _unique_paths(self.final_dataset_dir, self.legacy_final_dataset_dir)
 
     @property
-    def texdir(self) -> Path:
-        return self.processdir / "doc_latex"
+    def trajectory_dataset_dir(self) -> Path:
+        return self.datadir / "data_traj"
+
+    @property
+    def mapsdir(self) -> Path:
+        return self.datadir / "maps"
 
     @property
     def plotdir(self) -> Path:
+        return self.datadir / "plots_by_tags"
+
+    @property
+    def legacy_plotdir(self) -> Path:
         return self.processdir / "plots"
 
     @property
-    def temporary_dir(self) -> Path:
-        return self.processdir / "temporary"
+    def plot_search_dirs(self) -> tuple[Path, ...]:
+        return _unique_paths(self.plotdir, self.legacy_plotdir)
 
     @property
-    def temporary_tex_dir(self) -> Path:
-        return self.temporary_dir / "tex"
+    def plots_by_deployment_dir(self) -> Path:
+        return self.datadir / "plots_by_deployments"
 
     @property
-    def temporary_fcell_dir(self) -> Path:
-        return self.temporary_dir / "fcell"
-
-    @property
-    def woddir(self) -> Path:
-        modern = self.refdir / "WOD_data" / "WOD_nc"
-        legacy = self.refdir / "WOD_data" / "WOD_legacy_nc"
-        original = self.refdir / "WOD_data" / ("WOD_" + "mat" + "lab_nc")
-        if modern.exists():
-            return modern
-        if legacy.exists():
-            return legacy
-        return original
-
-    @property
-    def coradir(self) -> Path:
-        return self.refdir / "CORA_data" / "CORA_ncfiles"
-
-    @property
-    def meop_reference_dir(self) -> Path:
-        return self.refdir / "MEOP_last_stable_version"
+    def plots_overview_dir(self) -> Path:
+        return self.datadir / "plots_overview"
 
 
 @dataclass(frozen=True)
@@ -256,3 +292,14 @@ class DeploymentInfo:
             "known_platform_codes": list(self.known_platform_codes),
             "hr_platform_codes": list(self.hr_platform_codes),
         }
+
+
+def _unique_paths(*paths: Path) -> tuple[Path, ...]:
+    ordered: list[Path] = []
+    seen: set[Path] = set()
+    for path in paths:
+        if path in seen:
+            continue
+        seen.add(path)
+        ordered.append(path)
+    return tuple(ordered)

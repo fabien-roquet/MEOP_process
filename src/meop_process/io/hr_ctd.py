@@ -53,7 +53,8 @@ def resolve_hr_ctd_path(config: MeopConfig, smru_platform_code: str) -> HrCtdPat
     instr_id = str(row.get("instr_id", "")).strip()
     prefix = _clean_prefix(str(row.get("prefix", "")))
     continuous = str(row.get("continuous", "")).strip() in {"1", "true", "True", "yes", "Y"}
-    expected_path = config.raw_hr_dir / year / f"{prefix}{instr_id}_ctd.txt"
+    candidates = [root / year / f"{prefix}{instr_id}_ctd.txt" for root in config.raw_hr_search_dirs]
+    expected_path = next((path for path in candidates if path.exists()), candidates[0])
 
     return HrCtdPath(
         smru_platform_code=smru_platform_code,

@@ -289,11 +289,7 @@ def _load_indexed_runtime_rows(config: MeopConfig, name: str) -> list[dict[str, 
 
 def _write_runtime_indexed_rows(config: MeopConfig, name: str, rows: list[dict[str, str]], *, field_order: Iterable[str]) -> Path:
     path = resolve_table_path(config, name, required=False)
-    destination = write_indexed_csv_rows(path, rows, field_order=field_order)
-    legacy = config.processdir / name
-    if legacy != destination:
-        legacy.write_text(destination.read_text(encoding="utf-8"), encoding="utf-8")
-    return destination
+    return write_indexed_csv_rows(path, rows, field_order=field_order)
 
 
 def _optional_numeric_qc(dataset: xr.Dataset, name: str) -> np.ndarray | None:

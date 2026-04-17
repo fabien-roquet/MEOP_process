@@ -290,18 +290,17 @@ def _variable_offset_map(config: MeopConfig) -> dict[str, int]:
 
 def _discover_processed_products(config: MeopConfig) -> dict[str, dict[str, Path]]:
     inventory: dict[str, dict[str, Path]] = {}
-    root = config.final_dataset_dir
-    if not root.exists():
-        return inventory
-    for deployment_dir in sorted(path for path in root.iterdir() if path.is_dir()):
-        deployment = deployment_dir.name
-        by_smru: dict[str, Path] = {}
-        for qf in PREFERRED_QF_ORDER:
-            for path in sorted(deployment_dir.glob(f"*_{qf}_prof.nc")):
-                smru = path.name.split("_")[0]
-                by_smru.setdefault(smru, path)
-        if by_smru:
-            inventory[deployment] = by_smru
+    for root in config.final_dataset_search_dirs:
+        if not root.exists():
+            continue
+        for deployment_dir in sorted(path for path in root.iterdir() if path.is_dir()):
+            deployment = deployment_dir.name
+            by_smru = inventory.setdefault(deployment, {})
+            for qf in PREFERRED_QF_ORDER:
+                for path in sorted(deployment_dir.glob(f"*_{qf}_prof.nc")):
+                    smru = path.name.split("_")[0]
+                    by_smru.setdefault(smru, path)
+        inventory = {deployment: paths for deployment, paths in inventory.items() if paths}
     return inventory
 
 

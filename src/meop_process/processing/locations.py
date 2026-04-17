@@ -101,7 +101,9 @@ def _positioning_system_array(length: int, value: str) -> np.ndarray:
 
 
 def _load_crawl_data(config: MeopConfig, smru_name: str, ptt: str, jul: np.ndarray) -> LocationSource | None:
-    candidates = sorted(config.crawl_locdir.glob(f"*_{_smru_prefix(smru_name)}_{ptt}_*_crawl.csv"))
+    candidates: list[Path] = []
+    for root in config.crawl_loc_search_dirs:
+        candidates.extend(sorted(root.glob(f"*_{_smru_prefix(smru_name)}_{ptt}_*_crawl.csv")))
     if not candidates:
         return None
 
@@ -136,7 +138,10 @@ def _load_cls_data(config: MeopConfig, ptt: str, jul: np.ndarray) -> LocationSou
     datemin = float(np.nanmin(jul))
     datemax = float(np.nanmax(jul))
     chosen: Path | None = None
-    for path in sorted(config.cls_locdir.glob(f"{ptt}_*.csv")):
+    candidates: list[Path] = []
+    for root in config.cls_loc_search_dirs:
+        candidates.extend(sorted(root.glob(f"{ptt}_*.csv")))
+    for path in candidates:
         parts = path.name.split("_")
         if len(parts) < 3:
             continue

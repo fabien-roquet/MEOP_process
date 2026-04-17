@@ -130,12 +130,14 @@ The cleaned package expects data in explicit runtime locations:
 
 - packaged/default tables: `src/meop_process/resources/tables/`, synchronized into `data/tables/`
 - operator-managed catalog tables: `data/catalog/`
-- deployment/platform JSON files: `data/config_files/`
-- raw low-resolution ODV files: `data/raw_smru_data_odv/`
-- raw high-resolution text files: `data/raw_smru_hr_data/<year>/<instr_id>_ctd.txt`
-- references and comparison datasets: `references/`
-- processed outputs: `final_dataset_prof/`
-- diagnostics: `plots/`
+- deployment/platform JSON files: `data/data_raw/config_files/`
+- raw low-resolution ODV files: `data/data_raw/raw_smru_data_odv/`
+- raw high-resolution text files: `data/data_raw/raw_smru_hr_data/<year>/<instr_id>_ctd.txt`
+- processed profile outputs: `data/data_prof/`
+- processed trajectory outputs: `data/data_traj/`
+- diagnostics by tag: `data/plots_by_tags/`
+- overview and deployment plots: `data/plots_by_deployments/`, `data/plots_overview/`
+- maps: `data/maps/`
 - batch logs and resumable state: `data/batch/`
 
 ## RUNNING ONE DEPLOYMENT

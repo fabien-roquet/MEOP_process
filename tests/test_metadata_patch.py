@@ -8,7 +8,7 @@ from meop_process.metadata.patch import update_metadata_from_table
 
 def test_update_metadata_patches_all_matching_files(meop_config) -> None:
     tag = "DEP001-AAA"
-    deployment_dir = meop_config.processdir / "final_dataset_prof" / "DEP001"
+    deployment_dir = meop_config.final_dataset_dir / "DEP001"
     deployment_dir.mkdir(parents=True, exist_ok=True)
 
     for qf in ("lr0", "hr0", "fr0"):

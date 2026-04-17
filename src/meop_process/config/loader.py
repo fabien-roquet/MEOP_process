@@ -49,7 +49,6 @@ def _default_paths(processdir: Path, version: str, machine: str, config_path: Pa
     return {
         "processdir": processdir,
         "datadir": processdir / "data",
-        "refdir": processdir / "references",
         "public": processdir / "public",
         "pdflatex": "pdflatex",
         "version": version,
@@ -92,7 +91,7 @@ def load_config(
     processdir_path = Path(defaults["processdir"]).expanduser()
     defaults = _default_paths(processdir_path, version, chosen_machine, config_path)
 
-    path_like_keys = {"processdir", "datadir", "refdir", "public"}
+    path_like_keys = {"processdir", "datadir", "public"}
     resolved = {
         **defaults,
         **{
@@ -104,7 +103,6 @@ def load_config(
     return MeopConfig(
         processdir=Path(resolved["processdir"]),
         datadir=Path(resolved["datadir"]),
-        refdir=Path(resolved["refdir"]),
         publicdir=Path(resolved["public"]),
         pdflatex=str(resolved.get("pdflatex", "pdflatex")),
         version=str(resolved.get("version", version)),

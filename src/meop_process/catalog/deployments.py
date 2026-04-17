@@ -65,15 +65,17 @@ def _read_hr_rows(config: MeopConfig) -> list[dict[str, str]]:
 
 def _load_deployment_json_records(config: MeopConfig) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
-    for name in DEPLOYMENT_JSON_FILES:
-        records.extend(read_json_records(config.config_files_dir / name))
+    for root in config.config_files_search_dirs:
+        for name in DEPLOYMENT_JSON_FILES:
+            records.extend(read_json_records(root / name))
     return records
 
 
 def _load_platform_json_records(config: MeopConfig) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
-    for name in PLATFORM_JSON_FILES:
-        records.extend(read_json_records(config.config_files_dir / name))
+    for root in config.config_files_search_dirs:
+        for name in PLATFORM_JSON_FILES:
+            records.extend(read_json_records(root / name))
     return records
 
 
@@ -310,12 +312,12 @@ def load_info_deployment(config: MeopConfig, deployment: str = "", smru_name: st
         record=record,
         invalid_code=record is None or not selection.deployment,
         directory=directory,
-        raw_input_dir=config.raw_odv_dir,
-        raw_input_zip=config.raw_odv_dir / f"{selection.deployment}_ODV.zip",
-        raw_working_text=raw_files.preferred_ctd_text or (config.raw_odv_dir / f"{selection.deployment}_ODV.txt"),
+        raw_input_dir=raw_files.raw_root,
+        raw_input_zip=raw_files.archive,
+        raw_working_text=raw_files.preferred_ctd_text or (raw_files.raw_root / f"{selection.deployment}_ODV.txt"),
         raw_working_ctd_text=raw_files.ctd_text,
         raw_working_fl_text=raw_files.fl_text,
-        raw_working_fcell=config.raw_odv_dir / f"{selection.deployment}_fcell.mat",
+        raw_working_fcell=raw_files.raw_root / f"{selection.deployment}_fcell.mat",
         raw_smru_names=raw_index.smru_names,
         raw_profile_count_by_smru=raw_index.profile_count_by_smru,
         list_smru_name=list_smru_name,
