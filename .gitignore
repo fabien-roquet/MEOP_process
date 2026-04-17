@@ -93,6 +93,8 @@ soap_credentials.txt
 /temporary/
 
 # --- Batch-processing state, logs, and reports -------------------------------
+*.toc
+*.dvi
 *.log
 *.out
 *.err

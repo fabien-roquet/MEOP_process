@@ -157,12 +157,18 @@ python python/meop_process.py --deployment ct88 --process_data --diagnostics
 ## BATCH RERUN OVER ALL DEPLOYMENTS
 
 A resumable batch runner is available.
-It continues past errors, writes one log per deployment, generates a readable Markdown summary plus a CSV report, and does not redo successful deployments unless forced.
+It continues past errors, writes one log per deployment, generates a readable Markdown summary plus a CSV report, and does not redo successful deployments unless forced while their canonical outputs still exist.
 
 Installed entry point:
 
 ```bash
 meop-process-batch
+```
+
+Main CLI entrypoint:
+
+```bash
+meop-process --run-all-deployments
 ```
 
 Repository wrapper script:
@@ -174,11 +180,18 @@ python scripts/run_all_deployments.py
 Useful options:
 
 ```bash
+meop-process --run-all-deployments --diagnostics
+meop-process --run-all-deployments --force-failed
+meop-process --run-all-deployments --force
+meop-process --run-all-deployments --deployment ct96
+meop-process --run-all-deployments --notlc
+meop-process --run-all-deployments --jobs 8 --verbose
 python scripts/run_all_deployments.py --diagnostics
 python scripts/run_all_deployments.py --force-failed
 python scripts/run_all_deployments.py --force
 python scripts/run_all_deployments.py --deployment ct96
 python scripts/run_all_deployments.py --notlc
+python scripts/run_all_deployments.py --jobs 8 --verbose
 ```
 
 Batch state and reports are stored under `data/batch/` by default:
@@ -187,6 +200,8 @@ Batch state and reports are stored under `data/batch/` by default:
 - `data/batch/runs/<timestamp>/logs/`: one log file per deployment
 - `data/batch/runs/<timestamp>/summary.md`: human-readable run report
 - `data/batch/runs/<timestamp>/summary.csv`: machine-readable run table
+
+At batch startup, `data/batch/latest/deployment_status.json` is reconciled against the canonical output tree under `data/data_prof/`, so stale successful entries are dropped automatically if the outputs have been deleted.
 
 ## METADATA SUMMARY TABLES
 

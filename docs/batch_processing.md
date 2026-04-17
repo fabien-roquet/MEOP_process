@@ -7,7 +7,7 @@ The toolbox includes a Python-native batch runner for processing many deployment
 The runner is designed to:
 
 - continue past deployment-level failures;
-- avoid redoing deployments that already completed successfully;
+- avoid redoing deployments that already completed successfully when canonical outputs still exist;
 - keep one readable log per deployment;
 - produce a compact Markdown and CSV summary for each batch run;
 - refresh `list_tags.csv` and `list_deployments.csv` at the end of the run.
@@ -18,6 +18,12 @@ Editable install:
 
 ```bash
 meop-process-batch
+```
+
+Main CLI entrypoint:
+
+```bash
+meop-process --run-all-deployments
 ```
 
 Repository checkout:
@@ -31,10 +37,18 @@ python scripts/run_all_deployments.py
 Run diagnostics for successful deployments:
 
 ```bash
+meop-process --run-all-deployments --diagnostics
+```
+
+```bash
 python scripts/run_all_deployments.py --diagnostics
 ```
 
 Re-run only deployments whose latest status is failed:
+
+```bash
+meop-process --run-all-deployments --force-failed
+```
 
 ```bash
 python scripts/run_all_deployments.py --force-failed
@@ -43,10 +57,18 @@ python scripts/run_all_deployments.py --force-failed
 Force a full rerun even for deployments that already completed successfully:
 
 ```bash
+meop-process --run-all-deployments --force
+```
+
+```bash
 python scripts/run_all_deployments.py --force
 ```
 
 Restrict a batch to one deployment:
+
+```bash
+meop-process --run-all-deployments --deployment ct96
+```
 
 ```bash
 python scripts/run_all_deployments.py --deployment ct96
@@ -55,7 +77,17 @@ python scripts/run_all_deployments.py --deployment ct96
 Use the no-TLC branch:
 
 ```bash
+meop-process --run-all-deployments --notlc
+```
+
+```bash
 python scripts/run_all_deployments.py --notlc
+```
+
+Run several deployments in parallel and mirror deployment logs to the terminal:
+
+```bash
+meop-process --run-all-deployments --jobs 8 --verbose
 ```
 
 ## State, logs, and reports
@@ -68,7 +100,8 @@ By default, batch artifacts are stored under `data/batch/`:
 - `runs/<timestamp>/summary.csv`: machine-readable summary
 
 The state file is what makes the runner resumable.
-A deployment marked `success` is skipped on the next run unless `--force` is used.
+A deployment marked `success` is skipped on the next run only if its canonical outputs still exist under `data/data_prof/`, unless `--force` is used.
+A batch run reconciles `latest/deployment_status.json` against the filesystem at startup and prunes stale successful entries whose outputs have been deleted.
 Deployments marked `failed` are attempted again on the next run.
 
 ## Metadata summary refresh

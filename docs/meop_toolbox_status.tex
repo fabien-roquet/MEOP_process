@@ -39,7 +39,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textcolor{meopmid}{MEOP Process renovation status}}
-\fancyhead[R]{\textcolor{meopmid}{April 1, 2026}}
+\fancyhead[R]{\textcolor{meopmid}{April 17, 2026}}
 \fancyfoot[C]{\textcolor{meopmid}{\thepage}}
 \setlength{\headheight}{15pt}
 
@@ -82,12 +82,12 @@
   \vspace{1.2cm}
 
   \begin{tabularx}{0.93\textwidth}{>{\bfseries}p{0.30\textwidth}X}
-    Snapshot date & April 1, 2026 \\
+    Snapshot date & April 17, 2026 \\
     Current objective & Reach a minimal, functional Python version of the MEOP processing chain that can be re-run over the available deployments with readable logs, resumable state, and updated summary tables \\
     Main regression examples & \pkg{ct88-225-12}, \pkg{ct78-465-12}, and the shortened \pkg{ct96-24-13} full-resolution reference set \\
     Pipeline now covered in Python & Catalog discovery, raw ODV import, \pkg{lr0}, QC/filtering, \pkg{hr0}, \pkg{hr1/lr1}, \pkg{fr0}, \pkg{fr1}, \pkg{hr2}, diagnostics, and resumable batch processing \\
     Execution model & Single Python execution path; no alternate runtime backend remains in the package \\
-    Tests in repository & 46 collected tests in the current snapshot \\
+    Tests in repository & 65 collected tests in the current snapshot \\
   \end{tabularx}
 
   \vfill
@@ -101,7 +101,7 @@
 
 The toolbox has moved from an operator workspace to a Python package with explicit runtime ownership and a nearly complete processing path for the currently targeted products. The package can now bootstrap its runtime layout, discover deployments and tags from CSV and JSON metadata, import raw ODV files, generate the low-resolution and high-resolution profile products, generate full-resolution products from HR text files, produce standard diagnostics, and run through many deployments in sequence while logging failures without stopping the whole run.
 
-The most important practical change in this phase is operational rather than architectural: there is now a resumable batch runner suitable for reprocessing all available deployments. It keeps a persistent per-deployment state file, skips deployments that already completed successfully unless forced, records one log file per deployment, generates readable Markdown and CSV run reports, and refreshes \pkg{list\_tags.csv} and \pkg{list\_deployments.csv} incrementally at the end of the run.
+The most important practical change in this phase is operational rather than architectural: there is now a resumable batch runner suitable for reprocessing all available deployments. It keeps a persistent per-deployment state file, skips deployments that already completed successfully only while their canonical outputs still exist unless forced, records one log file per deployment, generates readable Markdown and CSV run reports, reconciles stale successful state entries against the filesystem at startup, and refreshes \pkg{list\_tags.csv} and \pkg{list\_deployments.csv} incrementally at the end of the run.
 
 At this point the project is close to a minimal functional version. The next work is less about scaffolding and more about scientific validation, richer diagnostics, and the remaining publication/reporting helpers.
 
@@ -109,7 +109,7 @@ At this point the project is close to a minimal functional version. The next wor
 
 \subsection{Scientific intent}
 
-MEOP Process transforms marine mammal CTD observations into Argo-like products and associated diagnostics that can be inspected, adjusted, summarized, and released. The software has to combine heterogeneous metadata sources, low-resolution ODV inputs, optional high-resolution time series, and reference or comparison datasets.
+MEOP Process transforms marine mammal CTD observations into Argo-like products and associated diagnostics that can be inspected, adjusted, summarized, and released. The software has to combine heterogeneous metadata sources, low-resolution ODV inputs, optional high-resolution time series, and operator-managed catalog and JSON metadata.
 
 \subsection{Software intent of the renovated toolbox}
 
@@ -118,7 +118,7 @@ The renovated toolbox now has four simultaneous roles:
 \begin{enumerate}[leftmargin=1.6em]
   \item a Python package and CLI that can be installed, imported, and scripted in a standard way;
   \item a single Python processing engine for the current workflow;
-  \item a runtime data manager that owns where tables, catalogs, raw data, reference data, outputs, and batch state live;
+  \item a runtime data manager that owns where tables, catalogs, raw data, outputs, and batch state live;
 \end{enumerate}
 
 \section{Current status of the toolbox}
@@ -131,12 +131,12 @@ The renovated toolbox now has four simultaneous roles:
 \midrule
 \endhead
 Configuration loading and path resolution & Python & No external runtime dependency. \\
-Runtime data layout and validation & Python & Explicit directories under \pkg{data/}, \pkg{references/}, and output roots. \\
+Runtime data layout and validation & Python & Explicit directories under the canonical \pkg{data/} tree plus the configured \pkg{public/} release tree. \\
 Catalog and mirrored JSON metadata resolution & Python & Uses \pkg{list\_deployment.csv}, \pkg{list\_deployment\_hr.csv}, and mirrored deployment/platform JSON files. \\
 Raw ODV import and profile indexing & Python & Deployment and tag discovery can be driven directly from raw ODV content. \\
 \pkg{create\_ncargo} / \pkg{lr0} & Python & Includes low-resolution netCDF assembly. \\
 \pkg{lr0} QC and filtering & Python & Ported to Python. \\
-Location adjustment & Placeholder & Left explicit for later scientific work. \\
+Location adjustment & Python & Applies crawl/CLS/SMRU-based geographic corrections and updates profile metadata. \\
 \pkg{hr0} & Python & Regular 1 dbar vertical product. \\
 \pkg{apply\_adjustments} & Python & Uses runtime coefficient, parameter, and salinity-offset tables. \\
 \pkg{hr1/lr1} no-TLC branch & Python & Implemented and regression-tested. \\
@@ -178,9 +178,8 @@ The package now owns its runtime layout explicitly. In practice this means that 
   \item mirrored JSON metadata;
   \item raw ODV inputs;
   \item raw HR CTD inputs;
-  \item reference datasets;
-  \item processed netCDF outputs;
-  \item plots and diagnostics;
+  \item processed profile and trajectory outputs;
+  \item plots, diagnostics, and maps;
   \item batch logs, reports, and resumable state.
 \end{itemize}
 
@@ -211,6 +210,7 @@ A dedicated multi-deployment runner is now present. Its design goals are:
   \item make reruns cheap by skipping deployments that already completed successfully;
   \item produce one log file per deployment;
   \item produce a run-level Markdown summary and CSV table;
+  \item reconcile stale successful state entries when outputs have been deleted;
   \item refresh summary metadata tables at the end without reopening every netCDF file when nothing changed.
 \end{itemize}
 
@@ -248,18 +248,20 @@ If map backgrounds are desired in diagnostics, \pkg{cartopy} can be installed as
 \begin{itemize}[leftmargin=1.5em]
   \item \textbf{Packaged/default tables:} \pkg{src/meop\_process/resources/tables/}, mirrored into \pkg{data/tables/}.
   \item \textbf{Operator-maintained catalogs:} \pkg{data/catalog/}, notably \pkg{list\_deployment.csv} and \pkg{list\_deployment\_hr.csv}.
-  \item \textbf{Mirrored metadata JSON:} \pkg{data/config\_files/}, for example \pkg{deployment2.json}, \pkg{platform2.json}, and patch files.
-  \item \textbf{Low-resolution raw inputs:} \pkg{data/raw\_smru\_data\_odv/}.
-  \item \textbf{High-resolution raw inputs:} \pkg{data/raw\_smru\_hr\_data/<year>/}, containing files such as \pkg{<instr\_id>\_ctd.txt}.
-  \item \textbf{Reference datasets:} \pkg{references/}, including WOD, CORA, the last stable MEOP release, and shortened regression fixtures.
-  \item \textbf{Processed outputs:} \pkg{final\_dataset\_prof/}, containing \pkg{lr0}, \pkg{lr1}, \pkg{hr0}, \pkg{hr1}, \pkg{hr2}, \pkg{fr0}, \pkg{fr1}, and \pkg{traj} products.
-  \item \textbf{Diagnostics:} \pkg{plots/}.
+  \item \textbf{Mirrored metadata JSON:} \pkg{data/data\_raw/config\_files/}, for example \pkg{deployment2.json}, \pkg{platform2.json}, and patch files.
+  \item \textbf{Low-resolution raw inputs:} \pkg{data/data\_raw/raw\_smru\_data\_odv/}.
+  \item \textbf{High-resolution raw inputs:} \pkg{data/data\_raw/raw\_smru\_hr\_data/<year>/}, containing files such as \pkg{<prefix><instr\_id>\_ctd.txt}.
+  \item \textbf{Processed profile outputs:} \pkg{data/data\_prof/}, containing \pkg{lr0}, \pkg{lr1}, \pkg{hr0}, \pkg{hr1}, \pkg{hr2}, \pkg{fr0}, and \pkg{fr1} profile products.
+  \item \textbf{Processed trajectory outputs:} \pkg{data/data\_traj/}.
+  \item \textbf{Diagnostics by tag:} \pkg{data/plots\_by\_tags/}.
+  \item \textbf{Deployment and overview plots:} \pkg{data/plots\_by\_deployments/} and \pkg{data/plots\_overview/}.
+  \item \textbf{Maps:} \pkg{data/maps/}.
   \item \textbf{Batch state and reports:} \pkg{data/batch/}.
 \end{itemize}
 
 \subsection{How raw data are expected to be found}
 
-Low-resolution data are staged directly under \pkg{data/raw\_smru\_data\_odv/}. High-resolution files are resolved from \pkg{list\_deployment\_hr.csv} and are expected under the runtime HR tree, typically as files named like \pkg{<optional\_prefix><instr\_id>\_ctd.txt} inside the appropriate year directory.
+Low-resolution data are staged directly under \pkg{data/data\_raw/raw\_smru\_data\_odv/}. High-resolution files are resolved from \pkg{list\_deployment\_hr.csv} and are expected under the runtime HR tree, typically as files named like \pkg{<optional\_prefix><instr\_id>\_ctd.txt} inside the appropriate year directory.
 
 This is now explicit in Python and does not rely on any alternate runtime.
 
@@ -284,6 +286,12 @@ python python/meop_process.py --deployment ct88 --process_data --diagnostics
 Installed entry point:
 
 \begin{lstlisting}[style=meopcode]
+meop-process --run-all-deployments
+\end{lstlisting}
+
+Dedicated batch entry point:
+
+\begin{lstlisting}[style=meopcode]
 meop-process-batch
 \end{lstlisting}
 
@@ -296,10 +304,16 @@ python scripts/run_all_deployments.py
 Useful variants:
 
 \begin{lstlisting}[style=meopcode]
+meop-process --run-all-deployments --diagnostics
+meop-process --run-all-deployments --force-failed
+meop-process --run-all-deployments --force
+meop-process --run-all-deployments --deployment ct96
+meop-process --run-all-deployments --jobs 8 --verbose
 python scripts/run_all_deployments.py --diagnostics
 python scripts/run_all_deployments.py --force-failed
 python scripts/run_all_deployments.py --force
 python scripts/run_all_deployments.py --deployment ct96
+python scripts/run_all_deployments.py --jobs 8 --verbose
 \end{lstlisting}
 
 \subsection{What the batch runner writes}
@@ -307,14 +321,13 @@ python scripts/run_all_deployments.py --deployment ct96
 By default the runner writes under \pkg{data/batch/}:
 
 \begin{itemize}[leftmargin=1.5em]
-  \item \pkg{deployment\_status.json}: persistent deployment-level state;
+  \item \pkg{latest/deployment\_status.json}: persistent deployment-level state;
   \item \pkg{runs/<timestamp>/logs/<deployment>.log}: one log per deployment;
   \item \pkg{runs/<timestamp>/summary.md}: human-readable run report;
-  \item \pkg{runs/<timestamp>/summary.csv}: machine-readable run table;
-  \item \pkg{latest/}: copies of the most recent report and state.
+  \item \pkg{runs/<timestamp>/summary.csv}: machine-readable run table.
 \end{itemize}
 
-A deployment marked successful is skipped on the next batch run unless a force option is used.
+A deployment marked successful is skipped on the next batch run only while its canonical outputs still exist, unless a force option is used. At batch startup, stale successful entries whose outputs have disappeared are pruned from \pkg{latest/deployment\_status.json} before skip decisions are made.
 
 \subsection{Metadata summary tables}
 
@@ -336,7 +349,7 @@ The current test suite is built around a small number of carefully chosen refere
 
 \subsection{Current test coverage}
 
-The repository currently contains 46 collected tests covering:
+The repository currently contains 65 collected tests covering:
 
 \begin{itemize}[leftmargin=1.5em]
   \item configuration loading and data-layout bootstrap;
@@ -384,7 +397,7 @@ The main remaining items are now concentrated in a few areas:
   \item broader scientific validation over many deployments;
   \item richer diagnostic and analyst-facing comparison tools against historical profiles and climatologies;
   \item redesign of the publication/reporting helpers;
-  \item cleanup of any remaining migration-era compatibility behavior that should eventually disappear once validation is complete.
+  \item broader scientific robustness work for remaining problematic deployments.
 \end{itemize}
 
 \subsection{Why diagnostics remain important}

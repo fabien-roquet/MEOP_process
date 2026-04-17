@@ -56,13 +56,15 @@ Python-owned today:
 - ODV import and profile indexing
 - `lr0` generation
 - QC/filtering
-- location-adjustment placeholder
+- geographic location adjustment from crawl, CLS, and SMRU sources
 - `hr0`, `hr1`, `lr1`
 - `apply_adjustments`
 - `fr0`, `fr1`
 - `hr2`
 - standard diagnostics figures
 - resumable batch processing and summary-table refresh
+
+Batch state is stored in `data/batch/latest/deployment_status.json` and reconciled against the canonical output tree at batch startup. Successful entries whose outputs have been deleted are dropped from state before skip decisions are made.
 
 Still deferred or intended for later redesign:
 

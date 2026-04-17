@@ -29,6 +29,8 @@ No root-level mirrors are required.
    - maps under `data/maps/`
    - public release tree under `public/<version>/`
 
+There is no longer any transition fallback to removed root-level output directories such as `final_dataset_prof/` or `plots/`.
+
 ## Runtime resolution order
 
 ### Tables
@@ -60,11 +62,14 @@ Python now owns the complete operational workflow currently implemented in the p
 - deployment and HR catalog loading
 - JSON metadata loading from `data/data_raw/config_files/`
 - low-resolution raw ODV import and parsing
+- geographic location adjustment
 - `lr0`, `lr1`, `hr0`, `hr1`, `hr2`, `fr0`, `fr1`, and `traj`
 - delayed-mode adjustments
 - standard diagnostics
 - resumable batch reruns
 - incremental refresh of `list_tags.csv` and `list_deployments.csv`
+
+Batch reruns use `data/batch/latest/deployment_status.json` as persistent state, but successful entries are pruned automatically if their canonical outputs under `data/data_prof/` have disappeared.
 
 Still deferred for later redesign:
 

@@ -32,4 +32,5 @@ Main modules:
 - no dependency on external language runtimes;
 - no root-level table or catalog mirrors;
 - all managed runtime data live under `data/`;
+- no transition compatibility with removed root-level runtime locations such as `final_dataset_prof/`, `plots/`, or `data/config_files/`;
 - legacy specialized plotting entrypoints removed from the main package workflow.
