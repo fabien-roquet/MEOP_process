@@ -5,11 +5,12 @@ from datetime import datetime, timezone
 import numpy as np
 import xarray as xr
 
+from meop_process.catalog.tables import read_csv_rows, write_indexed_csv_rows
 from meop_process.catalog.filenames import fname_prof
 from meop_process.io.raw_odv import import_raw_data_zip
 from meop_process.metadata.patch import update_metadata_from_table
 from meop_process.models import Selection
-from meop_process.processing.adjustments import apply_adjustments
+from meop_process.processing.adjustments import _ensure_default_coefficients, apply_adjustments
 from meop_process.processing.hr import create_hr0_python
 from meop_process.processing.ncargo import create_ncargo_python
 from meop_process.workflows.compare import compare_netcdf_outputs
@@ -103,3 +104,30 @@ def test_apply_adjustments_updates_hr0_from_lr0_coefficients_and_errors(meop_con
         unique_psal = np.unique(psal_errors[np.isfinite(psal_errors)])
         assert all(np.isclose(value, 0.1) or np.isclose(value, 0.2) for value in unique_temp)
         assert all(np.isclose(value, 0.2) or np.isclose(value, 0.4) for value in unique_psal)
+
+
+def test_ensure_default_coefficients_preserves_blank_index_column(meop_config) -> None:
+    meop_config.tablesdir.mkdir(parents=True, exist_ok=True)
+    write_indexed_csv_rows(
+        meop_config.tablesdir / "table_coeff.csv",
+        [
+            {
+                "row_name": "existing-tag",
+                "smru_platform_code": "existing-tag",
+                "T1": "0",
+                "T2": "0",
+                "S1": "0",
+                "S2": "0",
+                "remove": "0",
+                "Sremove": "0",
+                "comment": "no comment",
+            }
+        ],
+    )
+
+    updated = _ensure_default_coefficients(meop_config, ["new-tag"])
+
+    assert updated == meop_config.tablesdir / "table_coeff.csv"
+    rows = read_csv_rows(updated)
+    assert "" in rows[0]
+    assert any(row.get("smru_platform_code") == "new-tag" for row in rows)

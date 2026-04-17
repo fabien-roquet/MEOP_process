@@ -76,8 +76,12 @@ def _ensure_default_coefficients(config: MeopConfig, smru_names: Iterable[str]) 
     fieldnames: list[str] = []
     for row in rows:
         for key in row:
-            if key and key not in fieldnames:
-                fieldnames.append(key)
+            if key in fieldnames:
+                continue
+            if key == "":
+                fieldnames.insert(0, key)
+                continue
+            fieldnames.append(key)
 
     import csv
 
