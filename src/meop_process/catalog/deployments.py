@@ -65,22 +65,20 @@ def _read_hr_rows(config: MeopConfig) -> list[dict[str, str]]:
 
 def _load_deployment_json_records(config: MeopConfig) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
-    for root in config.config_files_search_dirs:
-        for name in DEPLOYMENT_JSON_FILES:
-            records.extend(read_json_records(root / name))
+    for name in DEPLOYMENT_JSON_FILES:
+        records.extend(read_json_records(config.config_files_dir / name))
     return records
 
 
 def _load_platform_json_records(config: MeopConfig) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
-    for root in config.config_files_search_dirs:
-        for name in PLATFORM_JSON_FILES:
-            records.extend(read_json_records(root / name))
+    for name in PLATFORM_JSON_FILES:
+        records.extend(read_json_records(config.config_files_dir / name))
     return records
 
 
 def load_deployment_catalog(config: MeopConfig, *, persist: bool = True) -> dict[str, DeploymentRecord]:
-    """Resolve the deployment registry in Python from ``data/catalog`` and ``data/config_files``."""
+    """Resolve the deployment registry in Python from ``data/catalog`` and ``data/data_raw/config_files``."""
 
     rows = _read_deployment_rows(config)
 

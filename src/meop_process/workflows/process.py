@@ -39,7 +39,7 @@ def process_tags(
     sync_external_config_files(config)
     info = load_info_deployment(config, deployment=deployment, smru_name=smru_name)
     if info.invalid_code:
-        print(f"{info.EXP} is not a valid deployment code. Update data/catalog/list_deployment.csv or data/config_files JSON metadata.")
+        print(f"{info.EXP} is not a valid deployment code. Update data/catalog/list_deployment.csv or data/data_raw/config_files JSON metadata.")
         return WorkflowResult(False, "invalid deployment code")
 
     if not import_raw_data_zip(config, info.EXP):

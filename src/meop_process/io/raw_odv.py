@@ -117,32 +117,24 @@ def _copy_if_needed(source: Path, destination: Path) -> bool:
 
 def discover_raw_odv_files(config: MeopConfig, deployment: str, *, root: Path | None = None) -> RawOdvFiles:
     ensure_runtime_directories(config)
-    candidate_roots = (root,) if root is not None else config.raw_odv_search_dirs
-    fallback: RawOdvFiles | None = None
-    for raw_root in candidate_roots:
-        archive = raw_root / f"{deployment}_ODV.zip"
-        combined = raw_root / f"{deployment}_ODV.txt"
-        ctd = raw_root / f"{deployment}_CTD_ODV.txt"
-        fl = raw_root / f"{deployment}_FL_ODV.txt"
-        resolved = RawOdvFiles(
-            deployment=deployment,
-            raw_root=raw_root,
-            source_root=raw_root,
-            archive=archive,
-            combined_text=combined if combined.exists() else None,
-            ctd_text=ctd if ctd.exists() else None,
-            fl_text=fl if fl.exists() else None,
-        )
-        if archive.exists() or resolved.preferred_ctd_text is not None or resolved.has_fl_text:
-            return resolved
-        if fallback is None:
-            fallback = resolved
-    assert fallback is not None
-    return fallback
+    raw_root = root or config.raw_odv_dir
+    archive = raw_root / f"{deployment}_ODV.zip"
+    combined = raw_root / f"{deployment}_ODV.txt"
+    ctd = raw_root / f"{deployment}_CTD_ODV.txt"
+    fl = raw_root / f"{deployment}_FL_ODV.txt"
+    return RawOdvFiles(
+        deployment=deployment,
+        raw_root=raw_root,
+        source_root=raw_root,
+        archive=archive,
+        combined_text=combined if combined.exists() else None,
+        ctd_text=ctd if ctd.exists() else None,
+        fl_text=fl if fl.exists() else None,
+    )
 
 
 def import_raw_data_zip(config: MeopConfig, deployment: str) -> bool:
-    """Prepare low-resolution raw inputs directly from ``data/raw_smru_data_odv``.
+    """Prepare low-resolution raw inputs directly from ``data/data_raw/raw_smru_data_odv``.
 
     Raw archives and extracted text files are now staged directly under ``config.raw_odv_dir``.
     If a ``<deployment>_ODV.zip`` archive is present there, it is extracted in place. Plain text

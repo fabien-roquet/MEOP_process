@@ -27,19 +27,6 @@ def fname_traj(smru_name: str, deployment: str = "", *, config: MeopConfig | Non
     return cfg.trajectory_dataset_dir / deployment_code / f"{smru_name}_traj.nc"
 
 
-def _processed_roots(cfg: MeopConfig, folder: str | Path | None = None) -> tuple[Path, ...]:
-    if folder is None:
-        return cfg.final_dataset_search_dirs
-    root = Path(folder)
-    candidates = []
-    new_root = root / "data" / "data_prof"
-    legacy_root = root / "final_dataset_prof"
-    for candidate in (new_root, legacy_root):
-        if candidate not in candidates:
-            candidates.append(candidate)
-    return tuple(candidates)
-
-
 def list_fname_prof(
     smru_name: str = "",
     deployment: str = "",
@@ -51,11 +38,9 @@ def list_fname_prof(
     cfg = config or load_config()
     deployment_code = deployment or deployment_from_smru_name(smru_name)
     prefix = smru_name if smru_name else f"{deployment_code}-*"
-    matches: set[Path] = set()
-    for root in _processed_roots(cfg, folder):
-        directory = root / deployment_code
-        matches.update(directory.glob(f"{prefix}_{qf}_prof.nc"))
-    return sorted(matches)
+    root = Path(folder) / "data" / "data_prof" if folder is not None else cfg.final_dataset_dir
+    directory = root / deployment_code
+    return sorted(directory.glob(f"{prefix}_{qf}_prof.nc"))
 
 
 def list_smru_name(smru_name: str = "", deployment: str = "", qf: str = "*", *, config: MeopConfig | None = None) -> list[str]:
@@ -72,10 +57,7 @@ def list_fname_plots(smru_name: str = "", deployment: str = "", qf: str = "*", s
     cfg = config or load_config()
     deployment_code = deployment or deployment_from_smru_name(smru_name)
     prefix = smru_name if smru_name else f"{deployment_code}-*"
-    matches: set[Path] = set()
-    for root in cfg.plot_search_dirs:
-        matches.update((root / deployment_code).glob(f"{prefix}_{qf}_{suffix}.png"))
-    return sorted(matches)
+    return sorted((cfg.plotdir / deployment_code).glob(f"{prefix}_{qf}_{suffix}.png"))
 
 
 def copy_file(file_name: str, src_dir: str | Path, dst_dir: str | Path) -> Path:

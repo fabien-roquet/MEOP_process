@@ -174,11 +174,18 @@ def _eligible_deployments(config: MeopConfig, *, include_disabled: bool = False,
 
 
 def _has_any_outputs(config: MeopConfig, deployment: str) -> bool:
-    for root in config.final_dataset_search_dirs:
-        deployment_dir = root / deployment
-        if deployment_dir.exists() and any(deployment_dir.glob(f"{deployment}-*_prof.nc")):
-            return True
-    return False
+    deployment_dir = config.final_dataset_dir / deployment
+    return deployment_dir.exists() and any(deployment_dir.glob(f"{deployment}-*_prof.nc"))
+
+
+def _reconcile_state(config: MeopConfig, state: dict[str, dict[str, object]]) -> dict[str, dict[str, object]]:
+    reconciled: dict[str, dict[str, object]] = {}
+    for deployment, entry in state.items():
+        status = str(entry.get("status", "")).strip().lower()
+        if status in SUCCESS_STATUSES and not _has_any_outputs(config, deployment):
+            continue
+        reconciled[deployment] = entry
+    return reconciled
 
 
 def _should_skip(
@@ -460,7 +467,8 @@ def run_all_deployments(
     log_dir = output_dir / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     state_path = root / "latest" / STATE_FILE_NAME
-    state = _load_state(state_path)
+    state = _reconcile_state(cfg, _load_state(state_path))
+    _write_state(state_path, state)
 
     selected_deployments = _eligible_deployments(cfg, include_disabled=include_disabled, selected=deployments)
     results_by_index: list[tuple[int, DeploymentRunResult]] = []

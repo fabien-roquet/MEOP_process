@@ -25,7 +25,7 @@ def sync_external_config_files(
     source_dir: str | Path | None = None,
     timestamp: str | None = None,
 ) -> list[Path]:
-    """Optionally mirror JSON config files into ``data/config_files``.
+    """Optionally mirror JSON config files into ``data/data_raw/config_files``.
 
     The pure-Python package does not require any root-level mirrors. When ``source_dir`` is
     omitted, the helper looks for ``data/external_config_files`` and performs a quiet no-op if

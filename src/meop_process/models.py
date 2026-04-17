@@ -41,72 +41,24 @@ class MeopConfig:
         return self.data_raw_dir / "config_files"
 
     @property
-    def legacy_config_files_dir(self) -> Path:
-        return self.datadir / "config_files"
-
-    @property
-    def config_files_search_dirs(self) -> tuple[Path, ...]:
-        return _unique_paths(self.config_files_dir, self.legacy_config_files_dir)
-
-    @property
     def raw_odv_dir(self) -> Path:
         return self.data_raw_dir / "raw_smru_data_odv"
-
-    @property
-    def legacy_raw_odv_dir(self) -> Path:
-        return self.datadir / "raw_smru_data_odv"
-
-    @property
-    def raw_odv_search_dirs(self) -> tuple[Path, ...]:
-        return _unique_paths(self.raw_odv_dir, self.legacy_raw_odv_dir)
 
     @property
     def raw_hr_dir(self) -> Path:
         return self.data_raw_dir / "raw_smru_hr_data"
 
     @property
-    def legacy_raw_hr_dir(self) -> Path:
-        return self.datadir / "raw_smru_hr_data"
-
-    @property
-    def raw_hr_search_dirs(self) -> tuple[Path, ...]:
-        return _unique_paths(self.raw_hr_dir, self.legacy_raw_hr_dir)
-
-    @property
     def crawl_locdir(self) -> Path:
         return self.data_raw_dir / "crawl_locations"
-
-    @property
-    def legacy_crawl_locdir(self) -> Path:
-        return self.datadir / "crawl_locations"
-
-    @property
-    def crawl_loc_search_dirs(self) -> tuple[Path, ...]:
-        return _unique_paths(self.crawl_locdir, self.legacy_crawl_locdir)
 
     @property
     def cls_locdir(self) -> Path:
         return self.data_raw_dir / "smooth_cls_locations"
 
     @property
-    def legacy_cls_locdir(self) -> Path:
-        return self.datadir / "smooth_cls_locations"
-
-    @property
-    def cls_loc_search_dirs(self) -> tuple[Path, ...]:
-        return _unique_paths(self.cls_locdir, self.legacy_cls_locdir)
-
-    @property
     def final_dataset_dir(self) -> Path:
         return self.datadir / "data_prof"
-
-    @property
-    def legacy_final_dataset_dir(self) -> Path:
-        return self.processdir / "final_dataset_prof"
-
-    @property
-    def final_dataset_search_dirs(self) -> tuple[Path, ...]:
-        return _unique_paths(self.final_dataset_dir, self.legacy_final_dataset_dir)
 
     @property
     def trajectory_dataset_dir(self) -> Path:
@@ -119,14 +71,6 @@ class MeopConfig:
     @property
     def plotdir(self) -> Path:
         return self.datadir / "plots_by_tags"
-
-    @property
-    def legacy_plotdir(self) -> Path:
-        return self.processdir / "plots"
-
-    @property
-    def plot_search_dirs(self) -> tuple[Path, ...]:
-        return _unique_paths(self.plotdir, self.legacy_plotdir)
 
     @property
     def plots_by_deployment_dir(self) -> Path:
@@ -292,14 +236,3 @@ class DeploymentInfo:
             "known_platform_codes": list(self.known_platform_codes),
             "hr_platform_codes": list(self.hr_platform_codes),
         }
-
-
-def _unique_paths(*paths: Path) -> tuple[Path, ...]:
-    ordered: list[Path] = []
-    seen: set[Path] = set()
-    for path in paths:
-        if path in seen:
-            continue
-        seen.add(path)
-        ordered.append(path)
-    return tuple(ordered)
