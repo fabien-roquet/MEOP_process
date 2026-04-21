@@ -166,7 +166,7 @@ These cases are valuable because they test both the low-resolution/high-resoluti
 
 \subsection{Repository and package structure}
 
-The project now uses a standard \pkg{src/} layout with \pkg{pyproject.toml}, a package root at \pkg{src/meop\_process/}, a public API module, a CLI, and compatibility wrappers under \pkg{python/}. The historical entry point \pkg{python/meop\_process.py} still exists, but it now forwards to the modern package rather than acting as the implementation itself.
+The project now uses a standard \pkg{src/} layout with \pkg{pyproject.toml}, a package root at \pkg{src/meop\_process/}, a public API module, a CLI, repository wrapper scripts under \pkg{scripts/}, and deprecated historical code under \pkg{legacy/}.
 
 \subsection{Runtime data ownership}
 
@@ -278,7 +278,7 @@ meop-process --deployment ct88 --process_data --diagnostics
 Repository wrapper:
 
 \begin{lstlisting}[style=meopcode]
-python python/meop_process.py --deployment ct88 --process_data --diagnostics
+python scripts/process_deployment.py --deployment ct88 --process_data --diagnostics
 \end{lstlisting}
 
 \subsection{Batch processing over all deployments}

@@ -1,0 +1,23 @@
+{
+  "defaults": {
+    "diagnostics": {
+      "qf": "lr1",
+      "adjusted": true,
+      "parts": ["tag", "deployment", "overview"]
+    },
+    "batch": {
+      "jobs": 4,
+      "verbose": false
+    }
+  },
+  "configs": {
+    "workstation": {
+      "processdir": "/mnt/data/MEOP_process",
+      "batch": { "jobs": 8 }
+    },
+    "laptop": {
+      "processdir": "/home/user/MEOP_process",
+      "batch": { "jobs": 2 }
+    }
+  }
+}

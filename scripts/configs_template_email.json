@@ -1,0 +1,21 @@
+{
+  "defaults": {
+    "notifications": {
+      "email": {
+        "enabled": true,
+        "when": "always",
+        "to": ["ops@example.org"],
+        "attach": ["summary_md"],
+        "subject_prefix": "[MEOP]",
+        "smtp": {
+          "host": "smtp.example.org",
+          "port": 587,
+          "starttls": true,
+          "username_env": "MEOP_SMTP_USERNAME",
+          "password_env": "MEOP_SMTP_PASSWORD",
+          "from": "meop-batch@example.org"
+        }
+      }
+    }
+  }
+}

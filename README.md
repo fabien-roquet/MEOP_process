@@ -111,6 +111,18 @@ A typical editable install is:
 python -m pip install -e .
 ```
 
+## SCRIPTS AND CONFIG TEMPLATES
+
+The `scripts/` folder now contains all user-facing batch scripts and several example `configs.json` templates for different use cases:
+
+- `configs_template_minimal.json`: minimal config with only diagnostics and batch defaults
+- `configs_template_email.json`: config with email notification settings
+- `configs_template_machine_overrides.json`: config with per-machine overrides for processdir and batch jobs
+
+You can copy and adapt these templates to `data/configs.json` or provide them via `--config-file`.
+
+The `legacy/` folder contains deprecated utility code kept for reference only. All supported workflows should use the main entry points in `scripts/` or the installed CLI.
+
 The current Python runtime expects at least:
 
 - `numpy`
@@ -151,7 +163,7 @@ meop-process --deployment ct88 --process_data --diagnostics
 From the repository checkout:
 
 ```bash
-python python/meop_process.py --deployment ct88 --process_data --diagnostics
+python scripts/process_deployment.py --deployment ct88 --process_data --diagnostics
 ```
 
 ## BATCH RERUN OVER ALL DEPLOYMENTS

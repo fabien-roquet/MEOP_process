@@ -1,0 +1,11 @@
+{
+  "defaults": {
+    "diagnostics": {
+      "qf": "lr1",
+      "adjusted": true
+    },
+    "batch": {
+      "jobs": 2
+    }
+  }
+}
