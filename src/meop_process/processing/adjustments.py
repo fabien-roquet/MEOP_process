@@ -8,7 +8,7 @@ import xarray as xr
 
 from ..catalog.deployments import load_info_deployment
 from ..catalog.filenames import fname_prof, list_fname_prof
-from ..catalog.tables import read_csv_rows
+from ..catalog.tables import read_csv_rows, write_csv_rows
 from ..data.layout import resolve_table_path
 from ..models import MeopConfig, Selection
 from .hr import _open_dataset, create_fr1_python, create_hr1_python
@@ -73,25 +73,11 @@ def _ensure_default_coefficients(config: MeopConfig, smru_names: Iterable[str]) 
     if not changed:
         return None
 
-    fieldnames: list[str] = []
-    for row in rows:
-        for key in row:
-            if key in fieldnames:
-                continue
-            if key == "":
-                fieldnames.insert(0, key)
-                continue
-            fieldnames.append(key)
-
-    import csv
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-
-    return path
+    return write_csv_rows(
+        path,
+        ({key: value for key, value in row.items() if key} for row in rows),
+        field_order=("smru_platform_code", "T1", "T2", "S1", "S2", "remove", "Sremove", "comment"),
+    )
 
 
 def _atomic_write_dataset(dataset: xr.Dataset, path: Path) -> None:

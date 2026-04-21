@@ -229,9 +229,10 @@ def _load_filter_rows(config: MeopConfig, deployment: str, smru_name: str) -> li
 
 
 def _load_coeff_row(config: MeopConfig, smru_name: str) -> dict[str, str]:
-    rows = _load_indexed_runtime_rows(config, "table_coeff.csv")
+    path = resolve_table_path(config, "table_coeff.csv", required=False)
+    rows = read_csv_rows(path)
     for row in rows:
-        if row.get("row_name") == smru_name or row.get("smru_platform_code") == smru_name:
+        if row.get("smru_platform_code") == smru_name or row.get("row_name") == smru_name:
             return row
     return {"row_name": smru_name, "smru_platform_code": smru_name, "remove": "0", "Sremove": "0"}
 
