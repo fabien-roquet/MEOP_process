@@ -563,7 +563,7 @@ def create_ncargo_python(
 
     info = load_info_deployment(config, deployment=selection.deployment, smru_name=selection.smru_name)
     raw_files = discover_raw_odv_files(config, info.EXP)
-    raw_profiles = load_raw_odv_profiles(raw_files)
+    raw_profiles = load_raw_odv_profiles(raw_files, config=config)
     if not raw_profiles:
         return NcargoResult(written_files=(), processed_tags=())
 

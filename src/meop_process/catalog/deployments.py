@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..data.layout import bootstrap_packaged_catalogs, resolve_catalog_path
-from ..io.raw_odv import build_odv_profile_index, discover_raw_odv_files
+from ..io.raw_odv import discover_raw_odv_files, load_raw_odv_profiles
 from ..models import DeploymentInfo, DeploymentRecord, MeopConfig, Selection
 from .filenames import list_fname_prof
 from .tables import read_csv_rows, read_indexed_csv_rows, read_json_records, write_csv_rows
@@ -302,14 +302,20 @@ def load_info_deployment(config: MeopConfig, deployment: str = "", smru_name: st
     hr_platform_codes = tuple(sorted(code for code in hr_catalog if deployment_from_smru_name(code) == selection.deployment))
 
     raw_files = discover_raw_odv_files(config, selection.deployment)
-    raw_index = build_odv_profile_index(raw_files)
+    raw_profiles = load_raw_odv_profiles(raw_files, config=config)
+    raw_counts: dict[str, int] = {}
+    raw_smru_names: tuple[str, ...] = ()
+    if raw_profiles:
+        for profile in raw_profiles:
+            raw_counts[profile.smru_name] = raw_counts.get(profile.smru_name, 0) + 1
+        raw_smru_names = tuple(sorted(raw_counts))
 
     if list_tag_lr0:
         list_smru_name = tuple(path.name.split("_")[0] for path in list_tag_lr0)
     elif selection.smru_name:
         list_smru_name = (selection.smru_name,)
-    elif raw_index.smru_names:
-        list_smru_name = raw_index.smru_names
+    elif raw_smru_names:
+        list_smru_name = raw_smru_names
     elif known_platform_codes:
         list_smru_name = known_platform_codes
     else:
@@ -326,8 +332,8 @@ def load_info_deployment(config: MeopConfig, deployment: str = "", smru_name: st
         raw_working_ctd_text=raw_files.ctd_text,
         raw_working_fl_text=raw_files.fl_text,
         raw_working_fcell=raw_files.raw_root / f"{selection.deployment}_fcell.mat",
-        raw_smru_names=raw_index.smru_names,
-        raw_profile_count_by_smru=raw_index.profile_count_by_smru,
+        raw_smru_names=raw_smru_names,
+        raw_profile_count_by_smru=raw_counts,
         list_smru_name=list_smru_name,
         list_tag_lr0=list_tag_lr0,
         list_tag_lr1=list_tag_lr1,

@@ -6,9 +6,14 @@ import math
 import shutil
 import zipfile
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+import numpy as np
+
+from ..catalog.tables import read_csv_rows
+from ..data.layout import resolve_table_path
 from ..config.paths import ensure_runtime_directories
 from ..models import MeopConfig
 
@@ -185,6 +190,23 @@ def _to_float(value: str) -> float:
     return number
 
 
+def _parse_timestamp(text: str) -> datetime:
+    value = str(text).strip()
+    for fmt in (
+        "%Y-%m-%d %H:%M",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y/%m/%d %H:%M:%S",
+        "%Y/%m/%d %H:%M:%S.%f",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M:%SZ",
+    ):
+        try:
+            return datetime.strptime(value, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    raise ValueError(f"Unsupported timestamp format: {text!r}")
+
+
 def _sensor_key(column_name: str) -> str | None:
     name = _normalize_header(column_name)
     if name.startswith("pressure"):
@@ -304,9 +326,9 @@ def read_odv_profiles(path: str | Path) -> list[OdvProfile]:
     ]
 
 
-def build_odv_profile_index(files: RawOdvFiles) -> OdvProfileIndex:
-    source = files.preferred_ctd_text
-    if source is None:
+def build_odv_profile_index(files: RawOdvFiles, *, config: MeopConfig | None = None) -> OdvProfileIndex:
+    profiles = load_raw_odv_profiles(files, config=config)
+    if not profiles:
         return OdvProfileIndex(
             deployment=files.deployment,
             smru_names=(),
@@ -317,7 +339,7 @@ def build_odv_profile_index(files: RawOdvFiles) -> OdvProfileIndex:
 
     counts: dict[str, int] = {}
     max_levels = 0
-    for profile in read_odv_profiles(source):
+    for profile in profiles:
         counts[profile.smru_name] = counts.get(profile.smru_name, 0) + 1
         if profile.n_levels > max_levels:
             max_levels = profile.n_levels
@@ -358,14 +380,94 @@ def merge_sensor_profiles(ctd_profiles: Iterable[OdvProfile], fl_profiles: Itera
     return merged
 
 
-def load_raw_odv_profiles(files: RawOdvFiles) -> list[OdvProfile]:
+def _load_split_tag_rules(config: MeopConfig | None) -> dict[str, int]:
+    if config is None:
+        return {}
+    path = resolve_table_path(config, "table_split_tags.csv", required=False)
+    rows = read_csv_rows(path)
+    rules: dict[str, int] = {}
+    for row in rows:
+        smru_name = str(row.get("smru_platform_name", "")).strip()
+        if not smru_name:
+            continue
+        try:
+            nsplit = int(float(row.get("nsplit", "0") or 0))
+        except ValueError:
+            continue
+        if nsplit > 1:
+            rules[smru_name] = nsplit
+    return rules
+
+
+def _split_profiles_by_gap(profiles: list[OdvProfile], nsplit: int) -> list[OdvProfile]:
+    if nsplit <= 1 or len(profiles) <= 1:
+        return profiles
+
+    timestamps = np.asarray([_parse_timestamp(profile.timestamp).timestamp() for profile in profiles], dtype=np.float64)
+    if timestamps.size < 2:
+        return profiles
+
+    gaps = np.diff(timestamps)
+    split_count = min(nsplit - 1, gaps.size)
+    if split_count <= 0:
+        return profiles
+    breakpoints = np.argsort(gaps)[::-1][:split_count] + 1
+    boundaries = [0] + sorted(int(point) for point in breakpoints.tolist()) + [len(profiles)]
+
+    split_profiles: list[OdvProfile] = []
+    for part_index, (start, end) in enumerate(zip(boundaries[:-1], boundaries[1:], strict=False), start=1):
+        for profile in profiles[start:end]:
+            split_profiles.append(
+                OdvProfile(
+                    smru_name=f"{profile.smru_name}-N{part_index}",
+                    station=profile.station,
+                    timestamp=profile.timestamp,
+                    longitude=profile.longitude,
+                    latitude=profile.latitude,
+                    pressure=profile.pressure,
+                    temperature=profile.temperature,
+                    salinity=profile.salinity,
+                    fluorescence=profile.fluorescence,
+                    light=profile.light,
+                    oxygen=profile.oxygen,
+                    conductivity=profile.conductivity,
+                )
+            )
+    return split_profiles
+
+
+def _apply_split_tag_rules(profiles: list[OdvProfile], config: MeopConfig | None) -> list[OdvProfile]:
+    rules = _load_split_tag_rules(config)
+    if not rules:
+        return profiles
+
+    grouped: dict[str, list[OdvProfile]] = {}
+    order: list[str] = []
+    for profile in profiles:
+        if profile.smru_name not in grouped:
+            grouped[profile.smru_name] = []
+            order.append(profile.smru_name)
+        grouped[profile.smru_name].append(profile)
+
+    result: list[OdvProfile] = []
+    for smru_name in order:
+        group = grouped[smru_name]
+        nsplit = rules.get(smru_name, 1)
+        if nsplit > 1:
+            result.extend(_split_profiles_by_gap(group, nsplit))
+        else:
+            result.extend(group)
+    return result
+
+
+def load_raw_odv_profiles(files: RawOdvFiles, *, config: MeopConfig | None = None) -> list[OdvProfile]:
     ctd_source = files.preferred_ctd_text
     if ctd_source is None:
         return []
     ctd_profiles = read_odv_profiles(ctd_source)
     if files.has_combined_text:
-        return ctd_profiles
+        return _apply_split_tag_rules(ctd_profiles, config)
     if not files.has_fl_text:
-        return ctd_profiles
+        return _apply_split_tag_rules(ctd_profiles, config)
     fl_profiles = read_odv_profiles(files.fl_text)
-    return merge_sensor_profiles(ctd_profiles, fl_profiles)
+    return _apply_split_tag_rules(merge_sensor_profiles(ctd_profiles, fl_profiles), config)

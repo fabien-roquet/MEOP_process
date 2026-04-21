@@ -4,7 +4,9 @@ import zipfile
 
 from meop_process.catalog.deployments import load_info_deployment
 from meop_process.io.raw_odv import import_raw_data_zip
-from meop_process.processing.ncargo import prepare_ncargo_inputs
+from meop_process.io.raw_odv import discover_raw_odv_files, load_raw_odv_profiles
+from meop_process.processing.ncargo import create_ncargo_python, prepare_ncargo_inputs
+from meop_process.models import Selection
 
 
 def test_import_raw_data_extracts_archive_in_place(meop_config) -> None:
@@ -33,3 +35,67 @@ def test_prepare_ncargo_inputs_is_a_noop_in_pure_python(meop_config, seed_catalo
     info = load_info_deployment(meop_config, deployment=deployment)
 
     assert prepare_ncargo_inputs(meop_config, info) is True
+
+
+def test_load_raw_odv_profiles_splits_tag_on_largest_time_gap(meop_config, seed_catalog) -> None:
+    deployment = "DEP001"
+    smru_name = "DEP001-AAA"
+    seed_catalog(deployment=deployment, smru_name=smru_name)
+    meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+    (meop_config.tablesdir / "table_split_tags.csv").write_text(
+        "smru_platform_name,nsplit\nDEP001-AAA,2\n",
+        encoding="utf-8",
+    )
+    (meop_config.raw_odv_dir / f"{deployment}_ODV.txt").write_text(
+        "// comment\n"
+        "Cruise;Station;Type;yyyy-mm-dd hh:mm;Longitude;Latitude;Quality;Pressure;Temperature;Salinity\n"
+        "DEP001-AAA;1;;2020-01-01 00:00;10;20;1;5;1.0;33.1\n"
+        ";;;;;;;10;1.1;33.2\n"
+        "DEP001-AAA;2;;2020-01-02 00:00;10;20;1;5;1.2;33.3\n"
+        ";;;;;;;10;1.3;33.4\n"
+        "DEP001-AAA;3;;2020-03-01 00:00;10;20;1;5;1.4;33.5\n"
+        ";;;;;;;10;1.5;33.6\n"
+        "DEP001-AAA;4;;2020-03-02 00:00;10;20;1;5;1.6;33.7\n"
+        ";;;;;;;10;1.7;33.8\n",
+        encoding="utf-8",
+    )
+
+    files = discover_raw_odv_files(meop_config, deployment)
+    profiles = load_raw_odv_profiles(files, config=meop_config)
+
+    assert [profile.smru_name for profile in profiles] == [
+        "DEP001-AAA-N1",
+        "DEP001-AAA-N1",
+        "DEP001-AAA-N2",
+        "DEP001-AAA-N2",
+    ]
+
+
+def test_create_ncargo_python_writes_split_tag_outputs(meop_config, seed_catalog) -> None:
+    deployment = "DEP001"
+    smru_name = "DEP001-AAA"
+    seed_catalog(deployment=deployment, smru_name=smru_name)
+    meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+    (meop_config.tablesdir / "table_split_tags.csv").write_text(
+        "smru_platform_name,nsplit\nDEP001-AAA,2\n",
+        encoding="utf-8",
+    )
+    (meop_config.raw_odv_dir / f"{deployment}_ODV.txt").write_text(
+        "// comment\n"
+        "Cruise;Station;Type;yyyy-mm-dd hh:mm;Longitude;Latitude;Quality;Pressure;Temperature;Salinity\n"
+        "DEP001-AAA;1;;2020-01-01 00:00;10;20;1;5;1.0;33.1\n"
+        ";;;;;;;10;1.1;33.2\n"
+        "DEP001-AAA;2;;2020-01-02 00:00;10;20;1;5;1.2;33.3\n"
+        ";;;;;;;10;1.3;33.4\n"
+        "DEP001-AAA;3;;2020-03-01 00:00;10;20;1;5;1.4;33.5\n"
+        ";;;;;;;10;1.5;33.6\n"
+        "DEP001-AAA;4;;2020-03-02 00:00;10;20;1;5;1.6;33.7\n"
+        ";;;;;;;10;1.7;33.8\n",
+        encoding="utf-8",
+    )
+
+    result = create_ncargo_python(meop_config, Selection(deployment=deployment))
+    info = load_info_deployment(meop_config, deployment=deployment)
+
+    assert result.processed_tags == ("DEP001-AAA-N1", "DEP001-AAA-N2")
+    assert info.raw_smru_names == ("DEP001-AAA-N1", "DEP001-AAA-N2")
