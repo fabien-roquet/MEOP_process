@@ -119,6 +119,22 @@ class _WorkingState:
         return self.dataset
 
 
+def _finite_mean_std(values: np.ndarray) -> tuple[float, float]:
+    finite = np.asarray(values, dtype=np.float64)
+    finite = finite[np.isfinite(finite)]
+    if finite.size == 0:
+        return (np.nan, np.nan)
+    return (float(np.mean(finite)), float(np.std(finite)))
+
+
+def _relative_juld(values: np.ndarray) -> np.ndarray:
+    juld = np.asarray(values, dtype=np.float64)
+    finite = juld[np.isfinite(juld)]
+    if finite.size == 0:
+        return np.full(juld.shape, np.nan, dtype=np.float64)
+    return juld - float(np.min(finite))
+
+
 try:  # pragma: no cover - exercised only when gsw is installed
     import gsw as _gsw  # type: ignore
 except Exception:  # pragma: no cover - used in the current execution environment
@@ -159,8 +175,7 @@ def apply_lr0_qc_filters(config: MeopConfig, info: DeploymentInfo, smru_name: st
     constant_temp = np.where(np.all(temp_diff == 0, axis=1))[0]
     full_removed += state.remove_full_profiles(constant_temp)
     full_removed += state.remove_full_profiles(np.where(state.lat == 0)[0])
-    lat_mean = np.nanmean(state.lat)
-    lat_std = np.nanstd(state.lat)
+    lat_mean, lat_std = _finite_mean_std(state.lat)
     if np.isfinite(lat_std) and lat_std > 0:
         full_removed += state.remove_full_profiles(np.where(np.abs(state.lat - lat_mean) > 5 * lat_std)[0])
 
@@ -386,10 +401,10 @@ def _criterion_indices(state: _WorkingState, criterion: str, value: list[float],
         case "S+D-":
             return any_profile((psal > value[0]) & (dens() < value[1]))
         case "date_min":
-            relative = state.juld - np.nanmin(state.juld)
+            relative = _relative_juld(state.juld)
             return np.where(relative < value[0])[0]
         case "date_max":
-            relative = state.juld - np.nanmin(state.juld)
+            relative = _relative_juld(state.juld)
             return np.where(relative > value[0])[0]
         case "lat_max":
             return np.where(state.lat < value[0])[0]
@@ -483,11 +498,21 @@ def _update_count_and_geo_attributes(dataset: xr.Dataset, state: _WorkingState) 
 
     lat = state.lat[valid_profiles]
     lon = state.lon[valid_profiles].copy()
+    finite = np.isfinite(lat) & np.isfinite(lon)
+    if not np.any(finite):
+        dataset.attrs["geospatial_lat_min"] = " "
+        dataset.attrs["geospatial_lat_max"] = " "
+        dataset.attrs["geospatial_lon_min"] = " "
+        dataset.attrs["geospatial_lon_max"] = " "
+        return
+
+    lat = lat[finite]
+    lon = lon[finite]
     lon = np.where(lon < 0, lon + 360.0, lon)
-    dataset.attrs["geospatial_lat_min"] = float(np.nanmin(lat))
-    dataset.attrs["geospatial_lat_max"] = float(np.nanmax(lat))
-    dataset.attrs["geospatial_lon_min"] = float(np.nanmin(lon))
-    dataset.attrs["geospatial_lon_max"] = float(np.nanmax(lon))
+    dataset.attrs["geospatial_lat_min"] = float(np.min(lat))
+    dataset.attrs["geospatial_lat_max"] = float(np.max(lat))
+    dataset.attrs["geospatial_lon_min"] = float(np.min(lon))
+    dataset.attrs["geospatial_lon_max"] = float(np.max(lon))
 
 
 def _as_float(value: str | None, default: float = np.nan) -> float:

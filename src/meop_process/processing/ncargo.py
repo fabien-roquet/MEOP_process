@@ -180,6 +180,22 @@ def _valid_geospatial_mask(temp_qc: np.ndarray, psal_qc: np.ndarray) -> np.ndarr
     return np.any((temp_qc == "1") | (psal_qc == "1"), axis=1)
 
 
+def _geospatial_bounds(latitude: np.ndarray, longitude: np.ndarray, valid_mask: np.ndarray) -> tuple[float, float, float, float]:
+    finite_mask = valid_mask & np.isfinite(latitude) & np.isfinite(longitude)
+    if not np.any(finite_mask):
+        return (np.nan, np.nan, np.nan, np.nan)
+
+    valid_lat = latitude[finite_mask]
+    valid_lon = longitude[finite_mask]
+    valid_lon = np.where(valid_lon < 0, valid_lon + 360.0, valid_lon)
+    return (
+        float(np.min(valid_lat)),
+        float(np.max(valid_lat)),
+        float(np.min(valid_lon)),
+        float(np.max(valid_lon)),
+    )
+
+
 def _format_wmo_platform_code(raw: str | None) -> str:
     if raw is None:
         return " "
@@ -420,8 +436,7 @@ def _build_ncargo_dataset(
         dataset[name].encoding["_FillValue"] = float(fill_float)
 
     valid_mask = _valid_geospatial_mask(temp_qc, psal_qc)
-    valid_lat = latitude[valid_mask]
-    valid_lon = longitude[valid_mask]
+    geospatial_lat_min, geospatial_lat_max, geospatial_lon_min, geospatial_lon_max = _geospatial_bounds(latitude, longitude, valid_mask)
     attrs: dict[str, object] = {
         "comment": " ",
         "pi_name": info.PI,
@@ -469,10 +484,10 @@ def _build_ncargo_dataset(
         "number_chla_profiles": float(_valid_profile_count(fl_qc)) if has_fluorescence else 0.0,
         "number_doxy_profiles": float(_valid_profile_count(oxy_qc)) if has_oxygen else 0.0,
         "number_light_profiles": float(_valid_profile_count(light_qc)) if has_light else 0.0,
-        "geospatial_lat_min": float(np.nanmin(valid_lat)) if valid_lat.size else np.nan,
-        "geospatial_lat_max": float(np.nanmax(valid_lat)) if valid_lat.size else np.nan,
-        "geospatial_lon_min": float(np.nanmin(np.where(valid_lon < 0, valid_lon + 360, valid_lon))) if valid_lon.size else np.nan,
-        "geospatial_lon_max": float(np.nanmax(np.where(valid_lon < 0, valid_lon + 360, valid_lon))) if valid_lon.size else np.nan,
+        "geospatial_lat_min": geospatial_lat_min,
+        "geospatial_lat_max": geospatial_lat_max,
+        "geospatial_lon_min": geospatial_lon_min,
+        "geospatial_lon_max": geospatial_lon_max,
     }
     dataset.attrs.update(attrs)
 

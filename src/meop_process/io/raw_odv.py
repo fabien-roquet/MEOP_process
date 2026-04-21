@@ -454,6 +454,8 @@ def _apply_split_tag_rules(profiles: list[OdvProfile], config: MeopConfig | None
         group = grouped[smru_name]
         nsplit = rules.get(smru_name, 1)
         if nsplit > 1:
+            group = [profile for profile in group if np.isfinite(profile.longitude) or np.isfinite(profile.latitude)]
+        if nsplit > 1:
             result.extend(_split_profiles_by_gap(group, nsplit))
         else:
             result.extend(group)

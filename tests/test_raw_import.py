@@ -99,3 +99,29 @@ def test_create_ncargo_python_writes_split_tag_outputs(meop_config, seed_catalog
 
     assert result.processed_tags == ("DEP001-AAA-N1", "DEP001-AAA-N2")
     assert info.raw_smru_names == ("DEP001-AAA-N1", "DEP001-AAA-N2")
+
+
+def test_load_raw_odv_profiles_drops_profiles_with_blank_header_lon_lat(meop_config, seed_catalog) -> None:
+    deployment = "DEP001"
+    smru_name = "DEP001-AAA"
+    seed_catalog(deployment=deployment, smru_name=smru_name)
+    meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+    (meop_config.tablesdir / "table_split_tags.csv").write_text(
+        "smru_platform_name,nsplit\nDEP001-AAA,2\n",
+        encoding="utf-8",
+    )
+    (meop_config.raw_odv_dir / f"{deployment}_ODV.txt").write_text(
+        "// comment\n"
+        "Cruise;Station;Type;yyyy-mm-dd hh:mm;Longitude;Latitude;Quality;Pressure;Temperature;Salinity\n"
+        "DEP001-AAA;1;;2020-01-01 00:00;;;1;5;1.0;33.1\n"
+        ";;;;;;;10;1.1;33.2\n"
+        "DEP001-AAA;2;;2020-01-02 00:00;10;20;1;5;1.2;33.3\n"
+        ";;;;;;;10;1.3;33.4\n",
+        encoding="utf-8",
+    )
+
+    files = discover_raw_odv_files(meop_config, deployment)
+    profiles = load_raw_odv_profiles(files, config=meop_config)
+
+    assert len(profiles) == 1
+    assert profiles[0].station == 2
