@@ -44,3 +44,31 @@ def test_update_metadata_summaries_incremental(meop_config, stage_ct88_example, 
 
     third = update_metadata_summaries(meop_config)
     assert third.written is False
+
+
+def test_update_metadata_summaries_rebuilds_after_reset(meop_config, stage_ct88_example):
+    ct88 = stage_ct88_example()
+
+    _copy_output(
+        ct88["reference_lr1"],
+        meop_config.final_dataset_dir / "ct88" / "ct88-225-12_lr1_prof.nc",
+    )
+
+    initial = update_metadata_summaries(meop_config, processed_deployments=["ct88"])
+    assert initial.list_tags_path.exists()
+    assert initial.list_deployments_path.exists()
+
+    initial.list_tags_path.unlink()
+    initial.list_deployments_path.unlink()
+
+    rebuilt = update_metadata_summaries(meop_config)
+
+    assert rebuilt.written is True
+    assert rebuilt.output_dir == meop_config.publicdir_ctd
+    assert rebuilt.list_tags_path.exists()
+    assert rebuilt.list_deployments_path.exists()
+
+    tags = pd.read_csv(rebuilt.list_tags_path)
+    deployments = pd.read_csv(rebuilt.list_deployments_path)
+    assert set(tags["SMRU_PLATFORM_CODE"]) == {"ct88-225-12"}
+    assert set(deployments["DEPLOYMENT_CODE"]) == {"ct88"}
