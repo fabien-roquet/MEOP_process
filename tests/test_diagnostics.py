@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
+import json
 
 import matplotlib.image as mpimg
 import numpy as np
@@ -27,6 +28,14 @@ def _assert_nonempty_png(path: Path) -> None:
     assert float(image.std()) > 0.001
 
 
+def _relative_inventory(root: Path) -> set[str]:
+    return {
+        str(path.relative_to(root))
+        for path in root.rglob("*")
+        if path.is_file()
+    }
+
+
 def test_open_meop_netcdf_reads_reference_lr1(stage_ct88_example, meop_config) -> None:
     example = stage_ct88_example()
     staged = _stage_reference_product(meop_config, "ct88", "ct88-225-12", example["reference_lr1"])
@@ -49,10 +58,15 @@ def test_generate_diagnostics_ct88_writes_overview_and_section_pngs(stage_ct88_e
     overview = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="diags_TS_adj", config=meop_config)
     section = fname_plots("ct88-225-12", deployment="ct88", qf="lr1", suffix="transect_adj", config=meop_config)
     deployment = meop_config.plots_by_deployment_dir / "ct88" / "ct88_lr1_deployment_overview_adj.png"
+    summary = meop_config.plots_by_deployment_dir / "ct88" / "ct88_lr1_deployment_summary_adj.json"
     assert result.processed_tags == ("ct88-225-12",)
     _assert_nonempty_png(overview)
     _assert_nonempty_png(section)
     _assert_nonempty_png(deployment)
+    assert summary.is_file()
+    payload = json.loads(summary.read_text(encoding="utf-8"))
+    assert payload["deployment"] == "ct88"
+    assert payload["smru_names"] == ["ct88-225-12"]
 
 
 def test_generate_diagnostics_ct78_writes_overview_and_section_pngs(stage_ct78_example, meop_config) -> None:
@@ -120,4 +134,41 @@ def test_generate_diagnostics_all_deployments_writes_global_overview(stage_ct88_
     assert set(result.processed_tags) == {"ct88-225-12", "ct78-465-12"}
     _assert_nonempty_png(ct88_deployment)
     _assert_nonempty_png(ct78_deployment)
+    _assert_nonempty_png(overview)
+
+
+def test_generate_diagnostics_matches_expected_fixture_inventory(stage_ct88_example, stage_ct78_example, meop_config) -> None:
+    ct88 = stage_ct88_example()
+    ct78 = stage_ct78_example()
+    _stage_reference_product(meop_config, "ct88", "ct88-225-12", ct88["reference_lr1"])
+    _stage_reference_product(meop_config, "ct78", "ct78-465-12", ct78["reference_lr1"])
+
+    generate_diagnostics(qf="lr1", config=meop_config)
+
+    expected_root = Path(__file__).resolve().parent / "fixtures" / "diagnostics_expected"
+    actual_root = meop_config.datadir
+    actual_inventory = _relative_inventory(actual_root / "plots_by_tags")
+    actual_inventory |= {f"deployments/{item}" for item in _relative_inventory(actual_root / "plots_by_deployments")}
+    actual_inventory |= {f"overview/{item}" for item in _relative_inventory(actual_root / "plots_overview")}
+
+    expected_inventory = _relative_inventory(expected_root / "plots_by_tags")
+    expected_inventory |= {f"deployments/{item}" for item in _relative_inventory(expected_root / "plots_by_deployments")}
+    expected_inventory |= {f"overview/{item}" for item in _relative_inventory(expected_root / "plots_overview")}
+
+    assert actual_inventory == expected_inventory
+
+
+def test_generate_diagnostics_overview_only_uses_cached_summaries(stage_ct88_example, stage_ct78_example, meop_config) -> None:
+    ct88 = stage_ct88_example()
+    ct78 = stage_ct78_example()
+    _stage_reference_product(meop_config, "ct88", "ct88-225-12", ct88["reference_lr1"])
+    _stage_reference_product(meop_config, "ct78", "ct78-465-12", ct78["reference_lr1"])
+
+    generate_diagnostics(qf="lr1", config=meop_config)
+    shutil.rmtree(meop_config.final_dataset_dir)
+
+    result = generate_diagnostics(qf="lr1", config=meop_config, parts=("overview",))
+
+    overview = meop_config.plots_overview_dir / "all_deployments_lr1_overview_adj.png"
+    assert result.processed_tags == ()
     _assert_nonempty_png(overview)

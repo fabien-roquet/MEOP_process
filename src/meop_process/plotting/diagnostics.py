@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+import json
 from pathlib import Path
 import re
 from typing import Iterable
@@ -62,6 +63,40 @@ class DeploymentDiagnosticSummary:
     end_time: datetime | None
     lon: np.ndarray
     lat: np.ndarray
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "deployment": self.deployment,
+            "adjusted": self.adjusted,
+            "smru_names": list(self.smru_names),
+            "n_profiles": self.n_profiles,
+            "n_temp_profiles": self.n_temp_profiles,
+            "n_psal_profiles": self.n_psal_profiles,
+            "start_time": self.start_time.isoformat() if self.start_time is not None else None,
+            "end_time": self.end_time.isoformat() if self.end_time is not None else None,
+            "lon": self.lon.astype(float).tolist(),
+            "lat": self.lat.astype(float).tolist(),
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, object]) -> "DeploymentDiagnosticSummary":
+        start_raw = payload.get("start_time")
+        end_raw = payload.get("end_time")
+        return cls(
+            deployment=str(payload.get("deployment", "")),
+            adjusted=bool(payload.get("adjusted", True)),
+            smru_names=tuple(str(item) for item in payload.get("smru_names", [])),
+            n_profiles=int(payload.get("n_profiles", 0)),
+            n_temp_profiles=int(payload.get("n_temp_profiles", 0)),
+            n_psal_profiles=int(payload.get("n_psal_profiles", 0)),
+            start_time=datetime.fromisoformat(str(start_raw)) if start_raw else None,
+            end_time=datetime.fromisoformat(str(end_raw)) if end_raw else None,
+            lon=np.asarray(payload.get("lon", []), dtype=float),
+            lat=np.asarray(payload.get("lat", []), dtype=float),
+        )
+
+
+DIAGNOSTIC_PARTS = ("tag", "deployment", "overview")
 
 
 def _import_matplotlib():
@@ -371,6 +406,18 @@ def _deployment_summary(tags: tuple[TagDiagnosticData, ...]) -> DeploymentDiagno
 
 
 def _overview_summary_lines(summaries: tuple[DeploymentDiagnosticSummary, ...], *, qf: str) -> list[str]:
+    if not summaries:
+        return [
+            "MEOP diagnostics overview",
+            "deployments: 0",
+            "tags: 0",
+            "profiles: 0",
+            "TEMP profiles: 0",
+            "PSAL profiles: 0",
+            "period: unknown to unknown",
+            f"product: {qf}",
+            "variables: adjusted",
+        ]
     total_tags = sum(len(summary.smru_names) for summary in summaries)
     total_profiles = sum(summary.n_profiles for summary in summaries)
     total_temp = sum(summary.n_temp_profiles for summary in summaries)
@@ -495,6 +542,74 @@ def _save_global_overview_figure(summaries: tuple[DeploymentDiagnosticSummary, .
     target.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(target, dpi=180, bbox_inches="tight")
     plt.close(fig)
+
+
+def _normalize_parts(parts: Iterable[str] | None) -> tuple[str, ...]:
+    if parts is None:
+        return DIAGNOSTIC_PARTS
+    normalized: list[str] = []
+    for item in parts:
+        value = str(item).strip().lower()
+        if not value:
+            continue
+        if value == "all":
+            return DIAGNOSTIC_PARTS
+        if value not in DIAGNOSTIC_PARTS:
+            raise ValueError(f"Unsupported diagnostics part: {item}")
+        if value not in normalized:
+            normalized.append(value)
+    return tuple(normalized) or DIAGNOSTIC_PARTS
+
+
+def _summary_suffix(*, adjusted: bool) -> str:
+    return "adj" if adjusted else "raw"
+
+
+def _deployment_summary_cache_path(config: MeopConfig, deployment: str, *, qf: str, adjusted: bool) -> Path:
+    suffix = _summary_suffix(adjusted=adjusted)
+    return config.plots_by_deployment_dir / deployment / f"{deployment}_{qf}_deployment_summary_{suffix}.json"
+
+
+def _write_deployment_summary_cache(config: MeopConfig, summary: DeploymentDiagnosticSummary, *, qf: str) -> Path:
+    path = _deployment_summary_cache_path(config, summary.deployment, qf=qf, adjusted=summary.adjusted)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(summary.as_dict(), indent=2, sort_keys=True), encoding="utf-8")
+    return path
+
+
+def _read_deployment_summary_cache(config: MeopConfig, deployment: str, *, qf: str, adjusted: bool) -> DeploymentDiagnosticSummary | None:
+    path = _deployment_summary_cache_path(config, deployment, qf=qf, adjusted=adjusted)
+    if not path.exists():
+        return None
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        return None
+    summary = DeploymentDiagnosticSummary.from_dict(payload)
+    if summary.deployment != deployment:
+        return None
+    return summary
+
+
+def _selected_deployments(config: MeopConfig, selection: Selection, *, qf: str) -> tuple[str, ...]:
+    selection = selection.normalized()
+    if selection.deployment:
+        return (selection.deployment,)
+    if selection.smru_name:
+        return (selection.smru_name.split("-")[0],)
+    if not config.final_dataset_dir.exists():
+        return ()
+    discovered: list[str] = []
+    for deployment_dir in sorted(path for path in config.final_dataset_dir.iterdir() if path.is_dir()):
+        if any(deployment_dir.glob(f"*_{qf}_prof.nc")):
+            discovered.append(deployment_dir.name)
+    return tuple(discovered)
+
+
+def _source_paths_for_deployments(config: MeopConfig, deployments: Iterable[str], *, qf: str) -> tuple[Path, ...]:
+    paths: list[Path] = []
+    for deployment in deployments:
+        paths.extend(list_fname_prof(deployment=deployment, qf=qf, config=config))
+    return tuple(paths)
 
 
 def _plot_labelled_profiles(ax, tags: tuple[TagDiagnosticData, ...], *, field_name: str, colors: np.ndarray, pmax: int, xlabel: str) -> None:
@@ -860,6 +975,8 @@ def _source_file_paths(config: MeopConfig, selection: Selection, *, qf: str) -> 
         path = list_fname_prof(smru_name=selection.smru_name, deployment=selection.deployment, qf=qf, config=config)
         return tuple(path)
     if not selection.deployment:
+        if not config.final_dataset_dir.exists():
+            return ()
         paths: list[Path] = []
         for deployment_dir in sorted(path for path in config.final_dataset_dir.iterdir() if path.is_dir()):
             paths.extend(sorted(deployment_dir.glob(f"*_{qf}_prof.nc")))
@@ -874,40 +991,75 @@ def generate_diagnostics(
     qf: str = "lr1",
     adjusted: bool = True,
     pmax: int = 1000,
+    parts: Iterable[str] | None = None,
+    use_cached_summaries: bool = True,
 ) -> DiagnosticResult:
+    normalized_parts = _normalize_parts(parts)
+    part_set = set(normalized_parts)
     written: list[Path] = []
     processed: list[str] = []
     deployment_tags: dict[str, list[TagDiagnosticData]] = {}
+    selected_deployments = _selected_deployments(config, selection, qf=qf)
 
-    for source_path in _source_file_paths(config, selection, qf=qf):
+    need_source_data = bool(part_set.intersection({"tag", "deployment"}))
+    overview_summaries: dict[str, DeploymentDiagnosticSummary] = {}
+    missing_overview: list[str] = []
+
+    if "overview" in part_set:
+        for deployment in selected_deployments:
+            summary = _read_deployment_summary_cache(config, deployment, qf=qf, adjusted=adjusted) if use_cached_summaries else None
+            if summary is None:
+                missing_overview.append(deployment)
+            else:
+                overview_summaries[deployment] = summary
+        if missing_overview:
+            need_source_data = True
+
+    if need_source_data:
+        if selection.smru_name:
+            source_paths = _source_file_paths(config, selection, qf=qf)
+        elif selection.deployment:
+            source_paths = _source_file_paths(config, selection, qf=qf)
+        elif missing_overview and not part_set.intersection({"tag", "deployment"}):
+            source_paths = _source_paths_for_deployments(config, missing_overview, qf=qf)
+        else:
+            source_paths = _source_file_paths(config, selection, qf=qf)
+    else:
+        source_paths = ()
+
+    for source_path in source_paths:
         dataset = open_meop_netcdf(source_path)
         try:
             smru_name = source_path.name.split("_")[0]
             tag = _tag_diagnostic_data(dataset, smru_name, adjusted=adjusted)
             deployment_tags.setdefault(tag.deployment, []).append(tag)
-            suffix = "adj" if adjusted else "raw"
-            overview_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"diags_TS_{suffix}", config=config)
-            section_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"transect_{suffix}", config=config)
-            _save_overview_figure(dataset, overview_path, adjusted=adjusted, pmax=pmax)
-            _save_section_figure(dataset, section_path, adjusted=adjusted, pmax=pmax)
-            written.extend([overview_path, section_path])
+            suffix = _summary_suffix(adjusted=adjusted)
+            if "tag" in part_set:
+                overview_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"diags_TS_{suffix}", config=config)
+                section_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"transect_{suffix}", config=config)
+                _save_overview_figure(dataset, overview_path, adjusted=adjusted, pmax=pmax)
+                _save_section_figure(dataset, section_path, adjusted=adjusted, pmax=pmax)
+                written.extend([overview_path, section_path])
             processed.append(smru_name)
         finally:
             dataset.close()
 
-    overview_summaries: list[DeploymentDiagnosticSummary] = []
     if deployment_tags:
-        suffix = "adj" if adjusted else "raw"
         for deployment, tags in sorted(deployment_tags.items()):
-            deployment_path = config.plots_by_deployment_dir / deployment / f"{deployment}_{qf}_deployment_overview_{suffix}.png"
-            _save_deployment_overview_figure(tuple(tags), deployment_path, qf=qf, pmax=pmax)
-            written.append(deployment_path)
-            overview_summaries.append(_deployment_summary(tuple(tags)))
+            summary = _deployment_summary(tuple(tags))
+            overview_summaries[deployment] = summary
+            cache_path = _write_deployment_summary_cache(config, summary, qf=qf)
+            written.append(cache_path)
+            if "deployment" in part_set:
+                deployment_path = config.plots_by_deployment_dir / deployment / f"{deployment}_{qf}_deployment_overview_{_summary_suffix(adjusted=adjusted)}.png"
+                _save_deployment_overview_figure(tuple(tags), deployment_path, qf=qf, pmax=pmax)
+                written.append(deployment_path)
 
-    if len(overview_summaries) >= 2:
-        suffix = "adj" if adjusted else "raw"
+    if "overview" in part_set and len(overview_summaries) >= 2:
+        suffix = _summary_suffix(adjusted=adjusted)
         overview_path = config.plots_overview_dir / f"all_deployments_{qf}_overview_{suffix}.png"
-        _save_global_overview_figure(tuple(overview_summaries), overview_path, qf=qf)
+        summaries = tuple(summary for _, summary in sorted(overview_summaries.items()))
+        _save_global_overview_figure(summaries, overview_path, qf=qf)
         written.append(overview_path)
 
     return DiagnosticResult(written_files=tuple(written), processed_tags=tuple(processed))

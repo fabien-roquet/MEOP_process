@@ -61,6 +61,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--diagnostics", action="store_true", help="Generate standard diagnostics plots for processed products.")
     parser.add_argument("--diagnostics-qf", default="lr1", help="Quality flag product to use for diagnostics (default: lr1).")
     parser.add_argument("--diagnostics-raw", action="store_true", help="Use raw rather than adjusted variables for diagnostics.")
+    parser.add_argument(
+        "--diagnostics-part",
+        action="append",
+        choices=("tag", "deployment", "overview", "all"),
+        default=[],
+        help="Restrict diagnostics to one or more parts: tag, deployment, overview, or all (default: all).",
+    )
     parser.add_argument("--run-all-deployments", action="store_true", help="Process all deployments from the catalog, continuing past failures and keeping resumable state.")
     parser.add_argument("--refresh-metadata-summaries", dest="refresh_metadata_summaries", action="store_true", help="Refresh list_tags.csv and list_deployments.csv without processing deployments.")
     parser.add_argument("--force", action="store_true", help="Force reprocessing of deployments even if they previously completed successfully.")
@@ -81,7 +88,8 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
     if not (workflow_requested or utility_requested):
         parser.error("at least one action flag is required")
 
-    if workflow_requested and not args.run_all_deployments and not (args.smru_name or args.deployment):
+    requires_selection = any(getattr(args, action) for action in ACTIONS if action != "diagnostics")
+    if workflow_requested and not args.run_all_deployments and requires_selection and not (args.smru_name or args.deployment):
         parser.error("one of --smru_name or --deployment is required for workflow actions")
 
     deployment = args.deployment or (deployment_from_smru_name(args.smru_name) if args.smru_name else "")
@@ -119,6 +127,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
             diagnostics=args.diagnostics,
             diagnostics_qf=args.diagnostics_qf,
             diagnostics_raw=args.diagnostics_raw,
+            diagnostics_parts=args.diagnostics_part,
             force=args.force,
             force_failed=args.force_failed,
             include_disabled=args.include_disabled,
@@ -153,6 +162,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
             smru_name=args.smru_name,
             qf=args.diagnostics_qf,
             adjusted=not args.diagnostics_raw,
+            parts=args.diagnostics_part,
             config=cfg,
         )
 

@@ -182,15 +182,24 @@ def generate_diagnostics(
     smru_name: str = "",
     qf: str = "lr1",
     adjusted: bool = True,
+    parts: list[str] | tuple[str, ...] | None = None,
     config: MeopConfig | None = None,
     *,
     processdir: str | os.PathLike[str] | None = None,
     config_file: str | os.PathLike[str] | None = None,
     machine: str | None = None,
+    use_cached_summaries: bool = True,
 ):
     cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
     selection = Selection(deployment=deployment, smru_name=smru_name).normalized()
-    return generate_diagnostics_plotting(cfg, selection, qf=qf, adjusted=adjusted)
+    return generate_diagnostics_plotting(
+        cfg,
+        selection,
+        qf=qf,
+        adjusted=adjusted,
+        parts=parts,
+        use_cached_summaries=use_cached_summaries,
+    )
 
 
 def update_metadata_summaries(

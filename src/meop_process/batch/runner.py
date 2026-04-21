@@ -303,6 +303,7 @@ def _execute_deployment(
     diagnostics: bool,
     diagnostics_qf: str,
     diagnostics_raw: bool,
+    diagnostics_parts: tuple[str, ...],
     diagnostics_only: bool,
     stream_stdout: bool,
 ) -> tuple[DeploymentRunResult, bool]:
@@ -317,13 +318,15 @@ def _execute_deployment(
             with contextlib.redirect_stdout(tee), contextlib.redirect_stderr(tee):
                 if diagnostics_only:
                     print(f"[{deployment}] skipped processing, running diagnostics instead")
-                    generated = generate_diagnostics_plotting(
-                        cfg,
-                        Selection(deployment=deployment, smru_name="").normalized(),
-                        qf=diagnostics_qf,
-                        adjusted=not diagnostics_raw,
-                    )
-                    print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
+                    if diagnostics_parts:
+                        generated = generate_diagnostics_plotting(
+                            cfg,
+                            Selection(deployment=deployment, smru_name="").normalized(),
+                            qf=diagnostics_qf,
+                            adjusted=not diagnostics_raw,
+                            parts=diagnostics_parts,
+                        )
+                        print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
                     status = "success"
                     message = "skipped processing; diagnostics generated"
                     processed_for_summary = False
@@ -332,12 +335,13 @@ def _execute_deployment(
                     started_timer = time.perf_counter()
                     workflow_result = process_tags_workflow(cfg, deployment=deployment, smru_name="", notlc=notlc)
                     ok = bool(workflow_result)
-                    if ok and diagnostics:
+                    if ok and diagnostics and diagnostics_parts:
                         generated = generate_diagnostics_plotting(
                             cfg,
                             Selection(deployment=deployment, smru_name="").normalized(),
                             qf=diagnostics_qf,
                             adjusted=not diagnostics_raw,
+                            parts=diagnostics_parts,
                         )
                         print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
                     finished_timer = time.perf_counter()
@@ -382,6 +386,7 @@ def _run_pending_deployments(
     diagnostics: bool,
     diagnostics_qf: str,
     diagnostics_raw: bool,
+    diagnostics_parts: tuple[str, ...],
     jobs: int,
     verbose: bool,
 ):
@@ -395,6 +400,7 @@ def _run_pending_deployments(
                 diagnostics=diagnostics,
                 diagnostics_qf=diagnostics_qf,
                 diagnostics_raw=diagnostics_raw,
+                diagnostics_parts=diagnostics_parts,
                 diagnostics_only=task.diagnostics_only,
                 stream_stdout=verbose,
             )
@@ -414,6 +420,7 @@ def _run_pending_deployments(
                 diagnostics=diagnostics,
                 diagnostics_qf=diagnostics_qf,
                 diagnostics_raw=diagnostics_raw,
+                diagnostics_parts=diagnostics_parts,
                 diagnostics_only=task.diagnostics_only,
                 stream_stdout=False,
             )
@@ -450,6 +457,7 @@ def run_all_deployments(
     diagnostics: bool = False,
     diagnostics_qf: str = "lr1",
     diagnostics_raw: bool = False,
+    diagnostics_parts: Iterable[str] | None = None,
     force: bool = False,
     force_failed: bool = False,
     include_disabled: bool = False,
@@ -461,6 +469,9 @@ def run_all_deployments(
     if jobs < 1:
         raise ValueError("jobs must be at least 1")
     cfg = config or load_config(processdir=processdir, config_file=config_file, machine=machine)
+    normalized_diagnostics_parts = tuple(diagnostics_parts or ("tag", "deployment", "overview"))
+    per_deployment_diagnostics_parts = tuple(part for part in normalized_diagnostics_parts if part in {"tag", "deployment", "all"})
+    wants_overview = any(part in {"overview", "all"} for part in normalized_diagnostics_parts)
     root = _state_root(cfg, state_dir)
     run_id = _timestamp()
     output_dir = root / "runs" / run_id
@@ -487,7 +498,7 @@ def run_all_deployments(
         log_path = log_dir / f"{deployment}.log"
 
         if skip:
-            if diagnostics:
+            if diagnostics and per_deployment_diagnostics_parts:
                 pending.append(_PendingDeployment(index=index, deployment=deployment, log_path=log_path, diagnostics_only=True))
                 continue
             else:
@@ -517,6 +528,7 @@ def run_all_deployments(
         diagnostics=diagnostics,
         diagnostics_qf=diagnostics_qf,
         diagnostics_raw=diagnostics_raw,
+        diagnostics_parts=per_deployment_diagnostics_parts,
         jobs=jobs,
         verbose=verbose,
     ):
@@ -525,6 +537,15 @@ def run_all_deployments(
         if processed and result.status == "success":
             processed_for_summary.append(result.deployment)
         _write_state(state_path, state)
+
+    if diagnostics and wants_overview:
+        generate_diagnostics_plotting(
+            cfg,
+            Selection(deployment="", smru_name="").normalized(),
+            qf=diagnostics_qf,
+            adjusted=not diagnostics_raw,
+            parts=("overview",),
+        )
 
     results = [result for _, result in sorted(results_by_index, key=lambda item: item[0])]
 
@@ -556,6 +577,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--diagnostics", action="store_true", help="Generate diagnostics after successful processing.")
     parser.add_argument("--diagnostics-qf", default="lr1", help="Quality flag product to use for diagnostics (default: lr1).")
     parser.add_argument("--diagnostics-raw", action="store_true", help="Use raw rather than adjusted variables for diagnostics.")
+    parser.add_argument(
+        "--diagnostics-part",
+        action="append",
+        choices=("tag", "deployment", "overview", "all"),
+        default=[],
+        help="Restrict batch diagnostics to one or more parts: tag, deployment, overview, or all.",
+    )
     parser.add_argument("--force", action="store_true", help="Force reprocessing of deployments even if they previously completed successfully.")
     parser.add_argument("--force-failed", action="store_true", help="Re-run deployments whose latest status is failed.")
     parser.add_argument("--include-disabled", action="store_true", help="Include deployments whose PROCESS flag is disabled in the catalog.")
@@ -577,6 +605,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         diagnostics=args.diagnostics,
         diagnostics_qf=args.diagnostics_qf,
         diagnostics_raw=args.diagnostics_raw,
+        diagnostics_parts=args.diagnostics_part,
         force=args.force,
         force_failed=args.force_failed,
         include_disabled=args.include_disabled,

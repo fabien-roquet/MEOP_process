@@ -111,7 +111,7 @@ def test_run_all_deployments_runs_diagnostics_for_already_successful_deployments
     write_indexed_csv_rows(meop_config.catalogdir / "list_deployment_hr.csv", [])
 
     calls: list[str] = []
-    diagnostics_calls: list[tuple[str, str, bool]] = []
+    diagnostics_calls: list[tuple[str, tuple[str, ...], str, bool]] = []
 
     def fake_process_tags(config, *, deployment: str, smru_name: str = "", notlc: bool = False):
         calls.append(deployment)
@@ -120,8 +120,9 @@ def test_run_all_deployments_runs_diagnostics_for_already_successful_deployments
         out.write_text("ok", encoding="utf-8")
         return True
 
-    def fake_generate_diagnostics(config, selection, qf, adjusted):
-        diagnostics_calls.append((selection.deployment, qf, adjusted))
+    def fake_generate_diagnostics(config, selection, qf, adjusted, parts=None, use_cached_summaries=True):
+        normalized_parts = tuple(parts or ())
+        diagnostics_calls.append((selection.deployment, normalized_parts, qf, adjusted))
         return ["diag"]
 
     def fake_summaries(config, processed_deployments=None, force=False, output_dir=None):
@@ -154,7 +155,10 @@ def test_run_all_deployments_runs_diagnostics_for_already_successful_deployments
     assert second.success_count == 1
     assert second.skipped_count == 0
     assert calls == []
-    assert diagnostics_calls == [("DEP001", "lr1", True)]
+    assert diagnostics_calls == [
+        ("DEP001", ("tag", "deployment"), "lr1", True),
+        ("", ("overview",), "lr1", True),
+    ]
 
 
 def test_run_all_deployments_prunes_stale_success_entries_without_outputs(meop_config, monkeypatch):
