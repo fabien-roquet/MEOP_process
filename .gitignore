@@ -80,8 +80,14 @@ soap_credentials.txt
 /list_*.pkl
 
 # --- Package-managed runtime workspace ---------------------------------------
-# Private/process data live here and should not be committed.
-/data/
+# Most runtime/process data stay untracked, but curated tables/catalogs are
+# allowed so they can be versioned in git.
+!/data/
+/data/*
+!/data/tables/
+!/data/tables/**
+!/data/catalog/
+!/data/catalog/**
 
 # --- Generated products -------------------------------------------------------
 /final_dataset_prof/

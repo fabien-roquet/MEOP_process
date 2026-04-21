@@ -47,14 +47,31 @@ def _normalise_value(value):
     return value
 
 
+def _normalise_array(values):
+    array = np.asarray(values)
+
+    if array.dtype.kind == "S" and array.ndim > 0 and array.dtype.itemsize == 1:
+        text = array.astype("U1")
+        flat = ["".join(row).strip() for row in text.reshape(-1, text.shape[-1])]
+        return np.asarray(flat, dtype=object).reshape(text.shape[:-1])
+
+    if array.dtype.kind == "U":
+        return np.vectorize(_normalise_value)(array)
+
+    if array.dtype.kind == "O":
+        return np.vectorize(_normalise_value, otypes=[object])(array)
+
+    return array
+
+
 def _values_equal(left, right, *, atol: float = 1e-6) -> bool:
-    left_array = np.asarray(left)
-    right_array = np.asarray(right)
+    left_array = _normalise_array(left)
+    right_array = _normalise_array(right)
     if left_array.shape != right_array.shape:
         return False
     if np.issubdtype(left_array.dtype, np.number) and np.issubdtype(right_array.dtype, np.number):
         return bool(np.allclose(left_array, right_array, equal_nan=True, atol=atol))
-    return np.array_equal(np.vectorize(_normalise_value)(left_array), np.vectorize(_normalise_value)(right_array))
+    return np.array_equal(left_array, right_array)
 
 
 def compare_netcdf_outputs(
@@ -78,11 +95,12 @@ def compare_netcdf_outputs(
         else:
             selected_attributes = list(attributes)
 
-        for name in sorted(set(ref_dims).union(cand_dims)):
-            if ref_dims.get(name) != cand_dims.get(name):
-                report.dimension_differences.append(
-                    f"dimension {name}: reference={ref_dims.get(name)} candidate={cand_dims.get(name)}"
-                )
+        if variables is None:
+            for name in sorted(set(ref_dims).union(cand_dims)):
+                if ref_dims.get(name) != cand_dims.get(name):
+                    report.dimension_differences.append(
+                        f"dimension {name}: reference={ref_dims.get(name)} candidate={cand_dims.get(name)}"
+                    )
 
         for name in selected_variables:
             if name not in ref:
@@ -91,12 +109,14 @@ def compare_netcdf_outputs(
             if name not in cand:
                 report.variable_differences.append(f"variable {name}: missing from candidate")
                 continue
-            if ref[name].shape != cand[name].shape:
+            ref_values = _normalise_array(ref[name].values)
+            cand_values = _normalise_array(cand[name].values)
+            if ref_values.shape != cand_values.shape:
                 report.variable_differences.append(
-                    f"variable {name}: shape reference={ref[name].shape} candidate={cand[name].shape}"
+                    f"variable {name}: shape reference={ref_values.shape} candidate={cand_values.shape}"
                 )
                 continue
-            if not _values_equal(ref[name].values, cand[name].values, atol=atol):
+            if not _values_equal(ref_values, cand_values, atol=atol):
                 report.variable_differences.append(f"variable {name}: values differ")
 
         for name in selected_attributes:

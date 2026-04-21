@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import numpy as np
+import pytest
 import xarray as xr
 
 from meop_process.catalog.tables import read_csv_rows, write_indexed_csv_rows
@@ -10,7 +11,7 @@ from meop_process.catalog.filenames import fname_prof
 from meop_process.io.raw_odv import import_raw_data_zip
 from meop_process.metadata.patch import update_metadata_from_table
 from meop_process.models import Selection
-from meop_process.processing.adjustments import _ensure_default_coefficients, apply_adjustments
+from meop_process.processing.adjustments import _ensure_default_coefficients, _load_salinity_offset_series, apply_adjustments
 from meop_process.processing.hr import create_hr0_python
 from meop_process.processing.ncargo import create_ncargo_python
 from meop_process.workflows.compare import compare_netcdf_outputs
@@ -131,3 +132,41 @@ def test_ensure_default_coefficients_preserves_blank_index_column(meop_config) -
     rows = read_csv_rows(updated)
     assert "" in rows[0]
     assert any(row.get("smru_platform_code") == "new-tag" for row in rows)
+
+
+def test_load_salinity_offset_series_interpolates_using_table_order(meop_config) -> None:
+    meop_config.tablesdir.mkdir(parents=True, exist_ok=True)
+    (meop_config.tablesdir / "table_salinity_offsets.csv").write_text(
+        "smru_platform_code,index_1,index_2,index_3,index_4,offset_1,offset_2,offset_3,offset_4\n"
+        "tag-1,1,3,0,0,0.0,0.2,0.5,0.5\n",
+        encoding="utf-8",
+    )
+
+    offsets = _load_salinity_offset_series(meop_config, "tag-1", 5)
+
+    np.testing.assert_allclose(offsets, np.array([0.0, 0.1, 0.2, 0.35, 0.5]))
+
+
+def test_load_salinity_offset_series_rejects_duplicate_rows(meop_config) -> None:
+    meop_config.tablesdir.mkdir(parents=True, exist_ok=True)
+    (meop_config.tablesdir / "table_salinity_offsets.csv").write_text(
+        "smru_platform_code,index_1,index_2,index_3,index_4,offset_1,offset_2,offset_3,offset_4\n"
+        "tag-1,1,3,0,0,0.0,0.2,0.5,0.5\n"
+        "tag-1,1,4,0,0,0.0,-0.1,-0.2,-0.2\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="Duplicate salinity offset rows"):
+        _load_salinity_offset_series(meop_config, "tag-1", 5)
+
+
+def test_load_salinity_offset_series_rejects_non_monotonic_indices(meop_config) -> None:
+    meop_config.tablesdir.mkdir(parents=True, exist_ok=True)
+    (meop_config.tablesdir / "table_salinity_offsets.csv").write_text(
+        "smru_platform_code,index_1,index_2,index_3,index_4,offset_1,offset_2,offset_3,offset_4\n"
+        "tag-1,1,5,4,0,0.0,0.2,0.5,0.5\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="Non-monotonic salinity offset indices"):
+        _load_salinity_offset_series(meop_config, "tag-1", 5)

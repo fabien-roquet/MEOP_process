@@ -116,15 +116,38 @@ def _decode_text(value: object) -> str:
     return str(value).strip()
 
 
+def _decode_string_rows(values: np.ndarray) -> list[str]:
+    array = np.asarray(values)
+    if array.dtype.kind == "S":
+        array = array.astype("U1")
+    if array.dtype.kind == "U" and array.ndim == 2:
+        return ["".join(row).strip() for row in array]
+    if array.ndim == 1:
+        return [_decode_text(item) for item in array]
+    return []
+
+
 def _parameter_names(dataset: xr.Dataset) -> list[str]:
     if "PARAMETER" in dataset:
-        values = np.asarray(dataset["PARAMETER"].values, dtype=object)
+        values = np.asarray(dataset["PARAMETER"].values)
+        if values.ndim == 4 and values.shape[0] > 0 and values.shape[1] > 0:
+            names = _decode_string_rows(values[0, 0, :, :])
+            if names:
+                return names
         if values.ndim >= 3 and values.shape[0] > 0 and values.shape[1] > 0:
-            return [_decode_text(item) for item in values[0, 0, :]]
+            names = _decode_string_rows(values[0, :, :])
+            if names:
+                return names
     if "STATION_PARAMETERS" in dataset:
-        values = np.asarray(dataset["STATION_PARAMETERS"].values, dtype=object)
+        values = np.asarray(dataset["STATION_PARAMETERS"].values)
+        if values.ndim == 3 and values.shape[0] > 0:
+            names = _decode_string_rows(values[0, :, :])
+            if names:
+                return names
         if values.ndim >= 2 and values.shape[0] > 0:
-            return [_decode_text(item) for item in values[0, :]]
+            names = _decode_string_rows(values[0, :])
+            if names:
+                return names
     names = ["PRES", "TEMP", "PSAL"]
     for optional in ("CHLA", "DOXY", "LIGHT"):
         if optional in dataset:
@@ -154,12 +177,22 @@ def _format_coeff_string(kind: str, value1: float, value2: float) -> str:
     return " "
 
 
+def _char_array_from_strings(values: list[str], width: int) -> np.ndarray:
+    out = np.full((len(values), width), b" ", dtype="S1")
+    for index, value in enumerate(values):
+        encoded = value.encode("ascii", "replace")[:width].ljust(width, b" ")
+        out[index, :] = np.frombuffer(encoded, dtype="S1")
+    return out
+
+
 def _load_salinity_offset_series(config: MeopConfig, smru_name: str, n_prof: int) -> np.ndarray | None:
     path = resolve_table_path(config, "table_salinity_offsets.csv", required=False)
-    rows = read_csv_rows(path)
-    row = next((record for record in rows if record.get("smru_platform_code", "") == smru_name), None)
-    if row is None or n_prof <= 0:
+    rows = [record for record in read_csv_rows(path) if record.get("smru_platform_code", "") == smru_name]
+    if not rows or n_prof <= 0:
         return None
+    if len(rows) > 1:
+        raise ValueError(f"Duplicate salinity offset rows for {smru_name}")
+    row = rows[0]
 
     indices: list[int] = []
     offsets: list[float] = []
@@ -180,9 +213,10 @@ def _load_salinity_offset_series(config: MeopConfig, smru_name: str, n_prof: int
     if not valid_pairs:
         return None
 
-    valid_pairs.sort(key=lambda item: item[0])
     xp = np.asarray([index for index, _ in valid_pairs], dtype=np.float64)
     fp = np.asarray([offset for _, offset in valid_pairs], dtype=np.float64)
+    if xp.size > 1 and np.any(np.diff(xp) <= 0):
+        raise ValueError(f"Non-monotonic salinity offset indices for {smru_name}: {xp.tolist()}")
     x = np.arange(1, n_prof + 1, dtype=np.float64)
     if xp.size == 1:
         return np.full(n_prof, fp[0], dtype=np.float64)
@@ -251,7 +285,7 @@ def _apply_offset_and_calibration(dataset: xr.Dataset, *, config: MeopConfig, sm
         _copy_variable_metadata(result["PSAL_ADJUSTED"], dataset["PSAL_ADJUSTED"])
 
     if "SCIENTIFIC_CALIB_COEFFICIENT" in result:
-        coeff_values = np.asarray(result["SCIENTIFIC_CALIB_COEFFICIENT"].values, dtype=object).copy()
+        coeff_values = np.asarray(result["SCIENTIFIC_CALIB_COEFFICIENT"].values).copy()
         parameter_names = _parameter_names(result)
         name_to_index = {name: index for index, name in enumerate(parameter_names)}
         n_prof = coeff_values.shape[0] if coeff_values.ndim >= 1 else int(result.sizes.get("N_PROF", 0))
@@ -273,7 +307,9 @@ def _apply_offset_and_calibration(dataset: xr.Dataset, *, config: MeopConfig, sm
             index = name_to_index.get(parameter_name)
             if index is None:
                 continue
-            if coeff_values.ndim == 3:
+            if coeff_values.ndim == 4:
+                coeff_values[:, 0, index, :] = _char_array_from_strings(strings.tolist(), coeff_values.shape[-1])
+            elif coeff_values.ndim == 3:
                 coeff_values[:, 0, index] = strings
             elif coeff_values.ndim == 2:
                 coeff_values[:, index] = strings
