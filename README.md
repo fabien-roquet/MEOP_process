@@ -181,6 +181,8 @@ Useful options:
 
 ```bash
 meop-process --run-all-deployments --diagnostics
+meop-process --run-all-deployments --diagnostics --diagnostics-part overview
+meop-process --run-all-deployments --diagnostics --notify-email ops@example.org
 meop-process --run-all-deployments --force-failed
 meop-process --run-all-deployments --force
 meop-process --run-all-deployments --deployment ct96
@@ -202,6 +204,59 @@ Batch state and reports are stored under `data/batch/` by default:
 - `data/batch/runs/<timestamp>/summary.csv`: machine-readable run table
 
 At batch startup, `data/batch/latest/deployment_status.json` is reconciled against the canonical output tree under `data/data_prof/`, so stale successful entries are dropped automatically if the outputs have been deleted.
+
+## RUNTIME CONFIGURATION
+
+The runtime loader can read a JSON configuration file from:
+
+- an explicit `--config-file` path;
+- `MEOP_CONFIG_FILE` in the environment;
+- `data/configs.json` under the process directory.
+
+The loader supports a top-level `defaults` section plus per-machine overrides under `configs`.
+This is the recommended place to store tunable operational settings such as diagnostics defaults, batch defaults, and email notification settings.
+
+Example:
+
+```json
+{
+  "defaults": {
+    "diagnostics": {
+      "qf": "lr1",
+      "adjusted": true,
+      "parts": ["tag", "deployment", "overview"]
+    },
+    "batch": {
+      "jobs": 4,
+      "verbose": false
+    },
+    "notifications": {
+      "email": {
+        "enabled": true,
+        "when": "always",
+        "to": ["ops@example.org"],
+        "attach": ["summary_md"],
+        "subject_prefix": "[MEOP]",
+        "smtp": {
+          "host": "smtp.example.org",
+          "port": 587,
+          "starttls": true,
+          "username_env": "MEOP_SMTP_USERNAME",
+          "password_env": "MEOP_SMTP_PASSWORD",
+          "from": "meop-batch@example.org"
+        }
+      }
+    }
+  },
+  "configs": {
+    "my_machine": {
+      "processdir": "/media/disk2/roquet/MEOP_process"
+    }
+  }
+}
+```
+
+Secrets should be provided through environment variables rather than stored directly in the config file.
 
 ## METADATA SUMMARY TABLES
 

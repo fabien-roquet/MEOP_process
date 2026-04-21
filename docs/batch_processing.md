@@ -42,6 +42,22 @@ This writes the standard per-tag figures under `data/plots_by_tags/`, a deployme
 meop-process --run-all-deployments --diagnostics
 ```
 
+Restrict diagnostics to one layer:
+
+```bash
+meop-process --run-all-deployments --diagnostics --diagnostics-part overview
+meop-process --run-all-deployments --diagnostics --diagnostics-part deployment
+meop-process --run-all-deployments --diagnostics --diagnostics-part tag
+```
+
+Send the final batch summary by email:
+
+```bash
+meop-process --run-all-deployments --diagnostics --notify-email ops@example.org
+```
+
+The batch summary email can also be enabled in `data/configs.json` under `defaults.notifications.email` or `configs.<machine>.notifications.email`.
+
 ```bash
 python scripts/run_all_deployments.py --diagnostics
 ```

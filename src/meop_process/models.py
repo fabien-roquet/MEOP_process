@@ -9,6 +9,42 @@ DEFAULT_VERSION = "MEOP-CTD_yyyy-mm-dd"
 
 
 @dataclass(frozen=True)
+class DiagnosticsDefaults:
+    qf: str = "lr1"
+    adjusted: bool = True
+    parts: tuple[str, ...] = ("tag", "deployment", "overview")
+
+
+@dataclass(frozen=True)
+class BatchDefaults:
+    jobs: int = 1
+    verbose: bool = False
+
+
+@dataclass(frozen=True)
+class EmailTransportSettings:
+    transport: str = "smtp"
+    host: str = ""
+    port: int = 587
+    starttls: bool = True
+    use_ssl: bool = False
+    username_env: str = ""
+    password_env: str = ""
+    from_address: str = ""
+    sendmail_path: str = "/usr/sbin/sendmail"
+
+
+@dataclass(frozen=True)
+class EmailNotificationSettings:
+    enabled: bool = False
+    when: str = "always"
+    to: tuple[str, ...] = ()
+    attach: tuple[str, ...] = ("summary_md",)
+    subject_prefix: str = "[MEOP]"
+    transport: EmailTransportSettings = field(default_factory=EmailTransportSettings)
+
+
+@dataclass(frozen=True)
 class MeopConfig:
     """Resolved runtime configuration for a pure-Python MEOP checkout or deployment."""
 
@@ -19,6 +55,9 @@ class MeopConfig:
     version: str = DEFAULT_VERSION
     machine: str | None = None
     config_path: Path | None = None
+    diagnostics_defaults: DiagnosticsDefaults = field(default_factory=DiagnosticsDefaults)
+    batch_defaults: BatchDefaults = field(default_factory=BatchDefaults)
+    email_notifications: EmailNotificationSettings = field(default_factory=EmailNotificationSettings)
 
     @property
     def publicdir_ctd(self) -> Path:

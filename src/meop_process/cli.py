@@ -59,13 +59,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--notlc", action="store_true", help="Use the no-TLC branch for process_data.")
     parser.add_argument("--create_hr2", action="store_true", help="Create the HR2 product.")
     parser.add_argument("--diagnostics", action="store_true", help="Generate standard diagnostics plots for processed products.")
-    parser.add_argument("--diagnostics-qf", default="lr1", help="Quality flag product to use for diagnostics (default: lr1).")
-    parser.add_argument("--diagnostics-raw", action="store_true", help="Use raw rather than adjusted variables for diagnostics.")
+    parser.add_argument("--diagnostics-qf", default=None, help="Quality flag product to use for diagnostics (default: config or lr1).")
+    parser.add_argument("--diagnostics-raw", action="store_true", default=None, help="Use raw rather than adjusted variables for diagnostics.")
     parser.add_argument(
         "--diagnostics-part",
         action="append",
         choices=("tag", "deployment", "overview", "all"),
-        default=[],
+        default=None,
         help="Restrict diagnostics to one or more parts: tag, deployment, overview, or all (default: all).",
     )
     parser.add_argument("--run-all-deployments", action="store_true", help="Process all deployments from the catalog, continuing past failures and keeping resumable state.")
@@ -74,8 +74,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--force-failed", action="store_true", help="Re-run deployments whose latest status is failed.")
     parser.add_argument("--include-disabled", action="store_true", help="Include deployments whose PROCESS flag is disabled in the catalog.")
     parser.add_argument("--state-dir", default=None, help="Override the directory used for batch state and reports.")
-    parser.add_argument("-j", "--jobs", type=int, default=1, help="Run up to N deployments in parallel during batch mode (default: 1).")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Print batch deployment logs to the terminal.")
+    parser.add_argument("--notify-email", action="append", default=None, help="Send the batch summary email to this address; may be supplied multiple times.")
+    parser.add_argument("--notify-when", choices=("always", "success", "failure"), default=None, help="When to send completion emails.")
+    parser.add_argument("--notify-attach", action="append", choices=("summary_md", "summary_csv", "comparison_md"), default=None, help="Attachments to include in completion emails.")
+    parser.add_argument("--no-notify", action="store_true", help="Disable completion email even if enabled in the runtime config.")
+    parser.add_argument("-j", "--jobs", type=int, default=None, help="Run up to N deployments in parallel during batch mode (default: config or 1).")
+    parser.add_argument("-v", "--verbose", action="store_true", default=None, help="Print batch deployment logs to the terminal.")
     return parser
 
 
@@ -94,6 +98,11 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
 
     deployment = args.deployment or (deployment_from_smru_name(args.smru_name) if args.smru_name else "")
     cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    diagnostics_qf = args.diagnostics_qf or cfg.diagnostics_defaults.qf
+    diagnostics_raw = args.diagnostics_raw if args.diagnostics_raw is not None else (not cfg.diagnostics_defaults.adjusted)
+    diagnostics_parts = args.diagnostics_part or list(cfg.diagnostics_defaults.parts)
+    jobs = args.jobs if args.jobs is not None else cfg.batch_defaults.jobs
+    verbose = args.verbose if args.verbose is not None else cfg.batch_defaults.verbose
 
     success = True
 
@@ -125,16 +134,20 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
             config=cfg,
             notlc=args.notlc,
             diagnostics=args.diagnostics,
-            diagnostics_qf=args.diagnostics_qf,
-            diagnostics_raw=args.diagnostics_raw,
-            diagnostics_parts=args.diagnostics_part,
+            diagnostics_qf=diagnostics_qf,
+            diagnostics_raw=diagnostics_raw,
+            diagnostics_parts=diagnostics_parts,
+            notify_email=args.notify_email,
+            notify_when=args.notify_when,
+            notify_attach=args.notify_attach,
+            notifications_enabled=False if args.no_notify else None,
             force=args.force,
             force_failed=args.force_failed,
             include_disabled=args.include_disabled,
             deployments=[args.deployment] if args.deployment else [],
             state_dir=args.state_dir,
-            jobs=args.jobs,
-            verbose=args.verbose,
+            jobs=jobs,
+            verbose=verbose,
         )
         print(result["summary_markdown"])
         return 0 if result.get("failed_count", 0) == 0 else 1
@@ -160,9 +173,9 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         generate_diagnostics(
             deployment=deployment,
             smru_name=args.smru_name,
-            qf=args.diagnostics_qf,
-            adjusted=not args.diagnostics_raw,
-            parts=args.diagnostics_part,
+            qf=diagnostics_qf,
+            adjusted=not diagnostics_raw,
+            parts=diagnostics_parts,
             config=cfg,
         )
 

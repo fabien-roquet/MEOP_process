@@ -10,6 +10,7 @@ import sys
 import time
 import traceback
 from dataclasses import dataclass
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
@@ -17,7 +18,8 @@ from typing import Iterable
 from ..catalog.deployments import load_deployment_catalog
 from ..config.loader import load_config
 from ..metadata.summaries import SummaryUpdateResult, update_metadata_summaries
-from ..models import MeopConfig, Selection
+from ..models import EmailNotificationSettings, MeopConfig, Selection
+from ..notifications import send_email_message
 from ..plotting.diagnostics import generate_diagnostics as generate_diagnostics_plotting
 from ..workflows.process import process_tags as process_tags_workflow
 
@@ -278,6 +280,69 @@ def _diagnostics_count(result: object) -> int:
     return len(result)
 
 
+def _effective_email_notification(
+    config: MeopConfig,
+    *,
+    notify_email: Iterable[str] | None,
+    notify_when: str | None,
+    notify_attach: Iterable[str] | None,
+    notifications_enabled: bool | None,
+) -> EmailNotificationSettings:
+    base = config.email_notifications
+    recipients = tuple(str(item).strip() for item in (notify_email or ()) if str(item).strip()) or base.to
+    attach = tuple(str(item).strip() for item in (notify_attach or ()) if str(item).strip()) or base.attach
+    enabled = base.enabled if notifications_enabled is None else notifications_enabled
+    when = notify_when or base.when
+    return replace(base, enabled=enabled, to=recipients, attach=attach, when=when)
+
+
+def _should_send_notification(settings: EmailNotificationSettings, *, failed_count: int) -> bool:
+    when = settings.when.strip().lower()
+    if when == "always":
+        return True
+    if when == "success":
+        return failed_count == 0
+    if when == "failure":
+        return failed_count > 0
+    return True
+
+
+def _notification_attachments(settings: EmailNotificationSettings, result: BatchRunResult) -> tuple[Path, ...]:
+    attachments: list[Path] = []
+    mapping = {
+        "summary_md": result.summary_markdown,
+        "summary_csv": result.summary_csv,
+        "comparison_md": result.output_dir / "comparison_summary.md",
+    }
+    for item in settings.attach:
+        path = mapping.get(item)
+        if path is not None and path.exists():
+            attachments.append(path)
+    return tuple(attachments)
+
+
+def _send_batch_notification(result: BatchRunResult, settings: EmailNotificationSettings) -> None:
+    if not settings.enabled or not settings.to or not _should_send_notification(settings, failed_count=result.failed_count):
+        return
+    status = "success" if result.failed_count == 0 else "failure"
+    subject = f"{settings.subject_prefix} batch {status}: {result.run_id} ({result.success_count} ok / {result.failed_count} failed)"
+    body = "\n".join(
+        [
+            f"MEOP batch run: {result.run_id}",
+            "",
+            f"Success: {result.success_count}",
+            f"Skipped: {result.skipped_count}",
+            f"Failed: {result.failed_count}",
+            "",
+            f"Summary markdown: {result.summary_markdown}",
+            f"Summary csv: {result.summary_csv}",
+            f"Run directory: {result.output_dir}",
+        ]
+    )
+    attachments = _notification_attachments(settings, result)
+    send_email_message(settings, subject=subject, body=body, attachments=attachments)
+
+
 def _workflow_failure_message(result: object) -> str:
     reason = getattr(result, "reason", "")
     if isinstance(reason, str) and reason.strip():
@@ -458,6 +523,10 @@ def run_all_deployments(
     diagnostics_qf: str = "lr1",
     diagnostics_raw: bool = False,
     diagnostics_parts: Iterable[str] | None = None,
+    notify_email: Iterable[str] | None = None,
+    notify_when: str | None = None,
+    notify_attach: Iterable[str] | None = None,
+    notifications_enabled: bool | None = None,
     force: bool = False,
     force_failed: bool = False,
     include_disabled: bool = False,
@@ -556,7 +625,7 @@ def run_all_deployments(
     _write_markdown(summary_markdown, run_id, results, metadata_summary)
     _write_state(state_path, state)
 
-    return BatchRunResult(
+    batch_result = BatchRunResult(
         run_id=run_id,
         output_dir=output_dir,
         log_dir=log_dir,
@@ -566,6 +635,18 @@ def run_all_deployments(
         deployment_results=tuple(results),
         metadata_summary=metadata_summary,
     )
+    notification_settings = _effective_email_notification(
+        cfg,
+        notify_email=notify_email,
+        notify_when=notify_when,
+        notify_attach=notify_attach,
+        notifications_enabled=notifications_enabled,
+    )
+    try:
+        _send_batch_notification(batch_result, notification_settings)
+    except Exception as exc:  # pragma: no cover - notification failures must not fail the batch
+        print(f"notification failed: {exc}", file=sys.stderr)
+    return batch_result
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -575,44 +656,56 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--machine", default=None, help="Machine entry key from the runtime config JSON.")
     parser.add_argument("--notlc", action="store_true", help="Use the no-TLC branch.")
     parser.add_argument("--diagnostics", action="store_true", help="Generate diagnostics after successful processing.")
-    parser.add_argument("--diagnostics-qf", default="lr1", help="Quality flag product to use for diagnostics (default: lr1).")
-    parser.add_argument("--diagnostics-raw", action="store_true", help="Use raw rather than adjusted variables for diagnostics.")
+    parser.add_argument("--diagnostics-qf", default=None, help="Quality flag product to use for diagnostics (default: config or lr1).")
+    parser.add_argument("--diagnostics-raw", action="store_true", default=None, help="Use raw rather than adjusted variables for diagnostics.")
     parser.add_argument(
         "--diagnostics-part",
         action="append",
         choices=("tag", "deployment", "overview", "all"),
-        default=[],
+        default=None,
         help="Restrict batch diagnostics to one or more parts: tag, deployment, overview, or all.",
     )
     parser.add_argument("--force", action="store_true", help="Force reprocessing of deployments even if they previously completed successfully.")
+    parser.add_argument("--notify-email", action="append", default=None, help="Send the batch summary email to this address; may be supplied multiple times.")
+    parser.add_argument("--notify-when", choices=("always", "success", "failure"), default=None, help="When to send completion emails.")
+    parser.add_argument("--notify-attach", action="append", choices=("summary_md", "summary_csv", "comparison_md"), default=None, help="Attachments to include in completion emails.")
+    parser.add_argument("--no-notify", action="store_true", help="Disable completion email even if enabled in the runtime config.")
     parser.add_argument("--force-failed", action="store_true", help="Re-run deployments whose latest status is failed.")
     parser.add_argument("--include-disabled", action="store_true", help="Include deployments whose PROCESS flag is disabled in the catalog.")
     parser.add_argument("--deployment", action="append", default=[], help="Restrict the run to one deployment; may be supplied multiple times.")
     parser.add_argument("--state-dir", default=None, help="Override the directory used for batch state and reports.")
-    parser.add_argument("-j", "--jobs", type=int, default=1, help="Run up to N deployments in parallel (default: 1).")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Print deployment log output to the terminal.")
+    parser.add_argument("-j", "--jobs", type=int, default=None, help="Run up to N deployments in parallel (default: config or 1).")
+    parser.add_argument("-v", "--verbose", action="store_true", default=None, help="Print deployment log output to the terminal.")
     return parser
 
 
 def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
+    cfg = load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    diagnostics_qf = args.diagnostics_qf or cfg.diagnostics_defaults.qf
+    diagnostics_raw = args.diagnostics_raw if args.diagnostics_raw is not None else (not cfg.diagnostics_defaults.adjusted)
+    diagnostics_parts = args.diagnostics_part or list(cfg.diagnostics_defaults.parts)
+    jobs = args.jobs if args.jobs is not None else cfg.batch_defaults.jobs
+    verbose = args.verbose if args.verbose is not None else cfg.batch_defaults.verbose
     result = run_all_deployments(
-        processdir=args.processdir,
-        config_file=args.config_file,
-        machine=args.machine,
+        config=cfg,
         notlc=args.notlc,
         diagnostics=args.diagnostics,
-        diagnostics_qf=args.diagnostics_qf,
-        diagnostics_raw=args.diagnostics_raw,
-        diagnostics_parts=args.diagnostics_part,
+        diagnostics_qf=diagnostics_qf,
+        diagnostics_raw=diagnostics_raw,
+        diagnostics_parts=diagnostics_parts,
+        notify_email=args.notify_email,
+        notify_when=args.notify_when,
+        notify_attach=args.notify_attach,
+        notifications_enabled=False if args.no_notify else None,
         force=args.force,
         force_failed=args.force_failed,
         include_disabled=args.include_disabled,
         deployments=args.deployment,
         state_dir=args.state_dir,
-        jobs=args.jobs,
-        verbose=args.verbose,
+        jobs=jobs,
+        verbose=verbose,
     )
     print(result.summary_markdown)
     return 0 if result.failed_count == 0 else 1

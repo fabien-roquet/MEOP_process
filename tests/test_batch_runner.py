@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import concurrent.futures
+from dataclasses import replace
 import json
 
 from meop_process.batch.runner import SummaryUpdateResult, run_all_deployments
 from meop_process.catalog.tables import write_indexed_csv_rows
+from meop_process.models import EmailNotificationSettings, EmailTransportSettings
 
 
 def test_run_all_deployments_resumes_success_and_continues_after_failure(meop_config, monkeypatch):
@@ -240,6 +242,85 @@ def test_run_all_deployments_prunes_stale_success_entries_without_outputs(meop_c
     payload = json.loads(latest.read_text(encoding="utf-8"))
     assert payload["DEP001"]["status"] == "success"
     assert "DEP002" not in payload
+
+
+def test_run_all_deployments_sends_summary_email_when_enabled(meop_config, monkeypatch):
+    write_indexed_csv_rows(
+        meop_config.catalogdir / "list_deployment.csv",
+        [
+            {
+                "row_name": "DEP001",
+                "deployment_code": "DEP001",
+                "pi_code": "PI1",
+                "process": "1",
+                "public": "1",
+                "country": "SE",
+                "task_done": "",
+                "first_version": "",
+                "last_version": "",
+                "start_date": "2020-01-01",
+                "end_date": "2020-12-31",
+                "start_date_jul": "",
+            },
+        ],
+    )
+    write_indexed_csv_rows(meop_config.catalogdir / "list_deployment_hr.csv", [])
+
+    cfg = replace(
+        meop_config,
+        email_notifications=EmailNotificationSettings(
+            enabled=True,
+            when="always",
+            to=("ops@example.org",),
+            attach=("summary_md",),
+            subject_prefix="[MEOP TEST]",
+            transport=EmailTransportSettings(host="smtp.example.org", from_address="meop@example.org"),
+        ),
+    )
+
+    sent: list[dict[str, object]] = []
+
+    def fake_process_tags(config, *, deployment: str, smru_name: str = "", notlc: bool = False):
+        out = cfg.final_dataset_dir / deployment / f"{deployment}-AAA_hr2_prof.nc"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text("ok", encoding="utf-8")
+        return True
+
+    def fake_summaries(config, processed_deployments=None, force=False, output_dir=None):
+        root = config.publicdir_ctd
+        root.mkdir(parents=True, exist_ok=True)
+        tags = root / "list_tags.csv"
+        deps = root / "list_deployments.csv"
+        tags.write_text("SMRU_PLATFORM_CODE,DEPLOYMENT_CODE\n", encoding="utf-8")
+        deps.write_text("DEPLOYMENT_CODE\n", encoding="utf-8")
+        return SummaryUpdateResult(
+            output_dir=root,
+            list_tags_path=tags,
+            list_deployments_path=deps,
+            impacted_deployments=tuple(processed_deployments or []),
+            written=True,
+        )
+
+    def fake_send(settings, *, subject, body, attachments=()):
+        sent.append(
+            {
+                "to": settings.to,
+                "subject": subject,
+                "body": body,
+                "attachments": tuple(str(path.name) for path in attachments),
+            }
+        )
+
+    monkeypatch.setattr("meop_process.batch.runner.process_tags_workflow", fake_process_tags)
+    monkeypatch.setattr("meop_process.batch.runner.update_metadata_summaries", fake_summaries)
+    monkeypatch.setattr("meop_process.batch.runner.send_email_message", fake_send)
+
+    result = run_all_deployments(config=cfg, state_dir=cfg.datadir / "batch_state")
+
+    assert result.success_count == 1
+    assert len(sent) == 1
+    assert sent[0]["to"] == ("ops@example.org",)
+    assert "summary.md" in sent[0]["attachments"]
 
 
 def test_run_all_deployments_verbose_prints_deployment_logs(meop_config, monkeypatch, capsys):

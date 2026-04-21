@@ -34,8 +34,8 @@ def test_cli_allows_overview_only_diagnostics_without_selection(meop_config, mon
             (
                 kwargs.get("deployment", ""),
                 kwargs.get("smru_name", ""),
-                tuple(kwargs.get("parts", ())),
-                bool(kwargs.get("adjusted", True)),
+                    tuple(kwargs.get("parts", ())),
+                    bool(kwargs.get("adjusted", True)),
             )
         )
         return {"written_files": [], "processed_tags": []}
@@ -46,3 +46,32 @@ def test_cli_allows_overview_only_diagnostics_without_selection(meop_config, mon
 
     assert exit_code == 0
     assert calls == [("", "", ("overview",), True)]
+
+
+def test_cli_forwards_notification_overrides_to_batch_runner(meop_config, monkeypatch) -> None:
+    captured: list[dict[str, object]] = []
+
+    def fake_run_all_deployments(**kwargs):
+        captured.append(kwargs)
+        return {"summary_markdown": "summary.md", "failed_count": 0}
+
+    monkeypatch.setattr(cli_module, "run_all_deployments", fake_run_all_deployments)
+
+    exit_code = cli_module.main(
+        [
+            "--run-all-deployments",
+            "--diagnostics",
+            "--notify-email",
+            "ops@example.org",
+            "--notify-when",
+            "failure",
+            "--notify-attach",
+            "summary_md",
+        ],
+        config=meop_config,
+    )
+
+    assert exit_code == 0
+    assert captured[0]["notify_email"] == ["ops@example.org"]
+    assert captured[0]["notify_when"] == "failure"
+    assert captured[0]["notify_attach"] == ["summary_md"]
