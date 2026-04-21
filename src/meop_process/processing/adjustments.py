@@ -176,8 +176,6 @@ def _load_salinity_offset_series(config: MeopConfig, smru_name: str, n_prof: int
     rows = [record for record in read_csv_rows(path) if record.get("smru_platform_code", "") == smru_name]
     if not rows or n_prof <= 0:
         return None
-    if len(rows) > 1:
-        raise ValueError(f"Duplicate salinity offset rows for {smru_name}")
     row = rows[0]
 
     indices: list[int] = []
@@ -199,10 +197,10 @@ def _load_salinity_offset_series(config: MeopConfig, smru_name: str, n_prof: int
     if not valid_pairs:
         return None
 
+    valid_pairs.sort(key=lambda item: item[0])
+
     xp = np.asarray([index for index, _ in valid_pairs], dtype=np.float64)
     fp = np.asarray([offset for _, offset in valid_pairs], dtype=np.float64)
-    if xp.size > 1 and np.any(np.diff(xp) <= 0):
-        raise ValueError(f"Non-monotonic salinity offset indices for {smru_name}: {xp.tolist()}")
     x = np.arange(1, n_prof + 1, dtype=np.float64)
     if xp.size == 1:
         return np.full(n_prof, fp[0], dtype=np.float64)
