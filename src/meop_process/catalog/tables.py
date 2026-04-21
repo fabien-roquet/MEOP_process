@@ -46,6 +46,41 @@ def read_indexed_csv_rows(path: str | Path, *, index_name: str = "row_name") -> 
     return indexed_rows
 
 
+def write_csv_rows(
+    path: str | Path,
+    rows: Iterable[dict[str, str]],
+    *,
+    field_order: Iterable[str] | None = None,
+) -> Path:
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    materialized = [dict(row) for row in rows]
+
+    if field_order is None:
+        ordered_fields: list[str] = []
+        seen: set[str] = set()
+        for row in materialized:
+            for key in row:
+                if not key or key in seen:
+                    continue
+                ordered_fields.append(key)
+                seen.add(key)
+    else:
+        ordered_fields = [field for field in field_order if field]
+        for row in materialized:
+            for key in row:
+                if not key or key in ordered_fields:
+                    continue
+                ordered_fields.append(key)
+
+    with destination.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=ordered_fields)
+        writer.writeheader()
+        writer.writerows([{field: row.get(field, "") for field in ordered_fields} for row in materialized])
+
+    return destination
+
+
 def write_indexed_csv_rows(
     path: str | Path,
     rows: Iterable[dict[str, str]],

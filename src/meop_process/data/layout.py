@@ -168,6 +168,14 @@ def bootstrap_packaged_catalogs(config: MeopConfig, *, names: list[str] | tuple[
     return changed
 
 
+def _has_blank_leading_header(path: Path) -> bool:
+    if not path.exists():
+        return False
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        first_line = handle.readline()
+    return first_line.startswith(",") or first_line.startswith("\ufeff,")
+
+
 def bootstrap_catalog_files(config: MeopConfig, *, names: list[str] | tuple[str, ...] | None = None) -> list[Path]:
     """Catalog files are operator-managed under ``data/catalog`` and are never mirrored elsewhere."""
 
@@ -204,6 +212,14 @@ def resolve_table_path(config: MeopConfig, name: str, *, required: bool = True) 
 
 def resolve_catalog_path(config: MeopConfig, name: str, *, required: bool = True) -> Path:
     path = _layout(config).canonical_catalog_path(name)
+    if name in PACKAGE_CATALOGS:
+        if not path.exists():
+            bootstrap_packaged_catalogs(config, names=[name])
+        elif _has_blank_leading_header(path):
+            resource = _layout(config).packaged_catalog_root.joinpath(name)
+            if resource.is_file():
+                with as_file(resource) as resource_path:
+                    _copy_if_different(resource_path, path)
     if path.exists() or not required:
         return path
     raise FileNotFoundError(f"MEOP catalog table not found: {name}")

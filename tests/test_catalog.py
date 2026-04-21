@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from meop_process.catalog.deployments import load_deployment_catalog, load_hr_catalog
 from meop_process.api import load_info_deployment
 
 
@@ -43,3 +44,23 @@ def test_load_info_deployment_can_bootstrap_from_mirrored_json_when_catalog_csv_
     assert info.known_platform_codes == ("DEPJSON-AAA",)
     assert (meop_config.catalogdir / "list_deployment.csv").exists()
     assert (meop_config.config_files_dir / "deployment3.json").exists()
+
+
+def test_loading_catalogs_does_not_introduce_blank_leading_column(meop_config) -> None:
+    deployment_path = meop_config.catalogdir / "list_deployment.csv"
+    hr_path = meop_config.catalogdir / "list_deployment_hr.csv"
+    deployment_path.parent.mkdir(parents=True, exist_ok=True)
+    deployment_path.write_text(
+        "deployment_code,pi_code,process,public,country\nDEP001,PI001,1,1,SE\n",
+        encoding="utf-8",
+    )
+    hr_path.write_text(
+        "smru_platform_code,instr_id,year,prefix,continuous\nDEP001-AAA,42,2020,NaN,0\n",
+        encoding="utf-8",
+    )
+
+    load_deployment_catalog(meop_config, persist=True)
+    load_hr_catalog(meop_config, persist=True)
+
+    assert deployment_path.read_text(encoding="utf-8").startswith("deployment_code,")
+    assert hr_path.read_text(encoding="utf-8").startswith("smru_platform_code,")

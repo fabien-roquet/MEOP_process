@@ -11,8 +11,8 @@ def test_resolve_hr_ctd_path_treats_nan_prefix_as_empty(meop_config, seed_catalo
     expected.write_text("ok", encoding="utf-8")
 
     meop_config.catalogdir.joinpath("list_deployment_hr.csv").write_text(
-        ",smru_platform_code,instr_id,year,prefix,continuous\n"
-        ",ft18-F2-12,42,2020,NaN,0\n",
+        "smru_platform_code,instr_id,year,prefix,continuous\n"
+        "ft18-F2-12,42,2020,NaN,0\n",
         encoding="utf-8",
     )
 

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..data.layout import resolve_catalog_path
+from ..data.layout import bootstrap_packaged_catalogs, resolve_catalog_path
 from ..io.raw_odv import build_odv_profile_index, discover_raw_odv_files
 from ..models import DeploymentInfo, DeploymentRecord, MeopConfig, Selection
 from .filenames import list_fname_prof
-from .tables import read_indexed_csv_rows, read_json_records, write_indexed_csv_rows
+from .tables import read_csv_rows, read_indexed_csv_rows, read_json_records, write_csv_rows
 
 
 DEPLOYMENT_FIELD_ORDER = (
@@ -50,17 +50,19 @@ def _clean_string(value: object) -> str:
 
 
 def _read_deployment_rows(config: MeopConfig) -> list[dict[str, str]]:
+    bootstrap_packaged_catalogs(config, names=["list_deployment.csv"])
     path = resolve_catalog_path(config, "list_deployment.csv", required=False)
     if not path.exists():
         return []
-    return read_indexed_csv_rows(path)
+    return read_csv_rows(path)
 
 
 def _read_hr_rows(config: MeopConfig) -> list[dict[str, str]]:
+    bootstrap_packaged_catalogs(config, names=["list_deployment_hr.csv"])
     path = resolve_catalog_path(config, "list_deployment_hr.csv", required=False)
     if not path.exists():
         return []
-    return read_indexed_csv_rows(path)
+    return read_csv_rows(path)
 
 
 def _load_deployment_json_records(config: MeopConfig) -> list[dict[str, object]]:
@@ -77,7 +79,7 @@ def _load_platform_json_records(config: MeopConfig) -> list[dict[str, object]]:
     return records
 
 
-def load_deployment_catalog(config: MeopConfig, *, persist: bool = True) -> dict[str, DeploymentRecord]:
+def load_deployment_catalog(config: MeopConfig, *, persist: bool = False) -> dict[str, DeploymentRecord]:
     """Resolve the deployment registry in Python from ``data/catalog`` and ``data/data_raw/config_files``."""
 
     rows = _read_deployment_rows(config)
@@ -223,12 +225,16 @@ def load_deployment_catalog(config: MeopConfig, *, persist: bool = True) -> dict
 
     if persist and ordered_rows:
         canonical = config.catalogdir / "list_deployment.csv"
-        write_indexed_csv_rows(canonical, ordered_rows, field_order=DEPLOYMENT_FIELD_ORDER + ("description", "gts"))
+        plain_rows = []
+        for row in ordered_rows:
+            current = {key: value for key, value in row.items() if key not in {"row_name", ""}}
+            plain_rows.append(current)
+        write_csv_rows(canonical, plain_rows, field_order=DEPLOYMENT_FIELD_ORDER + ("description", "gts"))
 
     return catalog
 
 
-def load_hr_catalog(config: MeopConfig, *, persist: bool = True) -> dict[str, dict[str, str]]:
+def load_hr_catalog(config: MeopConfig, *, persist: bool = False) -> dict[str, dict[str, str]]:
     """Load the high-resolution catalog from ``list_deployment_hr.csv``."""
 
     rows = _read_hr_rows(config)
@@ -244,7 +250,11 @@ def load_hr_catalog(config: MeopConfig, *, persist: bool = True) -> dict[str, di
 
     if persist and rows:
         canonical = config.catalogdir / "list_deployment_hr.csv"
-        write_indexed_csv_rows(canonical, rows, field_order=HR_FIELD_ORDER)
+        plain_rows = []
+        for row in rows:
+            current = {key: value for key, value in row.items() if key not in {"row_name", ""}}
+            plain_rows.append(current)
+        write_csv_rows(canonical, plain_rows, field_order=HR_FIELD_ORDER + ("period",))
 
     return catalog
 
