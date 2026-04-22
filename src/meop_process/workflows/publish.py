@@ -18,6 +18,8 @@ class PublishWorkflowResult:
     list_profiles_path: Path | None
     list_tags_path: Path | None
     list_deployments_path: Path | None
+    map_paths: tuple[Path, ...] = field(default_factory=tuple)
+    plot_paths: tuple[Path, ...] = field(default_factory=tuple)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -28,6 +30,8 @@ class PublishWorkflowResult:
             "list_profiles_path": str(self.list_profiles_path) if self.list_profiles_path else None,
             "list_tags_path": str(self.list_tags_path) if self.list_tags_path else None,
             "list_deployments_path": str(self.list_deployments_path) if self.list_deployments_path else None,
+            "map_paths": [str(p) for p in self.map_paths],
+            "plot_paths": [str(p) for p in self.plot_paths],
         }
 
 
@@ -41,6 +45,8 @@ def publish(
     update_attrs: bool = True,
     list_profiles: bool = True,
     list_tags: bool = True,
+    build_maps: bool = False,
+    build_plots: bool = False,
     rebuild: bool = False,
     verbose: bool = False,
 ) -> PublishWorkflowResult:
@@ -61,10 +67,15 @@ def publish(
     update_attrs:
         Whether to patch global attributes on published NC files.
     list_profiles:
-        Whether to write ``list_profiles.csv``.
+        Whether to write ``list_profiles.csv`` (with REGION/COUNTRY columns).
     list_tags:
         Whether to write ``list_tags.csv`` and ``list_deployments.csv`` via
         the existing metadata summaries tool.
+    build_maps:
+        Whether to generate overview map PNGs from ``list_profiles.csv``.
+    build_plots:
+        Whether to generate per-tag and deployment diagnostic figures from
+        the processed data files.
     rebuild:
         Force recreation of existing output files.
     verbose:
@@ -94,11 +105,13 @@ def publish(
         patched_list = update_global_attributes(dest, version=config.version, verbose=verbose)
         patched = tuple(patched_list)
 
+    catalog_path = config.catalogdir / "list_deployment.csv"
+
     profiles_path: Path | None = None
     if list_profiles:
         if verbose:
             print("Building list_profiles.csv …")
-        profiles_path = build_list_profiles(dest, verbose=verbose)
+        profiles_path = build_list_profiles(dest, catalog_path=catalog_path, verbose=verbose)
 
     tags_path: Path | None = None
     deployments_path: Path | None = None
@@ -111,6 +124,50 @@ def publish(
         tags_path = summary.list_tags_path
         deployments_path = summary.list_deployments_path
 
+    map_paths: tuple[Path, ...] = ()
+    if build_maps:
+        if verbose:
+            print("Building overview maps …")
+        csv = profiles_path or (dest / "list_profiles.csv")
+        if csv.exists():
+            try:
+                import pandas as pd
+                from ..plotting.maps import build_overview_maps, enrich_profiles_dataframe
+
+                df = pd.read_csv(csv)
+                df = enrich_profiles_dataframe(df, catalog_path=catalog_path)
+                maps_dir = config.mapsdir
+                maps_dir.mkdir(parents=True, exist_ok=True)
+                written = build_overview_maps(df, maps_dir, rebuild=rebuild, verbose=verbose)
+                map_paths = tuple(written)
+                if verbose:
+                    print(f"  {len(map_paths)} map files written to {maps_dir}")
+            except Exception as exc:
+                if verbose:
+                    print(f"  WARNING: map generation failed: {exc}")
+
+    plot_paths: tuple[Path, ...] = ()
+    if build_plots:
+        if verbose:
+            print("Generating diagnostic plots …")
+        try:
+            from ..models import Selection
+            from ..plotting.diagnostics import generate_diagnostics
+
+            sel = Selection(smru_name=smru_name, deployment=deployment)
+            result = generate_diagnostics(
+                config,
+                sel,
+                parts=["tag", "deployment", "overview"],
+                use_cached_summaries=not rebuild,
+            )
+            plot_paths = tuple(result.written_files)
+            if verbose:
+                print(f"  {len(plot_paths)} plot files written")
+        except Exception as exc:
+            if verbose:
+                print(f"  WARNING: plot generation failed: {exc}")
+
     return PublishWorkflowResult(
         output_dir=dest,
         nc_result=nc_result,
@@ -118,4 +175,7 @@ def publish(
         list_profiles_path=profiles_path,
         list_tags_path=tags_path,
         list_deployments_path=deployments_path,
+        map_paths=map_paths,
+        plot_paths=plot_paths,
     )
+

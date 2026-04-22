@@ -57,6 +57,20 @@ def build_parser() -> argparse.ArgumentParser:
         default=True,
         help="Skip writing list_tags.csv and list_deployments.csv.",
     )
+    parser.add_argument(
+        "--build-maps",
+        dest="build_maps",
+        action="store_true",
+        default=False,
+        help="Generate overview map PNGs from list_profiles.csv.",
+    )
+    parser.add_argument(
+        "--build-plots",
+        dest="build_plots",
+        action="store_true",
+        default=False,
+        help="Generate per-tag and deployment diagnostic figures.",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Print progress to stdout.")
     return parser
 
@@ -77,6 +91,8 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         update_attrs=args.update_attrs,
         list_profiles=args.list_profiles,
         list_tags=args.list_tags,
+        build_maps=args.build_maps,
+        build_plots=args.build_plots,
         rebuild=args.rebuild,
         verbose=args.verbose,
     )
@@ -90,5 +106,9 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         print(f"list_tags.csv    : {info['list_tags_path']}")
     if info["list_deployments_path"]:
         print(f"list_deployments : {info['list_deployments_path']}")
+    if info["map_paths"]:
+        print(f"Maps written     : {len(info['map_paths'])}")
+    if info["plot_paths"]:
+        print(f"Plots written    : {len(info['plot_paths'])}")
 
     return 0

@@ -94,11 +94,24 @@ def _profiles_from_file(path: Path) -> list[dict[str, object]]:
 def build_list_profiles(
     output_dir: Path,
     *,
+    catalog_path: Path | None = None,
     verbose: bool = False,
 ) -> Path | None:
     """Scan output_dir for *_all_prof.nc files and write list_profiles.csv.
 
-    Returns the path to the written CSV, or None if no files were found.
+    Parameters
+    ----------
+    output_dir:
+        Directory containing ``*_all_prof.nc`` files.
+    catalog_path:
+        Optional path to ``list_deployment.csv`` to enrich the output with a
+        COUNTRY column.  When provided, REGION is also added via regionmask.
+    verbose:
+        Print progress to stdout.
+
+    Returns
+    -------
+    Path to the written CSV, or None if no files were found.
     """
     nc_files = sorted(output_dir.glob("*_all_prof.nc"))
     if not nc_files:
@@ -115,6 +128,14 @@ def build_list_profiles(
         return None
 
     frame = pd.DataFrame(all_rows, columns=list(_LIST_PROFILES_COLUMNS))
+
+    # Optionally enrich with REGION and COUNTRY
+    try:
+        from ..plotting.maps import enrich_profiles_dataframe
+        frame = enrich_profiles_dataframe(frame, catalog_path=catalog_path)
+    except Exception:
+        pass
+
     dest = output_dir / "list_profiles.csv"
     frame.to_csv(dest, index=False)
     if verbose:
