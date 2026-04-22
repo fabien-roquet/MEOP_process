@@ -14,6 +14,7 @@ from ..catalog.filenames import fname_plots, list_fname_prof
 from ..io.netcdf import decode_text, juld_to_datetime, open_meop_netcdf
 from ..models import MeopConfig, Selection
 from ..processing.qc import _sigma0_profile, _to_numeric_qc
+from .regions import label_region
 
 
 try:  # pragma: no cover - optional dependency
@@ -49,6 +50,7 @@ class TagDiagnosticData:
     lat: np.ndarray
     times: np.ndarray
     summary_lines: tuple[str, ...]
+    region: str = "Unknown"
 
 
 @dataclass(frozen=True)
@@ -63,6 +65,7 @@ class DeploymentDiagnosticSummary:
     end_time: datetime | None
     lon: np.ndarray
     lat: np.ndarray
+    regions: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -76,6 +79,7 @@ class DeploymentDiagnosticSummary:
             "end_time": self.end_time.isoformat() if self.end_time is not None else None,
             "lon": self.lon.astype(float).tolist(),
             "lat": self.lat.astype(float).tolist(),
+            "regions": list(self.regions),
         }
 
     @classmethod
@@ -93,7 +97,9 @@ class DeploymentDiagnosticSummary:
             end_time=datetime.fromisoformat(str(end_raw)) if end_raw else None,
             lon=np.asarray(payload.get("lon", []), dtype=float),
             lat=np.asarray(payload.get("lat", []), dtype=float),
+            regions=tuple(str(r) for r in payload.get("regions", [])),
         )
+
 
 
 DIAGNOSTIC_PARTS = ("tag", "deployment", "overview")
@@ -334,6 +340,17 @@ def _tag_diagnostic_data(dataset: xr.Dataset, source_name: str, *, adjusted: boo
     times = _profile_times(dataset)
     smru_name = _smru_name(dataset, source_name)
     deployment = decode_text(dataset.attrs.get("deployment_code", "")) or source_name.split("-")[0]
+
+    finite_mask = np.isfinite(lon) & np.isfinite(lat)
+    if finite_mask.any():
+        region = label_region(float(np.nanmedian(lon[finite_mask])), float(np.nanmedian(lat[finite_mask])))
+    else:
+        region = "Unknown"
+
+    summary = list(_summary_lines(dataset, adjusted=adjusted, sigma0=sigma0))
+    if region and region != "Unknown":
+        summary.append(f"region: {region}")
+
     return TagDiagnosticData(
         smru_name=smru_name,
         deployment=deployment,
@@ -345,7 +362,8 @@ def _tag_diagnostic_data(dataset: xr.Dataset, source_name: str, *, adjusted: boo
         lon=lon,
         lat=lat,
         times=times,
-        summary_lines=tuple(_summary_lines(dataset, adjusted=adjusted, sigma0=sigma0)),
+        summary_lines=tuple(summary),
+        region=region,
     )
 
 
@@ -372,7 +390,8 @@ def _deployment_summary_lines(tags: tuple[TagDiagnosticData, ...]) -> list[str]:
     if len(tags) > 8:
         labels = f"{labels}, ..."
 
-    return [
+    unique_regions = sorted({tag.region for tag in tags if tag.region and tag.region != "Unknown"})
+    lines = [
         f"deployment: {deployment}",
         f"tags: {len(tags)}",
         f"profiles: {total_prof}",
@@ -383,6 +402,9 @@ def _deployment_summary_lines(tags: tuple[TagDiagnosticData, ...]) -> list[str]:
         f"variables: {'adjusted' if tags[0].adjusted else 'raw'}",
         f"tags included: {labels}",
     ]
+    if unique_regions:
+        lines.append(f"regions: {', '.join(unique_regions)}")
+    return lines
 
 
 def _deployment_summary(tags: tuple[TagDiagnosticData, ...]) -> DeploymentDiagnosticSummary:
@@ -391,6 +413,7 @@ def _deployment_summary(tags: tuple[TagDiagnosticData, ...]) -> DeploymentDiagno
     lat_parts = [tag.lat[np.isfinite(tag.lat)] for tag in tags if np.isfinite(tag.lat).any()]
     lon = np.concatenate(lon_parts) if lon_parts else np.asarray([], dtype=float)
     lat = np.concatenate(lat_parts) if lat_parts else np.asarray([], dtype=float)
+    unique_regions = tuple(sorted({tag.region for tag in tags if tag.region and tag.region != "Unknown"}))
     return DeploymentDiagnosticSummary(
         deployment=tags[0].deployment,
         adjusted=tags[0].adjusted,
@@ -402,6 +425,7 @@ def _deployment_summary(tags: tuple[TagDiagnosticData, ...]) -> DeploymentDiagno
         end_time=max(valid_times) if valid_times else None,
         lon=lon,
         lat=lat,
+        regions=unique_regions,
     )
 
 
@@ -426,7 +450,8 @@ def _overview_summary_lines(summaries: tuple[DeploymentDiagnosticSummary, ...], 
     valid_ends = [summary.end_time for summary in summaries if summary.end_time is not None]
     start = _decode_datetime(min(valid_starts)) if valid_starts else "unknown"
     end = _decode_datetime(max(valid_ends)) if valid_ends else "unknown"
-    return [
+    unique_regions = sorted({r for summary in summaries for r in summary.regions})
+    lines = [
         "MEOP diagnostics overview",
         f"deployments: {len(summaries)}",
         f"tags: {total_tags}",
@@ -437,6 +462,9 @@ def _overview_summary_lines(summaries: tuple[DeploymentDiagnosticSummary, ...], 
         f"product: {qf}",
         f"variables: {'adjusted' if summaries[0].adjusted else 'raw'}",
     ]
+    if unique_regions:
+        lines.append(f"regions: {', '.join(unique_regions)}")
+    return lines
 
 
 def _plot_overview_map(ax, summaries: tuple[DeploymentDiagnosticSummary, ...], *, colors: np.ndarray, title: str) -> None:
