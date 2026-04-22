@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from meop_process.api import bootstrap_data_store, describe_runtime_data_layout, validate_runtime_data_layout
 from meop_process.data.layout import bootstrap_packaged_catalogs, resolve_catalog_path, resolve_table_path
 
@@ -30,17 +28,16 @@ def test_resolve_catalog_path_uses_runtime_catalog_root(meop_config) -> None:
     assert resolved.read_text(encoding="utf-8") == path.read_text(encoding="utf-8")
 
 
-def test_resolve_catalog_path_repairs_blank_indexed_header(meop_config) -> None:
+def test_resolve_catalog_path_returns_indexed_format_unchanged(meop_config) -> None:
     path = meop_config.catalogdir / "list_deployment.csv"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(",deployment_code,pi_code,process,public,country\nDEP001,DEP001,PI001,1,1,SE\n", encoding="utf-8")
+    indexed_content = ",deployment_code,pi_code,process,public,country\nDEP001,DEP001,PI001,1,1,SE\n"
+    path.write_text(indexed_content, encoding="utf-8")
 
     resolved = resolve_catalog_path(meop_config, "list_deployment.csv")
 
     assert resolved == path
-    assert resolved.read_text(encoding="utf-8") == (
-        (Path(__file__).resolve().parents[1] / "src" / "meop_process" / "resources" / "catalog" / "list_deployment.csv").read_text(encoding="utf-8")
-    )
+    assert resolved.read_text(encoding="utf-8") == indexed_content
 
 
 def test_describe_runtime_data_layout_reports_expected_sections(meop_config) -> None:

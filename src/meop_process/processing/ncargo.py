@@ -124,28 +124,17 @@ def _format_global_datetime(dt: datetime) -> str:
 
 
 def _char_array(shape: tuple[int, ...], value: str) -> np.ndarray:
-    width = shape[-1]
-    fill = value.encode("ascii", "replace")[:width].ljust(width, b" ")
-    return np.full(shape, fill, dtype="S1")
+    if len(shape) <= 1:
+        return np.array(value, dtype=object)
+    return np.full(shape[:-1], value, dtype=object)
 
 
 def _char_array_from_strings(values: list[str], width: int) -> np.ndarray:
-    out = np.full((len(values), width), b" ", dtype="S1")
-    for index, value in enumerate(values):
-        encoded = value.encode("ascii", "replace")[:width].ljust(width, b" ")
-        out[index, :] = np.frombuffer(encoded, dtype="S1")
-    return out
+    return np.array(values, dtype=object)
 
 
 def _char_array_from_string_matrix(values: list[list[str]], width: int) -> np.ndarray:
-    n_rows = len(values)
-    n_cols = len(values[0]) if values else 0
-    out = np.full((n_rows, n_cols, width), b" ", dtype="S1")
-    for row, row_values in enumerate(values):
-        for col, value in enumerate(row_values):
-            encoded = value.encode("ascii", "replace")[:width].ljust(width, b" ")
-            out[row, col, :] = np.frombuffer(encoded, dtype="S1")
-    return out
+    return np.array(values, dtype=object)
 
 
 def _numeric_matrix(profiles: list[OdvProfile], field: str, *, fill: float = np.nan) -> np.ndarray:
@@ -160,11 +149,11 @@ def _numeric_matrix(profiles: list[OdvProfile], field: str, *, fill: float = np.
 
 def _qc_matrix(data: np.ndarray) -> np.ndarray:
     valid = np.isfinite(data)
-    return np.where(valid, "1", "9").astype('U1')
+    return np.where(valid, b"1", b"9").astype(object)
 
 
 def _profile_qc(level_qc: np.ndarray) -> np.ndarray:
-    return np.where(np.any(level_qc == "1", axis=1), "A", "F").astype('U1')
+    return np.where(np.any(level_qc == b"1", axis=1), b"A", b"F").astype(object)
 
 
 def _valid_profile_count(*matrices: np.ndarray) -> int:
@@ -172,12 +161,12 @@ def _valid_profile_count(*matrices: np.ndarray) -> int:
         return 0
     valid = np.ones(matrices[0].shape[0], dtype=bool)
     for matrix in matrices:
-        valid &= np.any(matrix == "1", axis=1)
+        valid &= np.any(matrix == b"1", axis=1)
     return int(valid.sum())
 
 
 def _valid_geospatial_mask(temp_qc: np.ndarray, psal_qc: np.ndarray) -> np.ndarray:
-    return np.any((temp_qc == "1") | (psal_qc == "1"), axis=1)
+    return np.any((temp_qc == b"1") | (psal_qc == b"1"), axis=1)
 
 
 def _geospatial_bounds(latitude: np.ndarray, longitude: np.ndarray, valid_mask: np.ndarray) -> tuple[float, float, float, float]:
@@ -314,12 +303,11 @@ def _build_ncargo_dataset(
         platform_number_value = "00000000"
 
     station_parameters = _build_station_parameter_array(n_prof, n_param, parameter_names)
-    parameter_array = station_parameters[:, np.newaxis, :, :]
-    calib_equations = np.full((n_prof, 1, n_param, 256), b" ", dtype="S1")
-    calib_coefficients = np.full((n_prof, 1, n_param, 256), b" ", dtype="S1")
+    parameter_array = station_parameters[:, np.newaxis, :]
+    calib_equations = np.full((n_prof, 1, n_param), " ", dtype=object)
+    calib_coefficients = np.full((n_prof, 1, n_param), " ", dtype=object)
     for index, equation in enumerate(_calibration_equations(parameter_names)):
-        encoded = equation.encode("ascii", "replace")[:256].ljust(256, b" ")
-        calib_equations[:, 0, index, :] = np.frombuffer(encoded, dtype="S1")
+        calib_equations[:, 0, index] = equation
 
     juld = np.array([_juld_from_timestamp(profile.timestamp) for profile in profiles], dtype=np.float64)
     latitude = np.array([profile.latitude for profile in profiles], dtype=np.float64)
@@ -327,31 +315,31 @@ def _build_ncargo_dataset(
     timestamps = [_parse_timestamp(profile.timestamp) for profile in profiles]
 
     data_vars: dict[str, tuple[tuple[str, ...], np.ndarray]] = {
-        "DATA_TYPE": (("STRING16",), _char_array((16,), "Argo profile")),
-        "FORMAT_VERSION": (("STRING4",), _char_array((4,), "3.0 ")),
-        "HANDBOOK_VERSION": (("STRING4",), _char_array((4,), "3.0 ")),
-        "REFERENCE_DATE_TIME": (("DATE_TIME",), _char_array((14,), "19500101000000")),
-        "DATE_CREATION": (("DATE_TIME",), _char_array((14,), _format_argo_datetime(now))),
-        "DATE_UPDATE": (("DATE_TIME",), _char_array((14,), _format_argo_datetime(now))),
-        "PLATFORM_NUMBER": (("N_PROF", "STRING8"), _char_array((n_prof, 8), platform_number_value)),
-        "PROJECT_NAME": (("N_PROF", "STRING64"), _char_array((n_prof, 64), "MEOP")),
-        "PI_NAME": (("N_PROF", "STRING64"), _char_array((n_prof, 64), info.PI or str(platform.get("pi_code", "")).strip())),
-        "STATION_PARAMETERS": (("N_PROF", "N_PARAM", "STRING16"), station_parameters),
+        "DATA_TYPE": ((), _char_array((16,), "Argo profile")),
+        "FORMAT_VERSION": ((), _char_array((4,), "3.0 ")),
+        "HANDBOOK_VERSION": ((), _char_array((4,), "3.0 ")),
+        "REFERENCE_DATE_TIME": ((), _char_array((14,), "19500101000000")),
+        "DATE_CREATION": ((), _char_array((14,), _format_argo_datetime(now))),
+        "DATE_UPDATE": ((), _char_array((14,), _format_argo_datetime(now))),
+        "PLATFORM_NUMBER": (("N_PROF",), _char_array((n_prof, 8), platform_number_value)),
+        "PROJECT_NAME": (("N_PROF",), _char_array((n_prof, 64), "MEOP")),
+        "PI_NAME": (("N_PROF",), _char_array((n_prof, 64), info.PI or str(platform.get("pi_code", "")).strip())),
+        "STATION_PARAMETERS": (("N_PROF", "N_PARAM"), station_parameters),
         "CYCLE_NUMBER": (("N_PROF",), np.arange(1, n_prof + 1, dtype=np.int32)),
-        "DIRECTION": (("N_PROF",), np.full((n_prof,), b"A", dtype="S1")),
-        "DATA_CENTRE": (("N_PROF", "STRING2"), _char_array((n_prof, 2), "IF")),
-        "DC_REFERENCE": (("N_PROF", "STRING32"), _char_array((n_prof, 32), f"{info.EXP[:24]:>24}{index + 1:08d}")),
-        "DATA_STATE_INDICATOR": (("N_PROF", "STRING4"), _char_array((n_prof, 4), " ")),
-        "DATA_MODE": (("N_PROF",), np.full((n_prof,), b"D", dtype="S1")),
-        "INST_REFERENCE": (("N_PROF", "STRING64"), _char_array((n_prof, 64), " ")),
-        "WMO_INST_TYPE": (("N_PROF", "STRING4"), _char_array((n_prof, 4), "995 ")),
+        "DIRECTION": (("N_PROF",), np.full((n_prof,), b"A", dtype=object)),
+        "DATA_CENTRE": (("N_PROF",), _char_array((n_prof, 2), "IF")),
+        "DC_REFERENCE": (("N_PROF",), _char_array((n_prof, 32), f"{info.EXP[:24]:>24}{index + 1:08d}")),
+        "DATA_STATE_INDICATOR": (("N_PROF",), _char_array((n_prof, 4), " ")),
+        "DATA_MODE": (("N_PROF",), np.full((n_prof,), b"D", dtype=object)),
+        "INST_REFERENCE": (("N_PROF",), _char_array((n_prof, 64), " ")),
+        "WMO_INST_TYPE": (("N_PROF",), _char_array((n_prof, 4), "995 ")),
         "JULD": (("N_PROF",), juld),
-        "JULD_QC": (("N_PROF",), np.full((n_prof,), b"1", dtype="S1")),
+        "JULD_QC": (("N_PROF",), np.full((n_prof,), b"1", dtype=object)),
         "JULD_LOCATION": (("N_PROF",), juld),
         "LATITUDE": (("N_PROF",), latitude),
         "LONGITUDE": (("N_PROF",), longitude),
-        "POSITION_QC": (("N_PROF",), np.full((n_prof,), b"1", dtype="S1")),
-        "POSITIONING_SYSTEM": (("N_PROF", "STRING8"), _char_array((n_prof, 8), _positioning_system_value(platform.get("loc_algorithm")))),
+        "POSITION_QC": (("N_PROF",), np.full((n_prof,), b"1", dtype=object)),
+        "POSITIONING_SYSTEM": (("N_PROF",), _char_array((n_prof, 8), _positioning_system_value(platform.get("loc_algorithm")))),
         "PROFILE_PRES_QC": (("N_PROF",), _profile_qc(pres_qc)),
         "PROFILE_PSAL_QC": (("N_PROF",), _profile_qc(psal_qc)),
         "PROFILE_TEMP_QC": (("N_PROF",), _profile_qc(temp_qc)),
@@ -370,9 +358,9 @@ def _build_ncargo_dataset(
         "PSAL_ADJUSTED": (("N_PROF", "N_LEVELS"), salinity.copy()),
         "PSAL_ADJUSTED_QC": (("N_PROF", "N_LEVELS"), psal_qc.copy()),
         "PSAL_ADJUSTED_ERROR": (("N_PROF", "N_LEVELS"), np.full((n_prof, n_levels), np.nan, dtype=np.float32)),
-        "PARAMETER": (("N_PROF", "N_CALIB", "N_PARAM", "STRING16"), parameter_array),
-        "SCIENTIFIC_CALIB_EQUATION": (("N_PROF", "N_CALIB", "N_PARAM", "STRING256"), calib_equations),
-        "SCIENTIFIC_CALIB_COEFFICIENT": (("N_PROF", "N_CALIB", "N_PARAM", "STRING256"), calib_coefficients),
+        "PARAMETER": (("N_PROF", "N_CALIB", "N_PARAM"), parameter_array),
+        "SCIENTIFIC_CALIB_EQUATION": (("N_PROF", "N_CALIB", "N_PARAM"), calib_equations),
+        "SCIENTIFIC_CALIB_COEFFICIENT": (("N_PROF", "N_CALIB", "N_PARAM"), calib_coefficients),
     }
 
     if has_fluorescence:

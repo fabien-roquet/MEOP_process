@@ -9,7 +9,7 @@ def test_sync_external_config_files_updates_and_backs_up_previous_copy(meop_conf
     source = source_dir / "deployment3.json"
     source.write_text('{"version": 2}', encoding="utf-8")
 
-    destination_dir = meop_config.datadir / "config_files"
+    destination_dir = meop_config.config_files_dir
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination = destination_dir / "deployment3.json"
     destination.write_text('{"version": 1}', encoding="utf-8")

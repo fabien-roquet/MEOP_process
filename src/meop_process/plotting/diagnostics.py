@@ -459,8 +459,8 @@ def _plot_overview_map(ax, summaries: tuple[DeploymentDiagnosticSummary, ...], *
 
     if ccrs is not None:
         projection = ccrs.PlateCarree(central_longitude=central_longitude)
-        ax.remove()
         fig = ax.figure
+        ax.remove()
         ax = fig.add_subplot(ax.get_subplotspec(), projection=projection)
         for idx, summary in enumerate(summaries):
             if not summary.lon.size or not summary.lat.size:
@@ -654,8 +654,8 @@ def _plot_tag_tracks(ax, tags: tuple[TagDiagnosticData, ...], *, colors: np.ndar
 
     if ccrs is not None:
         projection = ccrs.PlateCarree(central_longitude=central_longitude)
-        ax.remove()
         fig = ax.figure
+        ax.remove()
         ax = fig.add_subplot(ax.get_subplotspec(), projection=projection)
         for idx, tag in enumerate(tags):
             mask = np.isfinite(tag.lon) & np.isfinite(tag.lat)
@@ -820,8 +820,8 @@ def _plot_map(ax, lon: np.ndarray, lat: np.ndarray, colors: np.ndarray, *, title
 
     if ccrs is not None:
         projection = ccrs.PlateCarree(central_longitude=180 if np.nanmax(lon) - np.nanmin(lon) > 180 else 0)
-        ax.remove()
         fig = ax.figure
+        ax.remove()
         new_ax = fig.add_subplot(ax.get_subplotspec(), projection=projection)
         new_ax.scatter(lon, lat, c=colors, s=10, transform=ccrs.PlateCarree(), edgecolors="none")
         new_ax.plot(lon, lat, color="0.5", linewidth=0.5, alpha=0.3, transform=ccrs.PlateCarree())
