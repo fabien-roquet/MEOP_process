@@ -18,6 +18,8 @@ dependencies = [
   "xarray>=2024.1",
   "matplotlib>=3.8",
   "netcdf4>=1.7.3",
+  "regionmask>=0.13.0",
+  "cartopy>=0.25.0",
 ]
 
 [project.optional-dependencies]
