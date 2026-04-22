@@ -45,4 +45,4 @@ testpaths = ["tests"]
 addopts = ["-ra"]
 
 [tool.setuptools.package-data]
-meop_process = ["resources/**/*.csv", "resources/**/*.md", "resources/**/*.txt"]
+meop_process = ["_bundled/**/*.csv", "_bundled/**/*.md", "_bundled/**/*.txt"]

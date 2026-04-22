@@ -85,7 +85,7 @@ class DataLayout:
 
     @property
     def package_root(self):
-        return files("meop_process.resources")
+        return files("meop_process._bundled")
 
     @property
     def packaged_tables_root(self):
