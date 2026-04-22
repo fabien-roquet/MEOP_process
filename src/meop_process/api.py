@@ -19,6 +19,7 @@ from .processing.fr0 import create_fr0_python as create_fr0_processing
 from .workflows.compare import compare_reference_outputs as compare_reference_outputs_workflow
 from .workflows.outputs import create_hr2 as create_hr2_workflow
 from .workflows.process import process_tags as process_tags_workflow
+from .workflows.publish import publish as publish_workflow
 
 
 def _resolve_config(
@@ -285,3 +286,63 @@ def run_all_deployments(
         jobs=jobs,
         verbose=verbose,
     ).as_dict()
+
+
+def publish_data(
+    config: MeopConfig | None = None,
+    *,
+    deployment: str = "",
+    smru_name: str = "",
+    output_dir: str | os.PathLike[str] | None = None,
+    create_files: bool = True,
+    update_attrs: bool = True,
+    list_profiles: bool = True,
+    list_tags: bool = True,
+    rebuild: bool = False,
+    verbose: bool = False,
+    processdir: str | os.PathLike[str] | None = None,
+    config_file: str | os.PathLike[str] | None = None,
+    machine: str | None = None,
+) -> dict[str, Any]:
+    """Publish MEOP-CTD processed products to the public release directory.
+
+    Creates ``*_all_prof.nc`` files combining the best available processed
+    product with standard-level interpolated variables, patches global
+    attributes, and generates ``list_profiles.csv``, ``list_tags.csv``,
+    and ``list_deployments.csv``.
+
+    Parameters
+    ----------
+    deployment:
+        Restrict to this deployment code.
+    smru_name:
+        Restrict to this single tag.
+    output_dir:
+        Output directory.  Defaults to ``config.publicdir_ctd``.
+    create_files:
+        Whether to create ``*_all_prof.nc`` output files.
+    update_attrs:
+        Whether to patch global attributes on published NC files.
+    list_profiles:
+        Whether to write ``list_profiles.csv``.
+    list_tags:
+        Whether to write ``list_tags.csv`` and ``list_deployments.csv``.
+    rebuild:
+        Force recreation of existing output files.
+    verbose:
+        Print progress to stdout.
+    """
+    cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
+    result = publish_workflow(
+        cfg,
+        deployment=deployment,
+        smru_name=smru_name,
+        output_dir=Path(output_dir) if output_dir else None,
+        create_files=create_files,
+        update_attrs=update_attrs,
+        list_profiles=list_profiles,
+        list_tags=list_tags,
+        rebuild=rebuild,
+        verbose=verbose,
+    )
+    return result.as_dict()
