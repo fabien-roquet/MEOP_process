@@ -215,11 +215,7 @@ def resolve_catalog_path(config: MeopConfig, name: str, *, required: bool = True
     if name in PACKAGE_CATALOGS:
         if not path.exists():
             bootstrap_packaged_catalogs(config, names=[name])
-        elif _has_blank_leading_header(path):
-            resource = _layout(config).packaged_catalog_root.joinpath(name)
-            if resource.is_file():
-                with as_file(resource) as resource_path:
-                    _copy_if_different(resource_path, path)
+
     if path.exists() or not required:
         return path
     raise FileNotFoundError(f"MEOP catalog table not found: {name}")
