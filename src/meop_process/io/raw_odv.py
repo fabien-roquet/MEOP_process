@@ -467,8 +467,8 @@ def load_raw_odv_profiles(files: RawOdvFiles, *, config: MeopConfig | None = Non
     if ctd_source is None:
         return []
     ctd_profiles = read_odv_profiles(ctd_source)
-    if files.has_combined_text:
-        return _apply_split_tag_rules(ctd_profiles, config)
+    # If a separate FL file exists, merge it regardless of whether a combined CTD file is present.
+    # Some deployments have {dep}_ODV.txt (CTD-only) alongside {dep}_FL_ODV.txt with sensor data.
     if not files.has_fl_text:
         return _apply_split_tag_rules(ctd_profiles, config)
     fl_profiles = read_odv_profiles(files.fl_text)

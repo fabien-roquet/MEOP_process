@@ -370,3 +370,369 @@ def stage_ct96_example(meop_config: MeopConfig):
         }
 
     return _stage
+
+
+@pytest.fixture()
+def stage_ct160_oxy_example(meop_config: MeopConfig):
+    """ct160-Oxy726-20: CTD + fluorescence + oxygen (real CHLA and DOXY values)."""
+    fixtures_root = Path(__file__).resolve().parent / "fixtures" / "ct160"
+
+    def _stage() -> dict[str, Path]:
+        deployment = "ct160"
+        smru_name = "ct160-Oxy726-20"
+        meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(fixtures_root / "ct160_ODV.zip", meop_config.raw_odv_dir / "ct160_ODV.zip")
+
+        _seed_reference_catalogs(
+            meop_config,
+            deployment_rows=[
+                {
+                    "row_name": deployment,
+                    "deployment_code": deployment,
+                    "pi_code": "IMOS",
+                    "process": "1",
+                    "public": "1",
+                    "country": "AUSTRALIA",
+                    "task_done": "",
+                    "first_version": "",
+                    "last_version": "",
+                    "start_date": "2020-12-20",
+                    "end_date": "2023-05-01",
+                    "start_date_jul": "",
+                    "description": "IMOS Kerguelen late 2020",
+                    "gts": "Y",
+                }
+            ],
+            hr_rows=[
+                {
+                    "row_name": smru_name,
+                    "smru_platform_code": smru_name,
+                    "instr_id": "14726",
+                    "year": "2021",
+                    "prefix": "",
+                    "continuous": "0",
+                }
+            ],
+        )
+
+        _seed_config_jsons(
+            meop_config,
+            deployment_payload=[
+                {
+                    "deployment_code": "ct160",
+                    "description": "IMOS Kerguelen late 2020",
+                    "pi_code": "IMOS    ",
+                    "gts": "Y",
+                    "dt_created": "2020-06-22T11:55:59Z",
+                    "dt_modified": "2025-06-26T11:55:39Z",
+                }
+            ],
+            platform_payload=[
+                {
+                    "platform_code": "93486",
+                    "wmo_platform_code": "1446",
+                    "smru_platform_code": smru_name,
+                    "deployment_code": "ct160",
+                    "species": "Southern elephant seal",
+                    "time_coverage_start": "2021-01-26T00:00:00Z",
+                    "time_coverage_end": "2021-04-30T00:00:00Z",
+                    "location": "Kerguelen",
+                    "firmware_version": "222",
+                    "firmware_parameters": "OXY_CONT_20A",
+                    "instr_id": "14726",
+                    "ptt": "120372",
+                    "loc_algorithm": "K",
+                    "dt_created": "2020-08-14T00:38:05Z",
+                    "dt_modified": "2024-03-14T18:32:33Z",
+                }
+            ],
+        )
+
+        _seed_table_meta(meop_config, f"smru_platform_code,location\n{smru_name},ct160\n")
+
+        return {
+            "deployment": Path(deployment),
+            "smru_name": smru_name,
+            "zip": meop_config.raw_odv_dir / "ct160_ODV.zip",
+            "reference_lr0": fixtures_root / f"{smru_name}_lr0_prof_shortened.nc",
+            "reference_lr1": fixtures_root / f"{smru_name}_lr1_prof_shortened.nc",
+            "reference_hr2": fixtures_root / f"{smru_name}_hr2_prof_shortened.nc",
+        }
+
+    return _stage
+
+
+@pytest.fixture()
+def stage_ft11_chla_example(meop_config: MeopConfig):
+    """ft11-Cy07b-12: CTD + fluorescence (real CHLA values, no DOXY)."""
+    fixtures_root = Path(__file__).resolve().parent / "fixtures" / "ft11"
+
+    def _stage() -> dict[str, Path]:
+        deployment = "ft11"
+        smru_name = "ft11-Cy07b-12"
+        meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(fixtures_root / "ft11_ODV.zip", meop_config.raw_odv_dir / "ft11_ODV.zip")
+
+        _seed_reference_catalogs(
+            meop_config,
+            deployment_rows=[
+                {
+                    "row_name": deployment,
+                    "deployment_code": deployment,
+                    "pi_code": "GUINET",
+                    "process": "1",
+                    "public": "1",
+                    "country": "FRANCE",
+                    "task_done": "",
+                    "first_version": "",
+                    "last_version": "",
+                    "start_date": "2012-02-05",
+                    "end_date": "2012-10-01",
+                    "start_date_jul": "",
+                    "description": "Fluoro 2012 rebatteried",
+                    "gts": "N",
+                }
+            ],
+            hr_rows=[
+                {
+                    "row_name": smru_name,
+                    "smru_platform_code": smru_name,
+                    "instr_id": "11404",
+                    "year": "2012",
+                    "prefix": "",
+                    "continuous": "0",
+                }
+            ],
+        )
+
+        _seed_config_jsons(
+            meop_config,
+            deployment_payload=[
+                {
+                    "deployment_code": "ft11",
+                    "description": "Fluoro 2012 rebatteried",
+                    "pi_code": "XTOPHE  ",
+                    "gts": "N",
+                    "dt_created": "2012-04-20T10:31:17Z",
+                    "dt_modified": "2020-07-15T10:28:56Z",
+                }
+            ],
+            platform_payload=[
+                {
+                    "platform_code": "26658",
+                    "wmo_platform_code": "530",
+                    "smru_platform_code": smru_name,
+                    "deployment_code": "ft11",
+                    "species": "Southern elephant seal",
+                    "time_coverage_start": "2012-02-05T00:00:00Z",
+                    "time_coverage_end": "2012-10-01T00:00:00Z",
+                    "location": "Kerguelen",
+                    "firmware_version": "94",
+                    "firmware_parameters": "FTD_10A",
+                    "instr_id": "11404",
+                    "ptt": "49771",
+                    "loc_algorithm": "K",
+                    "dt_created": "2012-04-20T10:34:52Z",
+                    "dt_modified": "2020-05-27T14:13:20Z",
+                }
+            ],
+        )
+
+        _seed_table_meta(meop_config, f"smru_platform_code,location\n{smru_name},ft11\n")
+
+        return {
+            "deployment": Path(deployment),
+            "smru_name": smru_name,
+            "zip": meop_config.raw_odv_dir / "ft11_ODV.zip",
+            "reference_lr0": fixtures_root / f"{smru_name}_lr0_prof_shortened.nc",
+            "reference_lr1": fixtures_root / f"{smru_name}_lr1_prof_shortened.nc",
+            "reference_hr2": fixtures_root / f"{smru_name}_hr2_prof_shortened.nc",
+        }
+
+    return _stage
+
+
+@pytest.fixture()
+def stage_ct153_lr_example(meop_config: MeopConfig):
+    """ct153-Pendragon-19: LR-only tag (no hr2), Weddell seal, density removal."""
+    fixtures_root = Path(__file__).resolve().parent / "fixtures" / "ct153"
+
+    def _stage() -> dict[str, Path]:
+        deployment = "ct153"
+        smru_name = "ct153-Pendragon-19"
+        meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(fixtures_root / "ct153_ODV.zip", meop_config.raw_odv_dir / "ct153_ODV.zip")
+
+        _seed_reference_catalogs(
+            meop_config,
+            deployment_rows=[
+                {
+                    "row_name": deployment,
+                    "deployment_code": deployment,
+                    "pi_code": "LARS",
+                    "process": "1",
+                    "public": "1",
+                    "country": "UK",
+                    "task_done": "",
+                    "first_version": "",
+                    "last_version": "",
+                    "start_date": "2020-02-01",
+                    "end_date": "2020-11-01",
+                    "start_date_jul": "",
+                    "description": "TARSAN CTD 2019",
+                    "gts": "Y",
+                }
+            ],
+            hr_rows=[
+                {
+                    "row_name": smru_name,
+                    "smru_platform_code": smru_name,
+                    "instr_id": "15088",
+                    "year": "2020",
+                    "prefix": "",
+                    "continuous": "0",
+                }
+            ],
+        )
+
+        _seed_config_jsons(
+            meop_config,
+            deployment_payload=[
+                {
+                    "deployment_code": "ct153",
+                    "description": "TARSAN CTD 2019",
+                    "pi_code": "LARS    ",
+                    "gts": "Y",
+                    "dt_created": "2019-07-23T15:59:34Z",
+                    "dt_modified": "2021-09-28T17:31:19Z",
+                }
+            ],
+            platform_payload=[
+                {
+                    "platform_code": "87048",
+                    "wmo_platform_code": "1349",
+                    "smru_platform_code": smru_name,
+                    "deployment_code": "ct153",
+                    "species": "Weddell seal",
+                    "time_coverage_start": "2020-02-01T00:00:00Z",
+                    "time_coverage_end": "2020-11-01T00:00:00Z",
+                    "location": "Edwards Islands",
+                    "firmware_version": "216",
+                    "firmware_parameters": "CTD_GEN_18C",
+                    "instr_id": "15088",
+                    "ptt": "120359",
+                    "loc_algorithm": "K",
+                    "dt_created": "2019-07-23T16:04:10Z",
+                    "dt_modified": "2021-07-27T15:39:59Z",
+                }
+            ],
+        )
+
+        _seed_table_meta(meop_config, f"smru_platform_code,location\n{smru_name},ct153\n")
+
+        return {
+            "deployment": Path(deployment),
+            "smru_name": smru_name,
+            "zip": meop_config.raw_odv_dir / "ct153_ODV.zip",
+            "reference_lr0": fixtures_root / f"{smru_name}_lr0_prof_shortened.nc",
+            "reference_lr1": fixtures_root / f"{smru_name}_lr1_prof_shortened.nc",
+        }
+
+    return _stage
+
+
+@pytest.fixture()
+def stage_ct107_split_example(meop_config: MeopConfig):
+    """ct107-938-13-N2: split tag (-N2 suffix), northern elephant seal."""
+    fixtures_root = Path(__file__).resolve().parent / "fixtures" / "ct107"
+
+    def _stage() -> dict[str, Path]:
+        deployment = "ct107"
+        smru_name = "ct107-938-13-N2"
+        base_name = "ct107-938-13"
+        meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(fixtures_root / "ct107_ODV.zip", meop_config.raw_odv_dir / "ct107_ODV.zip")
+
+        _seed_reference_catalogs(
+            meop_config,
+            deployment_rows=[
+                {
+                    "row_name": deployment,
+                    "deployment_code": deployment,
+                    "pi_code": "COSTA",
+                    "process": "1",
+                    "public": "1",
+                    "country": "USA",
+                    "task_done": "",
+                    "first_version": "",
+                    "last_version": "",
+                    "start_date": "2014-01-28",
+                    "end_date": "2015-01-01",
+                    "start_date_jul": "",
+                    "description": "Costa northern ellie CTD 2014",
+                    "gts": "Y",
+                }
+            ],
+            hr_rows=[
+                {
+                    "row_name": smru_name,
+                    "smru_platform_code": smru_name,
+                    "instr_id": "12938",
+                    "year": "2014",
+                    "prefix": "",
+                    "continuous": "0",
+                }
+            ],
+        )
+
+        _seed_config_jsons(
+            meop_config,
+            deployment_payload=[
+                {
+                    "deployment_code": "ct107",
+                    "description": "Costa northern ellie CTD 2014",
+                    "pi_code": "COSTA   ",
+                    "gts": "Y",
+                    "dt_created": "2013-12-03T10:00:21Z",
+                    "dt_modified": "2023-04-21T11:15:18Z",
+                }
+            ],
+            platform_payload=[
+                {
+                    "platform_code": "44898",
+                    "wmo_platform_code": "657",
+                    "smru_platform_code": base_name,
+                    "deployment_code": "ct107",
+                    "species": "Northern elephant seal",
+                    "time_coverage_start": "2014-01-28T00:00:00Z",
+                    "time_coverage_end": "2015-01-01T00:00:00Z",
+                    "location": "California",
+                    "firmware_version": "119",
+                    "firmware_parameters": "CTD_GEN_13B",
+                    "instr_id": "12938",
+                    "ptt": "133773",
+                    "loc_algorithm": "L",
+                    "dt_created": "2013-12-03T10:03:03Z",
+                    "dt_modified": "2020-05-27T14:13:20Z",
+                }
+            ],
+        )
+
+        # Seed the split-tags table so the processor knows ct107-938-13 is split into 2
+        meop_config.tablesdir.mkdir(parents=True, exist_ok=True)
+        (meop_config.tablesdir / "table_split_tags.csv").write_text(
+            "smru_platform_name,nsplit\nct107-938-13,2\n", encoding="utf-8"
+        )
+        _seed_table_meta(meop_config, f"smru_platform_code,location\n{smru_name},ct107\n")
+
+        return {
+            "deployment": Path(deployment),
+            "smru_name": smru_name,
+            "base_name": base_name,
+            "zip": meop_config.raw_odv_dir / "ct107_ODV.zip",
+            "reference_lr0": fixtures_root / f"{smru_name}_lr0_prof_shortened.nc",
+            "reference_lr1": fixtures_root / f"{smru_name}_lr1_prof_shortened.nc",
+            "reference_hr2": fixtures_root / f"{smru_name}_hr2_prof_shortened.nc",
+        }
+
+    return _stage
