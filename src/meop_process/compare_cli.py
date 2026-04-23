@@ -9,6 +9,10 @@ from typing import Iterable
 import numpy as np
 
 from .workflows.compare import ComparisonReport, compare_netcdf_outputs
+from .config.loader import load_config
+from .reference.cora import load_cora_tiles
+from .plotting.calibration import plot_ts_calibration
+from .catalog.filenames import deployment_from_smru_name, list_fname_prof
 
 
 def _open_dataset(path: Path):
@@ -148,8 +152,8 @@ def _compare_pair(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Compare MEOP NetCDF outputs or directories of outputs.")
-    parser.add_argument("reference", help="Reference NetCDF file or directory.")
-    parser.add_argument("candidate", help="Candidate NetCDF file or directory.")
+    parser.add_argument("reference", nargs="?", default=None, help="Reference NetCDF file or directory.")
+    parser.add_argument("candidate", nargs="?", default=None, help="Candidate NetCDF file or directory.")
     parser.add_argument(
         "--include",
         action="append",
@@ -160,12 +164,97 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--attribute", action="append", default=None, help="Restrict comparison to one or more global attributes.")
     parser.add_argument("--time-location", action="store_true", help="Add a JULD/LATITUDE/LONGITUDE profile alignment summary.")
     parser.add_argument("--atol", type=float, default=1e-6, help="Absolute tolerance for numeric comparisons.")
+    parser.add_argument(
+        "--plot1",
+        metavar="SMRU_NAME",
+        default=None,
+        help=(
+            "Generate CORA-based T/S calibration plots for the given tag.  "
+            "Requires that cora_dir is configured in configs.json.  "
+            "Plots are saved to config.plotdir / deployment / {smru_name}_calibration*.png."
+        ),
+    )
+    parser.add_argument(
+        "--config",
+        metavar="FILE",
+        default=None,
+        help="Path to configs.json (overrides default discovery).",
+    )
     return parser
+
+
+def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
+    """Generate CORA calibration plots for *smru_name* and return an exit code."""
+    config = load_config(config_file=config_file)
+    if config.cora_dir is None:
+        print(
+            f"error: cora_dir is not set in the configuration.  "
+            f"Add \"cora_dir\": \"/path/to/CORA_ncfiles\" to your configs.json.",
+            file=sys.stderr,
+        )
+        return 2
+
+    target_paths = list_fname_prof(smru_name, config=config)
+    if not target_paths:
+        print(f"error: no profile files found for {smru_name!r}", file=sys.stderr)
+        return 2
+    target_path = target_paths[-1]  # prefer lr1 if multiple qf levels exist
+
+    # Determine bounding box from the target tag
+    try:
+        import xarray as xr
+
+        with xr.open_dataset(target_path, decode_times=False) as ds:
+            lats = np.asarray(ds["LATITUDE"].values, dtype=np.float64)
+            lons = np.asarray(ds["LONGITUDE"].values, dtype=np.float64)
+        valid_lat = lats[~np.isnan(lats)]
+        valid_lon = lons[~np.isnan(lons)]
+        if valid_lat.size == 0 or valid_lon.size == 0:
+            print(f"error: no valid lat/lon in {target_path}", file=sys.stderr)
+            return 2
+        margin = 5.0
+        lon_min, lon_max = float(valid_lon.min()) - margin, float(valid_lon.max()) + margin
+        lat_min, lat_max = float(valid_lat.min()) - margin, float(valid_lat.max()) + margin
+    except Exception as exc:
+        print(f"error reading target path: {exc}", file=sys.stderr)
+        return 2
+
+    cora_data = load_cora_tiles(
+        config.cora_dir,
+        lon_min=lon_min,
+        lon_max=lon_max,
+        lat_min=lat_min,
+        lat_max=lat_max,
+    )
+
+    deployment = deployment_from_smru_name(smru_name)
+    other_paths = [
+        p for p in list_fname_prof(deployment=deployment, config=config)
+        if p != target_path
+    ]
+
+    output_dir = config.plotdir / deployment
+    written = plot_ts_calibration(
+        smru_name,
+        cora_data=cora_data,
+        target_path=target_path,
+        other_paths=other_paths,
+        output_dir=output_dir,
+    )
+    for path in written:
+        print(f"wrote: {path}")
+    return 0
 
 
 def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
+
+    if args.plot1:
+        return _run_calibration_plots(args.plot1, getattr(args, "config", None))
+
+    if args.reference is None or args.candidate is None:
+        parser.error("reference and candidate are required unless --plot1 is used")
 
     reference = Path(args.reference)
     candidate = Path(args.candidate)
