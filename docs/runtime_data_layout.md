@@ -29,6 +29,14 @@ The package resolves runtime data from package-managed roots under `data/` and f
 - `data/batch/`
   - resumable batch state, logs, and run summaries
 
+## Optional external reference data
+
+- `cora_dir` (set in `configs.json` under `defaults.cora_dir` or `configs.<machine>.cora_dir`)
+  - directory of CORA 10°×10° tiled NetCDF files, e.g.
+    `/path/to/CORA_ncfiles/CORA_lon040W_lat70S.nc`
+  - used by `meop-compare --plot1` to generate CORA-based T/S calibration plots
+  - not required for the core processing pipeline
+
 ## Low-resolution raw data
 
 The package accepts any of these staged directly under `data/data_raw/raw_smru_data_odv/`:
@@ -68,6 +76,4 @@ Batch state is stored in `data/batch/latest/deployment_status.json` and reconcil
 
 Still deferred or intended for later redesign:
 
-- specialized analyst comparison figures
-- richer diagnostic and analyst-comparison workflows
 - publication/reporting helpers that need a modern Python redesign

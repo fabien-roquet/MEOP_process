@@ -39,7 +39,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textcolor{meopmid}{MEOP Process renovation status}}
-\fancyhead[R]{\textcolor{meopmid}{April 17, 2026}}
+\fancyhead[R]{\textcolor{meopmid}{April 23, 2026}}
 \fancyfoot[C]{\textcolor{meopmid}{\thepage}}
 \setlength{\headheight}{15pt}
 
@@ -82,12 +82,12 @@
   \vspace{1.2cm}
 
   \begin{tabularx}{0.93\textwidth}{>{\bfseries}p{0.30\textwidth}X}
-    Snapshot date & April 17, 2026 \\
+    Snapshot date & April 23, 2026 \\
     Current objective & Reach a minimal, functional Python version of the MEOP processing chain that can be re-run over the available deployments with readable logs, resumable state, and updated summary tables \\
     Main regression examples & \pkg{ct88-225-12}, \pkg{ct78-465-12}, and the shortened \pkg{ct96-24-13} full-resolution reference set \\
-    Pipeline now covered in Python & Catalog discovery, raw ODV import, \pkg{lr0}, QC/filtering, \pkg{hr0}, \pkg{hr1/lr1}, \pkg{fr0}, \pkg{fr1}, \pkg{hr2}, diagnostics, and resumable batch processing \\
+    Pipeline now covered in Python & Catalog discovery, raw ODV import (including FL sidecar merging), \pkg{lr0}, QC/filtering, \pkg{hr0}, \pkg{hr1/lr1}, \pkg{fr0}, \pkg{fr1}, \pkg{hr2}, standard diagnostics, CORA-based T/S calibration plots, and resumable batch processing \\
     Execution model & Single Python execution path; no alternate runtime backend remains in the package \\
-    Tests in repository & 65 collected tests in the current snapshot \\
+    Tests in repository & 150 collected tests in the current snapshot \\
   \end{tabularx}
 
   \vfill
@@ -133,7 +133,7 @@ The renovated toolbox now has four simultaneous roles:
 Configuration loading and path resolution & Python & No external runtime dependency. \\
 Runtime data layout and validation & Python & Explicit directories under the canonical \pkg{data/} tree plus the configured \pkg{public/} release tree. \\
 Catalog and mirrored JSON metadata resolution & Python & Uses \pkg{list\_deployment.csv}, \pkg{list\_deployment\_hr.csv}, and mirrored deployment/platform JSON files. \\
-Raw ODV import and profile indexing & Python & Deployment and tag discovery can be driven directly from raw ODV content. \\
+Raw ODV import and profile indexing & Python & Deployment and tag discovery can be driven directly from raw ODV content; FL sidecar files are automatically merged for CHLA/DOXY. \\
 \pkg{create\_ncargo} / \pkg{lr0} & Python & Includes low-resolution netCDF assembly. \\
 \pkg{lr0} QC and filtering & Python & Ported to Python. \\
 Location adjustment & Python & Applies crawl/CLS/SMRU-based geographic corrections and updates profile metadata. \\
@@ -144,7 +144,8 @@ Location adjustment & Python & Applies crawl/CLS/SMRU-based geographic correctio
 \pkg{fr0} & Python & Detects ascents from HR text files, associates low-resolution metadata, and writes full-resolution products. \\
 \pkg{fr1} & Python & Applies the same adjustment/TLC logic in the FR path. \\
 \pkg{hr2} & Python & Uses \pkg{fr1} when FR data exist and falls back to \pkg{hr1} otherwise. \\
-Standard diagnostics figures & Python & Overview plus section plots are now available. \\
+Standard diagnostics figures & Python & Per-tag section, T/S, map, profile, and flag panels; per-deployment recap; global overview. \\
+CORA-based T/S calibration plots & Python & Loaded via \pkg{meop-compare --plot1 <smru\_name>}; two-panel figure per 200-profile chunk (T/S diagram + PSAL anomaly). \\
 Batch processing and summary-table refresh & Python & Resumable multi-deployment runner with logs and reports. \\
 High-end analyst diagnostics and publication redesign & Future work & Still to be designed in depth. \\
 \bottomrule
@@ -152,12 +153,16 @@ High-end analyst diagnostics and publication redesign & Future work & Still to b
 
 \subsection{Reference cases currently used}
 
-The current regression set is built around three representative cases:
+The current regression set is built around three representative cases plus four additional fixture cases added to broaden sensor and processing-path coverage:
 
 \begin{itemize}[leftmargin=1.5em]
   \item \pkg{ct88-225-12}: low-resolution and TLC validation without full-resolution data;
   \item \pkg{ct78-465-12}: a second low-resolution reference to increase confidence in the non-FR path;
-  \item \pkg{ct96-24-13}: shortened full-resolution reference set used to validate \pkg{fr0}, \pkg{fr1}, \pkg{traj}, and \pkg{hr2}.
+  \item \pkg{ct96-24-13}: shortened full-resolution reference set used to validate \pkg{fr0}, \pkg{fr1}, \pkg{traj}, and \pkg{hr2};
+  \item \pkg{ct160-Oxy726-20}: DOXY via FL sidecar ODV (\pkg{OXY\_CONT\_20A} firmware);
+  \item \pkg{ft11-Cy07b-12}: CHLA via FL sidecar ODV (\pkg{FTD\_10A} firmware), no DOXY;
+  \item \pkg{ct153-Pendragon-19}: plain CTD-only tag, no full-resolution, tests LR-only \pkg{apply\_adjustments};
+  \item \pkg{ct107-938-13-N2}: split-tag fixture (base \pkg{ct107-938-13} split into N1/N2 by \pkg{table\_split\_tags.csv}).
 \end{itemize}
 
 These cases are valuable because they test both the low-resolution/high-resolution workflow and the branch that uses full-resolution HR text inputs.
@@ -198,7 +203,8 @@ The following steps are already owned by Python and exercised in tests:
   \item \pkg{fr0};
   \item \pkg{fr1};
   \item \pkg{hr2};
-  \item standard diagnostics figures.
+  \item standard diagnostics figures;
+  \item CORA-based T/S calibration plots (\pkg{meop-compare --plot1}).
 \end{itemize}
 
 \subsection{Operational batch runner}
@@ -349,7 +355,7 @@ The current test suite is built around a small number of carefully chosen refere
 
 \subsection{Current test coverage}
 
-The repository currently contains 65 collected tests covering:
+The repository currently contains 150 collected tests covering:
 
 \begin{itemize}[leftmargin=1.5em]
   \item configuration loading and data-layout bootstrap;
@@ -357,6 +363,12 @@ The repository currently contains 65 collected tests covering:
   \item \pkg{ct88} \pkg{lr0/lr1/hr0/hr1} regressions;
   \item \pkg{ct78} low-resolution and no-FR \pkg{hr2} regression;
   \item shortened \pkg{ct96} \pkg{fr0/fr1/hr2/traj} regression;
+  \item \pkg{ct160} DOXY via FL sidecar ODV;
+  \item \pkg{ft11} CHLA via FL sidecar ODV;
+  \item \pkg{ct153} LR-only \pkg{apply\_adjustments} path (no \pkg{hr2});
+  \item \pkg{ct107} split-tag processing;
+  \item CORA tile loader (bounding-box filtering, multi-tile concatenation, empty-tile handling);
+  \item CORA-based T/S calibration plot generation, chunking, and \pkg{meop-compare --plot1} CLI;
   \item diagnostics output generation;
   \item metadata summary refresh;
   \item resumable batch-run behavior.
@@ -395,14 +407,14 @@ The main remaining items are now concentrated in a few areas:
 
 \begin{itemize}[leftmargin=1.5em]
   \item broader scientific validation over many deployments;
-  \item richer diagnostic and analyst-facing comparison tools against historical profiles and climatologies;
+  \item richer analyst-facing comparison tooling and integration of additional reference climatologies;
   \item redesign of the publication/reporting helpers;
   \item broader scientific robustness work for remaining problematic deployments.
 \end{itemize}
 
 \subsection{Why diagnostics remain important}
 
-Although a standard Python diagnostics set now exists, the future diagnostic layer is still a major work package. It should eventually help an analyst inspect profiles, compare them with reference datasets, understand the consequences of proposed adjustments, and archive the reasoning used during delayed-mode processing.
+Although a standard Python diagnostics set now exists and a CORA-based T/S calibration plot layer is operational, the future diagnostic layer is still a major work package. It should eventually help an analyst inspect profiles, compare them with reference datasets, understand the consequences of proposed adjustments, and archive the reasoning used during delayed-mode processing.
 
 \section{Planned strategy for future developments}
 

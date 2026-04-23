@@ -78,6 +78,47 @@ Force a full rerun even for deployments that already completed successfully:
 meop-process --run-all-deployments --force
 ```
 
+## CORA-based T/S calibration plots
+
+After processing, CORA-based T/S calibration plots can be generated for a single tag using `meop-compare`:
+
+```bash
+meop-compare --plot1 ct88-225-12
+```
+
+This command does not compare two output trees. Instead it:
+
+1. Reads the processed lr1 (or lr0) profile file for the tag.
+2. Loads the CORA 10°×10° tiles that intersect the deployment bounding box (with a 5° margin).
+3. Writes one PNG per 200-profile chunk to `data/plots_by_tags/<deployment>/`.
+
+Each figure has two panels:
+- **Left** — T/S diagram with CORA background profiles (grey), other tags in the same deployment (blue), and the target tag coloured by time (viridis).
+- **Right** — PSAL anomaly versus pressure relative to the per-level CORA median.
+
+### Required configuration
+
+`cora_dir` must be set in `data/configs.json`:
+
+```json
+{
+  "defaults": {
+    "datadir": "/path/to/data",
+    "public": "/path/to/public",
+    "cora_dir": "/path/to/CORA_ncfiles"
+  }
+}
+```
+
+If `cora_dir` is not configured, the command exits with an informative error message.
+
+A custom config file can also be supplied directly:
+
+```bash
+meop-compare --plot1 ct88-225-12 --config /path/to/configs.json
+```
+
+
 ```bash
 python scripts/run_all_deployments.py --force
 ```
