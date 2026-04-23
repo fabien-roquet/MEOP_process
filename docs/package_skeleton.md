@@ -11,7 +11,8 @@ Main modules:
 - `src/meop_process/catalog/`
 - `src/meop_process/io/`
 - `src/meop_process/processing/`
-- `src/meop_process/plotting/`
+- `src/meop_process/plotting/` — diagnostics (`diagnostics.py`), CORA calibration plots (`calibration.py`)
+- `src/meop_process/reference/` — CORA tile loader (`cora.py`)
 - `src/meop_process/batch/`
 - `src/meop_process/metadata/`
 - `src/meop_process/data/`

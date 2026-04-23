@@ -58,6 +58,7 @@ class MeopConfig:
     diagnostics_defaults: DiagnosticsDefaults = field(default_factory=DiagnosticsDefaults)
     batch_defaults: BatchDefaults = field(default_factory=BatchDefaults)
     email_notifications: EmailNotificationSettings = field(default_factory=EmailNotificationSettings)
+    cora_dir: Path | None = None
 
     @property
     def publicdir_ctd(self) -> Path:

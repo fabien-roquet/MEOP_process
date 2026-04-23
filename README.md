@@ -95,10 +95,11 @@ The repository now contains a pure-Python package under `src/meop_process/`.
 The current minimal functional pipeline covers:
 
 - deployment and tag discovery from catalog CSV files and JSON metadata;
-- raw ODV import and profile indexing;
+- raw ODV import and profile indexing, including automatic FL sidecar merging for CHLA/DOXY;
 - `lr0`, QC/filtering, `hr0`, `hr1`, `lr1`, `fr0`, `fr1`, and `hr2`;
 - delayed-mode `apply_adjustments`;
-- standard diagnostics figures;
+- standard per-tag section, T/S, map, profile, and flag diagnostics, plus deployment recap and global overview figures;
+- CORA-based T/S calibration plots via `meop-compare --plot1 <smru_name>`;
 - batch processing over multiple deployments with resumable state, readable reports, and per-deployment logs.
 
 The package now has a single Python execution path and no longer requires root-level table or catalog mirrors.
@@ -118,6 +119,28 @@ The `scripts/` folder now contains all user-facing batch scripts and several exa
 - `configs_template_minimal.json`: minimal config with only diagnostics and batch defaults
 - `configs_template_email.json`: config with email notification settings
 - `configs_template_machine_overrides.json`: config with per-machine overrides for processdir and batch jobs
+
+## CORA CALIBRATION PLOTS
+
+To generate CORA-based T/S calibration plots for a tag, first set `cora_dir` in your `data/configs.json`:
+
+```json
+{
+  "defaults": {
+    "datadir": "/path/to/data",
+    "public": "/path/to/public",
+    "cora_dir": "/path/to/CORA_ncfiles"
+  }
+}
+```
+
+Then run:
+
+```bash
+meop-compare --plot1 ct88-225-12
+```
+
+This loads the CORA tiles that intersect the deployment bounding box (plus a 5° margin), and produces one PNG per 200-profile chunk under `data/plots_by_tags/<deployment>/`. Each figure shows a two-panel plot: a T/S diagram with the CORA background (grey), other tags in the deployment (blue), and the target tag coloured by time; and a salinity anomaly versus pressure panel.
 
 You can copy and adapt these templates to `data/configs.json` or provide them via `--config-file`.
 

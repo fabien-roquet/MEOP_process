@@ -204,4 +204,5 @@ def load_config(
         diagnostics_defaults=_parse_diagnostics_defaults(merged_entry),
         batch_defaults=_parse_batch_defaults(merged_entry),
         email_notifications=_parse_email_notifications(merged_entry),
+        cora_dir=Path(resolved["cora_dir"]).expanduser() if resolved.get("cora_dir") else None,
     )
