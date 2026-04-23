@@ -11,6 +11,7 @@ import xarray as xr
 from meop_process.api import generate_diagnostics
 from meop_process.catalog.filenames import fname_plots, fname_prof
 from meop_process.io.netcdf import open_meop_netcdf
+from meop_process.plotting.diagnostics import _tag_diagnostic_data
 
 
 def _stage_reference_product(meop_config, deployment: str, smru_name: str, reference_file: Path) -> Path:
@@ -172,3 +173,76 @@ def test_generate_diagnostics_overview_only_uses_cached_summaries(stage_ct88_exa
     overview = meop_config.plots_overview_dir / "all_deployments_lr1_map_adj.png"
     assert result.processed_tags == ()
     _assert_nonempty_png(overview)
+
+
+def test_tag_diagnostic_data_capability_flags_no_extra_sensors(stage_ct88_example, meop_config) -> None:
+    """Tags with only CTD data should have has_chla=False, has_doxy=False, has_hr=False."""
+    example = stage_ct88_example()
+    staged = _stage_reference_product(meop_config, "ct88", "ct88-225-12", example["reference_lr1"])
+
+    with open_meop_netcdf(staged) as dataset:
+        tag = _tag_diagnostic_data(dataset, "ct88-225-12", adjusted=True, config=meop_config)
+
+    assert tag.has_chla is False
+    assert tag.has_doxy is False
+    assert tag.has_hr is False
+
+
+def test_tag_diagnostic_data_capability_flags_with_chla(meop_config, tmp_path) -> None:
+    """A dataset containing CHLA should set has_chla=True."""
+    import xarray as xr
+
+    n_prof, n_levels = 5, 20
+    pres = np.tile(np.arange(1, n_levels + 1, dtype=np.float64) * 10.0, (n_prof, 1))
+    ds = xr.Dataset(
+        {
+            "PRES": (("N_PROF", "N_LEVELS"), pres),
+            "PRES_ADJUSTED": (("N_PROF", "N_LEVELS"), pres),
+            "TEMP": (("N_PROF", "N_LEVELS"), np.ones((n_prof, n_levels))),
+            "TEMP_ADJUSTED": (("N_PROF", "N_LEVELS"), np.ones((n_prof, n_levels))),
+            "TEMP_QC": (("N_PROF", "N_LEVELS"), np.ones((n_prof, n_levels))),
+            "PSAL": (("N_PROF", "N_LEVELS"), np.full((n_prof, n_levels), 34.0)),
+            "PSAL_ADJUSTED": (("N_PROF", "N_LEVELS"), np.full((n_prof, n_levels), 34.0)),
+            "PSAL_QC": (("N_PROF", "N_LEVELS"), np.ones((n_prof, n_levels))),
+            "CHLA": (("N_PROF", "N_LEVELS"), np.full((n_prof, n_levels), 0.1)),
+            "LATITUDE": ("N_PROF", np.full(n_prof, -60.0)),
+            "LONGITUDE": ("N_PROF", np.full(n_prof, -40.0)),
+            "JULD": ("N_PROF", np.arange(n_prof, dtype=np.float64)),
+        },
+        attrs={"deployment_code": "ct88", "smru_platform_code": "ct88-chla-test"},
+    )
+
+    tag = _tag_diagnostic_data(ds, "ct88-chla-test", adjusted=True, config=meop_config)
+
+    assert tag.has_chla is True
+    assert tag.has_doxy is False
+
+
+def test_tag_diagnostic_data_has_hr_true_when_hr2_file_exists(stage_ct88_example, meop_config) -> None:
+    """has_hr should be True when an hr2 prof file exists on disk for the same tag."""
+    example = stage_ct88_example()
+    lr1_path = _stage_reference_product(meop_config, "ct88", "ct88-225-12", example["reference_lr1"])
+
+    # Create a dummy hr2 file alongside the lr1 file
+    hr2_path = fname_prof("ct88-225-12", deployment="ct88", qf="hr2", config=meop_config)
+    hr2_path.parent.mkdir(parents=True, exist_ok=True)
+    import shutil as _shutil
+    _shutil.copy2(lr1_path, hr2_path)
+
+    with open_meop_netcdf(lr1_path) as dataset:
+        tag = _tag_diagnostic_data(dataset, "ct88-225-12", adjusted=True, config=meop_config)
+
+    assert tag.has_hr is True
+
+
+def test_info_txt_contains_sensors_line(stage_ct88_example, meop_config) -> None:
+    """The generated _info_adj.txt should contain a 'sensors:' line listing TEMP/PSAL."""
+    example = stage_ct88_example()
+    _stage_reference_product(meop_config, "ct88", "ct88-225-12", example["reference_lr1"])
+
+    generate_diagnostics(smru_name="ct88-225-12", qf="lr1", config=meop_config)
+
+    info_path = meop_config.plotdir / "ct88" / "ct88-225-12_lr1_info_adj.txt"
+    assert info_path.is_file()
+    content = info_path.read_text(encoding="utf-8")
+    assert "sensors: TEMP/PSAL" in content

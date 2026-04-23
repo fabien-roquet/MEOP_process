@@ -51,6 +51,9 @@ class TagDiagnosticData:
     times: np.ndarray
     summary_lines: tuple[str, ...]
     region: str = "Unknown"
+    has_chla: bool = False
+    has_doxy: bool = False
+    has_hr: bool = False
 
 
 @dataclass(frozen=True)
@@ -329,7 +332,7 @@ def _summary_lines(dataset: xr.Dataset, *, adjusted: bool, sigma0: np.ndarray) -
     return [line for line in lines if line]
 
 
-def _tag_diagnostic_data(dataset: xr.Dataset, source_name: str, *, adjusted: bool) -> TagDiagnosticData:
+def _tag_diagnostic_data(dataset: xr.Dataset, source_name: str, *, adjusted: bool, config: MeopConfig | None = None) -> TagDiagnosticData:
     pressure = _pressure(dataset, adjusted=adjusted)
     temp = _masked_field(dataset, "TEMP", adjusted=adjusted)
     psal = _masked_field(dataset, "PSAL", adjusted=adjusted)
@@ -345,6 +348,13 @@ def _tag_diagnostic_data(dataset: xr.Dataset, source_name: str, *, adjusted: boo
         region = label_region(float(np.nanmedian(lon[finite_mask])), float(np.nanmedian(lat[finite_mask])))
     else:
         region = "Unknown"
+
+    has_chla = "CHLA" in dataset or "CHLA_ADJUSTED" in dataset
+    has_doxy = "DOXY" in dataset or "DOXY_ADJUSTED" in dataset
+    has_hr = False
+    if config is not None:
+        from ..catalog.filenames import fname_prof as _fname_prof
+        has_hr = _fname_prof(smru_name, deployment=deployment, qf="hr2", config=config).exists()
 
     summary = list(_summary_lines(dataset, adjusted=adjusted, sigma0=sigma0))
     if region and region != "Unknown":
@@ -363,6 +373,9 @@ def _tag_diagnostic_data(dataset: xr.Dataset, source_name: str, *, adjusted: boo
         times=times,
         summary_lines=tuple(summary),
         region=region,
+        has_chla=has_chla,
+        has_doxy=has_doxy,
+        has_hr=has_hr,
     )
 
 
@@ -769,7 +782,7 @@ def _save_flags_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> 
     plt.close(fig)
 
 
-def _save_info_text(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> None:
+def _save_info_text(dataset: xr.Dataset, target: Path, *, adjusted: bool, has_hr: bool = False) -> None:
     """Write plain-text metadata."""
     sigma0 = _compute_sigma0(dataset, adjusted=adjusted)
     lines = _summary_lines(dataset, adjusted=adjusted, sigma0=sigma0)
@@ -786,9 +799,20 @@ def _save_info_text(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> Non
     if finite_mask.any():
         region = label_region(float(np.nanmedian(lon_arr[finite_mask])), float(np.nanmedian(lat_arr[finite_mask])))
 
+    has_chla = "CHLA" in dataset or "CHLA_ADJUSTED" in dataset
+    has_doxy = "DOXY" in dataset or "DOXY_ADJUSTED" in dataset
+    sensors = ["TEMP", "PSAL"]
+    if has_chla:
+        sensors.append("CHLA")
+    if has_doxy:
+        sensors.append("DOXY")
+
     output_lines = list(lines)
     if region and region != "Unknown":
         output_lines.append(f"region: {region}")
+    output_lines.append(f"sensors: {'/'.join(sensors)}")
+    if has_hr:
+        output_lines.append("HR data: yes")
     output_lines.append("")
     output_lines.append("--- calibration ---")
     output_lines.extend(_extract_adjustment_lines(dataset))
@@ -1243,7 +1267,7 @@ def generate_diagnostics(
         dataset = open_meop_netcdf(source_path)
         try:
             smru_name = source_path.name.split("_")[0]
-            tag = _tag_diagnostic_data(dataset, smru_name, adjusted=adjusted)
+            tag = _tag_diagnostic_data(dataset, smru_name, adjusted=adjusted, config=config)
             deployment_tags.setdefault(tag.deployment, []).append(tag)
             if "tag" in part_set:
                 section_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"section_{suffix}", config=config)
@@ -1257,7 +1281,7 @@ def generate_diagnostics(
                 _save_map_figure(dataset, map_path, adjusted=adjusted)
                 _save_profiles_figure(dataset, profiles_path, adjusted=adjusted, pmax=pmax)
                 _save_flags_figure(dataset, flags_path, adjusted=adjusted)
-                _save_info_text(dataset, info_path, adjusted=adjusted)
+                _save_info_text(dataset, info_path, adjusted=adjusted, has_hr=tag.has_hr)
                 written.extend([section_path, ts_path, map_path, profiles_path, flags_path, info_path])
             processed.append(smru_name)
         finally:
