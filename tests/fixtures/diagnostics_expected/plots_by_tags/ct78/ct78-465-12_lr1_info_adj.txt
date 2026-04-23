@@ -1,0 +1,21 @@
+ct78-465-12
+deployment: ct78
+species: Southern ellie
+location: ct78
+period: 2012-03-20 to 2012-06-10
+span: 82 days
+thermal lag: yes
+TEMP profiles: 286
+PSAL profiles: 286
+p1= 0.000000e+00 dbar/km, p2= 0.000000e+00 dbar
+t1= 0.000000e+00 degC/km, t2= -1.500000e-01 degC
+s1= 1.000000e-02  psu/km, s2= 2.300000e-01  psu
+TEMP err median: 0.05
+PSAL err median: 0.05
+sigma0 spread: 0.26
+region: Southern Ocean
+
+--- calibration ---
+p1= 0.000000e+00 dbar/km, p2= 0.000000e+00 dbar
+t1= 0.000000e+00 degC/km, t2= -1.500000e-01 degC
+s1= 1.000000e-02  psu/km, s2= 2.300000e-01  psu

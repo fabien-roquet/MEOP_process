@@ -621,6 +621,9 @@
   "n_profiles": 306,
   "n_psal_profiles": 248,
   "n_temp_profiles": 263,
+  "regions": [
+    "Southern Ocean"
+  ],
   "smru_names": [
     "ct88-225-12"
   ],

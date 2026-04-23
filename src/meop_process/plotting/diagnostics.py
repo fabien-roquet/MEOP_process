@@ -101,7 +101,6 @@ class DeploymentDiagnosticSummary:
         )
 
 
-
 DIAGNOSTIC_PARTS = ("tag", "deployment", "overview")
 
 
@@ -467,108 +466,648 @@ def _overview_summary_lines(summaries: tuple[DeploymentDiagnosticSummary, ...], 
     return lines
 
 
-def _plot_overview_map(ax, summaries: tuple[DeploymentDiagnosticSummary, ...], *, colors: np.ndarray, title: str) -> None:
-    if not summaries:
-        ax.axis("off")
-        return
-    mask_any = any(summary.lon.size and summary.lat.size for summary in summaries)
-    if not mask_any:
-        ax.set_title(title)
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.grid(True, alpha=0.25)
-        ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
-        ax.set_xlim(-180, 180)
-        ax.set_ylim(-90, 90)
-        return
+def _section_panel(ax, x: np.ndarray, depth: np.ndarray, section: np.ndarray, *, cmap: str, title: str, value_label: str, pressure_obs: np.ndarray, colorbar: bool = False):
+    plt, _, _, _ = _import_matplotlib()
 
-    lon_all = np.concatenate([summary.lon for summary in summaries if summary.lon.size])
-    central_longitude = 180 if lon_all.size and float(np.nanmax(lon_all) - np.nanmin(lon_all)) > 180 else 0
+    x_edges = _centers_to_edges(x)
+    depth_edges = _centers_to_edges(depth)
+    mesh_x, mesh_y = np.meshgrid(x_edges, depth_edges)
+    data = section.T
+    vmin, vmax = _value_range(data)
+    mesh = ax.pcolormesh(mesh_x, mesh_y, data, shading="auto", cmap=cmap, vmin=vmin, vmax=vmax)
+    if np.isfinite(data).any():
+        try:
+            levels = np.linspace(np.nanpercentile(data, 10), np.nanpercentile(data, 90), 6)
+            if np.unique(np.round(levels, 6)).size >= 3:
+                contour = ax.contour(x, depth, data, levels=levels, colors="0.15", linewidths=0.5)
+                ax.clabel(contour, fmt="%.2f", fontsize=8)
+        except Exception:
+            pass
 
+    obs_x = np.broadcast_to(x[:, None], pressure_obs.shape)
+    mask = np.isfinite(pressure_obs)
+    ax.scatter(obs_x[mask], pressure_obs[mask], s=3, color="k", alpha=0.7)
+    ax.set_ylim(depth[-1], depth[0])
+    ax.set_ylabel("depth [dbar]")
+    ax.set_title(title)
+    ax.grid(True, alpha=0.15)
+    return mesh, value_label
+
+
+def _make_track_fig(figsize=(10, 7), central_longitude=0.0):
+    """Create a figure+axes for a track map, using cartopy if available."""
+    plt, _, _, _ = _import_matplotlib()
     if ccrs is not None:
-        projection = ccrs.PlateCarree(central_longitude=central_longitude)
-        fig = ax.figure
-        ax.remove()
-        ax = fig.add_subplot(ax.get_subplotspec(), projection=projection)
-        for idx, summary in enumerate(summaries):
-            if not summary.lon.size or not summary.lat.size:
-                continue
-            ax.plot(summary.lon, summary.lat, color=colors[idx], linewidth=0.9, alpha=0.8, transform=ccrs.PlateCarree(), label=summary.deployment)
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111, projection=ccrs.PlateCarree(central_longitude=central_longitude))
         ax.coastlines(resolution="110m", linewidth=0.7)
         ax.add_feature(cfeature.LAND, facecolor="0.88")
         gl = ax.gridlines(draw_labels=True, linewidth=0.4, alpha=0.4)
         gl.top_labels = False
         gl.right_labels = False
-        ax.set_title(title)
+        transform = ccrs.PlateCarree()
     else:
-        for idx, summary in enumerate(summaries):
-            if not summary.lon.size or not summary.lat.size:
-                continue
-            ax.plot(summary.lon, summary.lat, color=colors[idx], linewidth=0.9, alpha=0.8, label=summary.deployment)
+        fig, ax = plt.subplots(figsize=figsize)
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
-        ax.set_title(title)
         ax.grid(True, alpha=0.25)
-        lon_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(lon_all) - np.nanmin(lon_all))))
-        lat_all = np.concatenate([summary.lat for summary in summaries if summary.lat.size])
-        lat_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(lat_all) - np.nanmin(lat_all))))
-        ax.set_xlim(float(np.nanmin(lon_all) - lon_pad), float(np.nanmax(lon_all) + lon_pad))
-        ax.set_ylim(float(np.nanmin(lat_all) - lat_pad), float(np.nanmax(lat_all) + lat_pad))
+        transform = None
+    return fig, ax, transform
+
+
+def _save_section_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool, pmax: int) -> None:
+    """Time-section colorfill with CHLA/DOXY panels if present."""
+    plt, _, ScalarMappable, GridSpec = _import_matplotlib()
+
+    pressure = _pressure(dataset, adjusted=adjusted)
+    times = _profile_times(dataset)
+    _, norm, cmap, axis_label, x = _profile_colors(times)
+
+    panels: list[tuple[np.ndarray, str, str, str]] = []
+    temp = _masked_field(dataset, "TEMP", adjusted=adjusted)
+    psal = _masked_field(dataset, "PSAL", adjusted=adjusted)
+    sigma0 = _compute_sigma0(dataset, adjusted=adjusted)
+    depth, temp_section = _section_grid(pressure, temp, pmax=pmax)
+    _, psal_section = _section_grid(pressure, psal, pmax=pmax)
+    _, sigma_section = _section_grid(pressure, sigma0, pmax=pmax)
+    panels.append((temp_section, "coolwarm", "Temperature section", "°C"))
+    panels.append((psal_section, "viridis", "Salinity section", "psu"))
+    panels.append((sigma_section, "cividis", "Sigma0 section", "kg m$^{-3}$"))
+
+    for opt_name, opt_cmap, opt_title, opt_label in (
+        ("CHLA", "YlGn", "Chlorophyll-a section", "mg m$^{-3}$"),
+        ("DOXY", "Blues", "Dissolved oxygen section", "µmol kg$^{-1}$"),
+    ):
+        if opt_name in dataset or f"{opt_name}_ADJUSTED" in dataset:
+            opt_field = _masked_field(dataset, opt_name, adjusted=adjusted)
+            _, opt_section = _section_grid(pressure, opt_field, pmax=pmax)
+            panels.append((opt_section, opt_cmap, opt_title, opt_label))
+
+    n_panels = len(panels)
+    fig = plt.figure(figsize=(14, 3.5 * n_panels + 1), constrained_layout=False)
+    gs = GridSpec(n_panels, 1, figure=fig, height_ratios=[1.0] * n_panels)
+    axes = [fig.add_subplot(gs[i, 0]) for i in range(n_panels)]
+
+    meshes = []
+    for ax, (section, pcmap, title, label) in zip(axes, panels, strict=False):
+        mesh, _ = _section_panel(ax, x, depth, section, cmap=pcmap, title=title, value_label=label, pressure_obs=pressure)
+        meshes.append((mesh, label))
+    axes[-1].set_xlabel(axis_label)
+
+    for ax, (mesh, label) in zip(axes, meshes, strict=False):
+        cbar_local = fig.colorbar(mesh, ax=ax, orientation="vertical", pad=0.012, fraction=0.03)
+        cbar_local.set_label(label)
+
+    top_ax = fig.add_axes([0.12, 0.965, 0.76, 0.018])
+    sm = ScalarMappable(norm=norm, cmap=cmap)
+    cbar = fig.colorbar(sm, cax=top_ax, orientation="horizontal")
+    cbar.set_label(f"Profile colour key [{axis_label}]")
+
+    smru = _smru_name(dataset, target.stem)
+    fig.suptitle(f"{smru} sections ({'adjusted' if adjusted else 'raw'})", fontsize=14, y=0.99)
+    fig.subplots_adjust(left=0.07, right=0.93, bottom=0.06, top=0.93, hspace=0.30)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_ts_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> None:
+    """TS diagram, profiles colored by time, sigma0 isopycnals."""
+    plt, _, ScalarMappable, _ = _import_matplotlib()
+
+    temp = _masked_field(dataset, "TEMP", adjusted=adjusted)
+    psal = _masked_field(dataset, "PSAL", adjusted=adjusted)
+    sigma0 = _compute_sigma0(dataset, adjusted=adjusted)
+    times = _profile_times(dataset)
+    colors, norm, cmap, axis_label, _ = _profile_colors(times)
+
+    fig, ax = plt.subplots(figsize=(9, 7))
+
+    for idx in range(temp.shape[0]):
+        mask = np.isfinite(temp[idx]) & np.isfinite(psal[idx])
+        if np.count_nonzero(mask) < 2:
+            continue
+        ax.plot(psal[idx, mask], temp[idx, mask], color=colors[idx], linewidth=0.9, alpha=0.9)
+
+    ax.set_xlabel("Salinity")
+    ax.set_ylabel("In-situ temperature [°C]")
+    ax.grid(True, alpha=0.25)
+
+    if np.isfinite(psal).any() and np.isfinite(temp).any():
+        smin, smax = _value_range(psal)
+        tmin, tmax = _value_range(temp)
+        sx = np.linspace(smin, smax, 80)
+        ty = np.linspace(tmin, tmax, 80)
+        S, T = np.meshgrid(sx, ty)
+        try:
+            contour_sigma = _sigma0_profile(S.ravel(), T.ravel(), np.zeros(S.size), lon=0.0, lat=0.0).reshape(S.shape)
+            cs = ax.contour(S, T, contour_sigma, colors="0.3", linewidths=0.6, levels=8)
+            ax.clabel(cs, fmt="%.1f", fontsize=7)
+        except Exception:
+            pass
+
+    smru = _smru_name(dataset, target.stem)
+    ax.set_title(f"{smru} TS diagram ({'adjusted' if adjusted else 'raw'})")
+
+    color_ax = fig.add_axes([0.12, 0.93, 0.76, 0.02])
+    sm = ScalarMappable(norm=norm, cmap=cmap)
+    cbar = fig.colorbar(sm, cax=color_ax, orientation="horizontal")
+    cbar.set_label(f"Profile colour [{axis_label}]")
+
+    fig.subplots_adjust(left=0.10, right=0.95, bottom=0.09, top=0.88)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_map_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> None:
+    """Single-tag track map, positions colored by time."""
+    plt, _, ScalarMappable, _ = _import_matplotlib()
+
+    lon = np.asarray(dataset["LONGITUDE"].values, dtype=float)
+    lat = np.asarray(dataset["LATITUDE"].values, dtype=float)
+    times = _profile_times(dataset)
+    colors, norm, cmap, axis_label, _ = _profile_colors(times)
+
+    mask = np.isfinite(lon) & np.isfinite(lat)
+    lon_valid = lon[mask]
+    lat_valid = lat[mask]
+    central_longitude = 180.0 if (lon_valid.size > 0 and float(np.nanmax(lon_valid) - np.nanmin(lon_valid)) > 180) else 0.0
+
+    fig, ax, transform = _make_track_fig(figsize=(10, 7), central_longitude=central_longitude)
+
+    if not np.any(mask):
+        ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
+    elif transform is not None:
+        ax.plot(lon_valid, lat_valid, color="0.5", linewidth=0.5, alpha=0.5, transform=transform)
+        ax.scatter(lon_valid, lat_valid, c=colors[mask], s=14, transform=transform, edgecolors="none")
+    else:
+        ax.plot(lon_valid, lat_valid, color="0.5", linewidth=0.5, alpha=0.5)
+        ax.scatter(lon_valid, lat_valid, c=colors[mask], s=14, edgecolors="none")
+        lon_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(lon_valid) - np.nanmin(lon_valid))))
+        lat_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(lat_valid) - np.nanmin(lat_valid))))
+        ax.set_xlim(float(np.nanmin(lon_valid) - lon_pad), float(np.nanmax(lon_valid) + lon_pad))
+        ax.set_ylim(float(np.nanmin(lat_valid) - lat_pad), float(np.nanmax(lat_valid) + lat_pad))
+
+    smru = _smru_name(dataset, target.stem)
+    ax.set_title(f"{smru} track ({'adjusted' if adjusted else 'raw'})")
+
+    color_ax = fig.add_axes([0.12, 0.03, 0.76, 0.025])
+    sm = ScalarMappable(norm=norm, cmap=cmap)
+    cbar = fig.colorbar(sm, cax=color_ax, orientation="horizontal")
+    cbar.set_label(f"Profile colour [{axis_label}]")
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_profiles_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool, pmax: int) -> None:
+    """Vertical profiles: TEMP, PSAL, SIG0 side by side, colored by time."""
+    plt, _, ScalarMappable, _ = _import_matplotlib()
+
+    pressure = _pressure(dataset, adjusted=adjusted)
+    temp = _masked_field(dataset, "TEMP", adjusted=adjusted)
+    psal = _masked_field(dataset, "PSAL", adjusted=adjusted)
+    sigma0 = _compute_sigma0(dataset, adjusted=adjusted)
+    times = _profile_times(dataset)
+    colors, norm, cmap, axis_label, _ = _profile_colors(times)
+
+    fig, axes = plt.subplots(1, 3, figsize=(13, 7), sharey=True)
+
+    for ax, values, xlabel, title in zip(
+        axes,
+        (temp, psal, sigma0),
+        ("Temperature [°C]", "Salinity", "sigma0 [kg m$^{-3}$]"),
+        ("TEMP", "PSAL", "SIGMA0"),
+        strict=False,
+    ):
+        valid = 0
+        for idx in range(values.shape[0]):
+            mask = np.isfinite(values[idx]) & np.isfinite(pressure[idx])
+            if np.count_nonzero(mask) < 2:
+                continue
+            ax.plot(values[idx, mask], pressure[idx, mask], color=colors[idx], linewidth=0.9, alpha=0.9)
+            valid += 1
+        ax.set_ylim(pmax, 0)
+        ax.set_xlabel(xlabel)
+        ax.set_title(f"{title}: {valid} profiles")
+        ax.grid(True, alpha=0.25)
+
+    axes[0].set_ylabel("Pressure [dbar]")
+
+    color_ax = fig.add_axes([0.12, 0.93, 0.76, 0.02])
+    sm = ScalarMappable(norm=norm, cmap=cmap)
+    cbar = fig.colorbar(sm, cax=color_ax, orientation="horizontal")
+    cbar.set_label(f"Profile colour [{axis_label}]")
+
+    smru = _smru_name(dataset, target.stem)
+    fig.suptitle(f"{smru} profiles ({'adjusted' if adjusted else 'raw'})", fontsize=14, y=0.99)
+    fig.subplots_adjust(left=0.07, right=0.97, bottom=0.09, top=0.88, wspace=0.12)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_flags_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> None:
+    """QC flag overview: raw in grey/red, adjusted good in steelblue."""
+    plt, _, _, _ = _import_matplotlib()
+
+    pressure_raw = _field(dataset, "PRES", adjusted=False)
+    temp_raw = _field(dataset, "TEMP", adjusted=False)
+    psal_raw = _field(dataset, "PSAL", adjusted=False)
+    temp_qc = _to_numeric_qc(dataset["TEMP_QC"].values if "TEMP_QC" in dataset else np.ones(temp_raw.shape, dtype=float))
+    psal_qc = _to_numeric_qc(dataset["PSAL_QC"].values if "PSAL_QC" in dataset else np.ones(psal_raw.shape, dtype=float))
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 7), sharey=True)
+
+    pmax = int(np.nanmax(pressure_raw[np.isfinite(pressure_raw)])) if np.isfinite(pressure_raw).any() else 1000
+    pmax = min(pmax + 50, 2000)
+
+    for ax, raw_vals, raw_qc, varname in zip(
+        axes, (temp_raw, psal_raw), (temp_qc, psal_qc), ("TEMP", "PSAL"), strict=False
+    ):
+        n_levels = raw_vals.shape[1] if raw_vals.ndim > 1 else 1
+        for idx in range(raw_vals.shape[0]):
+            mask = np.isfinite(raw_vals[idx]) & np.isfinite(pressure_raw[idx])
+            if np.count_nonzero(mask) < 2:
+                continue
+            bad_frac = np.mean(raw_qc[idx] >= 3) if raw_qc.ndim > 1 else float(raw_qc[idx] >= 3)
+            color = "tomato" if bad_frac > 0.30 else "0.7"
+            ax.plot(raw_vals[idx, mask], pressure_raw[idx, mask], color=color, linewidth=0.6, alpha=0.55)
+
+        if adjusted:
+            temp_adj = _masked_field(dataset, varname, adjusted=True)
+            pressure_adj = _pressure(dataset, adjusted=True)
+            for idx in range(temp_adj.shape[0]):
+                mask = np.isfinite(temp_adj[idx]) & np.isfinite(pressure_adj[idx])
+                if np.count_nonzero(mask) < 2:
+                    continue
+                ax.plot(temp_adj[idx, mask], pressure_adj[idx, mask], color="steelblue", linewidth=0.7, alpha=0.7)
+
+        ax.set_ylim(pmax, 0)
+        ax.set_xlabel(varname)
+        ax.set_title(f"{varname} QC flags")
+        ax.grid(True, alpha=0.25)
+
+    axes[0].set_ylabel("Pressure [dbar]")
+
+    from matplotlib.lines import Line2D
+    legend_elements = [
+        Line2D([0], [0], color="0.7", linewidth=1.5, label="raw accepted"),
+        Line2D([0], [0], color="tomato", linewidth=1.5, label="raw rejected (>30% bad)"),
+    ]
+    if adjusted:
+        legend_elements.append(Line2D([0], [0], color="steelblue", linewidth=1.5, label="adjusted good"))
+    axes[0].legend(handles=legend_elements, loc="lower left", fontsize=9, frameon=True)
+
+    smru = _smru_name(dataset, target.stem)
+    fig.suptitle(f"{smru} QC flags ({'adjusted' if adjusted else 'raw'})", fontsize=14)
+    fig.subplots_adjust(left=0.07, right=0.97, bottom=0.09, top=0.92, wspace=0.12)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_info_text(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> None:
+    """Write plain-text metadata."""
+    sigma0 = _compute_sigma0(dataset, adjusted=adjusted)
+    lines = _summary_lines(dataset, adjusted=adjusted, sigma0=sigma0)
+
+    smru = _smru_name(dataset, target.stem)
+    times = _profile_times(dataset)
+    valid_times = [t for t in times.ravel().tolist() if t is not None]
+
+    finite_mask = np.isfinite(np.asarray(dataset["LONGITUDE"].values, dtype=float)) & \
+                  np.isfinite(np.asarray(dataset["LATITUDE"].values, dtype=float))
+    lon_arr = np.asarray(dataset["LONGITUDE"].values, dtype=float)
+    lat_arr = np.asarray(dataset["LATITUDE"].values, dtype=float)
+    region = "Unknown"
+    if finite_mask.any():
+        region = label_region(float(np.nanmedian(lon_arr[finite_mask])), float(np.nanmedian(lat_arr[finite_mask])))
+
+    output_lines = list(lines)
+    if region and region != "Unknown":
+        output_lines.append(f"region: {region}")
+    output_lines.append("")
+    output_lines.append("--- calibration ---")
+    output_lines.extend(_extract_adjustment_lines(dataset))
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("\n".join(output_lines) + "\n", encoding="utf-8")
+
+
+def _info_text_path(smru_name: str, deployment: str, qf: str, *, suffix: str, config: MeopConfig) -> Path:
+    base = fname_plots(smru_name, deployment=deployment, qf=qf, suffix=suffix, config=config)
+    return base.with_suffix(".txt")
+
+
+def _save_deployment_map_figure(tags: tuple[TagDiagnosticData, ...], target: Path, *, qf: str) -> None:
+    """Track map of all tags, one color per tag (tab20 colormap)."""
+    plt, _, _, _ = _import_matplotlib()
+
+    cmap = plt.get_cmap("tab20", max(len(tags), 1))
+    colors = cmap(np.arange(max(len(tags), 1)))
+
+    lon_parts = [tag.lon[np.isfinite(tag.lon)] for tag in tags if np.isfinite(tag.lon).any()]
+    all_lon = np.concatenate(lon_parts) if lon_parts else np.array([])
+    central_longitude = 180.0 if (all_lon.size > 0 and float(np.nanmax(all_lon) - np.nanmin(all_lon)) > 180) else 0.0
+
+    fig, ax, transform = _make_track_fig(figsize=(10, 7), central_longitude=central_longitude)
+
+    for idx, tag in enumerate(tags):
+        mask = np.isfinite(tag.lon) & np.isfinite(tag.lat)
+        if not np.any(mask):
+            continue
+        lon_v = tag.lon[mask]
+        lat_v = tag.lat[mask]
+        if transform is not None:
+            ax.plot(lon_v, lat_v, color=colors[idx], linewidth=0.9, alpha=0.8, transform=transform, label=tag.smru_name)
+            ax.scatter(lon_v, lat_v, color=colors[idx], s=8, alpha=0.8, transform=transform, edgecolors="none")
+        else:
+            ax.plot(lon_v, lat_v, color=colors[idx], linewidth=0.9, alpha=0.8, label=tag.smru_name)
+            ax.scatter(lon_v, lat_v, color=colors[idx], s=8, alpha=0.8, edgecolors="none")
+
+    if not tags or not any(np.isfinite(tag.lon).any() and np.isfinite(tag.lat).any() for tag in tags):
+        ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
+    elif transform is None and all_lon.size:
+        all_lat = np.concatenate([tag.lat[np.isfinite(tag.lat)] for tag in tags if np.isfinite(tag.lat).any()])
+        lon_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(all_lon) - np.nanmin(all_lon))))
+        lat_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(all_lat) - np.nanmin(all_lat))))
+        ax.set_xlim(float(np.nanmin(all_lon) - lon_pad), float(np.nanmax(all_lon) + lon_pad))
+        ax.set_ylim(float(np.nanmin(all_lat) - lat_pad), float(np.nanmax(all_lat) + lat_pad))
 
     handles, labels = ax.get_legend_handles_labels()
     if handles:
         ax.legend(handles, labels, loc="upper left", fontsize=8, frameon=False)
 
+    deployment = tags[0].deployment if tags else ""
+    adjusted = tags[0].adjusted if tags else True
+    ax.set_title(f"{deployment} tracks ({qf}, {'adjusted' if adjusted else 'raw'})")
 
-def _plot_overview_counts(ax, summaries: tuple[DeploymentDiagnosticSummary, ...], *, colors: np.ndarray) -> None:
-    labels = [summary.deployment for summary in summaries]
-    profiles = np.asarray([summary.n_profiles for summary in summaries], dtype=float)
-    tags = np.asarray([len(summary.smru_names) for summary in summaries], dtype=float)
-    x = np.arange(len(labels), dtype=float)
-    ax.bar(x - 0.18, profiles, width=0.36, color=colors[: len(labels)], alpha=0.8, label="profiles")
-    ax.bar(x + 0.18, tags, width=0.36, color="0.35", alpha=0.6, label="tags")
-    ax.set_xticks(x, labels, rotation=30, ha="right")
-    ax.set_ylabel("count")
-    ax.set_title("Deployment counts")
-    ax.grid(True, axis="y", alpha=0.25)
-    ax.legend(frameon=False, fontsize=8)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
 
-def _plot_overview_timeline(ax, summaries: tuple[DeploymentDiagnosticSummary, ...], *, colors: np.ndarray) -> None:
-    labels = [summary.deployment for summary in summaries]
-    y = np.arange(len(labels), dtype=float)
-    for idx, summary in enumerate(summaries):
-        if summary.start_time is None or summary.end_time is None:
+def _save_deployment_ts_figure(tags: tuple[TagDiagnosticData, ...], target: Path, *, qf: str) -> None:
+    """TS diagram for all tags, one color per tag, sigma0 isopycnals."""
+    plt, _, _, _ = _import_matplotlib()
+
+    cmap = plt.get_cmap("tab20", max(len(tags), 1))
+    colors = cmap(np.arange(max(len(tags), 1)))
+
+    fig, ax = plt.subplots(figsize=(9, 7))
+
+    for idx, tag in enumerate(tags):
+        first = True
+        for prof in range(tag.temp.shape[0]):
+            mask = np.isfinite(tag.temp[prof]) & np.isfinite(tag.psal[prof])
+            if np.count_nonzero(mask) < 2:
+                continue
+            ax.plot(
+                tag.psal[prof, mask], tag.temp[prof, mask],
+                color=colors[idx], linewidth=0.8, alpha=0.65,
+                label=tag.smru_name if first else None,
+            )
+            first = False
+
+    all_temp = np.concatenate([tag.temp.ravel() for tag in tags]) if tags else np.asarray([], dtype=float)
+    all_psal = np.concatenate([tag.psal.ravel() for tag in tags]) if tags else np.asarray([], dtype=float)
+
+    if np.isfinite(all_psal).any() and np.isfinite(all_temp).any():
+        smin, smax = _value_range(all_psal)
+        tmin, tmax = _value_range(all_temp)
+        sx = np.linspace(smin, smax, 80)
+        ty = np.linspace(tmin, tmax, 80)
+        S, T = np.meshgrid(sx, ty)
+        try:
+            contour_sigma = _sigma0_profile(S.ravel(), T.ravel(), np.zeros(S.size), lon=0.0, lat=0.0).reshape(S.shape)
+            cs = ax.contour(S, T, contour_sigma, colors="0.35", linewidths=0.5, levels=8)
+            ax.clabel(cs, fmt="%.1f", fontsize=7)
+        except Exception:
+            pass
+
+    ax.set_xlabel("Salinity")
+    ax.set_ylabel("In-situ temperature [°C]")
+    ax.grid(True, alpha=0.25)
+
+    handles, labels = ax.get_legend_handles_labels()
+    if handles:
+        ax.legend(handles, labels, loc="best", fontsize=8, frameon=False)
+
+    deployment = tags[0].deployment if tags else ""
+    adjusted = tags[0].adjusted if tags else True
+    ax.set_title(f"{deployment} TS diagram ({qf}, {'adjusted' if adjusted else 'raw'})")
+
+    fig.tight_layout()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_deployment_histograms_figure(tags: tuple[TagDiagnosticData, ...], target: Path, *, qf: str) -> None:
+    """3-panel: max pressure histogram, profiles-per-tag bar, profiles-per-month bar."""
+    plt, _, _, _ = _import_matplotlib()
+
+    fig, axes = plt.subplots(1, 3, figsize=(14, 5))
+
+    # Panel 1: max pressure histogram
+    max_pres = []
+    for tag in tags:
+        for idx in range(tag.pressure.shape[0]):
+            p = tag.pressure[idx]
+            finite_p = p[np.isfinite(p)]
+            if finite_p.size > 0:
+                max_pres.append(float(np.max(finite_p)))
+    if max_pres:
+        axes[0].hist(max_pres, bins=30, color="steelblue", edgecolor="white", linewidth=0.5)
+    axes[0].set_xlabel("Max pressure [dbar]")
+    axes[0].set_ylabel("Count")
+    axes[0].set_title("Max pressure distribution")
+    axes[0].grid(True, axis="y", alpha=0.25)
+
+    # Panel 2: profiles per tag bar
+    tag_names = [tag.smru_name for tag in tags]
+    n_profs = [int(tag.pressure.shape[0]) for tag in tags]
+    x = np.arange(len(tag_names))
+    axes[1].bar(x, n_profs, color="steelblue", edgecolor="white", linewidth=0.5)
+    axes[1].set_xticks(x)
+    axes[1].set_xticklabels(tag_names, rotation=30, ha="right", fontsize=8)
+    axes[1].set_ylabel("Profiles")
+    axes[1].set_title("Profiles per tag")
+    axes[1].grid(True, axis="y", alpha=0.25)
+
+    # Panel 3: profiles per month
+    from collections import Counter
+    month_counts: Counter = Counter()
+    for tag in tags:
+        for t in tag.times.ravel().tolist():
+            if t is not None:
+                month_counts[t.strftime("%Y-%m")] += 1
+    if month_counts:
+        sorted_months = sorted(month_counts.keys())
+        counts = [month_counts[m] for m in sorted_months]
+        x_m = np.arange(len(sorted_months))
+        axes[2].bar(x_m, counts, color="steelblue", edgecolor="white", linewidth=0.5)
+        axes[2].set_xticks(x_m[::max(1, len(sorted_months) // 8)])
+        axes[2].set_xticklabels(sorted_months[::max(1, len(sorted_months) // 8)], rotation=30, ha="right", fontsize=8)
+    axes[2].set_ylabel("Profiles")
+    axes[2].set_title("Profiles per month")
+    axes[2].grid(True, axis="y", alpha=0.25)
+
+    deployment = tags[0].deployment if tags else ""
+    adjusted = tags[0].adjusted if tags else True
+    fig.suptitle(f"{deployment} histograms ({qf}, {'adjusted' if adjusted else 'raw'})", fontsize=13)
+    fig.tight_layout()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_deployment_timing_figure(tags: tuple[TagDiagnosticData, ...], target: Path, *, qf: str) -> None:
+    """Gantt chart: horizontal bar per tag with date range."""
+    import matplotlib.dates as mdates
+    plt, _, _, _ = _import_matplotlib()
+
+    n = len(tags)
+    fig, ax = plt.subplots(figsize=(11, max(3.5, 0.45 * n + 1.5)))
+
+    for idx, tag in enumerate(tags):
+        valid_times = [t for t in tag.times.ravel().tolist() if t is not None]
+        if len(valid_times) < 2:
             continue
-        ax.plot([summary.start_time, summary.end_time], [y[idx], y[idx]], color=colors[idx], linewidth=3.0, solid_capstyle="round")
-        ax.scatter([summary.start_time, summary.end_time], [y[idx], y[idx]], color=colors[idx], s=18)
-    ax.set_yticks(y, labels)
-    ax.set_title("Deployment time span")
+        start = min(valid_times)
+        end = max(valid_times)
+        ax.barh(idx, (end - start).total_seconds() / 86400.0, left=mdates.date2num(start), height=0.6, color="steelblue", alpha=0.8)
+        ax.text(mdates.date2num(end) + 0.5, idx, tag.smru_name, va="center", fontsize=8)
+
+    ax.set_yticks(range(n))
+    ax.set_yticklabels([tag.smru_name for tag in tags], fontsize=8)
+    ax.xaxis_date()
+    fig.autofmt_xdate()
+    ax.set_xlabel("Date")
+    ax.set_title(f"{tags[0].deployment if tags else ''} timing ({qf})")
     ax.grid(True, axis="x", alpha=0.25)
+    ax.invert_yaxis()
+
+    fig.tight_layout()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
 
-def _save_global_overview_figure(summaries: tuple[DeploymentDiagnosticSummary, ...], target: Path, *, qf: str) -> None:
-    plt, _, _, GridSpec = _import_matplotlib()
+def _save_overview_map_figure(summaries: tuple[DeploymentDiagnosticSummary, ...], target: Path, *, qf: str) -> None:
+    """Global track map, one color per deployment."""
+    plt, _, _, _ = _import_matplotlib()
+
     cmap = plt.get_cmap("tab20", max(len(summaries), 1))
     colors = cmap(np.arange(max(len(summaries), 1)))
 
-    fig = plt.figure(figsize=(16, 10), constrained_layout=False)
-    gs = GridSpec(2, 3, figure=fig, width_ratios=[1.0, 1.15, 1.0], height_ratios=[1.0, 1.0])
-    ax_info = fig.add_subplot(gs[:, 0])
-    ax_map = fig.add_subplot(gs[:, 1])
-    ax_counts = fig.add_subplot(gs[0, 2])
-    ax_timeline = fig.add_subplot(gs[1, 1:])
+    all_lon = np.concatenate([s.lon for s in summaries if s.lon.size]) if summaries else np.array([])
+    central_longitude = 180.0 if (all_lon.size > 0 and float(np.nanmax(all_lon) - np.nanmin(all_lon)) > 180) else 0.0
 
-    _plot_info(ax_info, _overview_summary_lines(summaries, qf=qf))
-    _plot_overview_map(ax_map, summaries, colors=colors, title="Cross-deployment tracks")
-    _plot_overview_counts(ax_counts, summaries, colors=colors)
-    _plot_overview_timeline(ax_timeline, summaries, colors=colors)
+    fig, ax, transform = _make_track_fig(figsize=(12, 7), central_longitude=central_longitude)
 
-    adjusted = summaries[0].adjusted if summaries else True
-    fig.suptitle(f"MEOP overview diagnostics ({qf}, {'adjusted' if adjusted else 'raw'})", fontsize=16, y=0.985)
-    fig.subplots_adjust(left=0.05, right=0.98, bottom=0.08, top=0.92, wspace=0.25, hspace=0.28)
+    for idx, summary in enumerate(summaries):
+        if not summary.lon.size or not summary.lat.size:
+            continue
+        if transform is not None:
+            ax.plot(summary.lon, summary.lat, color=colors[idx], linewidth=0.9, alpha=0.8, transform=transform, label=summary.deployment)
+            ax.scatter(summary.lon, summary.lat, color=colors[idx], s=6, alpha=0.6, transform=transform, edgecolors="none")
+        else:
+            ax.plot(summary.lon, summary.lat, color=colors[idx], linewidth=0.9, alpha=0.8, label=summary.deployment)
+            ax.scatter(summary.lon, summary.lat, color=colors[idx], s=6, alpha=0.6, edgecolors="none")
+
+    if not summaries or not any(s.lon.size and s.lat.size for s in summaries):
+        ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
+    elif transform is None and all_lon.size:
+        all_lat = np.concatenate([s.lat for s in summaries if s.lat.size])
+        lon_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(all_lon) - np.nanmin(all_lon))))
+        lat_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(all_lat) - np.nanmin(all_lat))))
+        ax.set_xlim(float(np.nanmin(all_lon) - lon_pad), float(np.nanmax(all_lon) + lon_pad))
+        ax.set_ylim(float(np.nanmin(all_lat) - lat_pad), float(np.nanmax(all_lat) + lat_pad))
+
+    handles, labels = ax.get_legend_handles_labels()
+    if handles:
+        ax.legend(handles, labels, loc="upper left", fontsize=8, frameon=False)
+
+    ax.set_title(f"MEOP deployment tracks ({qf})")
+
     target.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(target, dpi=180, bbox_inches="tight")
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_overview_histograms_figure(summaries: tuple[DeploymentDiagnosticSummary, ...], target: Path, *, qf: str) -> None:
+    """2-panel: profiles per deployment bar chart, profiles per year bar chart."""
+    plt, _, _, _ = _import_matplotlib()
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+    # Panel 1: profiles per deployment
+    dep_names = [s.deployment for s in summaries]
+    prof_counts = [s.n_profiles for s in summaries]
+    x = np.arange(len(dep_names))
+    axes[0].bar(x, prof_counts, color="steelblue", edgecolor="white", linewidth=0.5)
+    axes[0].set_xticks(x)
+    axes[0].set_xticklabels(dep_names, rotation=30, ha="right", fontsize=8)
+    axes[0].set_ylabel("Profiles")
+    axes[0].set_title("Profiles per deployment")
+    axes[0].grid(True, axis="y", alpha=0.25)
+
+    # Panel 2: profiles per year
+    from collections import Counter
+    year_counts: Counter = Counter()
+    for s in summaries:
+        if s.start_time is not None and s.end_time is not None:
+            for yr in range(s.start_time.year, s.end_time.year + 1):
+                year_counts[yr] += s.n_profiles // max(1, s.end_time.year - s.start_time.year + 1)
+    if year_counts:
+        sorted_years = sorted(year_counts.keys())
+        counts = [year_counts[y] for y in sorted_years]
+        x_y = np.arange(len(sorted_years))
+        axes[1].bar(x_y, counts, color="steelblue", edgecolor="white", linewidth=0.5)
+        axes[1].set_xticks(x_y)
+        axes[1].set_xticklabels([str(y) for y in sorted_years], rotation=30, ha="right")
+    axes[1].set_ylabel("Profiles (approx)")
+    axes[1].set_title("Profiles per year")
+    axes[1].grid(True, axis="y", alpha=0.25)
+
+    fig.suptitle(f"MEOP overview histograms ({qf})", fontsize=13)
+    fig.tight_layout()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _save_overview_timing_figure(summaries: tuple[DeploymentDiagnosticSummary, ...], target: Path, *, qf: str) -> None:
+    """Gantt chart: one bar per deployment."""
+    import matplotlib.dates as mdates
+    plt, _, _, _ = _import_matplotlib()
+
+    n = len(summaries)
+    fig, ax = plt.subplots(figsize=(12, max(4, 0.35 * n + 2)))
+
+    for idx, summary in enumerate(summaries):
+        if summary.start_time is None or summary.end_time is None:
+            continue
+        span = (summary.end_time - summary.start_time).total_seconds() / 86400.0
+        ax.barh(idx, span, left=mdates.date2num(summary.start_time), height=0.6, color="steelblue", alpha=0.8)
+        ax.text(mdates.date2num(summary.end_time) + 0.5, idx, summary.deployment, va="center", fontsize=8)
+
+    ax.set_yticks(range(n))
+    ax.set_yticklabels([s.deployment for s in summaries], fontsize=8)
+    ax.xaxis_date()
+    fig.autofmt_xdate()
+    ax.set_xlabel("Date")
+    ax.set_title(f"MEOP deployment timeline ({qf})")
+    ax.grid(True, axis="x", alpha=0.25)
+    ax.invert_yaxis()
+
+    fig.tight_layout()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(target, dpi=150, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -640,363 +1179,6 @@ def _source_paths_for_deployments(config: MeopConfig, deployments: Iterable[str]
     return tuple(paths)
 
 
-def _plot_labelled_profiles(ax, tags: tuple[TagDiagnosticData, ...], *, field_name: str, colors: np.ndarray, pmax: int, xlabel: str) -> None:
-    total = 0
-    for idx, tag in enumerate(tags):
-        values = getattr(tag, field_name)
-        first = True
-        for prof in range(values.shape[0]):
-            mask = np.isfinite(values[prof]) & np.isfinite(tag.pressure[prof])
-            if np.count_nonzero(mask) < 2:
-                continue
-            ax.plot(
-                values[prof, mask],
-                tag.pressure[prof, mask],
-                color=colors[idx],
-                linewidth=0.8,
-                alpha=0.65,
-                label=tag.smru_name if first else None,
-            )
-            total += 1
-            first = False
-    ax.set_ylim(pmax, 0)
-    ax.set_xlabel(xlabel)
-    ax.grid(True, alpha=0.25)
-    ax.set_title(f"{field_name.upper()}: {total} profiles")
-
-
-def _plot_tag_tracks(ax, tags: tuple[TagDiagnosticData, ...], *, colors: np.ndarray, title: str) -> None:
-    mask_any = any(np.isfinite(tag.lon).any() and np.isfinite(tag.lat).any() for tag in tags)
-    if not mask_any:
-        ax.set_title(title)
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.grid(True, alpha=0.25)
-        ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
-        ax.set_xlim(-180, 180)
-        ax.set_ylim(-90, 90)
-        return
-
-    all_lon = np.concatenate([tag.lon[np.isfinite(tag.lon)] for tag in tags if np.isfinite(tag.lon).any()])
-    central_longitude = 180 if all_lon.size and float(np.nanmax(all_lon) - np.nanmin(all_lon)) > 180 else 0
-
-    if ccrs is not None:
-        projection = ccrs.PlateCarree(central_longitude=central_longitude)
-        fig = ax.figure
-        ax.remove()
-        ax = fig.add_subplot(ax.get_subplotspec(), projection=projection)
-        for idx, tag in enumerate(tags):
-            mask = np.isfinite(tag.lon) & np.isfinite(tag.lat)
-            if not np.any(mask):
-                continue
-            ax.plot(tag.lon[mask], tag.lat[mask], color=colors[idx], linewidth=0.8, alpha=0.8, transform=ccrs.PlateCarree(), label=tag.smru_name)
-            ax.scatter(tag.lon[mask], tag.lat[mask], color=colors[idx], s=8, alpha=0.8, transform=ccrs.PlateCarree(), edgecolors="none")
-        ax.coastlines(resolution="110m", linewidth=0.7)
-        ax.add_feature(cfeature.LAND, facecolor="0.88")
-        gl = ax.gridlines(draw_labels=True, linewidth=0.4, alpha=0.4)
-        gl.top_labels = False
-        gl.right_labels = False
-        ax.set_title(title)
-    else:
-        lon_values: list[np.ndarray] = []
-        lat_values: list[np.ndarray] = []
-        for idx, tag in enumerate(tags):
-            mask = np.isfinite(tag.lon) & np.isfinite(tag.lat)
-            if not np.any(mask):
-                continue
-            lon = tag.lon[mask]
-            lat = tag.lat[mask]
-            lon_values.append(lon)
-            lat_values.append(lat)
-            ax.plot(lon, lat, color=colors[idx], linewidth=0.8, alpha=0.8, label=tag.smru_name)
-            ax.scatter(lon, lat, color=colors[idx], s=12, alpha=0.8, edgecolors="none")
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.set_title(title)
-        ax.grid(True, alpha=0.25)
-        if lon_values and lat_values:
-            lon_all = np.concatenate(lon_values)
-            lat_all = np.concatenate(lat_values)
-            lon_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(lon_all) - np.nanmin(lon_all))))
-            lat_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(lat_all) - np.nanmin(lat_all))))
-            ax.set_xlim(float(np.nanmin(lon_all) - lon_pad), float(np.nanmax(lon_all) + lon_pad))
-            ax.set_ylim(float(np.nanmin(lat_all) - lat_pad), float(np.nanmax(lat_all) + lat_pad))
-
-    handles, labels = ax.get_legend_handles_labels()
-    if handles:
-        ax.legend(handles, labels, loc="upper left", fontsize=8, frameon=False)
-
-
-def _plot_deployment_ts(ax, tags: tuple[TagDiagnosticData, ...], *, colors: np.ndarray) -> None:
-    for idx, tag in enumerate(tags):
-        first = True
-        for prof in range(tag.temp.shape[0]):
-            mask = np.isfinite(tag.temp[prof]) & np.isfinite(tag.psal[prof])
-            if np.count_nonzero(mask) < 2:
-                continue
-            ax.plot(
-                tag.psal[prof, mask],
-                tag.temp[prof, mask],
-                color=colors[idx],
-                linewidth=0.8,
-                alpha=0.65,
-                label=tag.smru_name if first else None,
-            )
-            first = False
-    all_temp = np.concatenate([tag.temp.ravel() for tag in tags]) if tags else np.asarray([], dtype=float)
-    all_psal = np.concatenate([tag.psal.ravel() for tag in tags]) if tags else np.asarray([], dtype=float)
-    ax.set_xlabel("Salinity")
-    ax.set_ylabel("In-situ temperature [°C]")
-    ax.grid(True, alpha=0.25)
-    if np.isfinite(all_psal).any() and np.isfinite(all_temp).any():
-        smin, smax = _value_range(all_psal)
-        tmin, tmax = _value_range(all_temp)
-        sx = np.linspace(smin, smax, 80)
-        ty = np.linspace(tmin, tmax, 80)
-        S, T = np.meshgrid(sx, ty)
-        try:
-            contour_sigma = _sigma0_profile(S.ravel(), T.ravel(), np.zeros(S.size), lon=0.0, lat=0.0).reshape(S.shape)
-            ax.contour(S, T, contour_sigma, colors="0.35", linewidths=0.5, levels=8)
-        except Exception:
-            pass
-    ax.set_title("Deployment TS envelope")
-    handles, labels = ax.get_legend_handles_labels()
-    if handles:
-        ax.legend(handles, labels, loc="best", fontsize=8, frameon=False)
-
-
-def _save_deployment_overview_figure(tags: tuple[TagDiagnosticData, ...], target: Path, *, qf: str, pmax: int) -> None:
-    plt, _, _, GridSpec = _import_matplotlib()
-    cmap = plt.get_cmap("tab20", max(len(tags), 1))
-    colors = cmap(np.arange(max(len(tags), 1)))
-
-    fig = plt.figure(figsize=(16, 10), constrained_layout=False)
-    gs = GridSpec(2, 3, figure=fig, width_ratios=[1.1, 1.0, 1.0], height_ratios=[1.0, 1.0])
-    ax_info = fig.add_subplot(gs[:, 0])
-    ax_map = fig.add_subplot(gs[0, 1])
-    ax_ts = fig.add_subplot(gs[0, 2])
-    ax_t = fig.add_subplot(gs[1, 1])
-    ax_s = fig.add_subplot(gs[1, 2])
-
-    _plot_info(ax_info, _deployment_summary_lines(tags))
-    _plot_tag_tracks(ax_map, tags, colors=colors, title="Deployment tracks")
-    _plot_deployment_ts(ax_ts, tags, colors=colors)
-    _plot_labelled_profiles(ax_t, tags, field_name="temp", colors=colors, pmax=pmax, xlabel="Temperature [°C]")
-    _plot_labelled_profiles(ax_s, tags, field_name="psal", colors=colors, pmax=pmax, xlabel="Salinity")
-
-    deployment = tags[0].deployment if tags else target.stem
-    adjusted = tags[0].adjusted if tags else True
-    fig.suptitle(f"{deployment} deployment diagnostics ({qf}, {'adjusted' if adjusted else 'raw'})", fontsize=16, y=0.985)
-    fig.subplots_adjust(left=0.05, right=0.98, bottom=0.06, top=0.92, wspace=0.24, hspace=0.24)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(target, dpi=180, bbox_inches="tight")
-    plt.close(fig)
-
-
-def _plot_profiles(ax, values: np.ndarray, pressure: np.ndarray, colors: np.ndarray, *, label: str, pmax: int) -> None:
-    valid_profiles = 0
-    for idx in range(values.shape[0]):
-        mask = np.isfinite(values[idx]) & np.isfinite(pressure[idx])
-        if np.count_nonzero(mask) < 2:
-            continue
-        ax.plot(values[idx, mask], pressure[idx, mask], color=colors[idx], linewidth=0.9, alpha=0.9)
-        valid_profiles += 1
-    ax.set_ylim(pmax, 0)
-    ax.set_title(f"{label}: {valid_profiles} profiles")
-    ax.grid(True, alpha=0.25)
-
-
-def _plot_ts(ax, temp: np.ndarray, psal: np.ndarray, colors: np.ndarray, sigma0: np.ndarray | None = None) -> None:
-    plt, _, _, _ = _import_matplotlib()
-
-    for idx in range(temp.shape[0]):
-        mask = np.isfinite(temp[idx]) & np.isfinite(psal[idx])
-        if np.count_nonzero(mask) < 2:
-            continue
-        ax.plot(psal[idx, mask], temp[idx, mask], color=colors[idx], linewidth=0.9, alpha=0.9)
-    ax.set_xlabel("Salinity")
-    ax.set_ylabel("In-situ temperature [°C]")
-    ax.grid(True, alpha=0.25)
-    if sigma0 is not None and np.isfinite(psal).any() and np.isfinite(temp).any():
-        smin, smax = _value_range(psal)
-        tmin, tmax = _value_range(temp)
-        sx = np.linspace(smin, smax, 80)
-        ty = np.linspace(tmin, tmax, 80)
-        S, T = np.meshgrid(sx, ty)
-        try:
-            contour_sigma = _sigma0_profile(S.ravel(), T.ravel(), np.zeros(S.size), lon=0.0, lat=0.0).reshape(S.shape)
-            ax.contour(S, T, contour_sigma, colors="0.3", linewidths=0.6, levels=8)
-        except Exception:
-            pass
-
-
-def _plot_map(ax, lon: np.ndarray, lat: np.ndarray, colors: np.ndarray, *, title: str) -> None:
-    mask = np.isfinite(lon) & np.isfinite(lat)
-    if not np.any(mask):
-        ax.set_title(title)
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.grid(True, alpha=0.25)
-        ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
-        ax.set_xlim(-180, 180)
-        ax.set_ylim(-90, 90)
-        return ax
-
-    lon = lon[mask]
-    lat = lat[mask]
-    colors = colors[mask]
-
-    if ccrs is not None:
-        projection = ccrs.PlateCarree(central_longitude=180 if np.nanmax(lon) - np.nanmin(lon) > 180 else 0)
-        fig = ax.figure
-        ax.remove()
-        new_ax = fig.add_subplot(ax.get_subplotspec(), projection=projection)
-        new_ax.scatter(lon, lat, c=colors, s=10, transform=ccrs.PlateCarree(), edgecolors="none")
-        new_ax.plot(lon, lat, color="0.5", linewidth=0.5, alpha=0.3, transform=ccrs.PlateCarree())
-        new_ax.coastlines(resolution="110m", linewidth=0.7)
-        new_ax.add_feature(cfeature.LAND, facecolor="0.88")
-        gl = new_ax.gridlines(draw_labels=True, linewidth=0.4, alpha=0.4)
-        gl.top_labels = False
-        gl.right_labels = False
-        new_ax.set_title(title)
-        return new_ax
-
-    ax.scatter(lon, lat, c=colors, s=14, edgecolors="none")
-    ax.plot(lon, lat, color="0.5", linewidth=0.5, alpha=0.3)
-    ax.set_xlabel("Longitude")
-    ax.set_ylabel("Latitude")
-    ax.set_title(title)
-    ax.grid(True, alpha=0.25)
-    lon_pad = max(0.5, 0.05 * (np.nanmax(lon) - np.nanmin(lon) if np.isfinite(lon).any() else 1.0))
-    lat_pad = max(0.5, 0.05 * (np.nanmax(lat) - np.nanmin(lat) if np.isfinite(lat).any() else 1.0))
-    ax.set_xlim(np.nanmin(lon) - lon_pad, np.nanmax(lon) + lon_pad)
-    ax.set_ylim(np.nanmin(lat) - lat_pad, np.nanmax(lat) + lat_pad)
-    return ax
-
-
-def _plot_info(ax, lines: list[str]) -> None:
-    ax.axis("off")
-    ax.text(0.02, 0.98, "\n".join(lines), va="top", ha="left", fontsize=11, linespacing=1.45)
-
-
-def _section_panel(ax, x: np.ndarray, depth: np.ndarray, section: np.ndarray, *, cmap: str, title: str, value_label: str, pressure_obs: np.ndarray, colorbar: bool = False):
-    plt, _, _, _ = _import_matplotlib()
-
-    x_edges = _centers_to_edges(x)
-    depth_edges = _centers_to_edges(depth)
-    mesh_x, mesh_y = np.meshgrid(x_edges, depth_edges)
-    data = section.T
-    vmin, vmax = _value_range(data)
-    mesh = ax.pcolormesh(mesh_x, mesh_y, data, shading="auto", cmap=cmap, vmin=vmin, vmax=vmax)
-    if np.isfinite(data).any():
-        try:
-            levels = np.linspace(np.nanpercentile(data, 10), np.nanpercentile(data, 90), 6)
-            if np.unique(np.round(levels, 6)).size >= 3:
-                contour = ax.contour(x, depth, data, levels=levels, colors="0.15", linewidths=0.5)
-                ax.clabel(contour, fmt="%.2f", fontsize=8)
-        except Exception:
-            pass
-
-    obs_x = np.broadcast_to(x[:, None], pressure_obs.shape)
-    mask = np.isfinite(pressure_obs)
-    ax.scatter(obs_x[mask], pressure_obs[mask], s=3, color="k", alpha=0.7)
-    ax.set_ylim(depth[-1], depth[0])
-    ax.set_ylabel("depth [dbar]")
-    ax.set_title(title)
-    ax.grid(True, alpha=0.15)
-    return mesh, value_label
-
-
-def _save_overview_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool, pmax: int) -> None:
-    plt, _, ScalarMappable, GridSpec = _import_matplotlib()
-
-    tag = _tag_diagnostic_data(dataset, target.stem, adjusted=adjusted)
-    smru = tag.smru_name
-    pressure = tag.pressure
-    temp = tag.temp
-    psal = tag.psal
-    sigma0 = tag.sigma0
-    lon = tag.lon
-    lat = tag.lat
-    times = tag.times
-    colors, norm, cmap, axis_label, days = _profile_colors(times)
-
-    fig = plt.figure(figsize=(15, 10), constrained_layout=False)
-    gs = GridSpec(2, 4, figure=fig, width_ratios=[1.1, 1.0, 1.0, 1.15], height_ratios=[1.0, 1.05])
-
-    ax_info = fig.add_subplot(gs[:, 0])
-    ax_t = fig.add_subplot(gs[0, 1])
-    ax_s = fig.add_subplot(gs[0, 2])
-    ax_d = fig.add_subplot(gs[0, 3])
-    ax_map = fig.add_subplot(gs[1, 1])
-    ax_ts = fig.add_subplot(gs[1, 2:])
-
-    _plot_info(ax_info, list(tag.summary_lines))
-    _plot_profiles(ax_t, temp, pressure, colors, label="TEMP", pmax=pmax)
-    _plot_profiles(ax_s, psal, pressure, colors, label="PSAL", pmax=pmax)
-    _plot_profiles(ax_d, sigma0, pressure, colors, label="SIGMA0", pmax=pmax)
-    ax_t.set_xlabel("Temperature [°C]")
-    ax_s.set_xlabel("Salinity")
-    ax_d.set_xlabel("sigma0 [kg m$^{-3}$]")
-
-    new_map_ax = _plot_map(ax_map, lon, lat, colors, title="Track")
-    if new_map_ax is not None:
-        ax_map = new_map_ax
-    _plot_ts(ax_ts, temp, psal, colors, sigma0=sigma0)
-    ax_ts.set_title("TS diagram")
-
-    color_ax = fig.add_axes([0.18, 0.93, 0.62, 0.02])
-    sm = ScalarMappable(norm=norm, cmap=cmap)
-    cbar = fig.colorbar(sm, cax=color_ax, orientation="horizontal")
-    cbar.set_label(f"Profile colour key [{axis_label}]")
-
-    fig.suptitle(f"{smru} diagnostics ({'adjusted' if adjusted else 'raw'})", fontsize=16, y=0.985)
-    fig.subplots_adjust(left=0.05, right=0.98, bottom=0.06, top=0.90, wspace=0.28, hspace=0.28)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(target, dpi=180, bbox_inches="tight")
-    plt.close(fig)
-
-
-def _save_section_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool, pmax: int) -> None:
-    plt, _, ScalarMappable, GridSpec = _import_matplotlib()
-
-    pressure = _pressure(dataset, adjusted=adjusted)
-    temp = _masked_field(dataset, "TEMP", adjusted=adjusted)
-    psal = _masked_field(dataset, "PSAL", adjusted=adjusted)
-    sigma0 = _compute_sigma0(dataset, adjusted=adjusted)
-    times = _profile_times(dataset)
-    _, norm, cmap, axis_label, x = _profile_colors(times)
-
-    depth, temp_section = _section_grid(pressure, temp, pmax=pmax)
-    _, psal_section = _section_grid(pressure, psal, pmax=pmax)
-    _, sigma_section = _section_grid(pressure, sigma0, pmax=pmax)
-
-    fig = plt.figure(figsize=(14, 10), constrained_layout=False)
-    gs = GridSpec(3, 1, figure=fig, height_ratios=[1.0, 1.0, 1.0])
-    axes = [fig.add_subplot(gs[idx, 0]) for idx in range(3)]
-
-    m0, _ = _section_panel(axes[0], x, depth, temp_section, cmap="coolwarm", title="Temperature section", value_label="°C", pressure_obs=pressure)
-    m1, _ = _section_panel(axes[1], x, depth, psal_section, cmap="viridis", title="Salinity section", value_label="psu", pressure_obs=pressure)
-    m2, _ = _section_panel(axes[2], x, depth, sigma_section, cmap="cividis", title="Sigma0 section", value_label="kg m$^{-3}$", pressure_obs=pressure)
-    axes[2].set_xlabel(axis_label)
-
-    top_ax = fig.add_axes([0.12, 0.94, 0.76, 0.02])
-    sm = ScalarMappable(norm=norm, cmap=cmap)
-    cbar = fig.colorbar(sm, cax=top_ax, orientation="horizontal")
-    cbar.set_label(f"Profile colour key [{axis_label}]")
-
-    for ax, mesh, label in zip(axes, (m0, m1, m2), ("°C", "psu", "kg m$^{-3}$"), strict=False):
-        cbar_local = fig.colorbar(mesh, ax=ax, orientation="vertical", pad=0.012, fraction=0.03)
-        cbar_local.set_label(label)
-
-    smru = _smru_name(dataset, target.stem)
-    fig.suptitle(f"{smru} sections ({'adjusted' if adjusted else 'raw'})", fontsize=16, y=0.985)
-    fig.subplots_adjust(left=0.07, right=0.93, bottom=0.06, top=0.90, hspace=0.24)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(target, dpi=180, bbox_inches="tight")
-    plt.close(fig)
-
-
 def _source_file_paths(config: MeopConfig, selection: Selection, *, qf: str) -> tuple[Path, ...]:
     selection = selection.normalized()
     if selection.smru_name:
@@ -1055,39 +1237,58 @@ def generate_diagnostics(
     else:
         source_paths = ()
 
+    suffix = _summary_suffix(adjusted=adjusted)
+
     for source_path in source_paths:
         dataset = open_meop_netcdf(source_path)
         try:
             smru_name = source_path.name.split("_")[0]
             tag = _tag_diagnostic_data(dataset, smru_name, adjusted=adjusted)
             deployment_tags.setdefault(tag.deployment, []).append(tag)
-            suffix = _summary_suffix(adjusted=adjusted)
             if "tag" in part_set:
-                overview_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"diags_TS_{suffix}", config=config)
-                section_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"transect_{suffix}", config=config)
-                _save_overview_figure(dataset, overview_path, adjusted=adjusted, pmax=pmax)
+                section_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"section_{suffix}", config=config)
+                ts_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"TS_{suffix}", config=config)
+                map_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"map_{suffix}", config=config)
+                profiles_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"profiles_{suffix}", config=config)
+                flags_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"flags_{suffix}", config=config)
+                info_path = _info_text_path(smru_name, tag.deployment, qf, suffix=f"info_{suffix}", config=config)
                 _save_section_figure(dataset, section_path, adjusted=adjusted, pmax=pmax)
-                written.extend([overview_path, section_path])
+                _save_ts_figure(dataset, ts_path, adjusted=adjusted)
+                _save_map_figure(dataset, map_path, adjusted=adjusted)
+                _save_profiles_figure(dataset, profiles_path, adjusted=adjusted, pmax=pmax)
+                _save_flags_figure(dataset, flags_path, adjusted=adjusted)
+                _save_info_text(dataset, info_path, adjusted=adjusted)
+                written.extend([section_path, ts_path, map_path, profiles_path, flags_path, info_path])
             processed.append(smru_name)
         finally:
             dataset.close()
 
     if deployment_tags:
         for deployment, tags in sorted(deployment_tags.items()):
-            summary = _deployment_summary(tuple(tags))
+            tag_tuple = tuple(tags)
+            summary = _deployment_summary(tag_tuple)
             overview_summaries[deployment] = summary
             cache_path = _write_deployment_summary_cache(config, summary, qf=qf)
             written.append(cache_path)
             if "deployment" in part_set:
-                deployment_path = config.plots_by_deployment_dir / deployment / f"{deployment}_{qf}_deployment_overview_{_summary_suffix(adjusted=adjusted)}.png"
-                _save_deployment_overview_figure(tuple(tags), deployment_path, qf=qf, pmax=pmax)
-                written.append(deployment_path)
+                dep_map_path = config.plots_by_deployment_dir / deployment / f"{deployment}_{qf}_map_{suffix}.png"
+                dep_ts_path = config.plots_by_deployment_dir / deployment / f"{deployment}_{qf}_TS_{suffix}.png"
+                dep_hist_path = config.plots_by_deployment_dir / deployment / f"{deployment}_{qf}_histograms_{suffix}.png"
+                dep_timing_path = config.plots_by_deployment_dir / deployment / f"{deployment}_{qf}_timing_{suffix}.png"
+                _save_deployment_map_figure(tag_tuple, dep_map_path, qf=qf)
+                _save_deployment_ts_figure(tag_tuple, dep_ts_path, qf=qf)
+                _save_deployment_histograms_figure(tag_tuple, dep_hist_path, qf=qf)
+                _save_deployment_timing_figure(tag_tuple, dep_timing_path, qf=qf)
+                written.extend([dep_map_path, dep_ts_path, dep_hist_path, dep_timing_path])
 
     if "overview" in part_set and len(overview_summaries) >= 2:
-        suffix = _summary_suffix(adjusted=adjusted)
-        overview_path = config.plots_overview_dir / f"all_deployments_{qf}_overview_{suffix}.png"
         summaries = tuple(summary for _, summary in sorted(overview_summaries.items()))
-        _save_global_overview_figure(summaries, overview_path, qf=qf)
-        written.append(overview_path)
+        overview_map = config.plots_overview_dir / f"all_deployments_{qf}_map_{suffix}.png"
+        overview_hist = config.plots_overview_dir / f"all_deployments_{qf}_histograms_{suffix}.png"
+        overview_timing = config.plots_overview_dir / f"all_deployments_{qf}_timing_{suffix}.png"
+        _save_overview_map_figure(summaries, overview_map, qf=qf)
+        _save_overview_histograms_figure(summaries, overview_hist, qf=qf)
+        _save_overview_timing_figure(summaries, overview_timing, qf=qf)
+        written.extend([overview_map, overview_hist, overview_timing])
 
     return DiagnosticResult(written_files=tuple(written), processed_tags=tuple(processed))

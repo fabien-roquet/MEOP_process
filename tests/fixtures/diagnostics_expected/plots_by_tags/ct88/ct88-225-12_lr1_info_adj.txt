@@ -1,0 +1,21 @@
+ct88-225-12
+deployment: ct88
+species: Weddell seal
+location: ct88
+period: 2012-02-06 to 2012-06-23
+span: 138 days
+thermal lag: yes
+TEMP profiles: 263
+PSAL profiles: 248
+p1= 0.000000e+00 dbar/km, p2= 0.000000e+00 dbar
+t1= 0.000000e+00 degC/km, t2= 0.000000e+00 degC
+s1= 0.000000e+00  psu/km, s2= -4.000000e-01  psu
+TEMP err median: 0.10
+PSAL err median: 0.20
+sigma0 spread: 0.19
+region: Southern Ocean
+
+--- calibration ---
+p1= 0.000000e+00 dbar/km, p2= 0.000000e+00 dbar
+t1= 0.000000e+00 degC/km, t2= 0.000000e+00 degC
+s1= 0.000000e+00  psu/km, s2= -4.000000e-01  psu
