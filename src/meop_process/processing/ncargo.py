@@ -139,7 +139,7 @@ def _char_array_from_string_matrix(values: list[list[str]], width: int) -> np.nd
 
 def _numeric_matrix(profiles: list[OdvProfile], field: str, *, fill: float = np.nan) -> np.ndarray:
     n_prof = len(profiles)
-    n_levels = max((profile.n_levels for profile in profiles), default=0)
+    n_levels = max((len(getattr(profile, field)) for profile in profiles), default=0)
     data = np.full((n_prof, n_levels), fill, dtype=np.float32)
     for row, profile in enumerate(profiles):
         values = np.asarray(getattr(profile, field), dtype=np.float32)

@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import zipfile
 
+import numpy as np
+import pytest
+
 from meop_process.catalog.deployments import load_info_deployment
 from meop_process.io.raw_odv import import_raw_data_zip
-from meop_process.io.raw_odv import discover_raw_odv_files, load_raw_odv_profiles
-from meop_process.processing.ncargo import create_ncargo_python, prepare_ncargo_inputs
+from meop_process.io.raw_odv import OdvProfile, discover_raw_odv_files, load_raw_odv_profiles
+from meop_process.processing.ncargo import _numeric_matrix, create_ncargo_python, prepare_ncargo_inputs
 from meop_process.models import Selection
 
 
@@ -125,3 +128,36 @@ def test_load_raw_odv_profiles_drops_profiles_with_blank_header_lon_lat(meop_con
 
     assert len(profiles) == 1
     assert profiles[0].station == 2
+
+
+def test_numeric_matrix_uses_field_specific_max_length() -> None:
+    profiles = [
+        OdvProfile(
+            smru_name="DEP001-AAA",
+            station=1,
+            timestamp="2020-01-01 00:00",
+            longitude=10.0,
+            latitude=20.0,
+            pressure=tuple(float(i) for i in range(16)),
+            temperature=tuple(1.0 + i for i in range(16)),
+            salinity=tuple(33.0 + i for i in range(16)),
+            fluorescence=tuple(0.1 + i for i in range(16)),
+        ),
+        OdvProfile(
+            smru_name="DEP001-AAA",
+            station=2,
+            timestamp="2020-01-02 00:00",
+            longitude=10.0,
+            latitude=20.0,
+            pressure=tuple(float(i) for i in range(16)),
+            temperature=tuple(1.0 + i for i in range(16)),
+            salinity=tuple(33.0 + i for i in range(16)),
+            fluorescence=tuple(0.1 + i for i in range(23)),
+        ),
+    ]
+
+    matrix = _numeric_matrix(profiles, "fluorescence")
+
+    assert matrix.shape == (2, 23)
+    assert float(matrix[1, 22]) == pytest.approx(22.1)
+    assert np.all(np.isnan(matrix[0, 16:]))

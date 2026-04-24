@@ -293,8 +293,11 @@ def _apply_location_adjustment_to_file(config: MeopConfig, smru_name: str, path:
             system = _positioning_system_code(original_algorithm)
             if system:
                 variable = updated["POSITIONING_SYSTEM"]
+                dims = variable.dims
+                if len(dims) == 1:
+                    dims = (dims[0], "STRING8")
                 updated["POSITIONING_SYSTEM"] = (
-                    variable.dims,
+                    dims,
                     _positioning_system_array(int(updated.sizes.get("N_PROF", lat.size)), system),
                 )
                 updated["POSITIONING_SYSTEM"].attrs.update(variable.attrs)
