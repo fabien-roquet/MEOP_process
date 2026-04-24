@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 from pathlib import Path
 import re
+import csv
 from typing import Iterable
 
 import numpy as np
@@ -69,6 +70,8 @@ class DeploymentDiagnosticSummary:
     lon: np.ndarray
     lat: np.ndarray
     regions: tuple[str, ...] = ()
+    month_counts: tuple[int, ...] = ()
+    max_pressure: float | None = None
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -83,6 +86,8 @@ class DeploymentDiagnosticSummary:
             "lon": self.lon.astype(float).tolist(),
             "lat": self.lat.astype(float).tolist(),
             "regions": list(self.regions),
+            "month_counts": list(self.month_counts),
+            "max_pressure": self.max_pressure,
         }
 
     @classmethod
@@ -101,6 +106,8 @@ class DeploymentDiagnosticSummary:
             lon=np.asarray(payload.get("lon", []), dtype=float),
             lat=np.asarray(payload.get("lat", []), dtype=float),
             regions=tuple(str(r) for r in payload.get("regions", [])),
+            month_counts=tuple(int(v) for v in payload.get("month_counts", [])),
+            max_pressure=float(payload["max_pressure"]) if payload.get("max_pressure") is not None else None,
         )
 
 
@@ -219,6 +226,88 @@ def _value_range(values: np.ndarray, *, pad_fraction: float = 0.03) -> tuple[flo
         hi = lo + 1.0
     pad = (hi - lo) * pad_fraction
     return float(lo - pad), float(hi + pad)
+
+
+def _nice_pmax(pressure: np.ndarray, *, floor: int = 200, cap: int = 6000) -> int:
+    finite = pressure[np.isfinite(pressure)]
+    if finite.size == 0:
+        return 1000
+    target = float(np.nanmax(finite)) * 1.05
+    if target <= 300:
+        step = 25
+    elif target <= 1200:
+        step = 50
+    elif target <= 3000:
+        step = 100
+    else:
+        step = 200
+    rounded = int(np.ceil(target / step) * step)
+    return int(min(cap, max(floor, rounded)))
+
+
+def _split_track_segments(lon: np.ndarray, lat: np.ndarray, *, jump_deg: float = 120.0) -> list[tuple[np.ndarray, np.ndarray]]:
+    if lon.size == 0:
+        return []
+    jumps = np.where(np.abs(np.diff(lon)) > jump_deg)[0]
+    starts = np.concatenate(([0], jumps + 1))
+    ends = np.concatenate((jumps + 1, [lon.size]))
+    segments: list[tuple[np.ndarray, np.ndarray]] = []
+    for s, e in zip(starts, ends, strict=False):
+        if e - s >= 2:
+            segments.append((lon[s:e], lat[s:e]))
+    return segments
+
+
+def _set_square_extent(ax, lon: np.ndarray, lat: np.ndarray, *, transform=None) -> None:
+    if lon.size == 0 or lat.size == 0:
+        return
+    lon_min = float(np.nanmin(lon))
+    lon_max = float(np.nanmax(lon))
+    lat_min = float(np.nanmin(lat))
+    lat_max = float(np.nanmax(lat))
+    cx = 0.5 * (lon_min + lon_max)
+    cy = 0.5 * (lat_min + lat_max)
+    span = max(lon_max - lon_min, lat_max - lat_min)
+    span = max(2.0, span * 1.15)
+    x0 = cx - 0.5 * span
+    x1 = cx + 0.5 * span
+    y0 = cy - 0.5 * span
+    y1 = cy + 0.5 * span
+    if transform is not None and hasattr(ax, "set_extent"):
+        ax.set_extent([x0, x1, y0, y1], crs=transform)
+    else:
+        ax.set_xlim(x0, x1)
+        ax.set_ylim(y0, y1)
+
+
+def _draw_isopycnals(ax, psal: np.ndarray, temp: np.ndarray) -> None:
+    finite = np.isfinite(psal) & np.isfinite(temp)
+    if not np.any(finite):
+        return
+    s_vals = psal[finite]
+    t_vals = temp[finite]
+    smin, smax = float(np.nanmin(s_vals)), float(np.nanmax(s_vals))
+    tmin, tmax = float(np.nanmin(t_vals)), float(np.nanmax(t_vals))
+    if smax <= smin or tmax <= tmin:
+        return
+    s_pad = max(0.02, (smax - smin) * 0.05)
+    t_pad = max(0.05, (tmax - tmin) * 0.08)
+    smin, smax = smin - s_pad, smax + s_pad
+    tmin, tmax = tmin - t_pad, tmax + t_pad
+    sx = np.linspace(smin, smax, 120)
+    ty = np.linspace(tmin, tmax, 120)
+    S, T = np.meshgrid(sx, ty)
+    try:
+        contour_sigma = _sigma0_profile(S.ravel(), T.ravel(), np.zeros(S.size), lon=0.0, lat=0.0).reshape(S.shape)
+        levels = np.linspace(float(np.nanmin(contour_sigma)), float(np.nanmax(contour_sigma)), 10)
+        levels = np.unique(np.round(levels, 2))
+        if levels.size >= 3:
+            cs = ax.contour(S, T, contour_sigma, colors="0.35", linewidths=0.55, levels=levels)
+            ax.clabel(cs, fmt="%.1f", fontsize=7)
+        ax.set_xlim(smin, smax)
+        ax.set_ylim(tmin, tmax)
+    except Exception:
+        return
 
 
 def _section_grid(pressure: np.ndarray, values: np.ndarray, *, pmax: int = 1000, step: int = 5) -> tuple[np.ndarray, np.ndarray]:
@@ -398,10 +487,6 @@ def _deployment_summary_lines(tags: tuple[TagDiagnosticData, ...]) -> list[str]:
     total_prof = sum(int(tag.pressure.shape[0]) for tag in tags)
     total_temp = sum(_profile_count(tag.temp) for tag in tags)
     total_psal = sum(_profile_count(tag.psal) for tag in tags)
-    labels = ", ".join(tag.smru_name for tag in tags[:8])
-    if len(tags) > 8:
-        labels = f"{labels}, ..."
-
     unique_regions = sorted({tag.region for tag in tags if tag.region and tag.region != "Unknown"})
     lines = [
         f"deployment: {deployment}",
@@ -412,7 +497,6 @@ def _deployment_summary_lines(tags: tuple[TagDiagnosticData, ...]) -> list[str]:
         f"period: {start} to {end}",
         f"span: {span} days",
         f"variables: {'adjusted' if tags[0].adjusted else 'raw'}",
-        f"tags included: {labels}",
     ]
     if unique_regions:
         lines.append(f"regions: {', '.join(unique_regions)}")
@@ -426,6 +510,15 @@ def _deployment_summary(tags: tuple[TagDiagnosticData, ...]) -> DeploymentDiagno
     lon = np.concatenate(lon_parts) if lon_parts else np.asarray([], dtype=float)
     lat = np.concatenate(lat_parts) if lat_parts else np.asarray([], dtype=float)
     unique_regions = tuple(sorted({tag.region for tag in tags if tag.region and tag.region != "Unknown"}))
+    month_counts = [0] * 12
+    max_pressure = np.nan
+    for tag in tags:
+        pfinite = tag.pressure[np.isfinite(tag.pressure)]
+        if pfinite.size:
+            max_pressure = np.nanmax([max_pressure, float(np.nanmax(pfinite))])
+        for t in tag.times.ravel().tolist():
+            if t is not None:
+                month_counts[int(t.month) - 1] += 1
     return DeploymentDiagnosticSummary(
         deployment=tags[0].deployment,
         adjusted=tags[0].adjusted,
@@ -438,6 +531,8 @@ def _deployment_summary(tags: tuple[TagDiagnosticData, ...]) -> DeploymentDiagno
         lon=lon,
         lat=lat,
         regions=unique_regions,
+        month_counts=tuple(month_counts),
+        max_pressure=float(max_pressure) if np.isfinite(max_pressure) else None,
     )
 
 
@@ -530,11 +625,12 @@ def _make_track_fig(figsize=(10, 7), central_longitude=0.0):
 
 def _save_section_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool, pmax: int) -> None:
     """Time-section colorfill with CHLA/DOXY panels if present."""
-    plt, _, ScalarMappable, GridSpec = _import_matplotlib()
+    plt, _, _, GridSpec = _import_matplotlib()
 
     pressure = _pressure(dataset, adjusted=adjusted)
+    pmax = int(pmax) if pmax is not None else _nice_pmax(pressure)
     times = _profile_times(dataset)
-    _, norm, cmap, axis_label, x = _profile_colors(times)
+    _, _, _, axis_label, x = _profile_colors(times)
 
     panels: list[tuple[np.ndarray, str, str, str]] = []
     temp = _masked_field(dataset, "TEMP", adjusted=adjusted)
@@ -567,17 +663,11 @@ def _save_section_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool, p
         meshes.append((mesh, label))
     axes[-1].set_xlabel(axis_label)
 
-    for ax, (mesh, label) in zip(axes, meshes, strict=False):
-        cbar_local = fig.colorbar(mesh, ax=ax, orientation="vertical", pad=0.012, fraction=0.03)
-        cbar_local.set_label(label)
-
-    top_ax = fig.add_axes([0.12, 0.965, 0.76, 0.018])
-    sm = ScalarMappable(norm=norm, cmap=cmap)
-    cbar = fig.colorbar(sm, cax=top_ax, orientation="horizontal")
-    cbar.set_label(f"Profile colour key [{axis_label}]")
+    for mesh, _label in meshes:
+        _ = mesh
 
     smru = _smru_name(dataset, target.stem)
-    fig.suptitle(f"{smru} sections ({'adjusted' if adjusted else 'raw'})", fontsize=14, y=0.99)
+    fig.suptitle(f"{smru} sections ({'adjusted' if adjusted else 'raw'})", fontsize=14, y=0.98)
     fig.subplots_adjust(left=0.07, right=0.93, bottom=0.06, top=0.93, hspace=0.30)
     target.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(target, dpi=150, bbox_inches="tight")
@@ -586,13 +676,12 @@ def _save_section_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool, p
 
 def _save_ts_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> None:
     """TS diagram, profiles colored by time, sigma0 isopycnals."""
-    plt, _, ScalarMappable, _ = _import_matplotlib()
+    plt, _, _, _ = _import_matplotlib()
 
     temp = _masked_field(dataset, "TEMP", adjusted=adjusted)
     psal = _masked_field(dataset, "PSAL", adjusted=adjusted)
-    sigma0 = _compute_sigma0(dataset, adjusted=adjusted)
     times = _profile_times(dataset)
-    colors, norm, cmap, axis_label, _ = _profile_colors(times)
+    colors, _, _, axis_label, days = _profile_colors(times)
 
     fig, ax = plt.subplots(figsize=(9, 7))
 
@@ -606,28 +695,28 @@ def _save_ts_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> Non
     ax.set_ylabel("In-situ temperature [°C]")
     ax.grid(True, alpha=0.25)
 
-    if np.isfinite(psal).any() and np.isfinite(temp).any():
-        smin, smax = _value_range(psal)
-        tmin, tmax = _value_range(temp)
-        sx = np.linspace(smin, smax, 80)
-        ty = np.linspace(tmin, tmax, 80)
-        S, T = np.meshgrid(sx, ty)
-        try:
-            contour_sigma = _sigma0_profile(S.ravel(), T.ravel(), np.zeros(S.size), lon=0.0, lat=0.0).reshape(S.shape)
-            cs = ax.contour(S, T, contour_sigma, colors="0.3", linewidths=0.6, levels=8)
-            ax.clabel(cs, fmt="%.1f", fontsize=7)
-        except Exception:
-            pass
+    _draw_isopycnals(ax, psal, temp)
 
     smru = _smru_name(dataset, target.stem)
     ax.set_title(f"{smru} TS diagram ({'adjusted' if adjusted else 'raw'})")
 
-    color_ax = fig.add_axes([0.12, 0.93, 0.76, 0.02])
-    sm = ScalarMappable(norm=norm, cmap=cmap)
-    cbar = fig.colorbar(sm, cax=color_ax, orientation="horizontal")
-    cbar.set_label(f"Profile colour [{axis_label}]")
+    valid_times = [t for t in times.ravel().tolist() if t is not None]
+    start_date = _decode_datetime(min(valid_times)) if valid_times else "unknown"
+    end_date = _decode_datetime(max(valid_times)) if valid_times else "unknown"
+    finite_days = days[np.isfinite(days)]
+    day_span = float(np.nanmax(finite_days) - np.nanmin(finite_days)) if finite_days.size else 0.0
+    ax.text(
+        0.02,
+        0.02,
+        f"Color order: {axis_label} since {start_date} (span {day_span:.0f} d, end {end_date})",
+        transform=ax.transAxes,
+        fontsize=8,
+        va="bottom",
+        ha="left",
+        bbox={"facecolor": "white", "edgecolor": "0.8", "alpha": 0.8, "pad": 2.0},
+    )
 
-    fig.subplots_adjust(left=0.10, right=0.95, bottom=0.09, top=0.88)
+    fig.subplots_adjust(left=0.10, right=0.95, bottom=0.10, top=0.92)
     target.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(target, dpi=150, bbox_inches="tight")
     plt.close(fig)
@@ -651,16 +740,17 @@ def _save_map_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool) -> No
 
     if not np.any(mask):
         ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
-    elif transform is not None:
-        ax.plot(lon_valid, lat_valid, color="0.5", linewidth=0.5, alpha=0.5, transform=transform)
-        ax.scatter(lon_valid, lat_valid, c=colors[mask], s=14, transform=transform, edgecolors="none")
     else:
-        ax.plot(lon_valid, lat_valid, color="0.5", linewidth=0.5, alpha=0.5)
-        ax.scatter(lon_valid, lat_valid, c=colors[mask], s=14, edgecolors="none")
-        lon_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(lon_valid) - np.nanmin(lon_valid))))
-        lat_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(lat_valid) - np.nanmin(lat_valid))))
-        ax.set_xlim(float(np.nanmin(lon_valid) - lon_pad), float(np.nanmax(lon_valid) + lon_pad))
-        ax.set_ylim(float(np.nanmin(lat_valid) - lat_pad), float(np.nanmax(lat_valid) + lat_pad))
+        for seg_lon, seg_lat in _split_track_segments(lon_valid, lat_valid):
+            if transform is not None:
+                ax.plot(seg_lon, seg_lat, color="0.5", linewidth=0.5, alpha=0.5, transform=transform)
+            else:
+                ax.plot(seg_lon, seg_lat, color="0.5", linewidth=0.5, alpha=0.5)
+        if transform is not None:
+            ax.scatter(lon_valid, lat_valid, c=colors[mask], s=14, transform=transform, edgecolors="none")
+        else:
+            ax.scatter(lon_valid, lat_valid, c=colors[mask], s=14, edgecolors="none")
+        _set_square_extent(ax, lon_valid, lat_valid, transform=transform)
 
     smru = _smru_name(dataset, target.stem)
     ax.set_title(f"{smru} track ({'adjusted' if adjusted else 'raw'})")
@@ -680,6 +770,7 @@ def _save_profiles_figure(dataset: xr.Dataset, target: Path, *, adjusted: bool, 
     plt, _, ScalarMappable, _ = _import_matplotlib()
 
     pressure = _pressure(dataset, adjusted=adjusted)
+    pmax = int(pmax) if pmax is not None else _nice_pmax(pressure)
     temp = _masked_field(dataset, "TEMP", adjusted=adjusted)
     psal = _masked_field(dataset, "PSAL", adjusted=adjusted)
     sigma0 = _compute_sigma0(dataset, adjusted=adjusted)
@@ -845,21 +936,22 @@ def _save_deployment_map_figure(tags: tuple[TagDiagnosticData, ...], target: Pat
             continue
         lon_v = tag.lon[mask]
         lat_v = tag.lat[mask]
+        for seg_lon, seg_lat in _split_track_segments(lon_v, lat_v):
+            if transform is not None:
+                ax.plot(seg_lon, seg_lat, color=colors[idx], linewidth=0.9, alpha=0.8, transform=transform, label=tag.smru_name)
+            else:
+                ax.plot(seg_lon, seg_lat, color=colors[idx], linewidth=0.9, alpha=0.8, label=tag.smru_name)
+            break
         if transform is not None:
-            ax.plot(lon_v, lat_v, color=colors[idx], linewidth=0.9, alpha=0.8, transform=transform, label=tag.smru_name)
             ax.scatter(lon_v, lat_v, color=colors[idx], s=8, alpha=0.8, transform=transform, edgecolors="none")
         else:
-            ax.plot(lon_v, lat_v, color=colors[idx], linewidth=0.9, alpha=0.8, label=tag.smru_name)
             ax.scatter(lon_v, lat_v, color=colors[idx], s=8, alpha=0.8, edgecolors="none")
 
     if not tags or not any(np.isfinite(tag.lon).any() and np.isfinite(tag.lat).any() for tag in tags):
         ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
-    elif transform is None and all_lon.size:
+    elif all_lon.size:
         all_lat = np.concatenate([tag.lat[np.isfinite(tag.lat)] for tag in tags if np.isfinite(tag.lat).any()])
-        lon_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(all_lon) - np.nanmin(all_lon))))
-        lat_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(all_lat) - np.nanmin(all_lat))))
-        ax.set_xlim(float(np.nanmin(all_lon) - lon_pad), float(np.nanmax(all_lon) + lon_pad))
-        ax.set_ylim(float(np.nanmin(all_lat) - lat_pad), float(np.nanmax(all_lat) + lat_pad))
+        _set_square_extent(ax, all_lon, all_lat, transform=transform)
 
     handles, labels = ax.get_legend_handles_labels()
     if handles:
@@ -899,18 +991,7 @@ def _save_deployment_ts_figure(tags: tuple[TagDiagnosticData, ...], target: Path
     all_temp = np.concatenate([tag.temp.ravel() for tag in tags]) if tags else np.asarray([], dtype=float)
     all_psal = np.concatenate([tag.psal.ravel() for tag in tags]) if tags else np.asarray([], dtype=float)
 
-    if np.isfinite(all_psal).any() and np.isfinite(all_temp).any():
-        smin, smax = _value_range(all_psal)
-        tmin, tmax = _value_range(all_temp)
-        sx = np.linspace(smin, smax, 80)
-        ty = np.linspace(tmin, tmax, 80)
-        S, T = np.meshgrid(sx, ty)
-        try:
-            contour_sigma = _sigma0_profile(S.ravel(), T.ravel(), np.zeros(S.size), lon=0.0, lat=0.0).reshape(S.shape)
-            cs = ax.contour(S, T, contour_sigma, colors="0.35", linewidths=0.5, levels=8)
-            ax.clabel(cs, fmt="%.1f", fontsize=7)
-        except Exception:
-            pass
+    _draw_isopycnals(ax, all_psal, all_temp)
 
     ax.set_xlabel("Salinity")
     ax.set_ylabel("In-situ temperature [°C]")
@@ -918,7 +999,7 @@ def _save_deployment_ts_figure(tags: tuple[TagDiagnosticData, ...], target: Path
 
     handles, labels = ax.get_legend_handles_labels()
     if handles:
-        ax.legend(handles, labels, loc="best", fontsize=8, frameon=False)
+        ax.legend(handles, labels, loc="best", fontsize=7, frameon=False)
 
     deployment = tags[0].deployment if tags else ""
     adjusted = tags[0].adjusted if tags else True
@@ -957,7 +1038,11 @@ def _save_deployment_histograms_figure(tags: tuple[TagDiagnosticData, ...], targ
     x = np.arange(len(tag_names))
     axes[1].bar(x, n_profs, color="steelblue", edgecolor="white", linewidth=0.5)
     axes[1].set_xticks(x)
-    axes[1].set_xticklabels(tag_names, rotation=30, ha="right", fontsize=8)
+    if len(tag_names) <= 25:
+        axes[1].set_xticklabels(tag_names, rotation=30, ha="right", fontsize=8)
+    else:
+        axes[1].set_xticklabels([])
+        axes[1].text(0.5, -0.15, f"{len(tag_names)} tags (labels hidden)", transform=axes[1].transAxes, ha="center", va="top", fontsize=8)
     axes[1].set_ylabel("Profiles")
     axes[1].set_title("Profiles per tag")
     axes[1].grid(True, axis="y", alpha=0.25)
@@ -974,8 +1059,9 @@ def _save_deployment_histograms_figure(tags: tuple[TagDiagnosticData, ...], targ
         counts = [month_counts[m] for m in sorted_months]
         x_m = np.arange(len(sorted_months))
         axes[2].bar(x_m, counts, color="steelblue", edgecolor="white", linewidth=0.5)
-        axes[2].set_xticks(x_m[::max(1, len(sorted_months) // 8)])
-        axes[2].set_xticklabels(sorted_months[::max(1, len(sorted_months) // 8)], rotation=30, ha="right", fontsize=8)
+        stride = max(1, int(np.ceil(len(sorted_months) / 8)))
+        axes[2].set_xticks(x_m[::stride])
+        axes[2].set_xticklabels(sorted_months[::stride], rotation=30, ha="right", fontsize=8)
     axes[2].set_ylabel("Profiles")
     axes[2].set_title("Profiles per month")
     axes[2].grid(True, axis="y", alpha=0.25)
@@ -1021,82 +1107,108 @@ def _save_deployment_timing_figure(tags: tuple[TagDiagnosticData, ...], target: 
     plt.close(fig)
 
 
-def _save_overview_map_figure(summaries: tuple[DeploymentDiagnosticSummary, ...], target: Path, *, qf: str) -> None:
-    """Global track map, one color per deployment."""
+def _save_overview_map_figure(summaries: tuple[DeploymentDiagnosticSummary, ...], target: Path, *, qf: str, country_by_dep: dict[str, str] | None = None) -> None:
+    """Global track map, one color per country/nation."""
     plt, _, _, _ = _import_matplotlib()
 
-    cmap = plt.get_cmap("tab20", max(len(summaries), 1))
-    colors = cmap(np.arange(max(len(summaries), 1)))
+    country_by_dep = country_by_dep or {}
+    countries = sorted({country_by_dep.get(s.deployment, "Unknown") for s in summaries})
+    cmap = plt.get_cmap("tab20", max(len(countries), 1))
+    country_colors = {country: cmap(i) for i, country in enumerate(countries)}
 
     all_lon = np.concatenate([s.lon for s in summaries if s.lon.size]) if summaries else np.array([])
     central_longitude = 180.0 if (all_lon.size > 0 and float(np.nanmax(all_lon) - np.nanmin(all_lon)) > 180) else 0.0
 
     fig, ax, transform = _make_track_fig(figsize=(12, 7), central_longitude=central_longitude)
 
-    for idx, summary in enumerate(summaries):
+    seen_labels: set[str] = set()
+    for summary in summaries:
         if not summary.lon.size or not summary.lat.size:
             continue
+        country = country_by_dep.get(summary.deployment, "Unknown")
+        color = country_colors.get(country, "steelblue")
+        label = country if country not in seen_labels else None
+        if label:
+            seen_labels.add(country)
+        for seg_lon, seg_lat in _split_track_segments(summary.lon, summary.lat):
+            if transform is not None:
+                ax.plot(seg_lon, seg_lat, color=color, linewidth=0.85, alpha=0.75, transform=transform, label=label)
+            else:
+                ax.plot(seg_lon, seg_lat, color=color, linewidth=0.85, alpha=0.75, label=label)
+            label = None
         if transform is not None:
-            ax.plot(summary.lon, summary.lat, color=colors[idx], linewidth=0.9, alpha=0.8, transform=transform, label=summary.deployment)
-            ax.scatter(summary.lon, summary.lat, color=colors[idx], s=6, alpha=0.6, transform=transform, edgecolors="none")
+            ax.scatter(summary.lon, summary.lat, color=color, s=5, alpha=0.5, transform=transform, edgecolors="none")
         else:
-            ax.plot(summary.lon, summary.lat, color=colors[idx], linewidth=0.9, alpha=0.8, label=summary.deployment)
-            ax.scatter(summary.lon, summary.lat, color=colors[idx], s=6, alpha=0.6, edgecolors="none")
+            ax.scatter(summary.lon, summary.lat, color=color, s=5, alpha=0.5, edgecolors="none")
 
     if not summaries or not any(s.lon.size and s.lat.size for s in summaries):
         ax.text(0.5, 0.5, "No valid track coordinates", ha="center", va="center", transform=ax.transAxes)
-    elif transform is None and all_lon.size:
+    elif all_lon.size:
         all_lat = np.concatenate([s.lat for s in summaries if s.lat.size])
-        lon_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(all_lon) - np.nanmin(all_lon))))
-        lat_pad = max(0.5, 0.05 * max(1.0, float(np.nanmax(all_lat) - np.nanmin(all_lat))))
-        ax.set_xlim(float(np.nanmin(all_lon) - lon_pad), float(np.nanmax(all_lon) + lon_pad))
-        ax.set_ylim(float(np.nanmin(all_lat) - lat_pad), float(np.nanmax(all_lat) + lat_pad))
+        _set_square_extent(ax, all_lon, all_lat, transform=transform)
 
     handles, labels = ax.get_legend_handles_labels()
     if handles:
-        ax.legend(handles, labels, loc="upper left", fontsize=8, frameon=False)
+        ncol = min(6, max(1, int(np.ceil(len(labels) / 6))))
+        ax.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, -0.08), ncol=ncol, fontsize=7, frameon=False)
 
-    ax.set_title(f"MEOP deployment tracks ({qf})")
+    ax.set_title(f"MEOP tracks by nation ({qf})")
 
     target.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(target, dpi=150, bbox_inches="tight")
     plt.close(fig)
 
 
-def _save_overview_histograms_figure(summaries: tuple[DeploymentDiagnosticSummary, ...], target: Path, *, qf: str) -> None:
-    """2-panel: profiles per deployment bar chart, profiles per year bar chart."""
+def _save_overview_histograms_figure(
+    summaries: tuple[DeploymentDiagnosticSummary, ...],
+    target: Path,
+    *,
+    qf: str,
+    country_by_dep: dict[str, str] | None = None,
+) -> None:
+    """3-panel overview histograms: nation, month-of-year, max pressure."""
     plt, _, _, _ = _import_matplotlib()
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
 
     # Panel 1: profiles per deployment
-    dep_names = [s.deployment for s in summaries]
-    prof_counts = [s.n_profiles for s in summaries]
+    from collections import Counter
+    country_by_dep = country_by_dep or {}
+    nation_counts: Counter = Counter()
+    for s in summaries:
+        region_key = country_by_dep.get(s.deployment, "Unknown")
+        nation_counts[region_key] += s.n_profiles
+    dep_names = sorted(nation_counts.keys())
+    prof_counts = [nation_counts[k] for k in dep_names]
     x = np.arange(len(dep_names))
     axes[0].bar(x, prof_counts, color="steelblue", edgecolor="white", linewidth=0.5)
     axes[0].set_xticks(x)
-    axes[0].set_xticklabels(dep_names, rotation=30, ha="right", fontsize=8)
+    axes[0].set_xticklabels(dep_names, rotation=35, ha="right", fontsize=8)
     axes[0].set_ylabel("Profiles")
-    axes[0].set_title("Profiles per deployment")
+    axes[0].set_title("Profiles per region")
     axes[0].grid(True, axis="y", alpha=0.25)
 
     # Panel 2: profiles per year
-    from collections import Counter
-    year_counts: Counter = Counter()
+    month_counts = np.zeros(12, dtype=int)
     for s in summaries:
-        if s.start_time is not None and s.end_time is not None:
-            for yr in range(s.start_time.year, s.end_time.year + 1):
-                year_counts[yr] += s.n_profiles // max(1, s.end_time.year - s.start_time.year + 1)
-    if year_counts:
-        sorted_years = sorted(year_counts.keys())
-        counts = [year_counts[y] for y in sorted_years]
-        x_y = np.arange(len(sorted_years))
-        axes[1].bar(x_y, counts, color="steelblue", edgecolor="white", linewidth=0.5)
-        axes[1].set_xticks(x_y)
-        axes[1].set_xticklabels([str(y) for y in sorted_years], rotation=30, ha="right")
-    axes[1].set_ylabel("Profiles (approx)")
-    axes[1].set_title("Profiles per year")
+        if len(s.month_counts) == 12:
+            month_counts += np.asarray(s.month_counts, dtype=int)
+    month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    x_y = np.arange(12)
+    axes[1].bar(x_y, month_counts, color="steelblue", edgecolor="white", linewidth=0.5)
+    axes[1].set_xticks(x_y)
+    axes[1].set_xticklabels(month_labels)
+    axes[1].set_ylabel("Profiles")
+    axes[1].set_title("Profiles per month-of-year")
     axes[1].grid(True, axis="y", alpha=0.25)
+
+    max_pressures = [float(s.max_pressure) for s in summaries if s.max_pressure is not None and np.isfinite(s.max_pressure)]
+    if max_pressures:
+        axes[2].hist(max_pressures, bins=20, color="steelblue", edgecolor="white", linewidth=0.5)
+    axes[2].set_xlabel("Deployment max pressure [dbar]")
+    axes[2].set_ylabel("Count")
+    axes[2].set_title("Distribution of deployment max pressure")
+    axes[2].grid(True, axis="y", alpha=0.25)
 
     fig.suptitle(f"MEOP overview histograms ({qf})", fontsize=13)
     fig.tight_layout()
@@ -1105,11 +1217,28 @@ def _save_overview_histograms_figure(summaries: tuple[DeploymentDiagnosticSummar
     plt.close(fig)
 
 
-def _save_overview_timing_figure(summaries: tuple[DeploymentDiagnosticSummary, ...], target: Path, *, qf: str) -> None:
+def _save_overview_timing_figure(
+    summaries: tuple[DeploymentDiagnosticSummary, ...],
+    target: Path,
+    *,
+    qf: str,
+    country_by_dep: dict[str, str] | None = None,
+) -> None:
     """Gantt chart: one bar per deployment."""
     import matplotlib.dates as mdates
     plt, _, _, _ = _import_matplotlib()
 
+    country_by_dep = country_by_dep or {}
+    summaries = tuple(
+        sorted(
+            summaries,
+            key=lambda s: (
+                country_by_dep.get(s.deployment, "Unknown"),
+                s.start_time or datetime.max,
+                s.deployment,
+            ),
+        )
+    )
     n = len(summaries)
     fig, ax = plt.subplots(figsize=(12, max(4, 0.35 * n + 2)))
 
@@ -1196,6 +1325,24 @@ def _selected_deployments(config: MeopConfig, selection: Selection, *, qf: str) 
     return tuple(discovered)
 
 
+def _country_lookup(config: MeopConfig) -> dict[str, str]:
+    path = config.catalogdir / "list_deployment.csv"
+    if not path.exists():
+        return {}
+    mapping: dict[str, str] = {}
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                deployment = str(row.get("deployment_code", "") or "").strip()
+                country = str(row.get("country", "") or "").strip() or "Unknown"
+                if deployment:
+                    mapping[deployment] = country
+    except Exception:
+        return {}
+    return mapping
+
+
 def _source_paths_for_deployments(config: MeopConfig, deployments: Iterable[str], *, qf: str) -> tuple[Path, ...]:
     paths: list[Path] = []
     for deployment in deployments:
@@ -1224,7 +1371,7 @@ def generate_diagnostics(
     *,
     qf: str = "lr1",
     adjusted: bool = True,
-    pmax: int = 1000,
+    pmax: int | None = None,
     parts: Iterable[str] | None = None,
     use_cached_summaries: bool = True,
 ) -> DiagnosticResult:
@@ -1270,16 +1417,17 @@ def generate_diagnostics(
             tag = _tag_diagnostic_data(dataset, smru_name, adjusted=adjusted, config=config)
             deployment_tags.setdefault(tag.deployment, []).append(tag)
             if "tag" in part_set:
+                pmax_tag = int(pmax) if pmax is not None else _nice_pmax(tag.pressure)
                 section_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"section_{suffix}", config=config)
                 ts_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"TS_{suffix}", config=config)
                 map_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"map_{suffix}", config=config)
                 profiles_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"profiles_{suffix}", config=config)
                 flags_path = fname_plots(smru_name, deployment=tag.deployment, qf=qf, suffix=f"flags_{suffix}", config=config)
                 info_path = _info_text_path(smru_name, tag.deployment, qf, suffix=f"info_{suffix}", config=config)
-                _save_section_figure(dataset, section_path, adjusted=adjusted, pmax=pmax)
+                _save_section_figure(dataset, section_path, adjusted=adjusted, pmax=pmax_tag)
                 _save_ts_figure(dataset, ts_path, adjusted=adjusted)
                 _save_map_figure(dataset, map_path, adjusted=adjusted)
-                _save_profiles_figure(dataset, profiles_path, adjusted=adjusted, pmax=pmax)
+                _save_profiles_figure(dataset, profiles_path, adjusted=adjusted, pmax=pmax_tag)
                 _save_flags_figure(dataset, flags_path, adjusted=adjusted)
                 _save_info_text(dataset, info_path, adjusted=adjusted, has_hr=tag.has_hr)
                 written.extend([section_path, ts_path, map_path, profiles_path, flags_path, info_path])
@@ -1307,12 +1455,13 @@ def generate_diagnostics(
 
     if "overview" in part_set and len(overview_summaries) >= 2:
         summaries = tuple(summary for _, summary in sorted(overview_summaries.items()))
+        country_by_dep = _country_lookup(config)
         overview_map = config.plots_overview_dir / f"all_deployments_{qf}_map_{suffix}.png"
         overview_hist = config.plots_overview_dir / f"all_deployments_{qf}_histograms_{suffix}.png"
         overview_timing = config.plots_overview_dir / f"all_deployments_{qf}_timing_{suffix}.png"
-        _save_overview_map_figure(summaries, overview_map, qf=qf)
-        _save_overview_histograms_figure(summaries, overview_hist, qf=qf)
-        _save_overview_timing_figure(summaries, overview_timing, qf=qf)
+        _save_overview_map_figure(summaries, overview_map, qf=qf, country_by_dep=country_by_dep)
+        _save_overview_histograms_figure(summaries, overview_hist, qf=qf, country_by_dep=country_by_dep)
+        _save_overview_timing_figure(summaries, overview_timing, qf=qf, country_by_dep=country_by_dep)
         written.extend([overview_map, overview_hist, overview_timing])
 
     return DiagnosticResult(written_files=tuple(written), processed_tags=tuple(processed))

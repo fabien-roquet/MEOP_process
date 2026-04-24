@@ -615,6 +615,20 @@ def run_all_deployments(
             adjusted=not diagnostics_raw,
             parts=("overview",),
         )
+        try:
+            profiles_csv = cfg.publicdir_ctd / "list_profiles.csv"
+            if profiles_csv.exists():
+                import pandas as pd
+
+                from ..plotting.maps import build_overview_maps, enrich_profiles_dataframe
+
+                frame = pd.read_csv(profiles_csv)
+                frame = enrich_profiles_dataframe(frame, catalog_path=cfg.catalogdir / "list_deployment.csv")
+                cfg.mapsdir.mkdir(parents=True, exist_ok=True)
+                build_overview_maps(frame, cfg.mapsdir, rebuild=force, verbose=verbose)
+        except Exception:
+            # Map generation is best-effort and must not fail the batch run.
+            pass
 
     results = [result for _, result in sorted(results_by_index, key=lambda item: item[0])]
 
