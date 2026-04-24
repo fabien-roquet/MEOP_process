@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import zipfile
 
+from ..catalog.filenames import list_fname_prof
 from ..catalog.deployments import load_info_deployment
 from ..config.paths import ensure_runtime_directories
 from ..config.sync import sync_external_config_files
-from ..io.raw_odv import import_raw_data_zip
+from ..io.raw_odv import discover_raw_odv_files, import_raw_data_zip, load_raw_odv_profiles
 from ..metadata.patch import update_metadata_from_table
 from ..models import MeopConfig
 from ..processing.cleanup import remove_deployment_outputs
@@ -24,6 +26,22 @@ class WorkflowResult:
 
     def __bool__(self) -> bool:
         return self.success
+
+
+def _describe_lr0_failure(config: MeopConfig, deployment: str) -> str:
+    raw_files = discover_raw_odv_files(config, deployment)
+    if raw_files.archive.exists():
+        try:
+            with zipfile.ZipFile(raw_files.archive) as archive:
+                if len(archive.namelist()) == 0:
+                    return "raw ODV archive is empty"
+        except zipfile.BadZipFile:
+            return "raw ODV archive is invalid"
+    if raw_files.combined_text is None and raw_files.ctd_text is None and raw_files.fl_text is None:
+        return "raw ODV archive contains no extracted ODV text"
+    if not load_raw_odv_profiles(raw_files, config=config):
+        return "raw ODV inputs produced no parsable profiles"
+    return "no LR0 files written"
 
 
 def process_tags(
@@ -50,13 +68,16 @@ def process_tags(
 
     lr0 = create_ncargo_python(config, selection)
     if not lr0.written_files:
-        return WorkflowResult(False, "no LR0 files written")
+        return WorkflowResult(False, _describe_lr0_failure(config, info.EXP))
 
     apply_location_adjustment_placeholder(config, selection)
 
     hr0 = create_hr0_python(config, selection)
     if not hr0.written_files:
-        return WorkflowResult(False, "no HR0 files written")
+        lr0_inputs = list_fname_prof(deployment=selection.deployment, qf="lr0", config=config)
+        if not lr0_inputs:
+            return WorkflowResult(False, "no LR0 inputs available for HR0")
+        return WorkflowResult(False, f"no HR0 files written from {len(lr0_inputs)} LR0 inputs")
 
     create_fr0_python(config, selection)
 

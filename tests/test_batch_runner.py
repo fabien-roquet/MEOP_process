@@ -157,6 +157,7 @@ def test_run_all_deployments_runs_diagnostics_for_already_successful_deployments
     assert second.success_count == 1
     assert second.skipped_count == 0
     assert calls == []
+    assert second.deployment_results[0].message == "already completed successfully; diagnostics regenerated (1 files)"
     assert diagnostics_calls == [
         ("DEP001", ("tag", "deployment"), "lr1", True),
         ("", ("overview",), "lr1", True),

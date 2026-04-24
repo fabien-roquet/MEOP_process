@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from ..catalog.filenames import fname_prof, list_fname_prof
+from ..catalog.filenames import fname_prof, list_fname_prof, smru_name_from_fname_prof
 from ..models import MeopConfig, Selection
 from .netcdf import DEFAULT_FORMAT, save_dataset_with_compression
 from .conductivity import smooth_profile, thermal_cell_correction
@@ -53,7 +53,7 @@ def _selected_tags(config: MeopConfig, selection: Selection, *, source_qf: str) 
     if selection.smru_name:
         return (selection.smru_name,)
     files = list_fname_prof(deployment=selection.deployment, qf=source_qf, config=config)
-    return tuple(path.name.split("_")[0] for path in files)
+    return tuple(smru_name_from_fname_prof(path) for path in files)
 
 
 

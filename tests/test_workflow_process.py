@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import zipfile
 
 from meop_process.processing.adjustments import AdjustmentResult
 from meop_process.processing.hr import HrResult
@@ -208,3 +209,43 @@ def test_process_tags_reports_missing_hr2_files(meop_config, monkeypatch, seed_c
 
     assert result.success is False
     assert result.reason == "no HR2 files written"
+
+
+def test_process_tags_reports_empty_raw_odv_archive(meop_config, seed_catalog) -> None:
+    seed_catalog(deployment="DEP001", smru_name="DEP001-AAA")
+    archive = meop_config.raw_odv_dir / "DEP001_ODV.zip"
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(archive, "w"):
+        pass
+
+    result = process_module.process_tags(meop_config, deployment="DEP001")
+
+    assert result.success is False
+    assert result.reason == "raw ODV archive is empty"
+
+
+def test_process_tags_reports_hr0_failure_with_lr0_input_count(meop_config, monkeypatch, seed_catalog) -> None:
+    seed_catalog(deployment="DEP001", smru_name="DEP001-AAA")
+    monkeypatch.setattr(process_module, "sync_external_config_files", lambda config: [])
+    monkeypatch.setattr(process_module, "import_raw_data_zip", lambda config, deployment: True)
+    monkeypatch.setattr(process_module, "remove_deployment_outputs", lambda config, info: [])
+    monkeypatch.setattr(
+        process_module,
+        "create_ncargo_python",
+        lambda config, selection: HrResult(written_files=(meop_config.final_dataset_dir / "DEP001" / "DEP001-AAA_lr0_prof.nc",), processed_tags=(selection.smru_name or "DEP001-AAA",)),
+    )
+    monkeypatch.setattr(process_module, "apply_location_adjustment_placeholder", lambda config, selection: None)
+    monkeypatch.setattr(
+        process_module,
+        "create_hr0_python",
+        lambda config, selection: HrResult(written_files=(), processed_tags=()),
+    )
+
+    lr0_path = meop_config.final_dataset_dir / "DEP001" / "DEP001-AAA_lr0_prof.nc"
+    lr0_path.parent.mkdir(parents=True, exist_ok=True)
+    lr0_path.write_text("placeholder", encoding="utf-8")
+
+    result = process_module.process_tags(meop_config, deployment="DEP001")
+
+    assert result.success is False
+    assert result.reason == "no HR0 files written from 1 LR0 inputs"

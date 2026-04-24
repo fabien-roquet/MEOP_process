@@ -12,7 +12,14 @@ def deployment_from_smru_name(smru_name: str) -> str:
 
 
 def smru_name_from_fname_prof(fname_prof: str | Path) -> str:
-    return Path(fname_prof).name.split("_")[0]
+    name = Path(fname_prof).name
+    suffix = "_prof.nc"
+    if name.endswith(suffix):
+        base = name[: -len(suffix)]
+        parts = base.rsplit("_", 1)
+        if len(parts) == 2:
+            return parts[0]
+    return Path(fname_prof).stem.split("_")[0]
 
 
 def fname_prof(smru_name: str, deployment: str = "", qf: str = "lr0", *, config: MeopConfig | None = None) -> Path:
@@ -44,7 +51,7 @@ def list_fname_prof(
 
 
 def list_smru_name(smru_name: str = "", deployment: str = "", qf: str = "*", *, config: MeopConfig | None = None) -> list[str]:
-    return sorted({path.name.split("_")[0] for path in list_fname_prof(smru_name, deployment, qf, config=config)})
+    return sorted({smru_name_from_fname_prof(path) for path in list_fname_prof(smru_name, deployment, qf, config=config)})
 
 
 def fname_plots(smru_name: str, deployment: str = "", qf: str = "lr0", suffix: str = "_plot", *, config: MeopConfig | None = None) -> Path:

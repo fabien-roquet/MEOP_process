@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from meop_process.catalog.filenames import smru_name_from_fname_prof
 from meop_process.io.hr_ctd import resolve_hr_ctd_path
 
 
@@ -22,3 +23,7 @@ def test_resolve_hr_ctd_path_treats_nan_prefix_as_empty(meop_config, seed_catalo
     assert resolved.prefix == ""
     assert resolved.expected_path == expected
     assert resolved.exists is True
+
+
+def test_smru_name_from_fname_prof_preserves_underscores() -> None:
+    assert smru_name_from_fname_prof("ct80-01_Rib-11_lr0_prof.nc") == "ct80-01_Rib-11"

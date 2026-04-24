@@ -96,6 +96,7 @@ class _PendingDeployment:
     deployment: str
     log_path: Path
     diagnostics_only: bool = False
+    skip_reason: str = ""
 
 
 class _Tee(io.TextIOBase):
@@ -370,6 +371,7 @@ def _execute_deployment(
     diagnostics_raw: bool,
     diagnostics_parts: tuple[str, ...],
     diagnostics_only: bool,
+    skip_reason: str,
     stream_stdout: bool,
 ) -> tuple[DeploymentRunResult, bool]:
     started = _utc_now()
@@ -391,9 +393,12 @@ def _execute_deployment(
                             adjusted=not diagnostics_raw,
                             parts=diagnostics_parts,
                         )
-                        print(f"[{deployment}] diagnostics generated: {_diagnostics_count(generated)}")
+                        generated_count = _diagnostics_count(generated)
+                        print(f"[{deployment}] diagnostics generated: {generated_count}")
+                    else:
+                        generated_count = 0
                     status = "success"
-                    message = "skipped processing; diagnostics generated"
+                    message = f"{skip_reason or 'already completed successfully'}; diagnostics regenerated ({generated_count} files)"
                     processed_for_summary = False
                 else:
                     print(f"[{deployment}] notlc={notlc} diagnostics={diagnostics}")
@@ -467,6 +472,7 @@ def _run_pending_deployments(
                 diagnostics_raw=diagnostics_raw,
                 diagnostics_parts=diagnostics_parts,
                 diagnostics_only=task.diagnostics_only,
+                skip_reason=task.skip_reason,
                 stream_stdout=verbose,
             )
             yield task.index, result, processed
@@ -487,6 +493,7 @@ def _run_pending_deployments(
                 diagnostics_raw=diagnostics_raw,
                 diagnostics_parts=diagnostics_parts,
                 diagnostics_only=task.diagnostics_only,
+                skip_reason=task.skip_reason,
                 stream_stdout=False,
             )
             futures[future] = task
@@ -568,7 +575,7 @@ def run_all_deployments(
 
         if skip:
             if diagnostics and per_deployment_diagnostics_parts:
-                pending.append(_PendingDeployment(index=index, deployment=deployment, log_path=log_path, diagnostics_only=True))
+                pending.append(_PendingDeployment(index=index, deployment=deployment, log_path=log_path, diagnostics_only=True, skip_reason=reason))
                 continue
             else:
                 finished = _utc_now()
