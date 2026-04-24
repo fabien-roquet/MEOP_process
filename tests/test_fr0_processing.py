@@ -10,7 +10,7 @@ import xarray as xr
 from meop_process.catalog.filenames import fname_prof, fname_traj
 from meop_process.models import Selection
 from meop_process.io.raw_odv import import_raw_data_zip
-from meop_process.processing.fr0 import HrRawData, create_fr0_python, detect_profiles
+from meop_process.processing.fr0 import HrRawData, _pick_column, create_fr0_python, detect_profiles
 from meop_process.processing.ncargo import create_ncargo_python
 
 
@@ -70,6 +70,17 @@ def _stage_ct96_lr0(meop_config, stage_ct96_example):
     )
     _seed_table_param_min_profiles_one(meop_config)
     return staged
+
+
+def test_pick_column_pressure_re_surface_variants() -> None:
+    # Both spaced and no-space variants of PRESSURE_RE_SURFACE must be detected
+    for col in ("PRESSURE_RE_SURFACE (dbar)", "PRESSURE_RE_SURFACE(dbar)"):
+        assert _pick_column([col], "pressure") == col, f"Expected {col!r} to be picked"
+    # ABS_PRESSURE_AT_SURFACE must still be excluded
+    assert _pick_column(["ABS_PRESSURE_AT_SURFACE (dbar)"], "pressure") is None
+    # Standard variants must still work
+    assert _pick_column(["PRESSURE (dbar)"], "pressure") == "PRESSURE (dbar)"
+    assert _pick_column(["corrected depth"], "pressure") == "corrected depth"
 
 
 def test_detect_profiles_matches_continuous_dive_logic() -> None:

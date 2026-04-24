@@ -82,7 +82,7 @@ def _pick_column(columns: list[str], kind: str) -> str | None:
         return None
 
     if kind == "pressure":
-        exact = [column for column, name in normalized.items() if name in {"pressure dbar", "corrected depth"}]
+        exact = [column for column, name in normalized.items() if name in {"pressure dbar", "corrected depth", "pressure_re_surface dbar"}]
         if exact:
             return exact[0]
         general = [
