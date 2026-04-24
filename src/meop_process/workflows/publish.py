@@ -20,6 +20,7 @@ class PublishWorkflowResult:
     list_deployments_path: Path | None
     map_paths: tuple[Path, ...] = field(default_factory=tuple)
     plot_paths: tuple[Path, ...] = field(default_factory=tuple)
+    site_paths: tuple[Path, ...] = field(default_factory=tuple)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -32,6 +33,7 @@ class PublishWorkflowResult:
             "list_deployments_path": str(self.list_deployments_path) if self.list_deployments_path else None,
             "map_paths": [str(p) for p in self.map_paths],
             "plot_paths": [str(p) for p in self.plot_paths],
+            "site_paths": [str(p) for p in self.site_paths],
         }
 
 
@@ -47,6 +49,7 @@ def publish(
     list_tags: bool = True,
     build_maps: bool = False,
     build_plots: bool = False,
+    build_site: bool = False,
     rebuild: bool = False,
     verbose: bool = False,
 ) -> PublishWorkflowResult:
@@ -168,6 +171,27 @@ def publish(
             if verbose:
                 print(f"  WARNING: plot generation failed: {exc}")
 
+    site_paths: tuple[Path, ...] = ()
+    if build_site:
+        if verbose:
+            print("Building static HTML site …")
+        try:
+            from ..publishing.site import build_site as _build_site
+
+            html_files = _build_site(
+                config.plotdir,
+                config.plots_by_deployment_dir,
+                config.plots_overview_dir,
+                rebuild=rebuild,
+                verbose=verbose,
+            )
+            site_paths = tuple(html_files)
+            if verbose:
+                print(f"  {len(site_paths)} HTML files written")
+        except Exception as exc:
+            if verbose:
+                print(f"  WARNING: site generation failed: {exc}")
+
     return PublishWorkflowResult(
         output_dir=dest,
         nc_result=nc_result,
@@ -177,5 +201,6 @@ def publish(
         list_deployments_path=deployments_path,
         map_paths=map_paths,
         plot_paths=plot_paths,
+        site_paths=site_paths,
     )
 

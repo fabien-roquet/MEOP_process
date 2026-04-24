@@ -71,6 +71,13 @@ def build_parser() -> argparse.ArgumentParser:
         default=False,
         help="Generate per-tag and deployment diagnostic figures.",
     )
+    parser.add_argument(
+        "--build-site",
+        dest="build_site",
+        action="store_true",
+        default=False,
+        help="Generate static HTML index pages from existing diagnostic plots.",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Print progress to stdout.")
     return parser
 
@@ -93,6 +100,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         list_tags=args.list_tags,
         build_maps=args.build_maps,
         build_plots=args.build_plots,
+        build_site=args.build_site,
         rebuild=args.rebuild,
         verbose=args.verbose,
     )
@@ -110,5 +118,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         print(f"Maps written     : {len(info['map_paths'])}")
     if info["plot_paths"]:
         print(f"Plots written    : {len(info['plot_paths'])}")
+    if info["site_paths"]:
+        print(f"HTML pages       : {len(info['site_paths'])}")
 
     return 0
