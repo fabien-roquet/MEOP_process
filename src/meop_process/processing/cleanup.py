@@ -7,6 +7,7 @@ from ..models import DeploymentInfo, MeopConfig
 
 OUTPUT_CLEANUP_ROOTS = (
     lambda cfg, info: cfg.plotdir / info.EXP,
+    lambda cfg, info: cfg.plots_by_deployment_dir / info.EXP,
     lambda cfg, info: info.directory,
 )
 
