@@ -88,3 +88,60 @@ def test_load_config_reads_runtime_defaults_and_notifications(tmp_path: Path) ->
     assert config.email_notifications.transport.port == 2525
     assert config.email_notifications.transport.use_ssl is True
     assert config.email_notifications.transport.from_address == "meop@example.org"
+
+
+def test_load_config_does_not_use_legacy_data_configs_fallback(tmp_path: Path) -> None:
+    legacy = tmp_path / "data" / "configs.json"
+    legacy.parent.mkdir(parents=True, exist_ok=True)
+    legacy.write_text(json.dumps({"configs": {"machine": {"processdir": "/tmp/legacy"}}}), encoding="utf-8")
+
+    config = load_config(processdir=tmp_path, machine="machine")
+
+    assert config.config_path is None
+    assert config.processdir == tmp_path
+
+
+def test_load_config_raises_clear_error_for_ill_formed_json(tmp_path: Path) -> None:
+    config_file = tmp_path / "configs.json"
+    config_file.write_text("{not valid json", encoding="utf-8")
+
+    try:
+        load_config(processdir=tmp_path, config_file=config_file)
+    except ValueError as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("Expected ValueError for ill-formed JSON")
+
+    assert "Ill-formed JSON" in message
+    assert str(config_file) in message
+
+
+def test_load_config_resolves_relative_paths_against_processdir(tmp_path: Path) -> None:
+    processdir = tmp_path / "repo"
+    processdir.mkdir(parents=True, exist_ok=True)
+    config_file = processdir / "configs.json"
+    payload = {
+        "defaults": {
+            "version": "MEOP-CTD_2030-01-01",
+            "references": {
+                "cora_dir": "references/cora",
+                "reference_dataset_dir": "references/reference",
+            },
+        },
+        "configs": {
+            "test_machine": {
+                "processdir": ".",
+                "datadir": "runtime/data",
+                "public": "runtime/public",
+            }
+        },
+    }
+    config_file.write_text(json.dumps(payload), encoding="utf-8")
+
+    config = load_config(processdir=processdir, config_file=config_file, machine="test_machine")
+
+    assert config.processdir == processdir
+    assert config.datadir == processdir / "runtime" / "data"
+    assert config.publicdir == processdir / "runtime" / "public"
+    assert config.cora_dir == processdir / "references" / "cora"
+    assert config.reference_dataset_dir == processdir / "references" / "reference"

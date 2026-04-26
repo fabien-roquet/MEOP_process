@@ -127,9 +127,16 @@ To generate CORA-based T/S calibration plots for a tag, first set `references.co
 ```json
 {
   "defaults": {
-    "datadir": "/path/to/data",
-    "public": "/path/to/public",
-    "cora_dir": "/path/to/CORA_ncfiles"
+    "references": {
+      "cora_dir": "references/CORA_ncfiles"
+    }
+  },
+  "configs": {
+    "my_machine": {
+      "processdir": "/path/to/MEOP_process",
+      "datadir": "data",
+      "public": "public"
+    }
   }
 }
 ```
@@ -250,6 +257,9 @@ The runtime loader can read a JSON configuration file from:
 
 `configs.json` is required for normal runs. If it is missing, commands now fail with a clear message.
 Run `meop-process --bootstrap-data` once to auto-generate a default root-level `configs.json`.
+If `configs.json` is ill-formed JSON, commands fail with a clear error including the file path.
+
+Legacy fallback to `data/configs.json` is intentionally not used.
 
 To see exactly which config source and paths are active for your current invocation:
 
@@ -259,6 +269,7 @@ meop-process --show-config
 
 The loader supports a top-level `defaults` section plus per-machine overrides under `configs`.
 This is the recommended place to store tunable operational settings such as diagnostics defaults, batch defaults, and email notification settings.
+Relative paths are supported in `configs.json`; for `processdir` they are resolved relative to the config file location, and for `datadir`/`public`/reference paths they are resolved relative to `processdir`.
 
 Example:
 
@@ -307,8 +318,15 @@ Example:
 
 Secrets should be provided through environment variables rather than stored directly in the config file.
 
-When `defaults.version` is empty (or the placeholder version is used), publish outputs are written directly under `public/`.
-When a concrete version like `MEOP-CTD_2026-04-26` is set, outputs go under `public/<version>/`.
+Publishing requires a concrete `defaults.version` (for example `MEOP-CTD_2026-04-26`).
+When version is unset (or left at the placeholder), publish workflows refuse to write public outputs.
+
+Dataset versions are tracked in `public/versions.json` with lifecycle status:
+
+- `development`: in-progress release candidate
+- `published`: officially released dataset
+
+Use `meop-publish --list-versions` to list known versions, and `meop-publish --release-status published` when promoting a release.
 
 `meop-process-batch` now attempts best-effort post-run steps after deployment processing:
 
@@ -328,8 +346,8 @@ This update is incremental:
 
 The output directory is resolved automatically:
 
-- if an existing `list_tags.csv` / `list_deployments.csv` already exists under the configured public root, it is updated in place;
-- otherwise the files are written under `public/<version>/`.
+- when a publish version is configured, summaries are maintained under that public version;
+- when no publish version is configured, summaries are written to `data/batch/latest/metadata_summaries/` (development-only, not public).
 
 You can also refresh those summary CSVs without reprocessing deployments:
 

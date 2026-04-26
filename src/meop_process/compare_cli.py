@@ -187,7 +187,7 @@ def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
     """Generate CORA calibration plots for *smru_name* and return an exit code."""
     try:
         config = load_config(config_file=config_file, require_config=True)
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, ValueError) as exc:
         print(f"WARNING: {exc}", file=sys.stderr)
         return 2
     if config.cora_dir is None:

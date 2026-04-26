@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from .config.loader import load_config
+from .publishing.versions import load_version_registry
 from .workflows.publish import publish
 
 
@@ -78,6 +79,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=False,
         help="Generate static HTML index pages from existing diagnostic plots.",
     )
+    parser.add_argument(
+        "--release-status",
+        choices=("development", "published"),
+        default="development",
+        help="Version lifecycle status to record in public/versions.json.",
+    )
+    parser.add_argument(
+        "--list-versions",
+        action="store_true",
+        default=False,
+        help="List known dataset versions from public/versions.json and exit.",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Print progress to stdout.")
     return parser
 
@@ -86,7 +99,21 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    try:
+        cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine, require_config=True)
+    except (FileNotFoundError, ValueError) as exc:
+        parser.error(str(exc))
+
+    if args.list_versions:
+        records = load_version_registry(cfg.publicdir)
+        if not records:
+            print("No versions registered yet.")
+            return 0
+        print("Version\tStatus\tFirst Seen\tLast Updated\tOutput Dir")
+        for record in records:
+            print(f"{record.version}\t{record.status}\t{record.first_seen}\t{record.last_updated}\t{record.output_dir}")
+        return 0
+
     output_dir = Path(args.output_dir) if args.output_dir else None
 
     result = publish(
@@ -101,6 +128,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         build_maps=args.build_maps,
         build_plots=args.build_plots,
         build_site=args.build_site,
+        release_status=args.release_status,
         rebuild=args.rebuild,
         verbose=args.verbose,
     )

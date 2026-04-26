@@ -99,13 +99,19 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         parser.error("one of --smru_name or --deployment is required for workflow actions")
 
     deployment = args.deployment or (deployment_from_smru_name(args.smru_name) if args.smru_name else "")
-    cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    try:
+        cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    except (FileNotFoundError, ValueError) as exc:
+        parser.error(str(exc))
     bootstrapped_now = False
 
     if args.bootstrap_data and cfg.config_path is None:
         bootstrap_data_store(cfg)
         bootstrapped_now = True
-        cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+        try:
+            cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+        except (FileNotFoundError, ValueError) as exc:
+            parser.error(str(exc))
 
     if cfg.config_path is None and not args.bootstrap_data and config is None:
         expected = cfg.processdir / "configs.json"

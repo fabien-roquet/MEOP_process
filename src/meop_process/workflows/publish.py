@@ -8,6 +8,7 @@ from ..models import MeopConfig
 from ..publishing.attributes import update_global_attributes
 from ..publishing.lists import build_list_profiles
 from ..publishing.ncfiles import PublishResult, publish_ncfiles
+from ..publishing.versions import update_version_registry
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,7 @@ def publish(
     build_maps: bool = False,
     build_plots: bool = False,
     build_site: bool = False,
+    release_status: str = "development",
     rebuild: bool = False,
     verbose: bool = False,
 ) -> PublishWorkflowResult:
@@ -85,6 +87,11 @@ def publish(
         Print progress to stdout.
     """
     dest = Path(output_dir) if output_dir else config.publicdir_ctd
+    if not config.has_publish_version:
+        raise ValueError(
+            "Publish version is not configured. Set defaults.version in configs.json "
+            "to a concrete value such as MEOP-CTD_YYYY-MM-DD before publishing."
+        )
     dest.mkdir(parents=True, exist_ok=True)
 
     nc_result = PublishResult()
@@ -191,6 +198,18 @@ def publish(
         except Exception as exc:
             if verbose:
                 print(f"  WARNING: site generation failed: {exc}")
+
+    try:
+        if str(dest).startswith(str(config.publicdir)):
+            update_version_registry(
+                config.publicdir,
+                version=config.version,
+                status=release_status,
+                output_dir=dest,
+            )
+    except Exception as exc:
+        if verbose:
+            print(f"  WARNING: version registry update failed: {exc}")
 
     return PublishWorkflowResult(
         output_dir=dest,

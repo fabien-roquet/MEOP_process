@@ -39,9 +39,6 @@ def _candidate_config_files(explicit: Path | None, processdir: Path) -> list[Pat
     root_candidate = processdir / "configs.json"
     if root_candidate not in candidates:
         candidates.append(root_candidate)
-    cwd_root_candidate = Path.cwd() / "configs.json"
-    if cwd_root_candidate not in candidates:
-        candidates.append(cwd_root_candidate)
     return candidates
 
 

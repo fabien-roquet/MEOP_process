@@ -310,6 +310,10 @@ def _resolve_output_dir(config: MeopConfig, output_dir: str | Path | None = None
         resolved = Path(output_dir)
         resolved.mkdir(parents=True, exist_ok=True)
         return resolved
+    if not config.has_publish_version:
+        dev_dir = config.datadir / "batch" / "latest" / "metadata_summaries"
+        dev_dir.mkdir(parents=True, exist_ok=True)
+        return dev_dir
     candidates = [config.publicdir_ctd, config.publicdir]
     for candidate in candidates:
         if (candidate / "list_tags.csv").exists() or (candidate / "list_deployments.csv").exists():

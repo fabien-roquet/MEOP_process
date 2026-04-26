@@ -771,7 +771,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
-    cfg = load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    try:
+        cfg = load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    except (FileNotFoundError, ValueError) as exc:
+        parser.error(str(exc))
     if cfg.config_path is None:
         parser.error(
             f"runtime config is required and was not found (expected {cfg.processdir / 'configs.json'}). "
