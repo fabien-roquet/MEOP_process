@@ -34,6 +34,7 @@ ACTIONS = (
 
 UTILITY_ACTIONS = (
     "bootstrap_data",
+    "show_config",
     "show_data_layout",
     "validate_data_layout",
     "refresh_metadata_summaries",
@@ -48,6 +49,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config-file", default=None, help="Explicit path to a runtime config JSON file.")
     parser.add_argument("--machine", default=None, help="Machine entry key from the runtime config JSON.")
     parser.add_argument("--bootstrap-data", action="store_true", help="Create runtime data folders and seed packaged CSV tables.")
+    parser.add_argument("--show-config", action="store_true", help="Print the resolved runtime config source and key dataset/output paths.")
     parser.add_argument("--show-data-layout", action="store_true", help="Print where tables, raw inputs, references, and outputs are expected.")
     parser.add_argument("--validate-data-layout", action="store_true", help="Check presence of fixed-path data files and directories.")
     parser.add_argument("--do_all", action="store_true", help="Run the main pure-Python workflow stages.")
@@ -108,6 +110,21 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
 
     if args.bootstrap_data:
         bootstrap_data_store(cfg)
+
+    if args.show_config:
+        config_source = str(cfg.config_path) if cfg.config_path else "(none; defaults only)"
+        print(f"config source     : {config_source}")
+        print(f"machine           : {cfg.machine}")
+        print(f"processdir        : {cfg.processdir}")
+        print(f"datadir           : {cfg.datadir}")
+        print(f"publicdir         : {cfg.publicdir}")
+        print(f"raw_odv_dir       : {cfg.raw_odv_dir}")
+        print(f"raw_hr_dir        : {cfg.raw_hr_dir}")
+        print(f"final_dataset_dir : {cfg.final_dataset_dir}")
+        print(f"plots_by_tags     : {cfg.plotdir}")
+        print(f"plots_by_deploy   : {cfg.plots_by_deployment_dir}")
+        print(f"plots_overview    : {cfg.plots_overview_dir}")
+        print(f"public_ctd_dir    : {cfg.publicdir_ctd}")
 
     if args.show_data_layout:
         print(describe_runtime_data_layout(cfg, as_text=True))

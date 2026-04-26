@@ -248,6 +248,12 @@ The runtime loader can read a JSON configuration file from:
 - `MEOP_CONFIG_FILE` in the environment;
 - `data/configs.json` under the process directory.
 
+To see exactly which config source and paths are active for your current invocation:
+
+```bash
+meop-process --show-config
+```
+
 The loader supports a top-level `defaults` section plus per-machine overrides under `configs`.
 This is the recommended place to store tunable operational settings such as diagnostics defaults, batch defaults, and email notification settings.
 
