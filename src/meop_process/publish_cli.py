@@ -62,27 +62,45 @@ def build_parser() -> argparse.ArgumentParser:
         "--build-maps",
         dest="build_maps",
         action="store_true",
-        default=False,
+        default=None,
         help="Generate overview map PNGs from list_profiles.csv.",
+    )
+    parser.add_argument(
+        "--no-build-maps",
+        dest="build_maps",
+        action="store_false",
+        help="Disable overview map generation.",
     )
     parser.add_argument(
         "--build-plots",
         dest="build_plots",
         action="store_true",
-        default=False,
+        default=None,
         help="Generate per-tag and deployment diagnostic figures.",
+    )
+    parser.add_argument(
+        "--no-build-plots",
+        dest="build_plots",
+        action="store_false",
+        help="Disable diagnostic figure generation.",
     )
     parser.add_argument(
         "--build-site",
         dest="build_site",
         action="store_true",
-        default=False,
+        default=None,
         help="Generate static HTML index pages from existing diagnostic plots.",
+    )
+    parser.add_argument(
+        "--no-build-site",
+        dest="build_site",
+        action="store_false",
+        help="Disable static HTML site generation.",
     )
     parser.add_argument(
         "--release-status",
         choices=("development", "published"),
-        default="development",
+        default=None,
         help="Version lifecycle status to record in public/versions.json.",
     )
     parser.add_argument(
@@ -115,6 +133,10 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         return 0
 
     output_dir = Path(args.output_dir) if args.output_dir else None
+    build_maps = args.build_maps if args.build_maps is not None else cfg.publish_defaults.build_maps
+    build_plots = args.build_plots if args.build_plots is not None else cfg.publish_defaults.build_plots
+    build_site = args.build_site if args.build_site is not None else cfg.publish_defaults.build_site
+    release_status = args.release_status or cfg.publish_defaults.release_status
 
     result = publish(
         cfg,
@@ -125,10 +147,10 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         update_attrs=args.update_attrs,
         list_profiles=args.list_profiles,
         list_tags=args.list_tags,
-        build_maps=args.build_maps,
-        build_plots=args.build_plots,
-        build_site=args.build_site,
-        release_status=args.release_status,
+        build_maps=build_maps,
+        build_plots=build_plots,
+        build_site=build_site,
+        release_status=release_status,
         rebuild=args.rebuild,
         verbose=args.verbose,
     )

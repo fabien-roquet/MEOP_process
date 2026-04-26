@@ -161,22 +161,26 @@ def _warn(message: str) -> None:
 
 
 def _run_post_publish_best_effort(config: MeopConfig, *, rebuild: bool, verbose: bool) -> None:
+    if not config.publish_defaults.enabled:
+        return
     try:
         publish_workflow(
             config,
-            build_maps=True,
-            build_plots=False,
+            build_maps=config.publish_defaults.build_maps,
+            build_plots=config.publish_defaults.build_plots,
             build_site=False,
+            release_status=config.publish_defaults.release_status,
             rebuild=rebuild,
             verbose=verbose,
         )
-        build_publish_site(
-            config.plotdir,
-            config.plots_by_deployment_dir,
-            config.plots_overview_dir,
-            rebuild=rebuild,
-            verbose=verbose,
-        )
+        if config.publish_defaults.build_site:
+            build_publish_site(
+                config.plotdir,
+                config.plots_by_deployment_dir,
+                config.plots_overview_dir,
+                rebuild=rebuild,
+                verbose=verbose,
+            )
     except Exception as exc:
         _warn(f"post-batch publish step failed: {exc}")
 
@@ -744,7 +748,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config-file", default=None, help="Explicit path to a runtime config JSON file.")
     parser.add_argument("--machine", default=None, help="Machine entry key from the runtime config JSON.")
     parser.add_argument("--notlc", action="store_true", help="Use the no-TLC branch.")
-    parser.add_argument("--diagnostics", action="store_true", help="Generate diagnostics after successful processing.")
+    parser.add_argument("--diagnostics", dest="diagnostics", action="store_true", default=None, help="Generate diagnostics after successful processing.")
+    parser.add_argument("--no-diagnostics", dest="diagnostics", action="store_false", help="Disable diagnostics generation.")
     parser.add_argument("--diagnostics-qf", default=None, help="Quality flag product to use for diagnostics (default: config or lr1).")
     parser.add_argument("--diagnostics-raw", action="store_true", default=None, help="Use raw rather than adjusted variables for diagnostics.")
     parser.add_argument(
@@ -783,12 +788,13 @@ def main(argv: Iterable[str] | None = None) -> int:
     diagnostics_qf = args.diagnostics_qf or cfg.diagnostics_defaults.qf
     diagnostics_raw = args.diagnostics_raw if args.diagnostics_raw is not None else (not cfg.diagnostics_defaults.adjusted)
     diagnostics_parts = args.diagnostics_part or list(cfg.diagnostics_defaults.parts)
+    diagnostics_enabled = args.diagnostics if args.diagnostics is not None else cfg.batch_defaults.diagnostics
     jobs = args.jobs if args.jobs is not None else cfg.batch_defaults.jobs
     verbose = args.verbose if args.verbose is not None else cfg.batch_defaults.verbose
     result = run_all_deployments(
         config=cfg,
         notlc=args.notlc,
-        diagnostics=args.diagnostics,
+        diagnostics=diagnostics_enabled,
         diagnostics_qf=diagnostics_qf,
         diagnostics_raw=diagnostics_raw,
         diagnostics_parts=diagnostics_parts,

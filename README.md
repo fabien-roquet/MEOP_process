@@ -116,9 +116,14 @@ python -m pip install -e .
 
 The `scripts/` folder now contains all user-facing batch scripts and several example `configs.json` templates for different use cases:
 
-- `configs_template_minimal.json`: minimal config with only diagnostics and batch defaults
+- `configs_template_minimal.json`: minimal config with machine selection, diagnostics and batch defaults, plus publish/notification/reference blocks
 - `configs_template_email.json`: config with email notification settings
-- `configs_template_machine_overrides.json`: config with per-machine overrides for processdir and batch jobs
+- `configs_template_machine_overrides.json`: config with per-machine overrides for processdir, datadir/public roots, and batch jobs
+
+Running `meop-process --bootstrap-data` now also creates:
+
+- root `configs.json` (if missing), with documented `_comment` keys;
+- a `configs/` folder containing granular snippet files for diagnostics, batch, publish, notifications, and references.
 
 ## CORA CALIBRATION PLOTS
 
@@ -271,6 +276,13 @@ The loader supports a top-level `defaults` section plus per-machine overrides un
 This is the recommended place to store tunable operational settings such as diagnostics defaults, batch defaults, and email notification settings.
 Relative paths are supported in `configs.json`; for `processdir` they are resolved relative to the config file location, and for `datadir`/`public`/reference paths they are resolved relative to `processdir`.
 
+Machine selection order is:
+
+- CLI `--machine`;
+- `MEOP_MACHINE` environment variable;
+- `defaults.machine` in `configs.json`;
+- auto-detected machine key.
+
 Example:
 
 ```json
@@ -284,7 +296,15 @@ Example:
     },
     "batch": {
       "jobs": 4,
-      "verbose": false
+      "verbose": false,
+      "diagnostics": true
+    },
+    "publish": {
+      "enabled": true,
+      "build_maps": true,
+      "build_plots": false,
+      "build_site": true,
+      "release_status": "development"
     },
     "notifications": {
       "email": {
@@ -327,6 +347,9 @@ Dataset versions are tracked in `public/versions.json` with lifecycle status:
 - `published`: officially released dataset
 
 Use `meop-publish --list-versions` to list known versions, and `meop-publish --release-status published` when promoting a release.
+
+`meop-process-batch` diagnostics now default to `defaults.batch.diagnostics` (true by default).
+Use `--no-diagnostics` to disable explicitly for one run.
 
 `meop-process-batch` now attempts best-effort post-run steps after deployment processing:
 

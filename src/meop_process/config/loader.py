@@ -14,6 +14,7 @@ from ..models import (
     EmailNotificationSettings,
     EmailTransportSettings,
     MeopConfig,
+    PublishDefaults,
 )
 from .schema import normalize_config_entry
 
@@ -110,6 +111,21 @@ def _parse_batch_defaults(entry: dict[str, Any]) -> BatchDefaults:
     return BatchDefaults(
         jobs=jobs,
         verbose=_as_bool(batch.get("verbose"), default=BatchDefaults().verbose),
+        diagnostics=_as_bool(batch.get("diagnostics"), default=BatchDefaults().diagnostics),
+    )
+
+
+def _parse_publish_defaults(entry: dict[str, Any]) -> PublishDefaults:
+    publish = entry.get("publish", {}) if isinstance(entry.get("publish", {}), dict) else {}
+    status = str(publish.get("release_status", PublishDefaults().release_status) or PublishDefaults().release_status).strip().lower()
+    if status not in {"development", "published"}:
+        status = PublishDefaults().release_status
+    return PublishDefaults(
+        enabled=_as_bool(publish.get("enabled"), default=PublishDefaults().enabled),
+        build_maps=_as_bool(publish.get("build_maps"), default=PublishDefaults().build_maps),
+        build_plots=_as_bool(publish.get("build_plots"), default=PublishDefaults().build_plots),
+        build_site=_as_bool(publish.get("build_site"), default=PublishDefaults().build_site),
+        release_status=status,
     )
 
 
@@ -182,6 +198,23 @@ def _resolve_relative_path(value: object, *, base: Path) -> Path | None:
     return (base / raw).resolve()
 
 
+def _resolve_machine_name(
+    *,
+    explicit_machine: str | None,
+    payload: dict[str, Any],
+) -> str:
+    if explicit_machine:
+        return explicit_machine
+    env_machine = os.getenv("MEOP_MACHINE")
+    if env_machine:
+        return env_machine
+    defaults = payload.get("defaults") if isinstance(payload.get("defaults"), dict) else {}
+    defaults_machine = str(defaults.get("machine", "")).strip()
+    if defaults_machine:
+        return defaults_machine
+    return detect_machine_key()
+
+
 def load_config(
     *,
     processdir: str | Path | None = None,
@@ -196,7 +229,6 @@ def load_config(
     data living under ``data/``.
     """
 
-    chosen_machine = machine or os.getenv("MEOP_MACHINE") or detect_machine_key()
     chosen_processdir = Path(processdir).expanduser() if processdir is not None else _repo_root()
     explicit_config = Path(config_file).expanduser() if config_file is not None else None
 
@@ -214,6 +246,8 @@ def load_config(
             f"Runtime config not found. Create {expected} (or pass --config-file / set MEOP_CONFIG_FILE)."
         )
 
+    chosen_machine = _resolve_machine_name(explicit_machine=machine, payload=payload)
+
     defaults = _default_paths(chosen_processdir, DEFAULT_VERSION, chosen_machine, config_path)
     file_defaults = normalize_config_entry(payload.get("defaults"))
     selected_entry = normalize_config_entry(payload.get("configs", {}).get(chosen_machine))
@@ -230,7 +264,7 @@ def load_config(
     if processdir_override is not None:
         merged_entry["processdir"] = processdir_override
 
-    process_base = Path(merged_entry.get("processdir", defaults["processdir"]))
+    process_base = Path(merged_entry.get("processdir", defaults["processdir"])).expanduser()
     for key in ("datadir", "public"):
         resolved = _resolve_relative_path(merged_entry.get(key), base=process_base)
         if resolved is not None:
@@ -260,6 +294,7 @@ def load_config(
         config_path=config_path,
         diagnostics_defaults=_parse_diagnostics_defaults(merged_entry),
         batch_defaults=_parse_batch_defaults(merged_entry),
+        publish_defaults=_parse_publish_defaults(merged_entry),
         email_notifications=_parse_email_notifications(merged_entry),
         cora_dir=cora_dir,
         reference_dataset_dir=reference_dataset_dir,

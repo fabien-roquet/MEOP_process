@@ -1,16 +1,42 @@
 {
   "defaults": {
+    "machine": "my_machine",
     "version": "",
     "diagnostics": {
       "qf": "lr1",
       "adjusted": true
     },
     "batch": {
-      "jobs": 2
+      "jobs": 2,
+      "verbose": false,
+      "diagnostics": true
+    },
+    "publish": {
+      "enabled": true,
+      "build_maps": true,
+      "build_plots": false,
+      "build_site": true,
+      "release_status": "development"
+    },
+    "notifications": {
+      "email": {
+        "enabled": false,
+        "when": "always",
+        "to": [],
+        "attach": ["summary_md"],
+        "subject_prefix": "[MEOP]"
+      }
     },
     "references": {
       "cora_dir": "",
       "reference_dataset_dir": ""
+    }
+  },
+  "configs": {
+    "my_machine": {
+      "processdir": ".",
+      "datadir": "data",
+      "public": "public"
     }
   }
 }

@@ -19,6 +19,16 @@ class DiagnosticsDefaults:
 class BatchDefaults:
     jobs: int = 1
     verbose: bool = False
+    diagnostics: bool = True
+
+
+@dataclass(frozen=True)
+class PublishDefaults:
+    enabled: bool = True
+    build_maps: bool = True
+    build_plots: bool = False
+    build_site: bool = True
+    release_status: str = "development"
 
 
 @dataclass(frozen=True)
@@ -57,6 +67,7 @@ class MeopConfig:
     config_path: Path | None = None
     diagnostics_defaults: DiagnosticsDefaults = field(default_factory=DiagnosticsDefaults)
     batch_defaults: BatchDefaults = field(default_factory=BatchDefaults)
+    publish_defaults: PublishDefaults = field(default_factory=PublishDefaults)
     email_notifications: EmailNotificationSettings = field(default_factory=EmailNotificationSettings)
     cora_dir: Path | None = None
     reference_dataset_dir: Path | None = None

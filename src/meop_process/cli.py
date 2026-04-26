@@ -60,7 +60,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--create_fr0", action="store_true", help="Create the FR0 product from full-resolution HR text files when available.")
     parser.add_argument("--notlc", action="store_true", help="Use the no-TLC branch for process_data.")
     parser.add_argument("--create_hr2", action="store_true", help="Create the HR2 product.")
-    parser.add_argument("--diagnostics", action="store_true", help="Generate standard diagnostics plots for processed products.")
+    parser.add_argument("--diagnostics", dest="diagnostics", action="store_true", default=None, help="Generate standard diagnostics plots for processed products.")
+    parser.add_argument("--no-diagnostics", dest="diagnostics", action="store_false", help="Disable diagnostics generation.")
     parser.add_argument("--diagnostics-qf", default=None, help="Quality flag product to use for diagnostics (default: config or lr1).")
     parser.add_argument("--diagnostics-raw", action="store_true", default=None, help="Use raw rather than adjusted variables for diagnostics.")
     parser.add_argument(
@@ -122,6 +123,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
     diagnostics_qf = args.diagnostics_qf or cfg.diagnostics_defaults.qf
     diagnostics_raw = args.diagnostics_raw if args.diagnostics_raw is not None else (not cfg.diagnostics_defaults.adjusted)
     diagnostics_parts = args.diagnostics_part or list(cfg.diagnostics_defaults.parts)
+    diagnostics_enabled = args.diagnostics if args.diagnostics is not None else cfg.batch_defaults.diagnostics
     jobs = args.jobs if args.jobs is not None else cfg.batch_defaults.jobs
     verbose = args.verbose if args.verbose is not None else cfg.batch_defaults.verbose
 
@@ -146,6 +148,11 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         print(f"public_ctd_dir    : {cfg.publicdir_ctd}")
         print(f"cora_dir          : {cfg.cora_dir or '(unset)'}")
         print(f"reference_dataset : {cfg.reference_dataset_dir or '(unset)'}")
+        print(f"batch_diagnostics : {cfg.batch_defaults.diagnostics}")
+        print(f"publish_enabled   : {cfg.publish_defaults.enabled}")
+        print(f"publish_build_maps: {cfg.publish_defaults.build_maps}")
+        print(f"publish_build_site: {cfg.publish_defaults.build_site}")
+        print(f"release_status    : {cfg.publish_defaults.release_status}")
 
     if args.show_data_layout:
         print(describe_runtime_data_layout(cfg, as_text=True))
@@ -171,7 +178,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         result = run_all_deployments(
             config=cfg,
             notlc=args.notlc,
-            diagnostics=args.diagnostics,
+            diagnostics=diagnostics_enabled,
             diagnostics_qf=diagnostics_qf,
             diagnostics_raw=diagnostics_raw,
             diagnostics_parts=diagnostics_parts,
@@ -207,7 +214,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         create_fr0(deployment=deployment, smru_name=args.smru_name, config=cfg)
     if args.create_hr2 or args.do_all:
         success = create_hr2(deployment=deployment, smru_name=args.smru_name, config=cfg) and success
-    if args.diagnostics:
+    if diagnostics_enabled:
         generate_diagnostics(
             deployment=deployment,
             smru_name=args.smru_name,

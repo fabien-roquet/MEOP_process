@@ -1,5 +1,6 @@
 {
   "defaults": {
+    "machine": "workstation",
     "version": "",
     "diagnostics": {
       "qf": "lr1",
@@ -8,7 +9,24 @@
     },
     "batch": {
       "jobs": 4,
-      "verbose": false
+      "verbose": false,
+      "diagnostics": true
+    },
+    "publish": {
+      "enabled": true,
+      "build_maps": true,
+      "build_plots": false,
+      "build_site": true,
+      "release_status": "development"
+    },
+    "notifications": {
+      "email": {
+        "enabled": false,
+        "when": "always",
+        "to": [],
+        "attach": ["summary_md"],
+        "subject_prefix": "[MEOP]"
+      }
     },
     "references": {
       "cora_dir": "",
@@ -17,11 +35,15 @@
   },
   "configs": {
     "workstation": {
-      "processdir": "/mnt/data/MEOP_process",
+      "processdir": ".",
+      "datadir": "data",
+      "public": "public",
       "batch": { "jobs": 8 }
     },
     "laptop": {
-      "processdir": "/home/user/MEOP_process",
+      "processdir": ".",
+      "datadir": "data",
+      "public": "public",
       "batch": { "jobs": 2 }
     }
   }

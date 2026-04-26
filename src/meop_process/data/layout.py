@@ -192,44 +192,135 @@ def bootstrap_catalog_files(config: MeopConfig, *, names: list[str] | tuple[str,
 def _default_runtime_config_payload(config: MeopConfig) -> dict[str, Any]:
     machine = config.machine or "default"
     return {
+        "_comment": "Runtime configuration for MEOP processing. This file is JSON (no native comments): use _comment keys as documentation.",
         "defaults": {
+            "_comment_machine": "Machine key to use under configs when --machine and MEOP_MACHINE are not provided.",
+            "machine": machine,
+            "_comment_version": "Publish version label. Must be set to publish (example: MEOP-CTD_2026-04-26).",
             "version": "",
             "diagnostics": {
+                "_comment": "Default diagnostics behavior used by meop-process and meop-process-batch.",
                 "qf": "lr1",
                 "adjusted": True,
                 "parts": ["tag", "deployment", "overview"],
             },
             "batch": {
+                "_comment": "Batch runtime defaults; diagnostics=true means diagnostics run by default.",
                 "jobs": 2,
                 "verbose": False,
+                "diagnostics": True,
+            },
+            "publish": {
+                "_comment": "Post-batch/publish defaults.",
+                "enabled": True,
+                "build_maps": True,
+                "build_plots": False,
+                "build_site": True,
+                "release_status": "development",
+            },
+            "notifications": {
+                "_comment": "Email notification defaults used by meop-process-batch.",
+                "email": {
+                    "enabled": False,
+                    "when": "always",
+                    "to": [],
+                    "attach": ["summary_md"],
+                    "subject_prefix": "[MEOP]",
+                    "smtp": {
+                        "host": "",
+                        "port": 587,
+                        "starttls": True,
+                        "use_ssl": False,
+                        "username_env": "MEOP_SMTP_USERNAME",
+                        "password_env": "MEOP_SMTP_PASSWORD",
+                        "from": "",
+                    },
+                },
             },
             "references": {
+                "_comment": "External reference datasets. Relative paths are resolved from processdir.",
                 "cora_dir": "",
                 "reference_dataset_dir": "",
             },
         },
         "configs": {
             machine: {
-                "processdir": str(config.processdir),
-                "datadir": str(config.datadir),
-                "public": str(config.publicdir),
+                "_comment": "Machine-specific paths. Relative paths are resolved from processdir.",
+                "processdir": ".",
+                "datadir": "data",
+                "public": "public",
             }
         },
     }
+
+
+def _bootstrap_config_snippets(config: MeopConfig) -> list[Path]:
+    snippets_dir = config.processdir / "configs"
+    snippets_dir.mkdir(parents=True, exist_ok=True)
+    snippets: dict[str, dict[str, Any]] = {
+        "defaults.diagnostics.json": {
+            "diagnostics": {
+                "qf": "lr1",
+                "adjusted": True,
+                "parts": ["tag", "deployment", "overview"],
+            }
+        },
+        "defaults.batch.json": {
+            "batch": {"jobs": 2, "verbose": False, "diagnostics": True}
+        },
+        "defaults.publish.json": {
+            "publish": {
+                "enabled": True,
+                "build_maps": True,
+                "build_plots": False,
+                "build_site": True,
+                "release_status": "development",
+            }
+        },
+        "defaults.notifications.json": {
+            "notifications": {
+                "email": {
+                    "enabled": False,
+                    "when": "always",
+                    "to": [],
+                    "attach": ["summary_md"],
+                    "subject_prefix": "[MEOP]",
+                }
+            }
+        },
+        "defaults.references.json": {
+            "references": {
+                "cora_dir": "",
+                "reference_dataset_dir": "",
+            }
+        },
+    }
+    written: list[Path] = []
+    for name, payload in snippets.items():
+        path = snippets_dir / name
+        if path.exists():
+            continue
+        path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        written.append(path)
+    return written
 
 
 def bootstrap_runtime_config(config: MeopConfig) -> list[Path]:
     """Create a default root-level ``configs.json`` when missing."""
 
     target = config.processdir / "configs.json"
+    written: list[Path] = []
     if target.exists():
-        return []
-    target.parent.mkdir(parents=True, exist_ok=True)
-    payload = _default_runtime_config_payload(config)
-    with target.open("w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2)
-        handle.write("\n")
-    return [target]
+        pass
+    else:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        payload = _default_runtime_config_payload(config)
+        with target.open("w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2)
+            handle.write("\n")
+        written.append(target)
+    written.extend(_bootstrap_config_snippets(config))
+    return written
 
 
 def prepare_runtime_environment(config: MeopConfig) -> list[Path]:

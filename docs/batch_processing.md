@@ -34,12 +34,20 @@ python scripts/run_all_deployments.py
 
 ## Common options
 
-Run diagnostics for successful deployments:
+Diagnostics are enabled by default for successful deployments (`defaults.batch.diagnostics: true`):
 
 This writes the standard per-tag figures under `data/plots_by_tags/`, a deployment recap figure under `data/plots_by_deployments/` for each processed deployment, and cross-deployment overview summaries under `data/plots_overview/` when diagnostics are run across multiple deployments.
 
 ```bash
-meop-process --run-all-deployments --diagnostics
+meop-process --run-all-deployments
+meop-process-batch
+```
+
+Disable diagnostics explicitly for one run:
+
+```bash
+meop-process --run-all-deployments --no-diagnostics
+meop-process-batch --no-diagnostics
 ```
 
 Restrict diagnostics to one layer:
@@ -56,7 +64,7 @@ Send the final batch summary by email:
 meop-process --run-all-deployments --diagnostics --notify-email ops@example.org
 ```
 
-The batch summary email can also be enabled in `data/configs.json` under `defaults.notifications.email` or `configs.<machine>.notifications.email`.
+The batch summary email can also be enabled in root `configs.json` under `defaults.notifications.email` or `configs.<machine>.notifications.email`.
 
 ```bash
 python scripts/run_all_deployments.py --diagnostics
@@ -98,14 +106,21 @@ Each figure has two panels:
 
 ### Required configuration
 
-`cora_dir` must be set in `data/configs.json`:
+`cora_dir` must be set in root `configs.json`:
 
 ```json
 {
   "defaults": {
-    "datadir": "/path/to/data",
-    "public": "/path/to/public",
-    "cora_dir": "/path/to/CORA_ncfiles"
+    "references": {
+      "cora_dir": "/path/to/CORA_ncfiles"
+    }
+  },
+  "configs": {
+    "my_machine": {
+      "processdir": "/path/to/MEOP_process",
+      "datadir": "data",
+      "public": "public"
+    }
   }
 }
 ```
