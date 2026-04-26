@@ -36,20 +36,26 @@ def _candidate_config_files(explicit: Path | None, processdir: Path) -> list[Pat
     env_path = os.getenv("MEOP_CONFIG_FILE")
     if env_path:
         candidates.append(Path(env_path).expanduser())
-    data_candidate = processdir / "data" / "configs.json"
-    if data_candidate not in candidates:
-        candidates.append(data_candidate)
-    cwd_data_candidate = Path.cwd() / "data" / "configs.json"
-    if cwd_data_candidate not in candidates:
-        candidates.append(cwd_data_candidate)
+    root_candidate = processdir / "configs.json"
+    if root_candidate not in candidates:
+        candidates.append(root_candidate)
+    cwd_root_candidate = Path.cwd() / "configs.json"
+    if cwd_root_candidate not in candidates:
+        candidates.append(cwd_root_candidate)
     return candidates
 
 
 def _read_json_file(path: Path | None) -> dict[str, Any]:
     if path is None or not path.exists():
         return {}
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Ill-formed JSON in runtime config: {path} ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"Runtime config must be a JSON object: {path}")
+    return payload
 
 
 def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
@@ -148,11 +154,43 @@ def _default_paths(processdir: Path, version: str, machine: str, config_path: Pa
     }
 
 
+def _resolve_version(payload: dict[str, Any], merged_entry: dict[str, Any]) -> str:
+    version_payload = payload.get("version")
+    if isinstance(version_payload, dict):
+        return str(version_payload.get("CTDnew", DEFAULT_VERSION) or DEFAULT_VERSION)
+    if isinstance(version_payload, str) and version_payload.strip():
+        return version_payload.strip()
+    merged_version = str(merged_entry.get("version", "")).strip()
+    if merged_version:
+        return merged_version
+    return DEFAULT_VERSION
+
+
+def _resolve_reference_paths(merged_entry: dict[str, Any]) -> tuple[Path | None, Path | None]:
+    references = merged_entry.get("references") if isinstance(merged_entry.get("references"), dict) else {}
+    cora_raw = references.get("cora_dir", merged_entry.get("cora_dir"))
+    ref_raw = references.get("reference_dataset_dir", merged_entry.get("reference_dataset_dir"))
+    cora = Path(cora_raw).expanduser() if str(cora_raw or "").strip() else None
+    ref = Path(ref_raw).expanduser() if str(ref_raw or "").strip() else None
+    return cora, ref
+
+
+def _resolve_relative_path(value: object, *, base: Path) -> Path | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    raw = Path(text).expanduser()
+    if raw.is_absolute():
+        return raw
+    return (base / raw).resolve()
+
+
 def load_config(
     *,
     processdir: str | Path | None = None,
     config_file: str | Path | None = None,
     machine: str | None = None,
+    require_config: bool = False,
 ) -> MeopConfig:
     """Load a MEOP runtime configuration.
 
@@ -173,16 +211,33 @@ def load_config(
             payload = _read_json_file(candidate)
             break
 
-    version = payload.get("version", {}).get("CTDnew", DEFAULT_VERSION)
-    defaults = _default_paths(chosen_processdir, version, chosen_machine, config_path)
+    if require_config and config_path is None:
+        expected = chosen_processdir / "configs.json"
+        raise FileNotFoundError(
+            f"Runtime config not found. Create {expected} (or pass --config-file / set MEOP_CONFIG_FILE)."
+        )
+
+    defaults = _default_paths(chosen_processdir, DEFAULT_VERSION, chosen_machine, config_path)
     file_defaults = normalize_config_entry(payload.get("defaults"))
     selected_entry = normalize_config_entry(payload.get("configs", {}).get(chosen_machine))
     merged_entry = _deep_merge(file_defaults, selected_entry)
+    version = _resolve_version(payload, merged_entry)
 
     if merged_entry.get("processdir"):
         defaults["processdir"] = Path(merged_entry["processdir"]).expanduser()
     processdir_path = Path(defaults["processdir"]).expanduser()
     defaults = _default_paths(processdir_path, version, chosen_machine, config_path)
+
+    config_base = config_path.parent if config_path is not None else chosen_processdir
+    processdir_override = _resolve_relative_path(merged_entry.get("processdir"), base=config_base)
+    if processdir_override is not None:
+        merged_entry["processdir"] = processdir_override
+
+    process_base = Path(merged_entry.get("processdir", defaults["processdir"]))
+    for key in ("datadir", "public"):
+        resolved = _resolve_relative_path(merged_entry.get(key), base=process_base)
+        if resolved is not None:
+            merged_entry[key] = resolved
 
     path_like_keys = {"processdir", "datadir", "public"}
     resolved = {
@@ -192,6 +247,11 @@ def load_config(
             for key, value in merged_entry.items()
         },
     }
+    cora_dir, reference_dataset_dir = _resolve_reference_paths(merged_entry)
+    if cora_dir is not None and not cora_dir.is_absolute():
+        cora_dir = (process_base / cora_dir).resolve()
+    if reference_dataset_dir is not None and not reference_dataset_dir.is_absolute():
+        reference_dataset_dir = (process_base / reference_dataset_dir).resolve()
 
     return MeopConfig(
         processdir=Path(resolved["processdir"]),
@@ -204,5 +264,6 @@ def load_config(
         diagnostics_defaults=_parse_diagnostics_defaults(merged_entry),
         batch_defaults=_parse_batch_defaults(merged_entry),
         email_notifications=_parse_email_notifications(merged_entry),
-        cora_dir=Path(resolved["cora_dir"]).expanduser() if resolved.get("cora_dir") else None,
+        cora_dir=cora_dir,
+        reference_dataset_dir=reference_dataset_dir,
     )

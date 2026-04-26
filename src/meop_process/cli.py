@@ -100,6 +100,19 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
 
     deployment = args.deployment or (deployment_from_smru_name(args.smru_name) if args.smru_name else "")
     cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    bootstrapped_now = False
+
+    if args.bootstrap_data and cfg.config_path is None:
+        bootstrap_data_store(cfg)
+        bootstrapped_now = True
+        cfg = config or load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+
+    if cfg.config_path is None and not args.bootstrap_data and config is None:
+        expected = cfg.processdir / "configs.json"
+        parser.error(
+            f"runtime config is required and was not found (expected {expected}). "
+            "Run --bootstrap-data once, or pass --config-file / set MEOP_CONFIG_FILE."
+        )
     diagnostics_qf = args.diagnostics_qf or cfg.diagnostics_defaults.qf
     diagnostics_raw = args.diagnostics_raw if args.diagnostics_raw is not None else (not cfg.diagnostics_defaults.adjusted)
     diagnostics_parts = args.diagnostics_part or list(cfg.diagnostics_defaults.parts)
@@ -108,7 +121,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
 
     success = True
 
-    if args.bootstrap_data:
+    if args.bootstrap_data and not bootstrapped_now:
         bootstrap_data_store(cfg)
 
     if args.show_config:
@@ -125,6 +138,8 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         print(f"plots_by_deploy   : {cfg.plots_by_deployment_dir}")
         print(f"plots_overview    : {cfg.plots_overview_dir}")
         print(f"public_ctd_dir    : {cfg.publicdir_ctd}")
+        print(f"cora_dir          : {cfg.cora_dir or '(unset)'}")
+        print(f"reference_dataset : {cfg.reference_dataset_dir or '(unset)'}")
 
     if args.show_data_layout:
         print(describe_runtime_data_layout(cfg, as_text=True))

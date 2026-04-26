@@ -122,7 +122,7 @@ The `scripts/` folder now contains all user-facing batch scripts and several exa
 
 ## CORA CALIBRATION PLOTS
 
-To generate CORA-based T/S calibration plots for a tag, first set `cora_dir` in your `data/configs.json`:
+To generate CORA-based T/S calibration plots for a tag, first set `references.cora_dir` in your root `configs.json`:
 
 ```json
 {
@@ -142,7 +142,7 @@ meop-compare --plot1 ct88-225-12
 
 This loads the CORA tiles that intersect the deployment bounding box (plus a 5° margin), and produces one PNG per 200-profile chunk under `data/plots_by_tags/<deployment>/`. Each figure shows a two-panel plot: a T/S diagram with the CORA background (grey), other tags in the deployment (blue), and the target tag coloured by time; and a salinity anomaly versus pressure panel.
 
-You can copy and adapt these templates to `data/configs.json` or provide them via `--config-file`.
+You can copy and adapt these templates to `configs.json` in the repository root, or provide them via `--config-file`.
 
 The `legacy/` folder contains deprecated utility code kept for reference only. All supported workflows should use the main entry points in `scripts/` or the installed CLI.
 
@@ -246,7 +246,10 @@ The runtime loader can read a JSON configuration file from:
 
 - an explicit `--config-file` path;
 - `MEOP_CONFIG_FILE` in the environment;
-- `data/configs.json` under the process directory.
+- `configs.json` under the process directory.
+
+`configs.json` is required for normal runs. If it is missing, commands now fail with a clear message.
+Run `meop-process --bootstrap-data` once to auto-generate a default root-level `configs.json`.
 
 To see exactly which config source and paths are active for your current invocation:
 
@@ -262,6 +265,7 @@ Example:
 ```json
 {
   "defaults": {
+    "version": "",
     "diagnostics": {
       "qf": "lr1",
       "adjusted": true,
@@ -287,6 +291,10 @@ Example:
           "from": "meop-batch@example.org"
         }
       }
+    },
+    "references": {
+      "cora_dir": "/path/to/CORA_ncfiles",
+      "reference_dataset_dir": "/path/to/reference_datasets"
     }
   },
   "configs": {
@@ -298,6 +306,16 @@ Example:
 ```
 
 Secrets should be provided through environment variables rather than stored directly in the config file.
+
+When `defaults.version` is empty (or the placeholder version is used), publish outputs are written directly under `public/`.
+When a concrete version like `MEOP-CTD_2026-04-26` is set, outputs go under `public/<version>/`.
+
+`meop-process-batch` now attempts best-effort post-run steps after deployment processing:
+
+- publish refresh (`meop-publish` workflow equivalent);
+- CORA calibration plot generation (`meop-compare --plot1`) when `references.cora_dir` is configured.
+
+Failures in these post-steps are logged as warnings and do not stop the batch.
 
 ## METADATA SUMMARY TABLES
 

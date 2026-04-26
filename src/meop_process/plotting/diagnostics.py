@@ -261,10 +261,17 @@ def _split_track_segments(lon: np.ndarray, lat: np.ndarray, *, jump_deg: float =
 def _set_square_extent(ax, lon: np.ndarray, lat: np.ndarray, *, transform=None) -> None:
     if lon.size == 0 or lat.size == 0:
         return
+    finite = np.isfinite(lon) & np.isfinite(lat)
+    if not np.any(finite):
+        return
+    lon = lon[finite]
+    lat = lat[finite]
     lon_min = float(np.nanmin(lon))
     lon_max = float(np.nanmax(lon))
     lat_min = float(np.nanmin(lat))
     lat_max = float(np.nanmax(lat))
+    if not np.isfinite([lon_min, lon_max, lat_min, lat_max]).all():
+        return
     cx = 0.5 * (lon_min + lon_max)
     cy = 0.5 * (lat_min + lat_max)
     span = max(lon_max - lon_min, lat_max - lat_min)
@@ -273,11 +280,14 @@ def _set_square_extent(ax, lon: np.ndarray, lat: np.ndarray, *, transform=None) 
     x1 = cx + 0.5 * span
     y0 = cy - 0.5 * span
     y1 = cy + 0.5 * span
-    if transform is not None and hasattr(ax, "set_extent"):
-        ax.set_extent([x0, x1, y0, y1], crs=transform)
-    else:
-        ax.set_xlim(x0, x1)
-        ax.set_ylim(y0, y1)
+    try:
+        if transform is not None and hasattr(ax, "set_extent"):
+            ax.set_extent([x0, x1, y0, y1], crs=transform)
+        else:
+            ax.set_xlim(x0, x1)
+            ax.set_ylim(y0, y1)
+    except Exception:
+        return
 
 
 def _draw_isopycnals(ax, psal: np.ndarray, temp: np.ndarray) -> None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import filecmp
+import json
 import shutil
 from dataclasses import dataclass
 from importlib.resources import as_file, files
@@ -188,10 +189,54 @@ def bootstrap_catalog_files(config: MeopConfig, *, names: list[str] | tuple[str,
     return changed
 
 
+def _default_runtime_config_payload(config: MeopConfig) -> dict[str, Any]:
+    machine = config.machine or "default"
+    return {
+        "defaults": {
+            "version": "",
+            "diagnostics": {
+                "qf": "lr1",
+                "adjusted": True,
+                "parts": ["tag", "deployment", "overview"],
+            },
+            "batch": {
+                "jobs": 2,
+                "verbose": False,
+            },
+            "references": {
+                "cora_dir": "",
+                "reference_dataset_dir": "",
+            },
+        },
+        "configs": {
+            machine: {
+                "processdir": str(config.processdir),
+                "datadir": str(config.datadir),
+                "public": str(config.publicdir),
+            }
+        },
+    }
+
+
+def bootstrap_runtime_config(config: MeopConfig) -> list[Path]:
+    """Create a default root-level ``configs.json`` when missing."""
+
+    target = config.processdir / "configs.json"
+    if target.exists():
+        return []
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = _default_runtime_config_payload(config)
+    with target.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
+        handle.write("\n")
+    return [target]
+
+
 def prepare_runtime_environment(config: MeopConfig) -> list[Path]:
     created = ensure_runtime_directories(config)
+    config_file = bootstrap_runtime_config(config)
     changed = bootstrap_packaged_tables(config)
-    return created + changed
+    return created + config_file + changed
 
 
 def resolve_table_path(config: MeopConfig, name: str, *, required: bool = True) -> Path:

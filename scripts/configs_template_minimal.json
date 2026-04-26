@@ -1,11 +1,16 @@
 {
   "defaults": {
+    "version": "",
     "diagnostics": {
       "qf": "lr1",
       "adjusted": true
     },
     "batch": {
       "jobs": 2
+    },
+    "references": {
+      "cora_dir": "",
+      "reference_dataset_dir": ""
     }
   }
 }

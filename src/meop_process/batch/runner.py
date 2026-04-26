@@ -15,12 +15,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+from ..catalog.filenames import list_fname_prof, smru_name_from_fname_prof
 from ..catalog.deployments import load_deployment_catalog
 from ..config.loader import load_config
 from ..metadata.summaries import SummaryUpdateResult, update_metadata_summaries
 from ..models import EmailNotificationSettings, MeopConfig, Selection
 from ..notifications import send_email_message
 from ..plotting.diagnostics import generate_diagnostics as generate_diagnostics_plotting
+from ..publishing.site import build_site as build_publish_site
+from ..workflows.publish import publish as publish_workflow
 from ..workflows.process import process_tags as process_tags_workflow
 
 
@@ -151,6 +154,63 @@ def _write_state(path: Path, payload: dict[str, dict[str, object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2, sort_keys=True)
+
+
+def _warn(message: str) -> None:
+    print(f"warning: {message}", file=sys.stderr)
+
+
+def _run_post_publish_best_effort(config: MeopConfig, *, rebuild: bool, verbose: bool) -> None:
+    try:
+        publish_workflow(
+            config,
+            build_maps=True,
+            build_plots=False,
+            build_site=False,
+            rebuild=rebuild,
+            verbose=verbose,
+        )
+        build_publish_site(
+            config.plotdir,
+            config.plots_by_deployment_dir,
+            config.plots_overview_dir,
+            rebuild=rebuild,
+            verbose=verbose,
+        )
+    except Exception as exc:
+        _warn(f"post-batch publish step failed: {exc}")
+
+
+def _run_plot1_compare_best_effort(config: MeopConfig, deployments: Iterable[str]) -> None:
+    # This step requires a configured reference dataset path.
+    if config.cora_dir is None:
+        _warn("post-batch meop-compare --plot1 skipped: references.cora_dir is not configured in configs.json")
+        return
+
+    try:
+        from ..compare_cli import _run_calibration_plots
+    except Exception as exc:  # pragma: no cover - import failures are environment-specific
+        _warn(f"post-batch meop-compare --plot1 skipped: {exc}")
+        return
+
+    smru_names: list[str] = []
+    for deployment in deployments:
+        files = list_fname_prof(deployment=deployment, qf="lr1", config=config)
+        if not files:
+            files = list_fname_prof(deployment=deployment, config=config)
+        for path in files:
+            try:
+                smru = smru_name_from_fname_prof(path.name)
+            except Exception:
+                continue
+            if smru:
+                smru_names.append(smru)
+
+    for smru_name in sorted(set(smru_names)):
+        try:
+            _run_calibration_plots(smru_name, str(config.config_path) if config.config_path else None)
+        except Exception as exc:
+            _warn(f"post-batch meop-compare --plot1 failed for {smru_name}: {exc}")
 
 
 def _truthy_process(value: object) -> bool:
@@ -615,13 +675,16 @@ def run_all_deployments(
         _write_state(state_path, state)
 
     if diagnostics and wants_overview:
-        generate_diagnostics_plotting(
-            cfg,
-            Selection(deployment="", smru_name="").normalized(),
-            qf=diagnostics_qf,
-            adjusted=not diagnostics_raw,
-            parts=("overview",),
-        )
+        try:
+            generate_diagnostics_plotting(
+                cfg,
+                Selection(deployment="", smru_name="").normalized(),
+                qf=diagnostics_qf,
+                adjusted=not diagnostics_raw,
+                parts=("overview",),
+            )
+        except Exception as exc:
+            _warn(f"overview diagnostics failed but batch will continue: {exc}")
         try:
             profiles_csv = cfg.publicdir_ctd / "list_profiles.csv"
             if profiles_csv.exists():
@@ -640,6 +703,11 @@ def run_all_deployments(
     results = [result for _, result in sorted(results_by_index, key=lambda item: item[0])]
 
     metadata_summary = update_metadata_summaries(cfg, processed_deployments=processed_for_summary, force=force)
+
+    # Best-effort post-run steps: publish artifacts and calibration plot1 comparisons.
+    _run_post_publish_best_effort(cfg, rebuild=force, verbose=verbose)
+    _run_plot1_compare_best_effort(cfg, processed_for_summary)
+
     summary_csv = output_dir / "summary.csv"
     summary_markdown = output_dir / "summary.md"
     _write_csv(summary_csv, results)
@@ -704,6 +772,11 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
     cfg = load_config(processdir=args.processdir, config_file=args.config_file, machine=args.machine)
+    if cfg.config_path is None:
+        parser.error(
+            f"runtime config is required and was not found (expected {cfg.processdir / 'configs.json'}). "
+            "Run 'meop-process --bootstrap-data' once, or pass --config-file / set MEOP_CONFIG_FILE."
+        )
     diagnostics_qf = args.diagnostics_qf or cfg.diagnostics_defaults.qf
     diagnostics_raw = args.diagnostics_raw if args.diagnostics_raw is not None else (not cfg.diagnostics_defaults.adjusted)
     diagnostics_parts = args.diagnostics_part or list(cfg.diagnostics_defaults.parts)

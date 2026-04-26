@@ -170,7 +170,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "Generate CORA-based T/S calibration plots for the given tag.  "
-            "Requires that cora_dir is configured in configs.json.  "
+            "Requires that references.cora_dir is configured in configs.json.  "
             "Plots are saved to config.plotdir / deployment / {smru_name}_calibration*.png."
         ),
     )
@@ -178,18 +178,22 @@ def build_parser() -> argparse.ArgumentParser:
         "--config",
         metavar="FILE",
         default=None,
-        help="Path to configs.json (overrides default discovery).",
+        help="Path to root configs.json (overrides default discovery).",
     )
     return parser
 
 
 def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
     """Generate CORA calibration plots for *smru_name* and return an exit code."""
-    config = load_config(config_file=config_file)
+    try:
+        config = load_config(config_file=config_file, require_config=True)
+    except FileNotFoundError as exc:
+        print(f"WARNING: {exc}", file=sys.stderr)
+        return 2
     if config.cora_dir is None:
         print(
-            f"error: cora_dir is not set in the configuration.  "
-            f"Add \"cora_dir\": \"/path/to/CORA_ncfiles\" to your configs.json.",
+            f"WARNING: references.cora_dir is not set in configs.json.  "
+            f"Add \"references\": {{\"cora_dir\": \"/path/to/CORA_ncfiles\"}} to enable --plot1.",
             file=sys.stderr,
         )
         return 2

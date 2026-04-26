@@ -59,6 +59,12 @@ class MeopConfig:
     batch_defaults: BatchDefaults = field(default_factory=BatchDefaults)
     email_notifications: EmailNotificationSettings = field(default_factory=EmailNotificationSettings)
     cora_dir: Path | None = None
+    reference_dataset_dir: Path | None = None
+
+    @property
+    def has_publish_version(self) -> bool:
+        version = str(self.version or "").strip()
+        return bool(version) and version != DEFAULT_VERSION
 
     @property
     def publicdir_ctd(self) -> Path:
