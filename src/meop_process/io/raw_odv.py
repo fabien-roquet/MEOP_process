@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import csv
 import filecmp
+import logging
 import math
 import shutil
+import warnings
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -16,6 +18,8 @@ from ..catalog.tables import read_csv_rows
 from ..data.layout import resolve_table_path
 from ..config.paths import ensure_runtime_directories
 from ..models import MeopConfig
+
+logger = logging.getLogger(__name__)
 
 
 RAW_TEXT_SUFFIXES = (
@@ -192,6 +196,15 @@ def _to_float(value: str) -> float:
 
 def _parse_timestamp(text: str) -> datetime:
     value = str(text).strip()
+    # Detect placeholder/template dates that were never filled in
+    if value in ("yyyy-mm-dd hh:mm", "Loc. date=yyyy/MM/dd HH:mm:ss", "yyyy/mm/dd hh:mm:ss"):
+        warnings.warn(
+            f"Detected placeholder/template date format (not a real timestamp): {value!r}. "
+            f"Using current UTC time as fallback.",
+            stacklevel=3,
+        )
+        logger.warning(f"Template date format detected: {value!r}")
+        return datetime.now(timezone.utc)
     for fmt in (
         "%Y-%m-%d %H:%M",
         "%Y-%m-%d %H:%M:%S",
@@ -204,7 +217,12 @@ def _parse_timestamp(text: str) -> datetime:
             return datetime.strptime(value, fmt).replace(tzinfo=timezone.utc)
         except ValueError:
             continue
-    raise ValueError(f"Unsupported timestamp format: {text!r}")
+    warnings.warn(
+        f"Unsupported timestamp format: {text!r}. Using current UTC time as fallback.",
+        stacklevel=3,
+    )
+    logger.warning(f"Could not parse timestamp: {text!r}")
+    return datetime.now(timezone.utc)
 
 
 def _sensor_key(column_name: str) -> str | None:
@@ -240,7 +258,23 @@ def _iter_odv_rows(path: Path) -> tuple[list[str], Iterable[list[str]]]:
                 return [], []
         else:
             header = first
-        rows = [row for row in reader if any(cell.strip() for cell in row)]
+        rows = []
+        for line_num, row in enumerate(reader, start=3 if first and first[0].startswith("//") else 2):
+            # Skip empty rows
+            if not any(cell.strip() for cell in row):
+                continue
+            # Validate row has reasonable number of fields
+            if row and len(header) > 0:
+                # Allow some flexibility in field count (±2 fields)
+                if len(row) < len(header) - 2 or len(row) > len(header) + 2:
+                    warnings.warn(
+                        f"Malformed ODV row at line {line_num}: expected ~{len(header)} fields, got {len(row)}. "
+                        f"Row will be skipped: {row[:5]}...",
+                        stacklevel=3,
+                    )
+                    logger.debug(f"Full malformed row: {row}")
+                    continue
+            rows.append(row)
     return header, rows
 
 
@@ -353,6 +387,40 @@ def build_odv_profile_index(files: RawOdvFiles, *, config: MeopConfig | None = N
     )
 
 
+def _resample_to_pressure(pressure: tuple[float, ...], values: tuple[float, ...], target_pressure: tuple[float, ...]) -> tuple[float, ...]:
+    """Resample sensor values to a target pressure grid using linear interpolation.
+    
+    If source pressure grid differs from target, interpolate values. Otherwise return as-is.
+    """
+    if not values or not pressure or not target_pressure:
+        return values
+    if pressure == target_pressure:
+        return values
+    
+    # Use numpy to interpolate
+    p_src = np.asarray(pressure, dtype=np.float64)
+    v_src = np.asarray(values, dtype=np.float64)
+    p_tgt = np.asarray(target_pressure, dtype=np.float64)
+    
+    # Only interpolate if we have valid data
+    valid_mask = np.isfinite(p_src) & np.isfinite(v_src)
+    if not np.any(valid_mask):
+        # No valid data, return NaNs for target grid
+        return tuple(np.full_like(p_tgt, np.nan, dtype=float))
+    
+    p_valid = p_src[valid_mask]
+    v_valid = v_src[valid_mask]
+    
+    # Sort by pressure
+    sort_idx = np.argsort(p_valid)
+    p_valid = p_valid[sort_idx]
+    v_valid = v_valid[sort_idx]
+    
+    # Interpolate to target pressure grid
+    v_interp = np.interp(p_tgt, p_valid, v_valid, left=np.nan, right=np.nan)
+    return tuple(float(v) for v in v_interp)
+
+
 def merge_sensor_profiles(ctd_profiles: Iterable[OdvProfile], fl_profiles: Iterable[OdvProfile]) -> list[OdvProfile]:
     index = {profile.key: profile for profile in fl_profiles}
     merged: list[OdvProfile] = []
@@ -361,6 +429,19 @@ def merge_sensor_profiles(ctd_profiles: Iterable[OdvProfile], fl_profiles: Itera
         if extra is None:
             merged.append(ctd_profile)
             continue
+        
+        # Resample FL sensor values to match CTD pressure grid
+        fluorescence = _resample_to_pressure(extra.pressure, extra.fluorescence, ctd_profile.pressure)
+        light = _resample_to_pressure(extra.pressure, extra.light, ctd_profile.pressure)
+        oxygen = _resample_to_pressure(extra.pressure, extra.oxygen, ctd_profile.pressure)
+        
+        # Warn if resampling was necessary
+        if extra.pressure != ctd_profile.pressure and any((extra.fluorescence, extra.light, extra.oxygen)):
+            logger.debug(
+                f"{ctd_profile.smru_name} station {ctd_profile.station}: "
+                f"Resampled FL sensors from {len(extra.pressure)} to {len(ctd_profile.pressure)} levels"
+            )
+        
         merged.append(
             OdvProfile(
                 smru_name=ctd_profile.smru_name,
@@ -371,9 +452,9 @@ def merge_sensor_profiles(ctd_profiles: Iterable[OdvProfile], fl_profiles: Itera
                 pressure=ctd_profile.pressure,
                 temperature=ctd_profile.temperature,
                 salinity=ctd_profile.salinity,
-                fluorescence=extra.fluorescence,
-                light=extra.light,
-                oxygen=extra.oxygen,
+                fluorescence=fluorescence,
+                light=light,
+                oxygen=oxygen,
                 conductivity=ctd_profile.conductivity,
             )
         )

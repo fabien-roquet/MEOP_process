@@ -310,7 +310,10 @@ python scripts/run_all_deployments.py
 Useful variants:
 
 \begin{lstlisting}[style=meopcode]
+meop-process --run-all-deployments
+meop-process-batch
 meop-process --run-all-deployments --diagnostics
+meop-process --run-all-deployments --no-diagnostics
 meop-process --run-all-deployments --force-failed
 meop-process --run-all-deployments --force
 meop-process --run-all-deployments --deployment ct96
@@ -321,6 +324,8 @@ python scripts/run_all_deployments.py --force
 python scripts/run_all_deployments.py --deployment ct96
 python scripts/run_all_deployments.py --jobs 8 --verbose
 \end{lstlisting}
+
+By default, batch diagnostics follow \pkg{defaults.batch.diagnostics} from root \pkg{configs.json} (set to true in the generated bootstrap template). The command-line \pkg{--no-diagnostics} flag disables diagnostics explicitly for one run.
 
 \subsection{What the batch runner writes}
 
@@ -334,6 +339,18 @@ By default the runner writes under \pkg{data/batch/}:
 \end{itemize}
 
 A deployment marked successful is skipped on the next batch run only while its canonical outputs still exist, unless a force option is used. At batch startup, stale successful entries whose outputs have disappeared are pruned from \pkg{latest/deployment\_status.json} before skip decisions are made.
+
+\subsection{Runtime configuration policy}
+
+Runtime configuration is loaded only from:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item explicit \pkg{--config-file};
+  \item \pkg{MEOP\_CONFIG\_FILE} environment variable;
+  \item root \pkg{configs.json} under the process directory.
+\end{itemize}
+
+Legacy fallback to \pkg{data/configs.json} is intentionally disabled. Machine selection order is: \pkg{--machine}, then \pkg{MEOP\_MACHINE}, then \pkg{defaults.machine}, then automatic key detection.
 
 \subsection{Metadata summary tables}
 

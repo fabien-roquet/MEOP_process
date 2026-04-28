@@ -31,7 +31,7 @@ The package resolves runtime data from package-managed roots under `data/` and f
 
 ## Optional external reference data
 
-- `cora_dir` (set in `configs.json` under `defaults.cora_dir` or `configs.<machine>.cora_dir`)
+- `cora_dir` (set in `configs.json` under `defaults.references.cora_dir` or `configs.<machine>.references.cora_dir`)
   - directory of CORA 10°×10° tiled NetCDF files, e.g.
     `/path/to/CORA_ncfiles/CORA_lon040W_lat70S.nc`
   - used by `meop-compare --plot1` to generate CORA-based T/S calibration plots
