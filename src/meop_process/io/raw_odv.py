@@ -387,38 +387,51 @@ def build_odv_profile_index(files: RawOdvFiles, *, config: MeopConfig | None = N
     )
 
 
-def _resample_to_pressure(pressure: tuple[float, ...], values: tuple[float, ...], target_pressure: tuple[float, ...]) -> tuple[float, ...]:
-    """Resample sensor values to a target pressure grid using linear interpolation.
-    
-    If source pressure grid differs from target, interpolate values. Otherwise return as-is.
-    """
-    if not values or not pressure or not target_pressure:
-        return values
-    if pressure == target_pressure:
-        return values
-    
-    # Use numpy to interpolate
-    p_src = np.asarray(pressure, dtype=np.float64)
-    v_src = np.asarray(values, dtype=np.float64)
-    p_tgt = np.asarray(target_pressure, dtype=np.float64)
-    
-    # Only interpolate if we have valid data
-    valid_mask = np.isfinite(p_src) & np.isfinite(v_src)
-    if not np.any(valid_mask):
-        # No valid data, return NaNs for target grid
-        return tuple(np.full_like(p_tgt, np.nan, dtype=float))
-    
-    p_valid = p_src[valid_mask]
-    v_valid = v_src[valid_mask]
-    
-    # Sort by pressure
-    sort_idx = np.argsort(p_valid)
-    p_valid = p_valid[sort_idx]
-    v_valid = v_valid[sort_idx]
-    
-    # Interpolate to target pressure grid
-    v_interp = np.interp(p_tgt, p_valid, v_valid, left=np.nan, right=np.nan)
-    return tuple(float(v) for v in v_interp)
+def _pressure_key(value: float) -> int:
+    # Group near-identical pressures (floating-point noise) into the same bin.
+    return int(round(float(value) * 1000.0))
+
+
+def _build_union_pressure_levels(ctd_pressure: tuple[float, ...], fl_pressure: tuple[float, ...]) -> tuple[float, ...]:
+    by_key: dict[int, float] = {}
+    for value in (*ctd_pressure, *fl_pressure):
+        if not np.isfinite(value):
+            continue
+        key = _pressure_key(value)
+        if key not in by_key:
+            by_key[key] = float(value)
+
+    if not by_key:
+        # Fall back to the CTD grid to keep shape stable for empty/invalid profiles.
+        return tuple(float(value) for value in ctd_pressure)
+
+    ordered = sorted(by_key.values())
+    return tuple(float(value) for value in ordered)
+
+
+def _project_values_to_levels(
+    source_pressure: tuple[float, ...],
+    source_values: tuple[float, ...],
+    target_levels: tuple[float, ...],
+) -> tuple[float, ...]:
+    if not target_levels:
+        return ()
+
+    out = np.full((len(target_levels),), np.nan, dtype=np.float64)
+    target_index = {_pressure_key(level): idx for idx, level in enumerate(target_levels)}
+
+    for pressure, value in zip(source_pressure, source_values, strict=False):
+        if not np.isfinite(pressure):
+            continue
+        idx = target_index.get(_pressure_key(pressure))
+        if idx is None:
+            continue
+        # Preserve measured values only; do not interpolate.
+        if np.isfinite(value):
+            if not np.isfinite(out[idx]):
+                out[idx] = float(value)
+
+    return tuple(float(value) for value in out)
 
 
 def merge_sensor_profiles(ctd_profiles: Iterable[OdvProfile], fl_profiles: Iterable[OdvProfile]) -> list[OdvProfile]:
@@ -430,18 +443,21 @@ def merge_sensor_profiles(ctd_profiles: Iterable[OdvProfile], fl_profiles: Itera
             merged.append(ctd_profile)
             continue
         
-        # Resample FL sensor values to match CTD pressure grid
-        fluorescence = _resample_to_pressure(extra.pressure, extra.fluorescence, ctd_profile.pressure)
-        light = _resample_to_pressure(extra.pressure, extra.light, ctd_profile.pressure)
-        oxygen = _resample_to_pressure(extra.pressure, extra.oxygen, ctd_profile.pressure)
-        
-        # Warn if resampling was necessary
+        combined_pressure = _build_union_pressure_levels(ctd_profile.pressure, extra.pressure)
+        temperature = _project_values_to_levels(ctd_profile.pressure, ctd_profile.temperature, combined_pressure)
+        salinity = _project_values_to_levels(ctd_profile.pressure, ctd_profile.salinity, combined_pressure)
+        conductivity = _project_values_to_levels(ctd_profile.pressure, ctd_profile.conductivity, combined_pressure)
+        fluorescence = _project_values_to_levels(extra.pressure, extra.fluorescence, combined_pressure)
+        light = _project_values_to_levels(extra.pressure, extra.light, combined_pressure)
+        oxygen = _project_values_to_levels(extra.pressure, extra.oxygen, combined_pressure)
+
         if extra.pressure != ctd_profile.pressure and any((extra.fluorescence, extra.light, extra.oxygen)):
             logger.debug(
                 f"{ctd_profile.smru_name} station {ctd_profile.station}: "
-                f"Resampled FL sensors from {len(extra.pressure)} to {len(ctd_profile.pressure)} levels"
+                f"Merged CTD ({len(ctd_profile.pressure)} levels) and FL ({len(extra.pressure)} levels) "
+                f"onto union grid ({len(combined_pressure)} levels) without interpolation"
             )
-        
+
         merged.append(
             OdvProfile(
                 smru_name=ctd_profile.smru_name,
@@ -449,13 +465,13 @@ def merge_sensor_profiles(ctd_profiles: Iterable[OdvProfile], fl_profiles: Itera
                 timestamp=ctd_profile.timestamp,
                 longitude=ctd_profile.longitude,
                 latitude=ctd_profile.latitude,
-                pressure=ctd_profile.pressure,
-                temperature=ctd_profile.temperature,
-                salinity=ctd_profile.salinity,
+                pressure=combined_pressure,
+                temperature=temperature,
+                salinity=salinity,
                 fluorescence=fluorescence,
                 light=light,
                 oxygen=oxygen,
-                conductivity=ctd_profile.conductivity,
+                conductivity=conductivity,
             )
         )
     return merged
