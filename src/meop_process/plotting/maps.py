@@ -145,6 +145,10 @@ def _make_track_map(
         # Plot each tag track within the group
         if tag_col in group_df.columns and tag_col != groupby:
             for _, tag_df in group_df.groupby(tag_col):
+                # Sort by JULD (time) to connect profiles in temporal order, not arbitrary order
+                if "JULD" in tag_df.columns:
+                    tag_df = tag_df.sort_values("JULD")
+                
                 lon = tag_df["LONGITUDE"].to_numpy(dtype=float)
                 lat = tag_df["LATITUDE"].to_numpy(dtype=float)
                 valid = np.isfinite(lon) & np.isfinite(lat)
@@ -161,6 +165,10 @@ def _make_track_map(
                     ax.plot(lon_plot, lat_v, color=color, linewidth=0.7, alpha=0.7, label=label)
                 label = ""  # only first track in group gets legend label
         else:
+            # Sort by JULD (time) to connect profiles in temporal order, not arbitrary order
+            if "JULD" in group_df.columns:
+                group_df = group_df.sort_values("JULD")
+            
             lon_v = group_df["LONGITUDE"].to_numpy(dtype=float)
             lat_v = group_df["LATITUDE"].to_numpy(dtype=float)
             valid = np.isfinite(lon_v) & np.isfinite(lat_v)
