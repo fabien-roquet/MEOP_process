@@ -1,10 +1,15 @@
-"""Geographic region labelling using regionmask AR6 ocean basins.
+"""Geographic region labelling using broad ocean basins.
 
 Provides :func:`label_region` (single position) and :func:`label_regions`
 (arrays) that map (lon, lat) coordinates to simplified ocean basin names.
-Falls back gracefully when ``regionmask`` or ``scipy`` are not installed.
+Uses a local coarse ocean-basin classifier by default so batch diagnostics do
+not depend on network-fetched ``regionmask`` reference data.  Set
+``MEOP_USE_REGIONMASK_AR6=1`` to opt into AR6 labels when that cache is
+available locally.
 """
 from __future__ import annotations
+
+import os
 
 import numpy as np
 
@@ -93,28 +98,89 @@ _AR6_TO_OCEAN: dict[str, str] = {
 }
 
 _UNKNOWN = "Unknown"
+_UNAVAILABLE = object()
 _interpolator: object | None = None
+_region_names: tuple[str, ...] | None = None
+
+
+def _use_regionmask_ar6() -> bool:
+    value = os.environ.get("MEOP_USE_REGIONMASK_AR6", "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
+def _fallback_label_regions(lon: np.ndarray, lat: np.ndarray) -> np.ndarray:
+    """Classify positions into coarse ocean basins without external data."""
+    lon = np.asarray(lon, dtype=float)
+    lat = np.asarray(lat, dtype=float)
+    original_shape = lon.shape
+    lon_flat = lon.ravel()
+    lat_flat = lat.ravel()
+
+    results: list[str] = []
+    for lon_value, lat_value in zip(lon_flat, lat_flat):
+        if not np.isfinite(lon_value) or not np.isfinite(lat_value):
+            results.append(_UNKNOWN)
+            continue
+
+        lon_norm = ((float(lon_value) + 180.0) % 360.0) - 180.0
+        lat_float = float(lat_value)
+        abs_lat = abs(lat_float)
+
+        if lat_float <= -50.0:
+            results.append("Southern Ocean")
+        elif lat_float >= 66.0:
+            results.append("Arctic Ocean")
+        elif -75.0 <= lon_norm <= 20.0:
+            if abs_lat <= 23.5:
+                results.append("Tropical Atlantic")
+            elif lat_float > 0.0:
+                results.append("North Atlantic")
+            else:
+                results.append("South Atlantic")
+        elif lon_norm < -75.0 or lon_norm >= 120.0:
+            if abs_lat <= 23.5:
+                results.append("Tropical Pacific")
+            elif lat_float > 0.0:
+                results.append("North Pacific")
+            else:
+                results.append("South Pacific")
+        elif 20.0 < lon_norm < 120.0 and lat_float < 35.0:
+            results.append("Indian Ocean")
+        elif lat_float >= 35.0 and 20.0 < lon_norm < 120.0:
+            results.append("North Pacific")
+        else:
+            results.append(_UNKNOWN)
+
+    return np.array(results, dtype=object).reshape(original_shape)
 
 
 def _build_interpolator():
     """Build and cache the RegularGridInterpolator from the AR6 mask grid."""
-    global _interpolator  # noqa: PLW0603
+    global _interpolator, _region_names  # noqa: PLW0603
+    if _interpolator is _UNAVAILABLE:
+        return None
     if _interpolator is not None:
         return _interpolator
-    if not _AVAILABLE:
+    if not _AVAILABLE or not _use_regionmask_ar6():
         return None
-    basins = regionmask.defined_regions.ar6.all
-    lons = np.arange(-179.5, 180.0)
-    lats = np.arange(-89.5, 90.0)
-    # mask() returns (nlat, nlev) — transpose so the grid is (nlon, nlat)
-    mask_grid = basins.mask(lons, lats).transpose().values
-    _interpolator = RegularGridInterpolator(
-        (lons, lats),
-        mask_grid,
-        method="nearest",
-        bounds_error=False,
-        fill_value=np.nan,
-    )
+    try:  # pragma: no cover - optional exact AR6 path
+        basins = regionmask.defined_regions.ar6.all
+        lons = np.arange(-179.5, 180.0)
+        lats = np.arange(-89.5, 90.0)
+        # mask() returns (nlat, nlev) - transpose so the grid is (nlon, nlat).
+        mask_grid = basins.mask(lons, lats).transpose().values
+        _interpolator = RegularGridInterpolator(
+            (lons, lats),
+            mask_grid,
+            method="nearest",
+            bounds_error=False,
+            fill_value=np.nan,
+        )
+        _region_names = tuple(str(name) for name in basins.names)
+    except Exception:
+        _interpolator = _UNAVAILABLE
+        _region_names = None
+        return None
     return _interpolator
 
 
@@ -142,21 +208,19 @@ def label_regions(lon: np.ndarray, lat: np.ndarray) -> np.ndarray:
     lat_flat = lat.ravel()
 
     interp = _build_interpolator()
-    if interp is None:
-        return np.full(original_shape, _UNKNOWN, dtype=object)
+    if interp is None or _region_names is None:
+        return _fallback_label_regions(lon, lat)
 
     points = np.stack([lon_flat, lat_flat], axis=-1)
     indices = interp(points)
-
-    basins = regionmask.defined_regions.ar6.all
-    names = basins.names
 
     results: list[str] = []
     for idx in indices:
         if np.isnan(idx):
             results.append(_UNKNOWN)
         else:
-            ar6_name = names[int(round(float(idx)))] if 0 <= int(round(float(idx))) < len(names) else _UNKNOWN
+            name_index = int(round(float(idx)))
+            ar6_name = _region_names[name_index] if 0 <= name_index < len(_region_names) else _UNKNOWN
             results.append(_AR6_TO_OCEAN.get(ar6_name, ar6_name))
 
     return np.array(results, dtype=object).reshape(original_shape)
@@ -165,8 +229,7 @@ def label_regions(lon: np.ndarray, lat: np.ndarray) -> np.ndarray:
 def label_region(lon: float, lat: float) -> str:
     """Return the simplified ocean region name for a single (lon, lat) position.
 
-    Returns ``"Unknown"`` when the position cannot be classified or when
-    ``regionmask`` is not installed.
+    Returns ``"Unknown"`` when the position cannot be classified.
     """
     result = label_regions(np.asarray([lon]), np.asarray([lat]))
     return str(result[0])

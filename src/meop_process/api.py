@@ -9,6 +9,8 @@ from .catalog.deployments import load_info_deployment as load_info_deployment_ca
 from .config.loader import load_config
 from .config.sync import sync_external_config_files
 from .data.layout import describe_data_layout, format_data_layout, prepare_runtime_environment, validate_data_layout
+from .data.smru_sync import sync_smru_data as sync_smru_data_data
+from .data.table_validation import validate_runtime_tables as validate_runtime_tables_data
 from .io.raw_odv import import_raw_data_zip
 from .metadata.patch import update_metadata_from_table
 from .metadata.summaries import update_metadata_summaries as update_metadata_summaries_metadata
@@ -66,6 +68,30 @@ def validate_runtime_data_layout(
 ) -> list[dict[str, Any]]:
     cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
     return [record.as_dict() for record in validate_data_layout(cfg)]
+
+
+def validate_runtime_tables(
+    config: MeopConfig | None = None,
+    *,
+    processdir: str | os.PathLike[str] | None = None,
+    config_file: str | os.PathLike[str] | None = None,
+    machine: str | None = None,
+) -> dict[str, Any]:
+    cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
+    return validate_runtime_tables_data(cfg).as_dict()
+
+
+def sync_smru_data(
+    config: MeopConfig | None = None,
+    *,
+    source_dir: str | os.PathLike[str],
+    apply: bool = False,
+    processdir: str | os.PathLike[str] | None = None,
+    config_file: str | os.PathLike[str] | None = None,
+    machine: str | None = None,
+) -> dict[str, Any]:
+    cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
+    return sync_smru_data_data(cfg, source_dir=source_dir, apply=apply).as_dict()
 
 
 def update_config_files(

@@ -5,12 +5,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 import xarray as xr
 
 from meop_process.catalog.filenames import fname_prof, fname_traj
 from meop_process.models import Selection
 from meop_process.io.raw_odv import import_raw_data_zip
-from meop_process.processing.fr0 import HrRawData, _pick_column, create_fr0_python, detect_profiles
+from meop_process.processing.fr0 import HrRawData, _pick_column, create_fr0_python, detect_profiles, load_hr_data
 from meop_process.processing.ncargo import create_ncargo_python
 
 
@@ -78,6 +79,23 @@ def test_pick_column_pressure_re_surface_variants() -> None:
         assert _pick_column([col], "pressure") == col, f"Expected {col!r} to be picked"
     # ABS_PRESSURE_AT_SURFACE must still be excluded
     assert _pick_column(["ABS_PRESSURE_AT_SURFACE (dbar)"], "pressure") is None
+
+
+def test_load_hr_data_skips_malformed_rows(tmp_path) -> None:
+    path = tmp_path / "bad_hr.txt"
+    path.write_text(
+        "datetime\tpressure\ttemperature\tsalinity\n"
+        "2020-01-01 00:00:00\t1\t2.0\t33.1\n"
+        "2020-01-01 00:00:01\t2\t2.1\t33.2\textra\n"
+        "2020-01-01 00:00:02\t3\t2.2\t33.3\n",
+        encoding="utf-8",
+    )
+
+    with pytest.warns(UserWarning, match="Malformed HR rows skipped"):
+        data = load_hr_data(path, continuous=True)
+
+    assert data.timestamp.size == 2
+    np.testing.assert_allclose(data.pressure, np.asarray([1.0, 3.0]))
     # Standard variants must still work
     assert _pick_column(["PRESSURE (dbar)"], "pressure") == "PRESSURE (dbar)"
     assert _pick_column(["corrected depth"], "pressure") == "corrected depth"

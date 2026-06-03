@@ -71,6 +71,34 @@ def test_apply_location_adjustment_noop_without_external_sources(meop_config, se
     assert result.written_files == ()
 
 
+def test_apply_location_adjustment_ignores_cls_file_missing_required_columns(meop_config, seed_catalog, capsys) -> None:
+    seed_catalog(deployment="DEP001", smru_name="DEP001-AAA")
+    path = fname_prof("DEP001-AAA", qf="lr0", config=meop_config)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    xr.Dataset(
+        {
+            "JULD": (("N_PROF",), np.asarray([_juld(2014, 1, 2), _juld(2014, 1, 3), _juld(2014, 1, 4)], dtype=np.float64)),
+            "LATITUDE": (("N_PROF",), np.asarray([-60.0, -60.1, -60.2], dtype=np.float64)),
+            "LONGITUDE": (("N_PROF",), np.asarray([10.0, 10.1, 10.2], dtype=np.float64)),
+        },
+        coords={"N_PROF": np.arange(3)},
+        attrs={"ptt": "12345", "loc_algorithm": "CLS KALMAN", "smru_platform_code": "DEP001-AAA"},
+    ).to_netcdf(path)
+
+    cls_path = meop_config.cls_locdir / "12345_2014-01-01_2014-12-31.smoothing.csv"
+    cls_path.parent.mkdir(parents=True, exist_ok=True)
+    cls_path.write_text(
+        "Platform ID No.;Latitude;Longitude;Latitude 2;Longitude 2;Loc. quality\n"
+        "12345;-61.0;11.0;-61.0;11.0;A\n",
+        encoding="utf-8",
+    )
+
+    result = apply_location_adjustment_placeholder(meop_config, Selection(deployment="DEP001", smru_name="DEP001-AAA"))
+
+    assert result.written_files == ()
+    assert "missing columns" in capsys.readouterr().out
+
+
 def test_apply_location_adjustment_updates_positioning_system_with_char_dim(meop_config, seed_catalog) -> None:
     seed_catalog(deployment="DEP001", smru_name="DEP001-AAA")
     path = fname_prof("DEP001-AAA", qf="lr0", config=meop_config)

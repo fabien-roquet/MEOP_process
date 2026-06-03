@@ -75,3 +75,44 @@ def test_cli_forwards_notification_overrides_to_batch_runner(meop_config, monkey
     assert captured[0]["notify_email"] == ["ops@example.org"]
     assert captured[0]["notify_when"] == "failure"
     assert captured[0]["notify_attach"] == ["summary_md"]
+
+
+def test_cli_validate_runtime_tables_utility(meop_config, monkeypatch, capsys) -> None:
+    monkeypatch.setattr(
+        cli_module,
+        "validate_runtime_tables",
+        lambda config: {
+            "ok": True,
+            "checked_tables": ["table_coeff.csv"],
+            "errors": [],
+            "warnings": [],
+        },
+    )
+
+    exit_code = cli_module.main(["--validate-runtime-tables"], config=meop_config)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "MEOP runtime table validation" in captured.out
+    assert "OK: runtime tables passed validation" in captured.out
+
+
+def test_cli_sync_smru_data_dry_run_requires_source_and_prints_report(meop_config, monkeypatch, tmp_path, capsys) -> None:
+    class FakeSyncResult:
+        def format_markdown(self):
+            return "# fake sync\n"
+
+    calls: list[tuple[str, bool]] = []
+
+    def fake_sync(config, *, source_dir, apply=False):
+        calls.append((source_dir, apply))
+        return FakeSyncResult()
+
+    monkeypatch.setattr("meop_process.data.smru_sync.sync_smru_data", fake_sync)
+
+    exit_code = cli_module.main(["--sync-smru-data", "--source-dir", str(tmp_path)], config=meop_config)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert calls == [(str(tmp_path), False)]
+    assert "# fake sync" in captured.out

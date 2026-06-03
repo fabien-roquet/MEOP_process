@@ -13,9 +13,11 @@ from .api import (
     import_raw_data,
     process_tags,
     run_all_deployments,
+    sync_smru_data,
     update_config_files,
     update_metadata_summaries,
     validate_runtime_data_layout,
+    validate_runtime_tables,
 )
 from .catalog.filenames import deployment_from_smru_name
 from .config.loader import load_config
@@ -37,6 +39,8 @@ UTILITY_ACTIONS = (
     "show_config",
     "show_data_layout",
     "validate_data_layout",
+    "validate_runtime_tables",
+    "sync_smru_data",
     "refresh_metadata_summaries",
 )
 
@@ -52,6 +56,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--show-config", action="store_true", help="Print the resolved runtime config source and key dataset/output paths.")
     parser.add_argument("--show-data-layout", action="store_true", help="Print where tables, raw inputs, references, and outputs are expected.")
     parser.add_argument("--validate-data-layout", action="store_true", help="Check presence of fixed-path data files and directories.")
+    parser.add_argument("--validate-runtime-tables", action="store_true", help="Validate runtime processing tables before reruns.")
+    parser.add_argument("--sync-smru-data", action="store_true", help="Inventory or ingest SMRU source data into canonical runtime locations.")
+    parser.add_argument("--source-dir", default=None, help="Source directory for --sync-smru-data, e.g. /home/smru/smru.")
+    parser.add_argument("--apply", dest="apply_sync", action="store_true", help="Apply --sync-smru-data changes; without this flag the sync is a dry run.")
     parser.add_argument("--do_all", action="store_true", help="Run the main pure-Python workflow stages.")
     parser.add_argument("--update_config_files", action="store_true", help="Optionally sync JSON config files into data/data_raw/config_files.")
     parser.add_argument("--import_data", action="store_true", help="Prepare raw ODV data staged under data/data_raw/raw_smru_data_odv.")
@@ -165,6 +173,35 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
             print(f"{status:7s} {required:8s} {record['category']:16s} {record['name']}: {record['path']}")
         if any(record["required"] and not record["exists"] for record in records):
             success = False
+
+    if args.validate_runtime_tables:
+        table_summary = validate_runtime_tables(config=cfg)
+        from .data.table_validation import TableValidationResult, TableValidationIssue
+
+        result = TableValidationResult(
+            checked_tables=tuple(str(item) for item in table_summary["checked_tables"]),
+            issues=tuple(
+                TableValidationIssue(
+                    level=str(issue["level"]),
+                    table=str(issue["table"]),
+                    message=str(issue["message"]),
+                    row_number=issue["row_number"] if isinstance(issue["row_number"], int) else None,
+                    column=str(issue["column"]),
+                )
+                for issue in [*table_summary["errors"], *table_summary["warnings"]]
+            ),
+        )
+        print(result.format_text())
+        if not table_summary["ok"]:
+            success = False
+
+    if args.sync_smru_data:
+        if not args.source_dir:
+            parser.error("--sync-smru-data requires --source-dir")
+        from .data.smru_sync import sync_smru_data as sync_smru_data_impl
+
+        result = sync_smru_data_impl(cfg, source_dir=args.source_dir, apply=args.apply_sync)
+        print(result.format_markdown())
 
     if args.refresh_metadata_summaries:
         summary = update_metadata_summaries(config=cfg, force=args.force)

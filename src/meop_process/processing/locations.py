@@ -153,10 +153,23 @@ def _load_cls_data(config: MeopConfig, ptt: str, jul: np.ndarray) -> LocationSou
 
     frame = pd.read_csv(chosen, sep=";")
     columns = {str(name).strip(): name for name in frame.columns}
+    required = (
+        "Latitude",
+        "Longitude",
+        "Loc. quality",
+        "Loc. date=yyyy/MM/dd HH:mm:ss",
+    )
+    missing = [name for name in required if name not in columns]
+    if missing:
+        print(f"warning: CLS location file {chosen.name} missing columns: {', '.join(missing)}")
+        return None
+
     lat = np.asarray(frame[columns["Latitude"]], dtype=np.float64)
     lon = _normalize_longitudes(np.asarray(frame[columns["Longitude"]], dtype=np.float64))
-    lat2 = np.asarray(frame[columns["Latitude 2"]], dtype=np.float64)
-    lon2 = _normalize_longitudes(np.asarray(frame[columns["Longitude 2"]], dtype=np.float64))
+    lat2_column = columns.get("Latitude 2")
+    lon2_column = columns.get("Longitude 2")
+    lat2 = np.asarray(frame[lat2_column], dtype=np.float64) if lat2_column is not None else lat.copy()
+    lon2 = _normalize_longitudes(np.asarray(frame[lon2_column], dtype=np.float64)) if lon2_column is not None else lon.copy()
     quality = frame[columns["Loc. quality"]].astype(str).str.strip().to_numpy()
     loc_jul = _to_juld(frame[columns["Loc. date=yyyy/MM/dd HH:mm:ss"]])
 

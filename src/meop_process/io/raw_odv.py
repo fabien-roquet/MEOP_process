@@ -160,9 +160,14 @@ def import_raw_data_zip(config: MeopConfig, deployment: str) -> bool:
     archive_path = target_dir / f"{deployment}_ODV.zip"
     changed = False
     if archive_path.exists():
-        with zipfile.ZipFile(archive_path) as archive:
-            archive.extractall(path=target_dir)
-        changed = True
+        try:
+            with zipfile.ZipFile(archive_path) as archive:
+                members = [name for name in archive.namelist() if not name.endswith("/")]
+                if members:
+                    archive.extractall(path=target_dir)
+                    changed = True
+        except zipfile.BadZipFile:
+            return False
 
     combined = target_dir / f"{deployment}_ODV.txt"
     ctd = target_dir / f"{deployment}_CTD_ODV.txt"
@@ -172,7 +177,7 @@ def import_raw_data_zip(config: MeopConfig, deployment: str) -> bool:
         shutil.copy2(ctd, combined)
         changed = True
 
-    return archive_path.exists() or combined.exists() or ctd.exists() or fl.exists() or changed
+    return combined.exists() or ctd.exists() or fl.exists() or changed
 
 
 def _normalize_header(name: str) -> str:
@@ -247,21 +252,24 @@ def _sensor_key(column_name: str) -> str | None:
 def _iter_odv_rows(path: Path) -> tuple[list[str], Iterable[list[str]]]:
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.reader(handle, delimiter=";")
-        try:
-            first = next(reader)
-        except StopIteration:
+        header: list[str] | None = None
+        header_line = 0
+        for line_num, row in enumerate(reader, start=1):
+            if not any(cell.strip() for cell in row):
+                continue
+            if row and row[0].startswith("//"):
+                continue
+            header = row
+            header_line = line_num
+            break
+        if header is None:
             return [], []
-        if first and first[0].startswith("//"):
-            try:
-                header = next(reader)
-            except StopIteration:
-                return [], []
-        else:
-            header = first
         rows = []
-        for line_num, row in enumerate(reader, start=3 if first and first[0].startswith("//") else 2):
+        for line_num, row in enumerate(reader, start=header_line + 1):
             # Skip empty rows
             if not any(cell.strip() for cell in row):
+                continue
+            if row and row[0].startswith("//"):
                 continue
             # Validate row has reasonable number of fields
             if row and len(header) > 0:

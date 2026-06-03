@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -153,7 +154,14 @@ def _parse_hr_datetime(series: pd.Series) -> pd.DatetimeIndex:
 
 def load_hr_data(path: str | Path, *, continuous: bool) -> HrRawData:
     source = Path(path)
-    dataframe = pd.read_csv(source, sep="\t")
+    try:
+        dataframe = pd.read_csv(source, sep="\t")
+    except pd.errors.ParserError as exc:
+        warnings.warn(
+            f"Malformed HR rows skipped while reading {source.name}: {exc}",
+            stacklevel=2,
+        )
+        dataframe = pd.read_csv(source, sep="\t", on_bad_lines="skip")
     columns = list(dataframe.columns)
 
     date_column = _pick_column(columns, "date")

@@ -27,6 +27,24 @@ def test_import_raw_data_extracts_archive_in_place(meop_config) -> None:
     assert extracted_file.read_text(encoding="utf-8") == "payload"
 
 
+def test_import_raw_data_rejects_empty_archive(meop_config) -> None:
+    deployment = "DEP001"
+    meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+    zip_path = meop_config.raw_odv_dir / f"{deployment}_ODV.zip"
+    with zipfile.ZipFile(zip_path, "w"):
+        pass
+
+    assert import_raw_data_zip(meop_config, deployment) is False
+
+
+def test_import_raw_data_rejects_invalid_archive(meop_config) -> None:
+    deployment = "DEP001"
+    meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+    (meop_config.raw_odv_dir / f"{deployment}_ODV.zip").write_bytes(b"not a zip")
+
+    assert import_raw_data_zip(meop_config, deployment) is False
+
+
 def test_prepare_ncargo_inputs_is_a_noop_in_pure_python(meop_config, seed_catalog) -> None:
     deployment = "DEP001"
     seed_catalog(deployment=deployment, smru_name="DEP001-AAA")
@@ -128,6 +146,28 @@ def test_load_raw_odv_profiles_drops_profiles_with_blank_header_lon_lat(meop_con
 
     assert len(profiles) == 1
     assert profiles[0].station == 2
+
+
+def test_load_raw_odv_profiles_skips_multiple_leading_comment_lines(meop_config, seed_catalog) -> None:
+    deployment = "DEP001"
+    smru_name = "DEP001-AAA"
+    seed_catalog(deployment=deployment, smru_name=smru_name)
+    meop_config.raw_odv_dir.mkdir(parents=True, exist_ok=True)
+    (meop_config.raw_odv_dir / f"{deployment}_ODV.txt").write_text(
+        "// Generic ODV file\n"
+        "//<MissingValueIndicators>999</MissingValueIndicators>\n"
+        "Cruise;Station;Type;yyyy-mm-dd hh:mm;Longitude [degrees_east];Latitude [degrees_north];Bot. Depth [m];Pressure [dbar];Temperature [C];Salinity [PSU]\n"
+        "DEP001-AAA;1;B;2020-01-01 00:00;10;20;0;5;1.0;33.1\n"
+        ";;;;;;;10;1.1;33.2\n",
+        encoding="utf-8",
+    )
+
+    files = discover_raw_odv_files(meop_config, deployment)
+    profiles = load_raw_odv_profiles(files, config=meop_config)
+
+    assert len(profiles) == 1
+    assert profiles[0].smru_name == smru_name
+    assert profiles[0].pressure == (5.0, 10.0)
 
 
 def test_numeric_matrix_uses_field_specific_max_length() -> None:

@@ -4,6 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from meop_process.plotting import regions
 from meop_process.plotting.regions import label_region, label_regions
 
 
@@ -58,3 +59,33 @@ def test_label_region_returns_string():
 def test_label_regions_returns_ndarray():
     result = label_regions(np.array([0.0]), np.array([-60.0]))
     assert isinstance(result, np.ndarray)
+
+
+def test_regionmask_is_opt_in(monkeypatch):
+    class ExplodingRegionmask:
+        @property
+        def defined_regions(self):  # pragma: no cover - should not be touched
+            raise AssertionError("regionmask should not be used by default")
+
+    monkeypatch.delenv("MEOP_USE_REGIONMASK_AR6", raising=False)
+    monkeypatch.setattr(regions, "_AVAILABLE", True)
+    monkeypatch.setattr(regions, "_interpolator", None)
+    monkeypatch.setattr(regions, "_region_names", None)
+    monkeypatch.setattr(regions, "regionmask", ExplodingRegionmask(), raising=False)
+
+    assert label_region(-30.0, 45.0) == "North Atlantic"
+
+
+def test_regionmask_failure_falls_back(monkeypatch):
+    class ExplodingRegionmask:
+        @property
+        def defined_regions(self):
+            raise RuntimeError("offline cache missing")
+
+    monkeypatch.setenv("MEOP_USE_REGIONMASK_AR6", "1")
+    monkeypatch.setattr(regions, "_AVAILABLE", True)
+    monkeypatch.setattr(regions, "_interpolator", None)
+    monkeypatch.setattr(regions, "_region_names", None)
+    monkeypatch.setattr(regions, "regionmask", ExplodingRegionmask(), raising=False)
+
+    assert label_region(160.0, -45.0) == "South Pacific"

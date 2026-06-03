@@ -13,6 +13,7 @@ from ..catalog.deployments import load_deployment_catalog, load_hr_catalog
 from ..catalog.filenames import deployment_from_smru_name
 from ..io.netcdf import decode_text, juld_to_datetime
 from ..models import MeopConfig
+from ..plotting.regions import label_region
 
 
 PREFERRED_QF_ORDER: tuple[str, ...] = ("hr2", "fr1", "hr1", "lr1", "fr0", "hr0", "lr0")
@@ -58,10 +59,6 @@ DEPLOYMENT_FIELD_ORDER: tuple[str, ...] = (
     "FIRST_VERSION",
     "LAST_VERSION",
 )
-
-_REGION_INTERPOLATOR = None
-_REGION_LABELS: list[str] | None = None
-
 
 @dataclass(frozen=True)
 class SummaryUpdateResult:
@@ -176,76 +173,10 @@ def _first_valid_location(dataset: xr.Dataset, index: int | None) -> tuple[float
 
 
 def _resolve_region_label(lat: float | None, lon: float | None) -> str:
-    global _REGION_INTERPOLATOR, _REGION_LABELS
-
     if lat is None or lon is None or not np.isfinite(lat) or not np.isfinite(lon):
         return ""
-
-    if _REGION_INTERPOLATOR is None:
-        try:  # pragma: no cover - optional dependency path
-            from scipy.interpolate import RegularGridInterpolator
-            import regionmask
-
-            basins = regionmask.defined_regions.ar6.all
-            labels = list(basins.names)
-            grid_lon = np.arange(-179.5, 180.0)
-            grid_lat = np.arange(-89.5, 90.0)
-            mask = basins.mask(grid_lon, grid_lat).transpose().values
-            _REGION_INTERPOLATOR = RegularGridInterpolator(
-                (grid_lon, grid_lat),
-                mask,
-                method="nearest",
-                bounds_error=False,
-                fill_value=np.nan,
-            )
-            _REGION_LABELS = labels
-        except Exception:
-            _REGION_INTERPOLATOR = False
-            _REGION_LABELS = None
-
-    if _REGION_INTERPOLATOR is False or _REGION_LABELS is None:
-        return ""
-
-    basin_value = _REGION_INTERPOLATOR(np.asarray([[float(lon), float(lat)]], dtype=np.float64))[0]
-    if not np.isfinite(basin_value):
-        return ""
-    index = int(basin_value)
-    if index < 0 or index >= len(_REGION_LABELS):
-        return ""
-    raw = _REGION_LABELS[index]
-    mapping = {
-        "Southern-Ocean": "Southern Ocean",
-        "E.Antarctica": "Southern Ocean",
-        "W.Antarctica": "Southern Ocean",
-        "N.Pacific-Ocean": "North Pacific",
-        "C.North-America": "North Pacific",
-        "W.North-America": "North Pacific",
-        "N.W.North-America": "North Pacific",
-        "N.Central-America": "North Pacific",
-        "S.Central-America": "North Pacific",
-        "Russian-Arctic": "North Pacific",
-        "Arctic-Ocean": "North Atlantic",
-        "N.E.North-America": "North Atlantic",
-        "E.North-America": "North Atlantic",
-        "Greenland/Iceland": "North Atlantic",
-        "N.Atlantic-Ocean": "North Atlantic",
-        "N.Europe": "North Atlantic",
-        "S.E.South-America": "South Atlantic",
-        "S.South-America": "South Atlantic",
-        "S.Atlantic-Ocean": "South Atlantic",
-        "E.Australia": "South Pacific",
-        "S.Australia": "South Pacific",
-        "New-Zealand": "South Pacific",
-        "S.Pacific-Ocean": "South Pacific",
-        "Caribbean": "Tropical Atlantic",
-        "N.South-America": "Tropical Atlantic",
-        "Equatorial.Atlantic-Ocean": "Tropical Atlantic",
-        "N.E.South-America": "Tropical Atlantic",
-    }
-    label = mapping.get(raw, raw)
-    if label == "South Pacific" and lon < 0 and lon > -100:
-        return "South Atlantic"
-    return label
+    region = label_region(float(lon), float(lat))
+    return "" if region == "Unknown" else region
 
 
 def _truthy_flag(value: object) -> int:

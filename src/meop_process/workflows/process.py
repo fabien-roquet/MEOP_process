@@ -61,7 +61,7 @@ def process_tags(
         return WorkflowResult(False, "invalid deployment code")
 
     if not import_raw_data_zip(config, info.EXP):
-        return WorkflowResult(False, "missing raw ODV input")
+        return WorkflowResult(False, _describe_lr0_failure(config, info.EXP))
 
     remove_deployment_outputs(config, info)
     selection = info.selection
