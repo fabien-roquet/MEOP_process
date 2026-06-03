@@ -152,6 +152,30 @@ def test_load_cora_tiles_multiple_tiles(tmp_path: Path) -> None:
     assert result["temp"].shape[0] == result["lat"].shape[0]
 
 
+def test_load_cora_tiles_skips_malformed_existing_tile(tmp_path: Path) -> None:
+    import xarray as xr
+    from meop_process.reference.cora import load_cora_tiles
+
+    xr.Dataset().to_netcdf(tmp_path / "CORA_lon050W_lat80S.nc")
+    _write_mock_cora_tile(
+        tmp_path / "CORA_lon040W_lat70S.nc",
+        n_prof=8,
+        lat_range=(-70.0, -61.0),
+        lon_range=(-40.0, -31.0),
+    )
+
+    result = load_cora_tiles(
+        tmp_path,
+        lon_min=-45.0,
+        lon_max=-25.0,
+        lat_min=-75.0,
+        lat_max=-55.0,
+    )
+
+    assert result["lat"].shape[0] > 0
+    assert result["temp"].shape[1] == result["pres"].shape[0]
+
+
 # ---------------------------------------------------------------------------
 # Tile filename helper tests
 # ---------------------------------------------------------------------------
@@ -297,6 +321,36 @@ def test_plot_ts_calibration_chunking(tmp_path: Path) -> None:
     assert written[1].name == "test-tag-chunk_calibration_part1.png"
 
 
+def test_plot_ts_calibration_interpolates_cora_and_context_grids(tmp_path: Path) -> None:
+    from meop_process.plotting.calibration import plot_ts_calibration
+
+    target_path = tmp_path / "mock_hr1.nc"
+    other_path = tmp_path / "other_hr1.nc"
+    _write_mock_meop_prof(target_path, n_prof=4, n_levels=16)
+    _write_mock_meop_prof(other_path, n_prof=3, n_levels=1000)
+
+    cora_pres = np.linspace(0.0, 990.0, 100)
+    cora_data = {
+        "lat": np.asarray([-65.0, -66.0]),
+        "lon": np.asarray([-35.0, -36.0]),
+        "juld": np.asarray([0.0, 1.0]),
+        "temp": np.tile(np.linspace(0.0, 4.0, cora_pres.size), (2, 1)),
+        "psal": np.tile(np.linspace(33.8, 34.4, cora_pres.size), (2, 1)),
+        "pres": cora_pres,
+    }
+
+    written = plot_ts_calibration(
+        "test-tag-grid",
+        cora_data=cora_data,
+        target_path=target_path,
+        other_paths=[other_path],
+        output_dir=tmp_path / "plots",
+    )
+
+    assert len(written) == 1
+    assert written[0].exists()
+
+
 # ---------------------------------------------------------------------------
 # CLI --plot1 tests
 # ---------------------------------------------------------------------------
@@ -321,6 +375,22 @@ def test_compare_cli_plot1_no_cora_dir_error(tmp_path: Path, meop_config) -> Non
     )
     ret = main(["--plot1", "some-tag", "--config", str(config_json)])
     assert ret == 2
+
+
+def test_compare_cli_plot1_prefers_hr1_product(meop_config) -> None:
+    from meop_process.compare_cli import _select_calibration_target
+
+    smru_name = "DEP001-AAA"
+    deployment_dir = meop_config.final_dataset_dir / "DEP001"
+    deployment_dir.mkdir(parents=True, exist_ok=True)
+    for qf in ("lr1", "hr1", "hr2"):
+        (deployment_dir / f"{smru_name}_{qf}_prof.nc").write_text("placeholder", encoding="utf-8")
+
+    target, qf = _select_calibration_target(smru_name, config=meop_config)
+
+    assert qf == "hr1"
+    assert target is not None
+    assert target.name == f"{smru_name}_hr1_prof.nc"
 
 
 def test_compare_cli_requires_reference_and_candidate() -> None:

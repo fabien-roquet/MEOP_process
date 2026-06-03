@@ -14,6 +14,8 @@ from .reference.cora import load_cora_tiles
 from .plotting.calibration import plot_ts_calibration
 from .catalog.filenames import deployment_from_smru_name, list_fname_prof
 
+CALIBRATION_QF_PREFERENCE = ("hr1", "lr1", "hr2", "hr0", "lr0", "fr1", "fr0")
+
 
 def _open_dataset(path: Path):
     import xarray as xr
@@ -183,6 +185,15 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _select_calibration_target(smru_name: str, *, config) -> tuple[Path | None, str]:
+    for qf in CALIBRATION_QF_PREFERENCE:
+        paths = list_fname_prof(smru_name, qf=qf, config=config)
+        if paths:
+            return paths[-1], qf
+    paths = list_fname_prof(smru_name, config=config)
+    return (paths[-1], "") if paths else (None, "")
+
+
 def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
     """Generate CORA calibration plots for *smru_name* and return an exit code."""
     try:
@@ -198,11 +209,10 @@ def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
         )
         return 2
 
-    target_paths = list_fname_prof(smru_name, config=config)
-    if not target_paths:
+    target_path, target_qf = _select_calibration_target(smru_name, config=config)
+    if target_path is None:
         print(f"error: no profile files found for {smru_name!r}", file=sys.stderr)
         return 2
-    target_path = target_paths[-1]  # prefer lr1 if multiple qf levels exist
 
     # Determine bounding box from the target tag
     try:
@@ -232,8 +242,9 @@ def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
     )
 
     deployment = deployment_from_smru_name(smru_name)
+    context_qf = target_qf or "*"
     other_paths = [
-        p for p in list_fname_prof(deployment=deployment, config=config)
+        p for p in list_fname_prof(deployment=deployment, qf=context_qf, config=config)
         if p != target_path
     ]
 

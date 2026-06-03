@@ -12,13 +12,14 @@ For a given target tag, produce a two-panel figure per chunk of ≤200 profiles:
       median, coloured by time (viridis)
 
 Output files are saved alongside the existing diagnostics plots under
-``config.plotdir / deployment / {smru_name}_lr1_calibration_N.png``.
+``config.plotdir / deployment / {smru_name}_calibration*.png``.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Sequence
+import warnings
 
 import numpy as np
 
@@ -78,10 +79,46 @@ def _extract_profiles(
 
         # pres may be (N_PROF, N_LEVELS) → take median as shared grid
         if pres.ndim == 2:
-            pres_grid = np.nanmedian(pres, axis=0)
+            pres_grid = _nanmedian_no_warning(pres, axis=0)
         else:
             pres_grid = pres
         return pres_grid, temp, psal, juld
+
+
+def _same_pressure_grid(left: np.ndarray, right: np.ndarray) -> bool:
+    left = np.asarray(left, dtype=np.float64).reshape(-1)
+    right = np.asarray(right, dtype=np.float64).reshape(-1)
+    return left.shape == right.shape and bool(np.allclose(left, right, equal_nan=True))
+
+
+def _project_matrix_to_grid(source_pres: np.ndarray, values: np.ndarray, target_pres: np.ndarray) -> np.ndarray | None:
+    source_pres = np.asarray(source_pres, dtype=np.float64).reshape(-1)
+    target_pres = np.asarray(target_pres, dtype=np.float64).reshape(-1)
+    values = np.asarray(values, dtype=np.float64)
+    if values.ndim == 1:
+        values = values.reshape(1, -1)
+    if values.ndim != 2 or values.shape[1] != source_pres.size:
+        return None
+    if _same_pressure_grid(source_pres, target_pres):
+        return values
+
+    projected = np.full((values.shape[0], target_pres.size), np.nan, dtype=np.float64)
+    finite_pres = np.isfinite(source_pres)
+    for row in range(values.shape[0]):
+        valid = finite_pres & np.isfinite(values[row])
+        if np.count_nonzero(valid) < 2:
+            continue
+        order = np.argsort(source_pres[valid])
+        src_pres = source_pres[valid][order]
+        src_values = values[row][valid][order]
+        projected[row] = np.interp(target_pres, src_pres, src_values, left=np.nan, right=np.nan)
+    return projected
+
+
+def _nanmedian_no_warning(values: np.ndarray, axis: int = 0) -> np.ndarray:
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        return np.nanmedian(values, axis=axis)
 
 
 # ---------------------------------------------------------------------------
@@ -139,25 +176,15 @@ def plot_ts_calibration(
     cora_psal = cora_data.get("psal", np.empty((0, len(pres_grid))))
 
     # Interpolate CORA to the target pressure grid if needed
-    if len(cora_pres) > 0 and not np.allclose(cora_pres, pres_grid, equal_nan=True):
-        cora_temp_interp = np.full((cora_temp.shape[0], len(pres_grid)), np.nan)
-        cora_psal_interp = np.full((cora_psal.shape[0], len(pres_grid)), np.nan)
-        for i in range(cora_temp.shape[0]):
-            valid = ~np.isnan(cora_pres) & ~np.isnan(cora_temp[i])
-            if valid.sum() >= 2:
-                cora_temp_interp[i] = np.interp(
-                    pres_grid, cora_pres[valid], cora_temp[i, valid], left=np.nan, right=np.nan
-                )
-            valid = ~np.isnan(cora_pres) & ~np.isnan(cora_psal[i])
-            if valid.sum() >= 2:
-                cora_psal_interp[i] = np.interp(
-                    pres_grid, cora_pres[valid], cora_psal[i, valid], left=np.nan, right=np.nan
-                )
-        cora_temp = cora_temp_interp
-        cora_psal = cora_psal_interp
-        cora_pres = pres_grid
+    if len(cora_pres) > 0:
+        projected_temp = _project_matrix_to_grid(cora_pres, cora_temp, pres_grid)
+        projected_psal = _project_matrix_to_grid(cora_pres, cora_psal, pres_grid)
+        if projected_temp is not None and projected_psal is not None:
+            cora_temp = projected_temp
+            cora_psal = projected_psal
+            cora_pres = pres_grid
 
-    cora_psal_median = np.nanmedian(cora_psal, axis=0) if cora_psal.shape[0] > 0 else np.full_like(pres_grid, np.nan)
+    cora_psal_median = _nanmedian_no_warning(cora_psal, axis=0) if cora_psal.shape[0] > 0 else np.full_like(pres_grid, np.nan)
 
     # Build "other" profiles cloud
     other_temp_list: list[np.ndarray] = []
@@ -166,9 +193,13 @@ def plot_ts_calibration(
         if not op.exists():
             continue
         try:
-            _, ot, op_psal, _ = _extract_profiles(op)
-            other_temp_list.append(ot)
-            other_psal_list.append(op_psal)
+            other_pres, ot, op_psal, _ = _extract_profiles(op)
+            projected_temp = _project_matrix_to_grid(other_pres, ot, pres_grid)
+            projected_psal = _project_matrix_to_grid(other_pres, op_psal, pres_grid)
+            if projected_temp is None or projected_psal is None:
+                continue
+            other_temp_list.append(projected_temp)
+            other_psal_list.append(projected_psal)
         except Exception:
             pass
 

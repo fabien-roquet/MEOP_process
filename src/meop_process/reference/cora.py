@@ -12,10 +12,12 @@ per-profile LATITUDE, LONGITUDE, and JULD.
 
 from __future__ import annotations
 
-import re
+import logging
 from pathlib import Path
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 def _tile_lon_name(lon_deg10: int) -> str:
@@ -102,7 +104,17 @@ def load_cora_tiles(
         path = cora_dir / fname
         if not path.exists():
             continue
-        with xr.open_dataset(path, decode_times=False) as ds:
+        try:
+            ds_context = xr.open_dataset(path, decode_times=False)
+        except Exception as exc:
+            logger.warning("Skipping unreadable CORA tile %s: %s", path.name, exc)
+            continue
+        with ds_context as ds:
+            required = {"LATITUDE", "LONGITUDE", "JULD", "TEMP", "PSAL", "PRES_GRID"}
+            missing = sorted(required.difference(ds.variables))
+            if missing:
+                logger.warning("Skipping malformed CORA tile %s: missing %s", path.name, ", ".join(missing))
+                continue
             tile_lat = np.asarray(ds["LATITUDE"].values, dtype=np.float64)
             tile_lon = np.asarray(ds["LONGITUDE"].values, dtype=np.float64)
             mask = (
