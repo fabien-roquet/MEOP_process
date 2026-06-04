@@ -972,13 +972,13 @@ ct69-M53b-10,0,0,0,0,0,0,no comment
 ct69-M57-10,0,0,0,0,0,0,no comment
 ct69-M64-Benny-10,0,0,0,0,0,0,no comment
 ct69-M65-10,0,0,0,0,0,0,no comment
-ct7-10026-05,0,0,0,0,0,0,no comment
-ct7-10028-05,0,0,0,0,0,0,no comment
-ct7-10029-05,0,0,0,0.03,0,0,no comment
-ct7-10032-05,0,0,0,0,0,0,no comment
-ct7-10035-05,0,0,0,0,0,0,no comment
-ct7-10037-05,0,0,0,0.1,0,0,no comment
-ct7-10039-05,0,0,0,0,1,0,no comment
+ct7-10026-05,0,0,0,0,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
+ct7-10028-05,0,0,0,0,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
+ct7-10029-05,0,0,0,0.03,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
+ct7-10032-05,0,0,0,0,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
+ct7-10035-05,0,0,0,0,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
+ct7-10037-05,0,0,0,0.1,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
+ct7-10039-05,0,0,0,0,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
 ct70-356-11,0,0.04,0,-0.02,0,0,no comment
 ct70-486-11,0,0,0,0.1,0,0,no comment
 ct70-488-11,0,0,0,0.02,0,0,no comment
@@ -2394,12 +2394,12 @@ rs37-443-21,0,0,0,0,0,0,no comment
 ft28-470-21,0,0,0,0,1,0,no comment
 ft28-476-21,0,0,0,0,1,0,no comment
 ft28-495-21,0,0,0,0,1,0,no comment
-ft28-761-22,0,0,0,0,1,0,no comment
+ft28-761-22,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
 ft28-762-22,0,0,0,0,1,0,no comment
 ft28-764-22,0,0,0,0,1,0,no comment
-ft28-765-22,0,0,0,0,1,0,no comment
-ft28-824-23,0,0,0,0,1,0,no comment
-ft28-827-23,0,0,0,0,1,0,no comment
+ft28-765-22,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft28-824-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft28-827-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
 ft27-258-20,0,0,0,0,0,0,no comment
 ft27-260-20,0,0,0,0.48,0,0,no comment
 ft27-261-20,0,0,0,0,0,0,no comment
@@ -2455,22 +2455,22 @@ ct177-843-23,0,0,0,0,0,0,no comment
 ct177-845-23,0,0,0,0,0,0,no comment
 ct179-F864-23,0,0,0,0,0,0,no comment
 ct179-O903-23,0,0,0,0,0,0,no comment
-ct190-Q1044-000-24,0,0,0,0,0,0,no comment
+ct190-Q1044-000-24,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for several tags
 ct190-Q1044-896-24,0,0,0,0,0,0,no comment
 ct190-Q1044-897-24,0,0,0,0,0,0,no comment
 ct190-Q1044-962-24,0,0,0,0,0,0,no comment
 ct190-Q1044-963-24,0,0,0,0,0,0,no comment
 ct190-Q1044-975-24,0,0,0,0,0,0,no comment
-ct190-Q1044-976-24,0,0,0,0,0,0,no comment
-ct190-Q1044-977-I2C-24,0,0,0,0,0,0,no comment
+ct190-Q1044-976-24,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for several tags
+ct190-Q1044-977-I2C-24,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for several tags
 ct190-Q1044-978-24,0,0,0,0,0,0,no comment
 ct190-Q1044-979-24,0,0,0,0,0,0,no comment
-ct190-Q1044-994-24,0,0,0,0,0,0,no comment
-ct190-Q1044-997-24,0,0,0,0,0,0,no comment
+ct190-Q1044-994-24,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for several tags
+ct190-Q1044-997-24,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for several tags
 ct190-Q1044-F988-24,0,0,0,0,0,0,no comment
-ct190-Q1044-F995-24,0,0,0,0,0,0,no comment
-ct190-Q1044-F996-24,0,0,0,0,0,0,no comment
-ct190-Q1044-F999-24,0,0,0,0,0,0,no comment
+ct190-Q1044-F995-24,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for several tags
+ct190-Q1044-F996-24,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for several tags
+ct190-Q1044-F999-24,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for several tags
 BM03-854-18,0,0,0,0,0,0,no comment
 ct100-261BAT-13,0,0,0,0,0,0,no comment
 ct101-416-rebatt-12,0,0,0,0,0,0,no comment
@@ -2597,32 +2597,32 @@ ct188-Q1044-889-I2C-24,0,0,0,0,0,0,no comment
 ct188-Q1044-983-24,0,0,0,0,0,0,no comment
 ct188-Q1044-985-24,0,0,0,0,0,0,no comment
 ct188-Q1044-993-24,0,0,0,0,0,0,no comment
-ct189-576-25,0,0,0,0,0,0,no comment
-ct189-577-25,0,0,0,0,0,0,no comment
-ct189-578-25,0,0,0,0,0,0,no comment
-ct189-579-25,0,0,0,0,0,0,no comment
-ct189-580-25,0,0,0,0,0,0,no comment
-ct189-581-25,0,0,0,0,0,0,no comment
-ct189-582-25,0,0,0,0,0,0,no comment
-ct189-583-25,0,0,0,0,0,0,no comment
-ct189-584-25,0,0,0,0,0,0,no comment
-ct189-585-25,0,0,0,0,0,0,no comment
-ct189-586-25,0,0,0,0,0,0,no comment
-ct189-587-25,0,0,0,0,0,0,no comment
-ct189-588-25,0,0,0,0,0,0,no comment
-ct189-589-25,0,0,0,0,0,0,no comment
-ct189-590-25,0,0,0,0,0,0,no comment
-ct189-591-25,0,0,0,0,0,0,no comment
-ct189-592-25,0,0,0,0,0,0,no comment
-ct189-593-25,0,0,0,0,0,0,no comment
-ct189-594-25,0,0,0,0,0,0,no comment
-ct189-595-25,0,0,0,0,0,0,no comment
-ct189-596-25,0,0,0,0,0,0,no comment
+ct189-576-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-577-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-578-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-579-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-580-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-581-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-582-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-583-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-584-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-585-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-586-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-587-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-588-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-589-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-590-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-591-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-592-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-593-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-594-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-595-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
+ct189-596-25,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for many tags
 ct31-441,0,0,0,0,0,0,no comment
 ct31-448B,0,0,0,0,0,0,no comment
 ct51-082-09,0,0,0,0,0,0,no comment
-ct7-10031-05,0,0,0,0,0,0,no comment
-ct7-10033-05,0,0,0,0,0,0,no comment
+ct7-10031-05,0,0,0,0,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
+ct7-10033-05,0,0,0,0,1,0,remove: missing CTD lat/lon in ODV/processed files; positions exist only in MDB dive track and need reconstruction
 ct78-700BAT-12,0,0,0,0,0,0,no comment
 ct80-01,0,0,0,0,0,0,no comment
 ct80-03,0,0,0,0,0,0,no comment
@@ -2648,19 +2648,19 @@ ft13-616,0,0,0,0,0,0,no comment
 ft13-628,0,0,0,0,0,0,no comment
 ft13-633,0,0,0,0,0,0,no comment
 ft19-633,0,0,0,0,0,0,no comment
-ft25-240BAT-14,0,0,0,0,0,0,no comment
+ft25-240BAT-14,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
 ft25-242BAT-14,0,0,0,0,0,0,no comment
-ft25-243BAT-14,0,0,0,0,0,0,no comment
-ft25-949-18,0,0,0,0,0,0,no comment
-ft25-951-18,0,0,0,0,0,0,no comment
-ft25-952-18,0,0,0,0,0,0,no comment
-ft25-953-18,0,0,0,0,0,0,no comment
-ft25-956-18,0,0,0,0,0,0,no comment
-ft25-958-18,0,0,0,0,0,0,no comment
-ft28-472-21,0,0,0,0,0,0,no comment
-ft28-497-21,0,0,0,0,0,0,no comment
-ft28-825-23,0,0,0,0,0,0,no comment
-ft28-826-23,0,0,0,0,0,0,no comment
+ft25-243BAT-14,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft25-949-18,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft25-951-18,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft25-952-18,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft25-953-18,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft25-956-18,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft25-958-18,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft28-472-21,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft28-497-21,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft28-825-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
+ft28-826-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; no recoverable coordinates found in MDB for this tag
 ft30-258BAT-20,0,0,0,0,0,0,no comment
 ft30-260BAT-20,0,0,0,0,0,0,no comment
 ft30-262BAT-20,0,0,0,0,0,0,no comment
@@ -2774,17 +2774,17 @@ wd28-C599-22,0,0,0,0,0,0,no comment
 wd28-C600-22,0,0,0,0,0,0,no comment
 wd28-C774-22,0,0,0,0,0,0,no comment
 wd28-C775-22,0,0,0,0,0,0,no comment
-wd29-810-23,0,0,0,0,0,0,no comment
-wd29-876-23,0,0,0,0,0,0,no comment
-wd29-882-23,0,0,0,0,0,0,no comment
-wd29-918-23,0,0,0,0,0,0,no comment
-wd29-931-23,0,0,0,0,0,0,no comment
-wd29-933-23,0,0,0,0,0,0,no comment
-wd29-938-23,0,0,0,0,0,0,no comment
-wd29-939-23,0,0,0,0,0,0,no comment
-wd29-942-23,0,0,0,0,0,0,no comment
-wd29-943-23,0,0,0,0,0,0,no comment
-wd29-944-23,0,0,0,0,0,0,no comment
-wd29-945-23,0,0,0,0,0,0,no comment
-wd29-947-23,0,0,0,0,0,0,no comment
-wd29-948-23,0,0,0,0,0,0,no comment
+wd29-810-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-876-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-882-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-918-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-931-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-933-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-938-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-939-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-942-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-943-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-944-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-945-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-947-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
+wd29-948-23,0,0,0,0,1,0,remove: missing lat/lon in current ODV/processed files; recent SMRU data may be updated later; MDB has positions for some tags
