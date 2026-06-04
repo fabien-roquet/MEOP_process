@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
 import numpy as np
@@ -230,6 +231,31 @@ def _write_mock_meop_prof(
     ds.to_netcdf(path)
 
 
+def _write_offset_meop_prof(path: Path, *, psal_offset: float, psal_slope: float, temp_offset: float) -> np.ndarray:
+    """Write a small profile file with controlled tag-minus-CORA anomalies."""
+    import xarray as xr
+
+    pres_grid = np.asarray([100.0, 300.0, 400.0, 500.0, 600.0, 800.0], dtype=np.float64)
+    pres_vals = np.tile(pres_grid, (4, 1))
+    cora_temp = np.asarray([1.4, 1.2, 1.0, 0.8, 0.6, 0.4], dtype=np.float64)
+    cora_psal = np.asarray([34.0, 34.1, 34.2, 34.3, 34.4, 34.5], dtype=np.float64)
+    temp_vals = np.tile(cora_temp + temp_offset, (4, 1))
+    psal_vals = np.tile(cora_psal + psal_offset + psal_slope * pres_grid, (4, 1))
+    ds = xr.Dataset(
+        {
+            "PRES_ADJUSTED": (("N_PROF", "N_LEVELS"), pres_vals),
+            "TEMP_ADJUSTED": (("N_PROF", "N_LEVELS"), temp_vals),
+            "PSAL_ADJUSTED": (("N_PROF", "N_LEVELS"), psal_vals),
+            "LATITUDE": ("N_PROF", np.full(4, -65.0)),
+            "LONGITUDE": ("N_PROF", np.full(4, -35.0)),
+            "JULD": ("N_PROF", np.arange(4, dtype=np.float64)),
+        }
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ds.to_netcdf(path)
+    return pres_grid
+
+
 def test_plot_ts_calibration_produces_file(tmp_path: Path) -> None:
     """plot_ts_calibration writes at least one PNG file."""
     from meop_process.plotting.calibration import plot_ts_calibration
@@ -349,6 +375,47 @@ def test_plot_ts_calibration_interpolates_cora_and_context_grids(tmp_path: Path)
 
     assert len(written) == 1
     assert written[0].exists()
+
+
+def test_plot_ts_calibration_writes_offset_diagnostics(tmp_path: Path) -> None:
+    from meop_process.plotting.calibration import plot_ts_calibration
+
+    target_path = tmp_path / "offset_hr1.nc"
+    pres_grid = _write_offset_meop_prof(target_path, psal_offset=0.01, psal_slope=2e-5, temp_offset=-0.03)
+    cora_temp = np.asarray([1.4, 1.2, 1.0, 0.8, 0.6, 0.4], dtype=np.float64)
+    cora_psal = np.asarray([34.0, 34.1, 34.2, 34.3, 34.4, 34.5], dtype=np.float64)
+    cora_data = {
+        "lat": np.asarray([-65.0, -66.0]),
+        "lon": np.asarray([-35.0, -36.0]),
+        "juld": np.asarray([0.0, 1.0]),
+        "temp": np.tile(cora_temp, (2, 1)),
+        "psal": np.tile(cora_psal, (2, 1)),
+        "pres": pres_grid,
+    }
+
+    written = plot_ts_calibration(
+        "test-tag-offset",
+        cora_data=cora_data,
+        target_path=target_path,
+        output_dir=tmp_path / "plots",
+        write_diagnostics=True,
+    )
+
+    names = {path.name for path in written}
+    assert "test-tag-offset_calibration.png" in names
+    assert "test-tag-offset_calibration_offsets.png" in names
+    csv_path = tmp_path / "plots" / "test-tag-offset_calibration_offsets.csv"
+    assert csv_path.name in names
+
+    rows = list(csv.DictReader(csv_path.open(encoding="utf-8", newline="")))
+    psal_band = next(row for row in rows if row["variable"] == "PSAL" and row["diagnostic"] == "band_400_600")
+    psal_linear = next(row for row in rows if row["variable"] == "PSAL" and row["diagnostic"] == "linear_200_1000")
+    temp_band = next(row for row in rows if row["variable"] == "TEMP" and row["diagnostic"] == "band_400_600")
+
+    assert float(psal_band["suggested_S2"]) == pytest.approx(0.02, abs=1e-6)
+    assert float(psal_linear["suggested_S1"]) == pytest.approx(0.02, abs=1e-6)
+    assert float(psal_linear["suggested_S2"]) == pytest.approx(0.01, abs=1e-6)
+    assert float(temp_band["suggested_T2"]) == pytest.approx(-0.03, abs=1e-6)
 
 
 # ---------------------------------------------------------------------------

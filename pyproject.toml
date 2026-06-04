@@ -31,6 +31,7 @@ dev = [
 meop-process = "meop_process.cli:main"
 meop-process-batch = "meop_process.batch.runner:main"
 meop-compare = "meop_process.compare_cli:main"
+meop-compare-batch = "meop_process.compare_batch:main"
 meop-publish = "meop_process.publish_cli:main"
 
 [tool.setuptools.package-dir]

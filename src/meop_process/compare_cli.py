@@ -194,25 +194,17 @@ def _select_calibration_target(smru_name: str, *, config) -> tuple[Path | None, 
     return (paths[-1], "") if paths else (None, "")
 
 
-def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
-    """Generate CORA calibration plots for *smru_name* and return an exit code."""
-    try:
-        config = load_config(config_file=config_file, require_config=True)
-    except (FileNotFoundError, ValueError) as exc:
-        print(f"WARNING: {exc}", file=sys.stderr)
-        return 2
+def generate_calibration_plots(smru_name: str, *, config) -> list[Path]:
+    """Generate CORA calibration plots for one tag and return written paths."""
     if config.cora_dir is None:
-        print(
-            f"WARNING: references.cora_dir is not set in configs.json.  "
-            f"Add \"references\": {{\"cora_dir\": \"/path/to/CORA_ncfiles\"}} to enable --plot1.",
-            file=sys.stderr,
+        raise ValueError(
+            'references.cora_dir is not set in configs.json. Add "references": '
+            '{"cora_dir": "/path/to/CORA_ncfiles"} to enable calibration plots.'
         )
-        return 2
 
     target_path, target_qf = _select_calibration_target(smru_name, config=config)
     if target_path is None:
-        print(f"error: no profile files found for {smru_name!r}", file=sys.stderr)
-        return 2
+        raise FileNotFoundError(f"no profile files found for {smru_name!r}")
 
     # Determine bounding box from the target tag
     try:
@@ -224,14 +216,12 @@ def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
         valid_lat = lats[~np.isnan(lats)]
         valid_lon = lons[~np.isnan(lons)]
         if valid_lat.size == 0 or valid_lon.size == 0:
-            print(f"error: no valid lat/lon in {target_path}", file=sys.stderr)
-            return 2
+            raise ValueError(f"no valid lat/lon in {target_path}")
         margin = 5.0
         lon_min, lon_max = float(valid_lon.min()) - margin, float(valid_lon.max()) + margin
         lat_min, lat_max = float(valid_lat.min()) - margin, float(valid_lat.max()) + margin
     except Exception as exc:
-        print(f"error reading target path: {exc}", file=sys.stderr)
-        return 2
+        raise ValueError(f"error reading target path: {exc}") from exc
 
     cora_data = load_cora_tiles(
         config.cora_dir,
@@ -249,13 +239,28 @@ def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
     ]
 
     output_dir = config.plotdir / deployment
-    written = plot_ts_calibration(
+    return plot_ts_calibration(
         smru_name,
         cora_data=cora_data,
         target_path=target_path,
         other_paths=other_paths,
         output_dir=output_dir,
+        write_diagnostics=True,
     )
+
+
+def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
+    """Generate CORA calibration plots for *smru_name* and return an exit code."""
+    try:
+        config = load_config(config_file=config_file, require_config=True)
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"WARNING: {exc}", file=sys.stderr)
+        return 2
+    try:
+        written = generate_calibration_plots(smru_name, config=config)
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
     for path in written:
         print(f"wrote: {path}")
     return 0
