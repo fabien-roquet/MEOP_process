@@ -80,6 +80,42 @@ class _TableSchema:
     duplicate_key_level: str = "error"
 
 
+TABLE_COEFF_COMMENT_CODES = frozenset(
+    {
+        "OK",
+        "RM",
+        "SRM",
+        "NO_POS",
+        "SMRU_WAIT",
+        "MDB_MANY",
+        "MDB_SEV",
+        "MDB_SOME",
+        "MDB_NONE",
+        "DIVE_POS",
+        "GPS_LAND",
+        "INVIS",
+        "S_BAD",
+        "S_STOP",
+        "S_SURF_HI",
+        "T_WARM",
+        "T_DRIFT",
+        "T_BAD",
+        "TS_BAD",
+        "TS_DRIFT",
+        "SPLIT_CHECK",
+        "OFFSET_VAR",
+        "OFFSET_HIGH",
+        "DATE_FILTER",
+        "SHALLOW",
+        "PRES_MISS",
+        "FREEZE_NOREF",
+        "PART_WEIRD",
+        "RM_CHECK",
+        "ALL_BAD",
+    }
+)
+
+
 TABLE_SCHEMAS: dict[str, _TableSchema] = {
     "table_coeff.csv": _TableSchema(
         required_columns=("smru_platform_code", "T1", "T2", "S1", "S2", "remove", "Sremove", "comment"),
@@ -87,6 +123,11 @@ TABLE_SCHEMAS: dict[str, _TableSchema] = {
         numeric_columns=("T1", "T2", "S1", "S2", "remove", "Sremove"),
         blank_columns_error=True,
         allow_blank_numeric=False,
+    ),
+    "table_coeff_comment_codes.csv": _TableSchema(
+        required_columns=("code", "short_label", "details"),
+        key_column="code",
+        blank_columns_error=True,
     ),
     "table_config_plots.csv": _TableSchema(
         required_columns=("smru_platform_code", "Tmin", "Tmax", "Smin", "Smax", "lat_min", "lat_max", "lon_min", "lon_max"),
@@ -162,6 +203,39 @@ def _is_number(value: str) -> bool:
     return True
 
 
+def _validate_table_coeff_comment(row: dict[str, str], *, table: str, row_index: int) -> list[TableValidationIssue]:
+    issues: list[TableValidationIssue] = []
+    comment = row.get("comment", "").strip()
+    if not comment:
+        return [TableValidationIssue("error", table, "blank standardized comment", row_number=row_index, column="comment")]
+    if len(comment) > 64:
+        issues.append(TableValidationIssue("error", table, "standardized comment is too long", row_number=row_index, column="comment"))
+    codes = [part.strip() for part in comment.split(";") if part.strip()]
+    if not codes:
+        issues.append(TableValidationIssue("error", table, "blank standardized comment", row_number=row_index, column="comment"))
+        return issues
+
+    for code in codes:
+        if code not in TABLE_COEFF_COMMENT_CODES:
+            issues.append(TableValidationIssue("error", table, f"unknown standardized comment code {code!r}", row_number=row_index, column="comment"))
+    if len(set(codes)) != len(codes):
+        issues.append(TableValidationIssue("warning", table, "duplicate standardized comment code", row_number=row_index, column="comment"))
+    if "OK" in codes and len(codes) > 1:
+        issues.append(TableValidationIssue("error", table, "OK cannot be combined with other comment codes", row_number=row_index, column="comment"))
+
+    remove = row.get("remove", "").strip()
+    sremove = row.get("Sremove", "").strip()
+    if remove == "1" and "RM" not in codes:
+        issues.append(TableValidationIssue("warning", table, "remove=1 without RM comment code", row_number=row_index, column="comment"))
+    if remove != "1" and "RM" in codes:
+        issues.append(TableValidationIssue("warning", table, "RM comment code without remove=1", row_number=row_index, column="comment"))
+    if sremove == "1" and "SRM" not in codes:
+        issues.append(TableValidationIssue("warning", table, "Sremove=1 without SRM comment code", row_number=row_index, column="comment"))
+    if sremove != "1" and "SRM" in codes:
+        issues.append(TableValidationIssue("warning", table, "SRM comment code without Sremove=1", row_number=row_index, column="comment"))
+    return issues
+
+
 def _validate_csv_table(path: Path, table: str, schema: _TableSchema) -> list[TableValidationIssue]:
     issues: list[TableValidationIssue] = []
     if not path.exists():
@@ -234,6 +308,8 @@ def _validate_csv_table(path: Path, table: str, schema: _TableSchema) -> list[Ta
                         continue
                     if not _is_number(value):
                         issues.append(TableValidationIssue("error", table, f"expected numeric value, got {value!r}", row_number=row_index, column=column))
+                if table == "table_coeff.csv":
+                    issues.extend(_validate_table_coeff_comment(row, table=table, row_index=row_index))
         except csv.Error as exc:
             issues.append(TableValidationIssue("error", table, f"CSV parser error: {exc}"))
     return issues

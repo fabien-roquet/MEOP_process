@@ -67,7 +67,7 @@ def test_adjustments_default_coefficients_rewrite_plain_csv(meop_config) -> None
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         ",smru_platform_code,T1,T2,S1,S2,remove,Sremove,comment\n"
-        "OLD,OLD,0,0,0,0,0,0,no comment\n",
+        "OLD,OLD,0,0,0,0,0,0,OK\n",
         encoding="utf-8",
     )
 

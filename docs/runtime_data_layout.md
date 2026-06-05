@@ -5,7 +5,7 @@ The package resolves runtime data from package-managed roots under `data/` and f
 ## Canonical runtime roots
 
 - `data/tables/`
-  - shipped CSV defaults such as `table_coeff.csv`, `table_filter.csv`, `table_meta.csv`, `table_param.csv`
+  - shipped CSV defaults such as `table_coeff.csv`, `table_coeff_comment_codes.csv`, `table_filter.csv`, `table_meta.csv`, `table_param.csv`
 - `data/catalog/`
   - operator-maintained registries such as `list_deployment.csv` and `list_deployment_hr.csv`
 - `data/data_raw/config_files/`

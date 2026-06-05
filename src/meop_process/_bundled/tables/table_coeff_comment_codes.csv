@@ -1,0 +1,31 @@
+code,short_label,details
+OK,No known issue,No known tag-specific issue is recorded in table_coeff.
+RM,Removed,Tag is marked remove=1 and should be excluded from processing or public output.
+SRM,Salinity removed,Salinity is marked Sremove=1; temperature/pressure data may still be usable.
+NO_POS,Missing position,No usable latitude/longitude is available in staged or processed CTD data.
+SMRU_WAIT,Await SMRU update,Recent deployment; missing source metadata may become available from SMRU later.
+MDB_MANY,Many MDB positions,"MDB source contains positions for many tags in this deployment, but current ODV/processed data do not."
+MDB_SEV,Several MDB positions,"MDB source contains positions for several tags in this deployment, but current ODV/processed data do not."
+MDB_SOME,Some MDB positions,"MDB source contains positions for some tags in this deployment, but current ODV/processed data do not."
+MDB_NONE,No MDB recovery,No recoverable positions were found in the inspected MDB source for this tag.
+DIVE_POS,Dive-track position,Only MDB dive-track positions were found; CTD profile position reconstruction is needed.
+GPS_LAND,GPS on land,Location data place the tag/profile on land.
+INVIS,Invisible,"Tag, profile, or gap is invisible/unusable in comparison or diagnostics."
+S_BAD,Salinity bad,"Salinity appears broken, suspect, or otherwise unreliable."
+S_STOP,Salinity stopped,Salinity signal appears to have stopped or become constant.
+S_SURF_HI,High surface salinity,Surface salinity appears unusually high.
+T_WARM,Temperature warm,Temperature appears too warm or has a warm-bias patch.
+T_DRIFT,Temperature drift,Temperature drift is suspected.
+T_BAD,Temperature bad,Temperature appears abnormal or otherwise unreliable.
+TS_BAD,T/S bad,"Temperature and salinity both appear broken, suspect, or unreliable."
+TS_DRIFT,T/S drift,Temperature/salinity drift or gradient is suspected.
+SPLIT_CHECK,Split check,Possible split-tag or multi-part handling issue.
+OFFSET_VAR,Variable offset,Different offsets occur across parts and cannot be corrected by one simple value.
+OFFSET_HIGH,High offsets,Calibration offsets are unusually high.
+DATE_FILTER,Date filter,A date/time filter may be more appropriate than S/T correction.
+SHALLOW,Very shallow,Record is very shallow and may be hard to calibrate.
+PRES_MISS,Pressure missing,Pressure/depth information is missing or unusable.
+FREEZE_NOREF,Freeze/no reference,Many points are below freezing and no tag comparison is available.
+PART_WEIRD,Part weird,One segment or part of the tag looks anomalous.
+RM_CHECK,Removal check,Manual review suggested removing all or part of the tag.
+ALL_BAD,All bad,The full record or all main channels look broken or anomalous.

@@ -121,7 +121,7 @@ def test_ensure_default_coefficients_rewrites_plain_csv_columns(meop_config) -> 
                 "S2": "0",
                 "remove": "0",
                 "Sremove": "0",
-                "comment": "no comment",
+                "comment": "OK",
             }
         ],
     )

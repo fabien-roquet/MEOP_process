@@ -320,7 +320,7 @@ def _summarize_tag_file(
             "S2": coeff.get("S2", ""),
             "remove": coeff.get("remove", ""),
             "Sremove": coeff.get("Sremove", ""),
-            "comments": coeff.get("comments", coeff.get("comment", "no comment")) or "no comment",
+            "comments": coeff.get("comments", coeff.get("comment", "OK")) or "OK",
             "variable_offset": variable_offsets.get(smru_name, ""),
             "instr_id": _decode_scalar_attr(dataset, "instr_id", str(hr_row.get("instr_id", ""))).strip(),
             "year": year_value,

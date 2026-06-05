@@ -123,7 +123,7 @@ The `scripts/` folder now contains all user-facing batch scripts and several exa
 Running `meop-process --bootstrap-data` now also creates:
 
 - root `configs.json` (if missing), with documented `_comment` keys;
-- a `configs/` folder containing granular snippet files for diagnostics, batch, publish, notifications, and references.
+- root `configs_template.json` (if missing), as the single editable runtime configuration template.
 
 ## CORA CALIBRATION PLOTS
 
@@ -175,7 +175,8 @@ If cartographic map backgrounds are desired in diagnostics, install `cartopy` as
 
 The cleaned package expects data in explicit runtime locations:
 
-- packaged/default tables: `src/meop_process/resources/tables/`, synchronized into `data/tables/`
+- packaged/default tables: `src/meop_process/_bundled/tables/`, synchronized into `data/tables/`
+- coefficient comment codebook: `data/tables/table_coeff_comment_codes.csv`
 - operator-managed catalog tables: `data/catalog/`
 - deployment/platform JSON files: `data/data_raw/config_files/`
 - raw low-resolution ODV files: `data/data_raw/raw_smru_data_odv/`
@@ -261,7 +262,7 @@ The runtime loader can read a JSON configuration file from:
 - `configs.json` under the process directory.
 
 `configs.json` is required for normal runs. If it is missing, commands now fail with a clear message.
-Run `meop-process --bootstrap-data` once to auto-generate a default root-level `configs.json`.
+Run `meop-process --bootstrap-data` once to auto-generate a default root-level `configs.json` and `configs_template.json`.
 If `configs.json` is ill-formed JSON, commands fail with a clear error including the file path.
 
 Legacy fallback to `data/configs.json` is intentionally not used.

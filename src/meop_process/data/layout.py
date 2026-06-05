@@ -14,6 +14,7 @@ from ..models import MeopConfig
 
 PACKAGE_TABLES: dict[str, str] = {
     "table_coeff.csv": "Calibration coefficients and algorithm constants.",
+    "table_coeff_comment_codes.csv": "Standardized comment codes used by table_coeff.csv.",
     "table_config_plots.csv": "Plot/report configuration.",
     "table_filter.csv": "Filtering controls applied during processing.",
     "table_meta.csv": "Metadata patches applied to processed netCDF files.",
@@ -254,59 +255,19 @@ def _default_runtime_config_payload(config: MeopConfig) -> dict[str, Any]:
     }
 
 
-def _bootstrap_config_snippets(config: MeopConfig) -> list[Path]:
-    snippets_dir = config.processdir / "configs"
-    snippets_dir.mkdir(parents=True, exist_ok=True)
-    snippets: dict[str, dict[str, Any]] = {
-        "defaults.diagnostics.json": {
-            "diagnostics": {
-                "qf": "lr1",
-                "adjusted": True,
-                "parts": ["tag", "deployment", "overview"],
-            }
-        },
-        "defaults.batch.json": {
-            "batch": {"jobs": 2, "verbose": False, "diagnostics": True}
-        },
-        "defaults.publish.json": {
-            "publish": {
-                "enabled": True,
-                "build_maps": True,
-                "build_plots": False,
-                "build_site": True,
-                "release_status": "development",
-            }
-        },
-        "defaults.notifications.json": {
-            "notifications": {
-                "email": {
-                    "enabled": False,
-                    "when": "always",
-                    "to": [],
-                    "attach": ["summary_md"],
-                    "subject_prefix": "[MEOP]",
-                }
-            }
-        },
-        "defaults.references.json": {
-            "references": {
-                "cora_dir": "",
-                "reference_dataset_dir": "",
-            }
-        },
-    }
-    written: list[Path] = []
-    for name, payload in snippets.items():
-        path = snippets_dir / name
-        if path.exists():
-            continue
-        path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-        written.append(path)
-    return written
+def _bootstrap_config_template(config: MeopConfig) -> list[Path]:
+    template_path = config.processdir / "configs_template.json"
+    if template_path.exists():
+        return []
+    template_path.parent.mkdir(parents=True, exist_ok=True)
+    with template_path.open("w", encoding="utf-8") as handle:
+        json.dump(_default_runtime_config_payload(config), handle, indent=2)
+        handle.write("\n")
+    return [template_path]
 
 
 def bootstrap_runtime_config(config: MeopConfig) -> list[Path]:
-    """Create a default root-level ``configs.json`` when missing."""
+    """Create root-level runtime config files when missing."""
 
     target = config.processdir / "configs.json"
     written: list[Path] = []
@@ -319,7 +280,7 @@ def bootstrap_runtime_config(config: MeopConfig) -> list[Path]:
             json.dump(payload, handle, indent=2)
             handle.write("\n")
         written.append(target)
-    written.extend(_bootstrap_config_snippets(config))
+    written.extend(_bootstrap_config_template(config))
     return written
 
 

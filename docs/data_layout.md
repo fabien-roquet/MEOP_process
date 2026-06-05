@@ -6,8 +6,9 @@ No root-level mirrors are required.
 ## Data classes and canonical locations
 
 1. **Packaged CSV defaults**
-   - shipped inside `src/meop_process/resources/tables/`
+   - shipped inside `src/meop_process/_bundled/tables/`
    - synchronized at runtime into `data/tables/`
+   - `table_coeff_comment_codes.csv` documents the standardized `table_coeff.csv` comment codes
 
 2. **Operator-maintained catalogs**
    - `list_deployment.csv`

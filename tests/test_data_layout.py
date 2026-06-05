@@ -10,6 +10,9 @@ def test_bootstrap_data_store_seeds_packaged_tables(meop_config) -> None:
     changed = bootstrap_data_store(meop_config)
 
     assert (meop_config.tablesdir / "table_meta.csv").exists()
+    assert (meop_config.tablesdir / "table_coeff_comment_codes.csv").exists()
+    assert (meop_config.processdir / "configs_template.json").exists()
+    assert not (meop_config.processdir / "configs").exists()
     assert changed
 
 

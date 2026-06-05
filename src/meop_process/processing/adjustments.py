@@ -66,7 +66,7 @@ def _ensure_default_coefficients(config: MeopConfig, smru_names: Iterable[str]) 
                 "S2": "0",
                 "remove": "0",
                 "Sremove": "0",
-                "comment": "no comment",
+                "comment": "OK",
             }
         )
         changed = True
