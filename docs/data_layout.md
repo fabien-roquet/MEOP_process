@@ -70,6 +70,9 @@ Python now owns the complete operational workflow currently implemented in the p
 - resumable batch reruns
 - incremental refresh of `list_tags.csv` and `list_deployments.csv`
 
+By default, successful production processing retains final profile products (`hr1`, `lr1`, and `hr2`) and prunes rebuildable intermediates (`lr0`, `hr0`, `fr0`, and `fr1`).
+Set `defaults.processing.keep_intermediate` or pass `--keep-intermediate-products` for calibration/debug runs.
+
 Batch reruns use `data/batch/latest/deployment_status.json` as persistent state, but successful entries are pruned automatically if their canonical outputs under `data/data_prof/` have disappeared.
 
 Still deferred for later redesign:

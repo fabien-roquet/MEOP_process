@@ -3,7 +3,7 @@ from __future__ import annotations
 from meop_process.api import bootstrap_data_store, describe_runtime_data_layout, validate_runtime_data_layout
 from meop_process.data.layout import bootstrap_packaged_catalogs, resolve_catalog_path, resolve_table_path
 from meop_process.models import DeploymentInfo, Selection
-from meop_process.processing.cleanup import remove_deployment_outputs
+from meop_process.processing.cleanup import prune_profile_products, remove_deployment_outputs
 
 
 def test_bootstrap_data_store_seeds_packaged_tables(meop_config) -> None:
@@ -106,3 +106,26 @@ def test_remove_deployment_outputs_cleans_plots_by_deployments(meop_config) -> N
     assert stale_nc not in removed or not stale_nc.exists()
     assert not stale_tag_plot.exists(), "stale tag plot should be removed"
     assert not stale_dep_plot.exists(), "stale deployment plot should be removed"
+
+
+def test_prune_profile_products_keeps_configured_qfs_for_selected_tag(meop_config) -> None:
+    root = meop_config.final_dataset_dir / "ct1"
+    root.mkdir(parents=True, exist_ok=True)
+    keep = root / "ct1-001_hr1_prof.nc"
+    keep_lr = root / "ct1-001_lr1_prof.nc"
+    remove = root / "ct1-001_lr0_prof.nc"
+    other = root / "ct1-002_lr0_prof.nc"
+    for path in (keep, keep_lr, remove, other):
+        path.write_text("placeholder", encoding="utf-8")
+
+    removed = prune_profile_products(
+        meop_config,
+        Selection(deployment="ct1", smru_name="ct1-001"),
+        keep_products=("hr1", "lr1"),
+    )
+
+    assert keep.exists()
+    assert keep_lr.exists()
+    assert not remove.exists()
+    assert other.exists()
+    assert removed == [remove]

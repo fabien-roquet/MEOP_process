@@ -12,6 +12,11 @@
       "verbose": false,
       "diagnostics": true
     },
+    "processing": {
+      "keep_intermediate": false,
+      "keep_products": ["hr1", "lr1", "hr2"],
+      "debug_products": ["lr0", "hr0", "fr0", "fr1"]
+    },
     "publish": {
       "enabled": true,
       "build_maps": true,

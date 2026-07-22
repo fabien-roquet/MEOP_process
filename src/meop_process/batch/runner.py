@@ -437,6 +437,7 @@ def _execute_deployment(
     diagnostics_only: bool,
     skip_reason: str,
     stream_stdout: bool,
+    keep_intermediate_products: bool | None,
 ) -> tuple[DeploymentRunResult, bool]:
     started = _utc_now()
     targets: list[io.TextIOBase] = []
@@ -467,7 +468,10 @@ def _execute_deployment(
                 else:
                     print(f"[{deployment}] notlc={notlc} diagnostics={diagnostics}")
                     started_timer = time.perf_counter()
-                    workflow_result = process_tags_workflow(cfg, deployment=deployment, smru_name="", notlc=notlc)
+                    workflow_kwargs = {"deployment": deployment, "smru_name": "", "notlc": notlc}
+                    if keep_intermediate_products is not None:
+                        workflow_kwargs["keep_intermediate_products"] = keep_intermediate_products
+                    workflow_result = process_tags_workflow(cfg, **workflow_kwargs)
                     ok = bool(workflow_result)
                     if ok and diagnostics and diagnostics_parts:
                         generated = generate_diagnostics_plotting(
@@ -523,6 +527,7 @@ def _run_pending_deployments(
     diagnostics_parts: tuple[str, ...],
     jobs: int,
     verbose: bool,
+    keep_intermediate_products: bool | None,
 ):
     if jobs <= 1 or len(pending) <= 1:
         for task in pending:
@@ -538,6 +543,7 @@ def _run_pending_deployments(
                 diagnostics_only=task.diagnostics_only,
                 skip_reason=task.skip_reason,
                 stream_stdout=verbose,
+                keep_intermediate_products=keep_intermediate_products,
             )
             yield task.index, result, processed
         return
@@ -559,6 +565,7 @@ def _run_pending_deployments(
                 diagnostics_only=task.diagnostics_only,
                 skip_reason=task.skip_reason,
                 stream_stdout=False,
+                keep_intermediate_products=keep_intermediate_products,
             )
             futures[future] = task
         for future in concurrent.futures.as_completed(futures):
@@ -605,11 +612,18 @@ def run_all_deployments(
     state_dir: str | Path | None = None,
     jobs: int = 1,
     verbose: bool = False,
+    keep_intermediate_products: bool | None = None,
 ) -> BatchRunResult:
     if jobs < 1:
         raise ValueError("jobs must be at least 1")
     cfg = config or load_config(processdir=processdir, config_file=config_file, machine=machine)
     normalized_diagnostics_parts = tuple(diagnostics_parts or ("tag", "deployment", "overview"))
+    if (
+        keep_intermediate_products is None
+        and diagnostics
+        and diagnostics_qf.lower() not in cfg.processing_defaults.keep_products
+    ):
+        keep_intermediate_products = True
     per_deployment_diagnostics_parts = tuple(part for part in normalized_diagnostics_parts if part in {"tag", "deployment", "all"})
     wants_overview = any(part in {"overview", "all"} for part in normalized_diagnostics_parts)
     root = _state_root(cfg, state_dir)
@@ -671,6 +685,7 @@ def run_all_deployments(
         diagnostics_parts=per_deployment_diagnostics_parts,
         jobs=jobs,
         verbose=verbose,
+        keep_intermediate_products=keep_intermediate_products,
     ):
         results_by_index.append((index, result))
         state[result.deployment] = {**result.as_dict(), "run_id": run_id}
@@ -770,6 +785,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-dir", default=None, help="Override the directory used for batch state and reports.")
     parser.add_argument("-j", "--jobs", type=int, default=None, help="Run up to N deployments in parallel (default: config or 1).")
     parser.add_argument("-v", "--verbose", action="store_true", default=None, help="Print deployment log output to the terminal.")
+    parser.add_argument(
+        "--keep-intermediate-products",
+        dest="keep_intermediate_products",
+        action="store_true",
+        default=None,
+        help="Keep rebuildable intermediate products such as lr0/hr0/fr0/fr1 after successful processing.",
+    )
+    parser.add_argument(
+        "--discard-intermediate-products",
+        dest="keep_intermediate_products",
+        action="store_false",
+        help="Discard rebuildable intermediate products after successful processing, overriding configs.json.",
+    )
     return parser
 
 
@@ -809,6 +837,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         state_dir=args.state_dir,
         jobs=jobs,
         verbose=verbose,
+        keep_intermediate_products=args.keep_intermediate_products,
     )
     print(result.summary_markdown)
     return 0 if result.failed_count == 0 else 1

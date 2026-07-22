@@ -143,7 +143,7 @@ def test_process_tags_stops_early_for_invalid_selection(meop_config, monkeypatch
 
 
 
-def test_process_tags_notlc_creates_lr0_hr0_hr1_lr1_hr2(meop_config, stage_ct88_example) -> None:
+def test_process_tags_notlc_prunes_intermediate_products_by_default(meop_config, stage_ct88_example) -> None:
     stage_ct88_example()
 
     result = process_module.process_tags(
@@ -155,11 +155,34 @@ def test_process_tags_notlc_creates_lr0_hr0_hr1_lr1_hr2(meop_config, stage_ct88_
 
     assert result.success is True
     assert bool(result) is True
+    assert not (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_lr0_prof.nc").exists()
+    assert not (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr0_prof.nc").exists()
+    assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr1_prof.nc").exists()
+    assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_lr1_prof.nc").exists()
+    assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr2_prof.nc").exists()
+    assert any(path.endswith("_lr0_prof.nc") for path in result.pruned_files)
+    assert any(path.endswith("_hr0_prof.nc") for path in result.pruned_files)
+
+
+def test_process_tags_notlc_can_keep_intermediate_products(meop_config, stage_ct88_example) -> None:
+    stage_ct88_example()
+
+    result = process_module.process_tags(
+        meop_config,
+        deployment="ct88",
+        smru_name="ct88-225-12",
+        notlc=True,
+        keep_intermediate_products=True,
+    )
+
+    assert result.success is True
+    assert bool(result) is True
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_lr0_prof.nc").exists()
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr0_prof.nc").exists()
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr1_prof.nc").exists()
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_lr1_prof.nc").exists()
     assert (meop_config.final_dataset_dir / "ct88" / "ct88-225-12_hr2_prof.nc").exists()
+    assert result.pruned_files == ()
 
 
 def test_process_tags_reports_missing_hr2_files(meop_config, monkeypatch, seed_catalog) -> None:

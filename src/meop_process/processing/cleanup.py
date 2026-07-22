@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..models import DeploymentInfo, MeopConfig
+from ..models import DeploymentInfo, MeopConfig, Selection
 
 
 OUTPUT_CLEANUP_ROOTS = (
@@ -12,6 +12,7 @@ OUTPUT_CLEANUP_ROOTS = (
 )
 
 OUTPUT_CLEANUP_SUFFIXES = (".nc", ".txt", ".json", ".png")
+PROCESS_PRODUCT_QFS = ("lr0", "hr0", "fr0", "hr1", "fr1", "lr1", "hr2")
 
 
 def remove_deployment_outputs(config: MeopConfig, info: DeploymentInfo) -> list[Path]:
@@ -38,4 +39,41 @@ def remove_deployment_outputs(config: MeopConfig, info: DeploymentInfo) -> list[
                     continue
                 path.unlink()
                 removed.append(path)
+    return removed
+
+
+def prune_profile_products(
+    config: MeopConfig,
+    selection: Selection,
+    *,
+    keep_products: tuple[str, ...],
+    product_qfs: tuple[str, ...] = PROCESS_PRODUCT_QFS,
+) -> list[Path]:
+    """Remove rebuildable profile products not listed in ``keep_products``.
+
+    The function is intentionally narrow: it only removes ``*_prof.nc`` files under the selected
+    deployment's processed-profile directory. Raw inputs, diagnostics, metadata summaries, and
+    public outputs are left untouched.
+    """
+
+    selected = selection.normalized()
+    if not selected.deployment:
+        return []
+    root = config.final_dataset_dir / selected.deployment
+    if not root.exists():
+        return []
+
+    keep = {item.lower() for item in keep_products}
+    prefix = selected.smru_name or ""
+    removed: list[Path] = []
+    for qf in product_qfs:
+        qf_name = qf.lower()
+        if qf_name in keep:
+            continue
+        pattern = f"{prefix}*_{qf_name}_prof.nc" if prefix else f"*_{qf_name}_prof.nc"
+        for path in sorted(root.glob(pattern)):
+            if not path.is_file():
+                continue
+            path.unlink()
+            removed.append(path)
     return removed

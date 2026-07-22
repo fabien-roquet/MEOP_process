@@ -50,6 +50,14 @@ meop-process --run-all-deployments --no-diagnostics
 meop-process-batch --no-diagnostics
 ```
 
+Successful production runs keep only the configured final products (`hr1`, `lr1`, and `hr2` by default) and prune rebuildable intermediates such as `lr0`, `hr0`, `fr0`, and `fr1`.
+Keep those stage products for calibration/debug runs with:
+
+```bash
+meop-process --run-all-deployments --keep-intermediate-products
+meop-process-batch --keep-intermediate-products
+```
+
 Restrict diagnostics to one layer:
 
 ```bash

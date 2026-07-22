@@ -150,13 +150,22 @@ def process_tags(
     smru_name: str = "",
     notlc: bool = False,
     config: MeopConfig | None = None,
+    keep_intermediate_products: bool | None = None,
     *,
     processdir: str | os.PathLike[str] | None = None,
     config_file: str | os.PathLike[str] | None = None,
     machine: str | None = None,
 ) -> bool:
     cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
-    return bool(process_tags_workflow(cfg, deployment=deployment, smru_name=smru_name, notlc=notlc))
+    return bool(
+        process_tags_workflow(
+            cfg,
+            deployment=deployment,
+            smru_name=smru_name,
+            notlc=notlc,
+            keep_intermediate_products=keep_intermediate_products,
+        )
+    )
 
 
 def apply_adjustments(
@@ -291,6 +300,7 @@ def run_all_deployments(
     state_dir: str | os.PathLike[str] | None = None,
     jobs: int = 1,
     verbose: bool = False,
+    keep_intermediate_products: bool | None = None,
 ) -> dict[str, Any]:
     cfg = _resolve_config(config, processdir=processdir, config_file=config_file, machine=machine)
     return run_all_deployments_batch(
@@ -311,6 +321,7 @@ def run_all_deployments(
         state_dir=state_dir,
         jobs=jobs,
         verbose=verbose,
+        keep_intermediate_products=keep_intermediate_products,
     ).as_dict()
 
 

@@ -43,6 +43,11 @@ def test_load_config_reads_runtime_defaults_and_notifications(tmp_path: Path) ->
         "defaults": {
             "diagnostics": {"qf": "hr1", "adjusted": False, "parts": ["overview"]},
             "batch": {"jobs": 4, "verbose": True},
+            "processing": {
+                "keep_intermediate": True,
+                "keep_products": ["hr1", "lr1"],
+                "debug_products": ["lr0", "hr0"],
+            },
             "notifications": {
                 "email": {
                     "enabled": True,
@@ -79,6 +84,9 @@ def test_load_config_reads_runtime_defaults_and_notifications(tmp_path: Path) ->
     assert config.diagnostics_defaults.parts == ("overview",)
     assert config.batch_defaults.jobs == 4
     assert config.batch_defaults.verbose is True
+    assert config.processing_defaults.keep_intermediate is True
+    assert config.processing_defaults.keep_products == ("hr1", "lr1")
+    assert config.processing_defaults.debug_products == ("lr0", "hr0")
     assert config.email_notifications.enabled is True
     assert config.email_notifications.when == "failure"
     assert config.email_notifications.to == ("ops@example.org",)

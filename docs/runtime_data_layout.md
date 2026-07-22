@@ -15,7 +15,7 @@ The package resolves runtime data from package-managed roots under `data/` and f
 - `data/data_raw/raw_smru_hr_data/`
   - high-resolution raw CTD inputs used by the FR branch
 - `data/data_prof/`
-  - generated `lr0`, `lr1`, `hr0`, `hr1`, `hr2`, `fr0`, and `fr1` profile products
+  - generated profile products. By default successful production runs retain `hr1`, `lr1`, and `hr2`, and prune rebuildable intermediates (`lr0`, `hr0`, `fr0`, `fr1`) unless intermediate retention is enabled.
 - `data/data_traj/`
   - generated trajectory products
 - `data/plots_by_tags/`
@@ -71,6 +71,9 @@ Python-owned today:
 - `hr2`
 - standard diagnostics figures
 - resumable batch processing and summary-table refresh
+
+Intermediate retention is controlled by `defaults.processing` in `configs.json`.
+Use `keep_intermediate: true` or the `--keep-intermediate-products` CLI flag for calibration/debug runs that need to inspect `lr0`/`hr0` stage files.
 
 Batch state is stored in `data/batch/latest/deployment_status.json` and reconciled against the canonical output tree at batch startup. Successful entries whose outputs have been deleted are dropped from state before skip decisions are made.
 

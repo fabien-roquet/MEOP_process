@@ -97,6 +97,7 @@ The current minimal functional pipeline covers:
 - deployment and tag discovery from catalog CSV files and JSON metadata;
 - raw ODV import and profile indexing, including automatic FL sidecar merging for CHLA/DOXY;
 - `lr0`, QC/filtering, `hr0`, `hr1`, `lr1`, `fr0`, `fr1`, and `hr2`;
+- production runs retain final products by default and prune rebuildable intermediates after success;
 - delayed-mode `apply_adjustments`;
 - standard per-tag section, T/S, map, profile, and flag diagnostics, plus deployment recap and global overview figures;
 - CORA-based T/S calibration plots via `meop-compare --plot1 <smru_name>`;
@@ -116,7 +117,7 @@ python -m pip install -e .
 
 The `scripts/` folder now contains all user-facing batch scripts and several example `configs.json` templates for different use cases:
 
-- `configs_template_minimal.json`: minimal config with machine selection, diagnostics and batch defaults, plus publish/notification/reference blocks
+- `configs_template_minimal.json`: minimal config with machine selection, diagnostics, processing-retention, and batch defaults, plus publish/notification/reference blocks
 - `configs_template_email.json`: config with email notification settings
 - `configs_template_machine_overrides.json`: config with per-machine overrides for processdir, datadir/public roots, and batch jobs
 
@@ -195,6 +196,9 @@ From an editable install:
 ```bash
 meop-process --deployment ct88 --process_data --diagnostics
 ```
+
+Successful production runs keep `hr1`, `lr1`, and `hr2` by default, and prune rebuildable intermediates such as `lr0`, `hr0`, `fr0`, and `fr1`.
+Use `--keep-intermediate-products` for calibration/debug passes that need to inspect each stage.
 
 From the repository checkout:
 
@@ -299,6 +303,11 @@ Example:
       "jobs": 4,
       "verbose": false,
       "diagnostics": true
+    },
+    "processing": {
+      "keep_intermediate": false,
+      "keep_products": ["hr1", "lr1", "hr2"],
+      "debug_products": ["lr0", "hr0", "fr0", "fr1"]
     },
     "publish": {
       "enabled": true,

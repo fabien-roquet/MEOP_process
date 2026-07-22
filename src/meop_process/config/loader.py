@@ -14,6 +14,7 @@ from ..models import (
     EmailNotificationSettings,
     EmailTransportSettings,
     MeopConfig,
+    ProcessingDefaults,
     PublishDefaults,
 )
 from .schema import normalize_config_entry
@@ -89,6 +90,21 @@ def _as_str_tuple(value: object) -> tuple[str, ...]:
     return (text,) if text else ()
 
 
+PROCESS_PRODUCT_QFS = ("lr0", "hr0", "fr0", "hr1", "fr1", "lr1", "hr2")
+
+
+def _as_product_tuple(value: object, *, default: tuple[str, ...]) -> tuple[str, ...]:
+    requested = _as_str_tuple(value)
+    if not requested:
+        return default
+    valid = []
+    for item in requested:
+        qf = item.strip().lower()
+        if qf in PROCESS_PRODUCT_QFS and qf not in valid:
+            valid.append(qf)
+    return tuple(valid) or default
+
+
 def _parse_diagnostics_defaults(entry: dict[str, Any]) -> DiagnosticsDefaults:
     diagnostics = entry.get("diagnostics", {}) if isinstance(entry.get("diagnostics", {}), dict) else {}
     parts = _as_str_tuple(diagnostics.get("parts")) or DiagnosticsDefaults().parts
@@ -112,6 +128,18 @@ def _parse_batch_defaults(entry: dict[str, Any]) -> BatchDefaults:
         jobs=jobs,
         verbose=_as_bool(batch.get("verbose"), default=BatchDefaults().verbose),
         diagnostics=_as_bool(batch.get("diagnostics"), default=BatchDefaults().diagnostics),
+    )
+
+
+def _parse_processing_defaults(entry: dict[str, Any]) -> ProcessingDefaults:
+    processing = entry.get("processing", {}) if isinstance(entry.get("processing", {}), dict) else {}
+    defaults = ProcessingDefaults()
+    keep_products = _as_product_tuple(processing.get("keep_products"), default=defaults.keep_products)
+    debug_products = _as_product_tuple(processing.get("debug_products"), default=defaults.debug_products)
+    return ProcessingDefaults(
+        keep_intermediate=_as_bool(processing.get("keep_intermediate"), default=defaults.keep_intermediate),
+        keep_products=keep_products,
+        debug_products=debug_products,
     )
 
 
@@ -295,6 +323,7 @@ def load_config(
         diagnostics_defaults=_parse_diagnostics_defaults(merged_entry),
         batch_defaults=_parse_batch_defaults(merged_entry),
         publish_defaults=_parse_publish_defaults(merged_entry),
+        processing_defaults=_parse_processing_defaults(merged_entry),
         email_notifications=_parse_email_notifications(merged_entry),
         cora_dir=cora_dir,
         reference_dataset_dir=reference_dataset_dir,

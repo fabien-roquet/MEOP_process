@@ -32,6 +32,13 @@ class PublishDefaults:
 
 
 @dataclass(frozen=True)
+class ProcessingDefaults:
+    keep_intermediate: bool = False
+    keep_products: tuple[str, ...] = ("hr1", "lr1", "hr2")
+    debug_products: tuple[str, ...] = ("lr0", "hr0", "fr0", "fr1")
+
+
+@dataclass(frozen=True)
 class EmailTransportSettings:
     transport: str = "smtp"
     host: str = ""
@@ -68,6 +75,7 @@ class MeopConfig:
     diagnostics_defaults: DiagnosticsDefaults = field(default_factory=DiagnosticsDefaults)
     batch_defaults: BatchDefaults = field(default_factory=BatchDefaults)
     publish_defaults: PublishDefaults = field(default_factory=PublishDefaults)
+    processing_defaults: ProcessingDefaults = field(default_factory=ProcessingDefaults)
     email_notifications: EmailNotificationSettings = field(default_factory=EmailNotificationSettings)
     cora_dir: Path | None = None
     reference_dataset_dir: Path | None = None

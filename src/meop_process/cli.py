@@ -68,6 +68,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--create_fr0", action="store_true", help="Create the FR0 product from full-resolution HR text files when available.")
     parser.add_argument("--notlc", action="store_true", help="Use the no-TLC branch for process_data.")
     parser.add_argument("--create_hr2", action="store_true", help="Create the HR2 product.")
+    parser.add_argument(
+        "--keep-intermediate-products",
+        dest="keep_intermediate_products",
+        action="store_true",
+        default=None,
+        help="Keep rebuildable intermediate products such as lr0/hr0/fr0/fr1 after successful processing.",
+    )
+    parser.add_argument(
+        "--discard-intermediate-products",
+        dest="keep_intermediate_products",
+        action="store_false",
+        help="Discard rebuildable intermediate products after successful processing, overriding configs.json.",
+    )
     parser.add_argument("--diagnostics", dest="diagnostics", action="store_true", default=None, help="Generate standard diagnostics plots for processed products.")
     parser.add_argument("--no-diagnostics", dest="diagnostics", action="store_false", help="Disable diagnostics generation.")
     parser.add_argument("--diagnostics-qf", default=None, help="Quality flag product to use for diagnostics (default: config or lr1).")
@@ -134,6 +147,13 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
     diagnostics_enabled = args.diagnostics if args.diagnostics is not None else cfg.batch_defaults.diagnostics
     jobs = args.jobs if args.jobs is not None else cfg.batch_defaults.jobs
     verbose = args.verbose if args.verbose is not None else cfg.batch_defaults.verbose
+    keep_intermediate_products = args.keep_intermediate_products
+    if (
+        keep_intermediate_products is None
+        and diagnostics_enabled
+        and diagnostics_qf.lower() not in cfg.processing_defaults.keep_products
+    ):
+        keep_intermediate_products = True
 
     success = True
 
@@ -157,6 +177,9 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
         print(f"cora_dir          : {cfg.cora_dir or '(unset)'}")
         print(f"reference_dataset : {cfg.reference_dataset_dir or '(unset)'}")
         print(f"batch_diagnostics : {cfg.batch_defaults.diagnostics}")
+        print(f"keep_intermediate : {cfg.processing_defaults.keep_intermediate}")
+        print(f"keep_products     : {','.join(cfg.processing_defaults.keep_products)}")
+        print(f"debug_products    : {','.join(cfg.processing_defaults.debug_products)}")
         print(f"publish_enabled   : {cfg.publish_defaults.enabled}")
         print(f"publish_build_maps: {cfg.publish_defaults.build_maps}")
         print(f"publish_build_site: {cfg.publish_defaults.build_site}")
@@ -230,6 +253,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
             state_dir=args.state_dir,
             jobs=jobs,
             verbose=verbose,
+            keep_intermediate_products=keep_intermediate_products,
         )
         print(result["summary_markdown"])
         return 0 if result.get("failed_count", 0) == 0 else 1
@@ -244,6 +268,7 @@ def main(argv: Sequence[str] | None = None, *, config=None) -> int:
             smru_name=args.smru_name,
             notlc=args.notlc,
             config=cfg,
+            keep_intermediate_products=keep_intermediate_products,
         ) and success
     if args.apply_adjustments:
         apply_adjustments(deployment=deployment, smru_name=args.smru_name, config=cfg)

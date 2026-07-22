@@ -10,7 +10,7 @@ from ..config.sync import sync_external_config_files
 from ..io.raw_odv import discover_raw_odv_files, import_raw_data_zip, load_raw_odv_profiles
 from ..metadata.patch import update_metadata_from_table
 from ..models import MeopConfig
-from ..processing.cleanup import remove_deployment_outputs
+from ..processing.cleanup import prune_profile_products, remove_deployment_outputs
 from ..processing.adjustments import apply_adjustments, apply_notlc, apply_notlc_fr, apply_tlc, apply_tlc_fr
 from ..processing.fr0 import create_fr0_python
 from ..processing.hr import create_hr0_python
@@ -23,6 +23,7 @@ from ..processing.ncargo import create_ncargo_python
 class WorkflowResult:
     success: bool
     reason: str = ""
+    pruned_files: tuple[str, ...] = ()
 
     def __bool__(self) -> bool:
         return self.success
@@ -44,12 +45,34 @@ def _describe_lr0_failure(config: MeopConfig, deployment: str) -> str:
     return "no LR0 files written"
 
 
+def _retained_products(config: MeopConfig, *, keep_intermediates: bool) -> tuple[str, ...]:
+    products = list(config.processing_defaults.keep_products)
+    if keep_intermediates:
+        for qf in config.processing_defaults.debug_products:
+            if qf not in products:
+                products.append(qf)
+    return tuple(products)
+
+
+def _prune_after_success(config: MeopConfig, selection: Selection, *, keep_intermediates: bool) -> tuple[str, ...]:
+    retained = _retained_products(config, keep_intermediates=keep_intermediates)
+    return tuple(
+        str(path)
+        for path in prune_profile_products(
+            config,
+            selection,
+            keep_products=retained,
+        )
+    )
+
+
 def process_tags(
     config: MeopConfig,
     *,
     deployment: str = "",
     smru_name: str = "",
     notlc: bool = False,
+    keep_intermediate_products: bool | None = None,
 ) -> WorkflowResult:
     """Run the full pure-Python MEOP processing chain for one deployment or tag."""
 
@@ -88,6 +111,12 @@ def process_tags(
     )
     apply_adjustments(config, selection)
 
+    keep_intermediates = (
+        config.processing_defaults.keep_intermediate
+        if keep_intermediate_products is None
+        else keep_intermediate_products
+    )
+
     if notlc:
         hr1 = apply_notlc(config, selection)
         if not hr1.written_files:
@@ -96,7 +125,8 @@ def process_tags(
         hr2 = create_hr2_python(config, selection)
         if not hr2.written_files:
             return WorkflowResult(False, "no HR2 files written")
-        return WorkflowResult(True)
+        pruned = _prune_after_success(config, selection, keep_intermediates=keep_intermediates)
+        return WorkflowResult(True, pruned_files=pruned)
 
     hr1 = apply_tlc(config, selection)
     if not hr1.written_files:
@@ -105,4 +135,5 @@ def process_tags(
     hr2 = create_hr2_python(config, selection)
     if not hr2.written_files:
         return WorkflowResult(False, "no HR2 files written")
-    return WorkflowResult(True)
+    pruned = _prune_after_success(config, selection, keep_intermediates=keep_intermediates)
+    return WorkflowResult(True, pruned_files=pruned)

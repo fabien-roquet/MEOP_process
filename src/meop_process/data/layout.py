@@ -211,6 +211,12 @@ def _default_runtime_config_payload(config: MeopConfig) -> dict[str, Any]:
                 "verbose": False,
                 "diagnostics": True,
             },
+            "processing": {
+                "_comment": "Product retention after successful processing. keep_intermediate=false prunes rebuildable products not listed in keep_products.",
+                "keep_intermediate": False,
+                "keep_products": ["hr1", "lr1", "hr2"],
+                "debug_products": ["lr0", "hr0", "fr0", "fr1"],
+            },
             "publish": {
                 "_comment": "Post-batch/publish defaults.",
                 "enabled": True,
