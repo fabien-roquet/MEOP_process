@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import csv
+from dataclasses import dataclass
 import fnmatch
 import sys
 from pathlib import Path
@@ -10,11 +12,286 @@ import numpy as np
 
 from .workflows.compare import ComparisonReport, compare_netcdf_outputs
 from .config.loader import load_config
-from .reference.cora import load_cora_tiles
+from .reference.cora import cora_cells_for_track, load_cora_track
 from .plotting.calibration import plot_ts_calibration
 from .catalog.filenames import deployment_from_smru_name, list_fname_prof
 
 CALIBRATION_QF_PREFERENCE = ("hr1", "lr1", "hr2", "hr0", "lr0", "fr1", "fr0")
+MIN_CALIBRATION_PROFILES = 10
+MIN_CALIBRATION_LEVELS = 3
+CALIBRATION_COVERAGE_MIN_DBAR = 200.0
+CALIBRATION_COVERAGE_MAX_DBAR = 600.0
+NULL_ISLAND_TOLERANCE_DEGREES = 1e-6
+DEPLOYMENT_SEGMENT_LINK_KM = 2500.0
+MINOR_SEGMENT_FRACTION = 0.10
+EARTH_RADIUS_KM = 6371.0088
+
+
+class CalibrationStatusError(RuntimeError):
+    """Expected data-availability outcome from a calibration-plot run."""
+
+    status = "failed"
+
+    def __init__(self, message: str, *, written_files: Iterable[Path] = ()) -> None:
+        super().__init__(message)
+        self.written_files = tuple(Path(path) for path in written_files)
+
+
+class NoReferenceDataError(CalibrationStatusError):
+    status = "no_reference"
+
+
+class InsufficientReferenceDataError(CalibrationStatusError):
+    status = "insufficient_reference"
+
+
+class InsufficientTargetDataError(CalibrationStatusError):
+    status = "insufficient_target"
+
+
+class InvalidTargetDataError(CalibrationStatusError):
+    status = "invalid_target"
+
+
+@dataclass(frozen=True)
+class TargetCalibrationSelection:
+    """Accepted target profiles and their target-only calibration support."""
+
+    indices: np.ndarray
+    latitudes: np.ndarray
+    longitudes: np.ndarray
+    juld: np.ndarray
+    component_sizes: tuple[int, ...]
+    dropped_invalid: int
+    dropped_minor_segments: int
+    support: dict[str, dict[str, float | int | None]]
+
+
+def _geographic_components(
+    latitudes: np.ndarray,
+    longitudes: np.ndarray,
+    *,
+    max_link_km: float = DEPLOYMENT_SEGMENT_LINK_KM,
+) -> tuple[np.ndarray, ...]:
+    """Return spatially connected profile components on a sphere."""
+    from scipy.spatial import cKDTree
+
+    lat = np.asarray(latitudes, dtype=np.float64).reshape(-1)
+    lon = np.asarray(longitudes, dtype=np.float64).reshape(-1)
+    if lat.shape != lon.shape:
+        raise ValueError("latitude and longitude arrays must have the same shape")
+    if lat.size == 0:
+        return ()
+    if max_link_km <= 0.0:
+        raise ValueError("component link distance must be positive")
+
+    lat_rad = np.deg2rad(lat)
+    lon_rad = np.deg2rad(lon)
+    cos_lat = np.cos(lat_rad)
+    xyz = np.column_stack(
+        (cos_lat * np.cos(lon_rad), cos_lat * np.sin(lon_rad), np.sin(lat_rad))
+    )
+    angular_radius = min(np.pi, max_link_km / EARTH_RADIUS_KM)
+    chord_radius = 2.0 * np.sin(0.5 * angular_radius)
+    pairs = cKDTree(xyz).query_pairs(chord_radius, output_type="ndarray")
+
+    parent = np.arange(lat.size, dtype=np.int64)
+
+    def find(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = int(parent[index])
+        return index
+
+    for left, right in pairs:
+        left_root = find(int(left))
+        right_root = find(int(right))
+        if left_root != right_root:
+            parent[right_root] = left_root
+
+    grouped: dict[int, list[int]] = {}
+    for index in range(lat.size):
+        grouped.setdefault(find(index), []).append(index)
+    components = tuple(
+        np.asarray(indices, dtype=np.int64)
+        for indices in sorted(grouped.values(), key=lambda item: (-len(item), item[0]))
+    )
+    return components
+
+
+def _select_deployment_component_indices(
+    latitudes: np.ndarray,
+    longitudes: np.ndarray,
+    juld: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, tuple[int, ...], int, int]:
+    """QC positions and discard small components disconnected from the deployment."""
+    lat = np.asarray(latitudes, dtype=np.float64).reshape(-1)
+    lon = np.asarray(longitudes, dtype=np.float64).reshape(-1)
+    time = np.asarray(juld, dtype=np.float64).reshape(-1)
+    if lat.shape != lon.shape or lat.shape != time.shape:
+        raise ValueError("target LATITUDE, LONGITUDE and JULD must have matching shapes")
+
+    normalised_lon = ((lon + 180.0) % 360.0) - 180.0
+    null_island = (
+        np.abs(lat) <= NULL_ISLAND_TOLERANCE_DEGREES
+    ) & (np.abs(normalised_lon) <= NULL_ISLAND_TOLERANCE_DEGREES)
+    valid = (
+        np.isfinite(lat)
+        & np.isfinite(lon)
+        & np.isfinite(time)
+        & (lat >= -90.0)
+        & (lat <= 90.0)
+        & (np.abs(lon) <= 360.0)
+        & (np.abs(time) < 99999.0)
+        & ~null_island
+    )
+    valid_indices = np.flatnonzero(valid)
+    dropped_invalid = int(lat.size - valid_indices.size)
+    if valid_indices.size == 0:
+        return valid_indices, normalised_lon, (), dropped_invalid, 0
+
+    components = _geographic_components(
+        lat[valid_indices], normalised_lon[valid_indices]
+    )
+    component_sizes = tuple(int(component.size) for component in components)
+    largest = component_sizes[0]
+    minimum_component = max(
+        MIN_CALIBRATION_PROFILES,
+        int(np.ceil(largest * MINOR_SEGMENT_FRACTION)),
+    )
+    retained_components = [
+        component for component in components if component.size >= minimum_component
+    ]
+    if not retained_components:
+        retained_components = [components[0]]
+    retained_relative = np.sort(np.concatenate(retained_components))
+    retained = valid_indices[retained_relative]
+    dropped_minor = int(valid_indices.size - retained.size)
+    return retained, normalised_lon, component_sizes, dropped_invalid, dropped_minor
+
+
+def _selected_target_values(dataset, names: tuple[str, ...], indices: np.ndarray) -> np.ndarray:
+    name = next((candidate for candidate in names if candidate in dataset), None)
+    if name is None:
+        raise ValueError(f"target file is missing {' or '.join(names)}")
+    data_array = dataset[name]
+    if "N_PROF" in data_array.dims:
+        data_array = data_array.isel(N_PROF=indices)
+    values = np.asarray(data_array.values, dtype=np.float64)
+    values[np.abs(values) >= 9999.0] = np.nan
+    return values
+
+
+def _target_variable_support(
+    pressure: np.ndarray,
+    values: np.ndarray,
+) -> dict[str, float | int | None]:
+    data = np.asarray(values, dtype=np.float64)
+    if data.ndim == 1:
+        data = data.reshape(1, -1)
+    if data.ndim != 2:
+        raise ValueError("target T/S variables must be one- or two-dimensional")
+    pres = np.asarray(pressure, dtype=np.float64)
+    if pres.ndim == 1:
+        pres = np.broadcast_to(pres.reshape(1, -1), data.shape)
+    if pres.shape != data.shape:
+        raise ValueError("target pressure and T/S arrays have incompatible shapes")
+
+    finite = np.isfinite(pres) & np.isfinite(data)
+    linear = finite & (pres >= 200.0) & (pres <= 1000.0)
+    band = finite & (pres >= 400.0) & (pres <= 600.0)
+    valid_pressure = pres[finite]
+    return {
+        "n_profiles_linear": int(np.count_nonzero(np.any(linear, axis=1))),
+        "n_levels_linear": int(np.count_nonzero(np.any(linear, axis=0))),
+        "n_profiles_band": int(np.count_nonzero(np.any(band, axis=1))),
+        "n_levels_band": int(np.count_nonzero(np.any(band, axis=0))),
+        "pressure_min": (
+            float(np.nanmin(valid_pressure)) if valid_pressure.size else None
+        ),
+        "pressure_max": (
+            float(np.nanmax(valid_pressure)) if valid_pressure.size else None
+        ),
+    }
+
+
+def _target_support_is_sufficient(support: dict[str, float | int | None]) -> bool:
+    pressure_min = support["pressure_min"]
+    pressure_max = support["pressure_max"]
+    return bool(
+        int(support["n_profiles_linear"] or 0) >= MIN_CALIBRATION_PROFILES
+        and int(support["n_levels_linear"] or 0) >= MIN_CALIBRATION_LEVELS
+        and int(support["n_profiles_band"] or 0) >= MIN_CALIBRATION_PROFILES
+        and int(support["n_levels_band"] or 0) >= MIN_CALIBRATION_LEVELS
+        and pressure_min is not None
+        and float(pressure_min) <= CALIBRATION_COVERAGE_MIN_DBAR
+        and pressure_max is not None
+        and float(pressure_max) >= CALIBRATION_COVERAGE_MAX_DBAR
+    )
+
+
+def _preflight_calibration_target(path: Path) -> TargetCalibrationSelection:
+    """Select the deployment component and establish target-only T/S support."""
+    import xarray as xr
+
+    with xr.open_dataset(path, decode_times=False) as dataset:
+        for required in ("LATITUDE", "LONGITUDE", "JULD"):
+            if required not in dataset:
+                raise ValueError(f"target file is missing {required}")
+        latitudes = np.asarray(dataset["LATITUDE"].values, dtype=np.float64)
+        longitudes = np.asarray(dataset["LONGITUDE"].values, dtype=np.float64)
+        juld = np.asarray(dataset["JULD"].values, dtype=np.float64)
+        (
+            indices,
+            normalised_longitudes,
+            component_sizes,
+            dropped_invalid,
+            dropped_minor,
+        ) = _select_deployment_component_indices(latitudes, longitudes, juld)
+        if indices.size == 0:
+            raise ValueError("no valid deployment positions remain after coordinate QC")
+        pressure = _selected_target_values(
+            dataset, ("PRES_ADJUSTED", "PRES"), indices
+        )
+        temperature = _selected_target_values(
+            dataset, ("TEMP_ADJUSTED", "TEMP"), indices
+        )
+        salinity = _selected_target_values(
+            dataset, ("PSAL_ADJUSTED", "PSAL"), indices
+        )
+
+    support = {
+        "TEMP": _target_variable_support(pressure, temperature),
+        "PSAL": _target_variable_support(pressure, salinity),
+    }
+    return TargetCalibrationSelection(
+        indices=indices,
+        latitudes=np.asarray(latitudes, dtype=np.float64)[indices],
+        longitudes=normalised_longitudes[indices],
+        juld=np.asarray(juld, dtype=np.float64)[indices],
+        component_sizes=component_sizes,
+        dropped_invalid=dropped_invalid,
+        dropped_minor_segments=dropped_minor,
+        support=support,
+    )
+
+
+def _load_cora_for_track(
+    cora_dir: Path,
+    *,
+    longitudes: np.ndarray,
+    latitudes: np.ndarray,
+    margin: float = 5.0,
+) -> tuple[dict[str, np.ndarray], tuple[tuple[int, int], ...]]:
+    """Load only the buffered cells and profile rows along an accepted track."""
+    cells = cora_cells_for_track(latitudes, longitudes, margin=margin)
+    data = load_cora_track(
+        cora_dir,
+        latitudes=latitudes,
+        longitudes=longitudes,
+        margin=margin,
+    )
+    return data, cells
 
 
 def _open_dataset(path: Path):
@@ -194,8 +471,85 @@ def _select_calibration_target(smru_name: str, *, config) -> tuple[Path | None, 
     return (paths[-1], "") if paths else (None, "")
 
 
+def _diagnostic_support(written: Iterable[Path]) -> dict[str, bool]:
+    """Return whether TEMP and PSAL meet the minimum calibration support gate."""
+    paths = tuple(Path(path) for path in written)
+    csv_path = next((path for path in paths if path.name.endswith("_calibration_offsets.csv")), None)
+    support = {"TEMP": False, "PSAL": False}
+    if csv_path is None or not csv_path.exists():
+        return support
+    with csv_path.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+
+    def parse_int(row: dict[str, str] | None, field: str) -> int | None:
+        if row is None:
+            return None
+        try:
+            return int(row.get(field, "") or "")
+        except (TypeError, ValueError):
+            return None
+
+    def parse_float(row: dict[str, str] | None, field: str) -> float | None:
+        if row is None:
+            return None
+        try:
+            value = float(row.get(field, "") or "")
+        except (TypeError, ValueError):
+            return None
+        return value if np.isfinite(value) else None
+
+    for variable in support:
+        selected = {
+            row.get("diagnostic", ""): row
+            for row in rows
+            if row.get("variable") == variable
+        }
+        linear = selected.get("linear_200_1000")
+        band = selected.get("band_400_600")
+        all_valid = selected.get("all_valid_profile_median")
+        coefficient_prefix = "T" if variable == "TEMP" else "S"
+        observed_min = parse_float(all_valid, "pressure_min")
+        observed_max = parse_float(all_valid, "pressure_max")
+        support[variable] = all(
+            (
+                (parse_int(linear, "n_profiles") or 0) >= MIN_CALIBRATION_PROFILES,
+                (parse_int(linear, "n_levels") or 0) >= MIN_CALIBRATION_LEVELS,
+                parse_float(linear, f"suggested_{coefficient_prefix}1") is not None,
+                parse_float(linear, f"suggested_{coefficient_prefix}2") is not None,
+                (parse_int(band, "n_profiles") or 0) >= MIN_CALIBRATION_PROFILES,
+                (parse_int(band, "n_levels") or 0) >= MIN_CALIBRATION_LEVELS,
+                parse_float(band, f"suggested_{coefficient_prefix}2") is not None,
+                observed_min is not None
+                and observed_min <= CALIBRATION_COVERAGE_MIN_DBAR,
+                observed_max is not None
+                and observed_max >= CALIBRATION_COVERAGE_MAX_DBAR,
+            )
+        )
+    return support
+
+
+def _ensure_sufficient_diagnostics(smru_name: str, written: Iterable[Path]) -> None:
+    paths = tuple(Path(path) for path in written)
+    support = _diagnostic_support(paths)
+    missing = [variable for variable, usable in support.items() if not usable]
+    if missing:
+        raise InsufficientReferenceDataError(
+            f"reference profiles were found for {smru_name}, but {', '.join(missing)} "
+            f"did not meet the calibration support gate (at least "
+            f"{MIN_CALIBRATION_PROFILES} profiles, {MIN_CALIBRATION_LEVELS} levels in "
+            f"400-600 dbar, and observed coverage from "
+            f"{CALIBRATION_COVERAGE_MIN_DBAR:.0f} to "
+            f"{CALIBRATION_COVERAGE_MAX_DBAR:.0f} dbar)",
+            written_files=paths,
+        )
+
+
 def generate_calibration_plots(smru_name: str, *, config) -> list[Path]:
-    """Generate CORA calibration plots for one tag and return written paths."""
+    """Generate CORA calibration plots for one tag and return written paths.
+
+    Expected target/reference availability outcomes raise ``CalibrationStatusError``
+    subclasses so callers can report them separately from software failures.
+    """
     if config.cora_dir is None:
         raise ValueError(
             'references.cora_dir is not set in configs.json. Add "references": '
@@ -204,32 +558,42 @@ def generate_calibration_plots(smru_name: str, *, config) -> list[Path]:
 
     target_path, target_qf = _select_calibration_target(smru_name, config=config)
     if target_path is None:
-        raise FileNotFoundError(f"no profile files found for {smru_name!r}")
+        raise InvalidTargetDataError(f"no profile files found for {smru_name!r}")
 
-    # Determine bounding box from the target tag
     try:
-        import xarray as xr
-
-        with xr.open_dataset(target_path, decode_times=False) as ds:
-            lats = np.asarray(ds["LATITUDE"].values, dtype=np.float64)
-            lons = np.asarray(ds["LONGITUDE"].values, dtype=np.float64)
-        valid_lat = lats[~np.isnan(lats)]
-        valid_lon = lons[~np.isnan(lons)]
-        if valid_lat.size == 0 or valid_lon.size == 0:
-            raise ValueError(f"no valid lat/lon in {target_path}")
-        margin = 5.0
-        lon_min, lon_max = float(valid_lon.min()) - margin, float(valid_lon.max()) + margin
-        lat_min, lat_max = float(valid_lat.min()) - margin, float(valid_lat.max()) + margin
+        target = _preflight_calibration_target(target_path)
     except Exception as exc:
-        raise ValueError(f"error reading target path: {exc}") from exc
+        raise InvalidTargetDataError(f"error reading target path: {exc}") from exc
 
-    cora_data = load_cora_tiles(
+    unsupported = [
+        variable
+        for variable, support in target.support.items()
+        if not _target_support_is_sufficient(support)
+    ]
+    if unsupported:
+        raise InsufficientTargetDataError(
+            f"{smru_name} has insufficient target support for {', '.join(unsupported)} "
+            f"before CORA loading: retained {target.indices.size} profiles from spatial "
+            f"components {target.component_sizes}, dropped {target.dropped_invalid} invalid "
+            f"positions and {target.dropped_minor_segments} minor-component profiles; "
+            f"requires at least {MIN_CALIBRATION_PROFILES} profiles, "
+            f"{MIN_CALIBRATION_LEVELS} levels in 400-600 dbar, and coverage from "
+            f"{CALIBRATION_COVERAGE_MIN_DBAR:.0f} to "
+            f"{CALIBRATION_COVERAGE_MAX_DBAR:.0f} dbar"
+        )
+
+    cora_data, candidate_cells = _load_cora_for_track(
         config.cora_dir,
-        lon_min=lon_min,
-        lon_max=lon_max,
-        lat_min=lat_min,
-        lat_max=lat_max,
+        longitudes=target.longitudes,
+        latitudes=target.latitudes,
+        margin=5.0,
     )
+    if np.asarray(cora_data.get("lat", ())).size == 0:
+        raise NoReferenceDataError(
+            f"no CORA profiles found for {smru_name} within the 5-degree corridor "
+            f"around {target.indices.size} accepted profiles in "
+            f"{len(candidate_cells)} candidate cells"
+        )
 
     deployment = deployment_from_smru_name(smru_name)
     context_qf = target_qf or "*"
@@ -239,14 +603,17 @@ def generate_calibration_plots(smru_name: str, *, config) -> list[Path]:
     ]
 
     output_dir = config.plotdir / deployment
-    return plot_ts_calibration(
+    written = plot_ts_calibration(
         smru_name,
         cora_data=cora_data,
         target_path=target_path,
+        target_profile_indices=target.indices,
         other_paths=other_paths,
         output_dir=output_dir,
         write_diagnostics=True,
     )
+    _ensure_sufficient_diagnostics(smru_name, written)
+    return written
 
 
 def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
@@ -258,6 +625,11 @@ def _run_calibration_plots(smru_name: str, config_file: str | None) -> int:
         return 2
     try:
         written = generate_calibration_plots(smru_name, config=config)
+    except CalibrationStatusError as exc:
+        for path in exc.written_files:
+            print(f"wrote: {path}")
+        print(f"{exc.status}: {exc}", file=sys.stderr)
+        return 1
     except (FileNotFoundError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2

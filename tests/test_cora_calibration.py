@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -79,6 +80,47 @@ def test_load_cora_tiles_basic(tmp_path: Path) -> None:
     assert result["temp"].shape[0] == result["lat"].shape[0]
     assert result["pres"].ndim == 1
     assert result["temp"].shape[1] == result["pres"].shape[0]
+
+
+def test_load_cora_tiles_discovers_unpadded_archive_names(tmp_path: Path) -> None:
+    """The real local archive uses lon40W/lon00E rather than lon040W/lon000E."""
+    from meop_process.reference.cora import discover_cora_tiles, load_cora_tiles
+
+    tile_path = tmp_path / "CORA_lon40W_lat70S.nc"
+    _write_mock_cora_tile(
+        tile_path,
+        n_prof=12,
+        lat_range=(-70.0, -61.0),
+        lon_range=(-40.0, -31.0),
+    )
+
+    inventory = discover_cora_tiles(tmp_path)
+    assert inventory[(-40, -70)] == tile_path
+
+    result = load_cora_tiles(
+        tmp_path,
+        lon_min=-45.0,
+        lon_max=-25.0,
+        lat_min=-75.0,
+        lat_max=-55.0,
+    )
+
+    assert result["lat"].shape[0] == 12
+    assert result["temp"].shape == (12, 10)
+
+
+def test_discover_cora_tiles_deduplicates_padding_variants(tmp_path: Path, caplog) -> None:
+    from meop_process.reference.cora import discover_cora_tiles
+
+    short = tmp_path / "CORA_lon40W_lat70S.nc"
+    padded = tmp_path / "CORA_lon040W_lat70S.nc"
+    short.touch()
+    padded.touch()
+
+    inventory = discover_cora_tiles(tmp_path)
+
+    assert inventory == {(-40, -70): short}
+    assert "Multiple CORA tiles resolve to cell" in caplog.text
 
 
 def test_load_cora_tiles_filters_by_bbox(tmp_path: Path) -> None:
@@ -207,8 +249,9 @@ def _write_mock_meop_prof(
     path: Path,
     n_prof: int = 5,
     n_levels: int = 10,
-    lat: float = -65.0,
-    lon: float = -35.0,
+    lat: float | np.ndarray = -65.0,
+    lon: float | np.ndarray = -35.0,
+    juld: np.ndarray | None = None,
 ) -> None:
     """Write a minimal MEOP-style lr1 prof NetCDF file."""
     import xarray as xr
@@ -217,38 +260,52 @@ def _write_mock_meop_prof(
     pres_vals = np.tile(np.arange(1, n_levels + 1, dtype=np.float64) * 10.0, (n_prof, 1))
     temp_vals = rng.uniform(0.0, 5.0, (n_prof, n_levels))
     psal_vals = rng.uniform(33.8, 34.5, (n_prof, n_levels))
+    latitude = np.broadcast_to(np.asarray(lat, dtype=np.float64), (n_prof,)).copy()
+    longitude = np.broadcast_to(np.asarray(lon, dtype=np.float64), (n_prof,)).copy()
+    time = (
+        np.arange(n_prof, dtype=np.float64)
+        if juld is None
+        else np.asarray(juld, dtype=np.float64)
+    )
     ds = xr.Dataset(
         {
             "PRES_ADJUSTED": (("N_PROF", "N_LEVELS"), pres_vals),
             "TEMP_ADJUSTED": (("N_PROF", "N_LEVELS"), temp_vals),
             "PSAL_ADJUSTED": (("N_PROF", "N_LEVELS"), psal_vals),
-            "LATITUDE": ("N_PROF", np.full(n_prof, lat)),
-            "LONGITUDE": ("N_PROF", np.full(n_prof, lon)),
-            "JULD": ("N_PROF", np.arange(n_prof, dtype=np.float64)),
+            "LATITUDE": ("N_PROF", latitude),
+            "LONGITUDE": ("N_PROF", longitude),
+            "JULD": ("N_PROF", time),
         }
     )
     path.parent.mkdir(parents=True, exist_ok=True)
     ds.to_netcdf(path)
 
 
-def _write_offset_meop_prof(path: Path, *, psal_offset: float, psal_slope: float, temp_offset: float) -> np.ndarray:
+def _write_offset_meop_prof(
+    path: Path,
+    *,
+    psal_offset: float,
+    psal_slope: float,
+    temp_offset: float,
+    n_prof: int = 12,
+) -> np.ndarray:
     """Write a small profile file with controlled tag-minus-CORA anomalies."""
     import xarray as xr
 
     pres_grid = np.asarray([100.0, 300.0, 400.0, 500.0, 600.0, 800.0], dtype=np.float64)
-    pres_vals = np.tile(pres_grid, (4, 1))
+    pres_vals = np.tile(pres_grid, (n_prof, 1))
     cora_temp = np.asarray([1.4, 1.2, 1.0, 0.8, 0.6, 0.4], dtype=np.float64)
     cora_psal = np.asarray([34.0, 34.1, 34.2, 34.3, 34.4, 34.5], dtype=np.float64)
-    temp_vals = np.tile(cora_temp + temp_offset, (4, 1))
-    psal_vals = np.tile(cora_psal + psal_offset + psal_slope * pres_grid, (4, 1))
+    temp_vals = np.tile(cora_temp + temp_offset, (n_prof, 1))
+    psal_vals = np.tile(cora_psal + psal_offset + psal_slope * pres_grid, (n_prof, 1))
     ds = xr.Dataset(
         {
             "PRES_ADJUSTED": (("N_PROF", "N_LEVELS"), pres_vals),
             "TEMP_ADJUSTED": (("N_PROF", "N_LEVELS"), temp_vals),
             "PSAL_ADJUSTED": (("N_PROF", "N_LEVELS"), psal_vals),
-            "LATITUDE": ("N_PROF", np.full(4, -65.0)),
-            "LONGITUDE": ("N_PROF", np.full(4, -35.0)),
-            "JULD": ("N_PROF", np.arange(4, dtype=np.float64)),
+            "LATITUDE": ("N_PROF", np.full(n_prof, -65.0)),
+            "LONGITUDE": ("N_PROF", np.full(n_prof, -35.0)),
+            "JULD": ("N_PROF", np.arange(n_prof, dtype=np.float64)),
         }
     )
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -378,6 +435,7 @@ def test_plot_ts_calibration_interpolates_cora_and_context_grids(tmp_path: Path)
 
 
 def test_plot_ts_calibration_writes_offset_diagnostics(tmp_path: Path) -> None:
+    from meop_process.compare_cli import _diagnostic_support
     from meop_process.plotting.calibration import plot_ts_calibration
 
     target_path = tmp_path / "offset_hr1.nc"
@@ -416,11 +474,225 @@ def test_plot_ts_calibration_writes_offset_diagnostics(tmp_path: Path) -> None:
     assert float(psal_linear["suggested_S1"]) == pytest.approx(0.02, abs=1e-6)
     assert float(psal_linear["suggested_S2"]) == pytest.approx(0.01, abs=1e-6)
     assert float(temp_band["suggested_T2"]) == pytest.approx(-0.03, abs=1e-6)
+    assert _diagnostic_support(written) == {"TEMP": True, "PSAL": True}
+
+
+def test_diagnostic_support_rejects_sparse_profiles(tmp_path: Path) -> None:
+    from meop_process.compare_cli import _diagnostic_support
+    from meop_process.plotting.calibration import plot_ts_calibration
+
+    target_path = tmp_path / "offset_hr1.nc"
+    pres_grid = _write_offset_meop_prof(
+        target_path,
+        psal_offset=0.01,
+        psal_slope=2e-5,
+        temp_offset=-0.03,
+        n_prof=4,
+    )
+    cora_data = {
+        "lat": np.asarray([-65.0, -66.0]),
+        "lon": np.asarray([-35.0, -36.0]),
+        "juld": np.asarray([0.0, 1.0]),
+        "temp": np.tile(np.asarray([1.4, 1.2, 1.0, 0.8, 0.6, 0.4]), (2, 1)),
+        "psal": np.tile(np.asarray([34.0, 34.1, 34.2, 34.3, 34.4, 34.5]), (2, 1)),
+        "pres": pres_grid,
+    }
+
+    written = plot_ts_calibration(
+        "test-tag-sparse",
+        cora_data=cora_data,
+        target_path=target_path,
+        output_dir=tmp_path / "plots",
+        write_diagnostics=True,
+    )
+
+    assert _diagnostic_support(written) == {"TEMP": False, "PSAL": False}
+
+
+def test_diagnostic_support_rejects_incomplete_vertical_coverage(tmp_path: Path) -> None:
+    from meop_process.compare_cli import _diagnostic_support
+
+    csv_path = tmp_path / "test-tag_calibration_offsets.csv"
+    fieldnames = (
+        "variable",
+        "diagnostic",
+        "pressure_min",
+        "pressure_max",
+        "n_profiles",
+        "n_levels",
+        "suggested_T1",
+        "suggested_T2",
+        "suggested_S1",
+        "suggested_S2",
+    )
+    rows: list[dict[str, str]] = []
+    for variable in ("TEMP", "PSAL"):
+        prefix = "T" if variable == "TEMP" else "S"
+        coefficient_fields = {
+            f"suggested_{prefix}1": "0.01",
+            f"suggested_{prefix}2": "0.02",
+        }
+        rows.extend(
+            (
+                {
+                    "variable": variable,
+                    "diagnostic": "linear_200_1000",
+                    "n_profiles": "12",
+                    "n_levels": "3",
+                    **coefficient_fields,
+                },
+                {
+                    "variable": variable,
+                    "diagnostic": "band_400_600",
+                    "n_profiles": "12",
+                    "n_levels": "3",
+                    **coefficient_fields,
+                },
+                {
+                    "variable": variable,
+                    "diagnostic": "all_valid_profile_median",
+                    "pressure_min": "300",
+                    "pressure_max": "600",
+                },
+            )
+        )
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _diagnostic_support([csv_path]) == {"TEMP": False, "PSAL": False}
+
+
+def test_cora_cells_for_track_is_antimeridian_safe_and_avoids_envelope() -> None:
+    from meop_process.reference.cora import cora_cells_for_track
+
+    antimeridian = cora_cells_for_track(
+        np.asarray([-65.0, -64.0]),
+        np.asarray([179.0, -179.0]),
+        margin=5.0,
+    )
+    assert not any(-170 < lon < 170 for lon, _ in antimeridian)
+
+    disconnected = cora_cells_for_track(
+        np.asarray([-44.5, 55.0]),
+        np.asarray([146.4, -1.3]),
+        margin=5.0,
+    )
+    assert len(disconnected) < 20
+    assert (70, 0) not in disconnected
+
+
+def test_load_cora_track_loads_only_profiles_near_accepted_positions(tmp_path: Path) -> None:
+    from meop_process.reference.cora import load_cora_track
+
+    tile_path = tmp_path / "CORA_lon040W_lat70S.nc"
+    _write_mock_cora_tile(
+        tile_path,
+        n_prof=20,
+        lat_range=(-70.0, -61.0),
+        lon_range=(-40.0, -31.0),
+    )
+    import xarray as xr
+
+    with xr.open_dataset(tile_path, decode_times=False) as dataset:
+        target_lat = float(dataset["LATITUDE"].values[0])
+        target_lon = float(dataset["LONGITUDE"].values[0])
+
+    result = load_cora_track(
+        tmp_path,
+        latitudes=np.asarray([target_lat]),
+        longitudes=np.asarray([target_lon]),
+        margin=1e-4,
+    )
+
+    assert result["lat"].shape == (1,)
+    assert result["lat"][0] == pytest.approx(target_lat)
+    assert result["lon"][0] == pytest.approx(target_lon)
+    assert result["temp"].shape == (1, 10)
+
+
+def test_target_preflight_removes_null_island_and_minor_test_component(tmp_path: Path) -> None:
+    from meop_process.compare_cli import (
+        _preflight_calibration_target,
+        _target_support_is_sufficient,
+    )
+
+    target_path = tmp_path / "mixed_hr1_prof.nc"
+    local_lat = np.linspace(-50.0, -54.0, 12)
+    local_lon = np.linspace(140.0, 146.0, 12)
+    _write_mock_meop_prof(
+        target_path,
+        n_prof=14,
+        n_levels=80,
+        lat=np.concatenate((local_lat, [55.0, 0.0])),
+        lon=np.concatenate((local_lon, [-2.0, 0.0])),
+        juld=np.arange(14, dtype=np.float64),
+    )
+
+    selected = _preflight_calibration_target(target_path)
+
+    assert selected.indices.tolist() == list(range(12))
+    assert selected.component_sizes == (12, 1)
+    assert selected.dropped_invalid == 1
+    assert selected.dropped_minor_segments == 1
+    assert all(_target_support_is_sufficient(item) for item in selected.support.values())
+
+
+def test_generate_calibration_plots_rejects_sparse_target_before_cora(
+    meop_config, monkeypatch, tmp_path: Path
+) -> None:
+    from meop_process.compare_cli import (
+        InsufficientTargetDataError,
+        generate_calibration_plots,
+    )
+
+    target_path = tmp_path / "DEP001-SPARSE_hr1_prof.nc"
+    _write_mock_meop_prof(target_path, n_prof=4, n_levels=80)
+    cfg = replace(meop_config, cora_dir=tmp_path / "cora")
+    monkeypatch.setattr(
+        "meop_process.compare_cli._select_calibration_target",
+        lambda smru_name, config: (target_path, "hr1"),
+    )
+
+    def unexpected_cora_load(*args, **kwargs):
+        raise AssertionError("CORA must not be loaded for an impossible target")
+
+    monkeypatch.setattr("meop_process.compare_cli.load_cora_track", unexpected_cora_load)
+
+    with pytest.raises(InsufficientTargetDataError, match="before CORA loading"):
+        generate_calibration_plots("DEP001-SPARSE", config=cfg)
 
 
 # ---------------------------------------------------------------------------
 # CLI --plot1 tests
 # ---------------------------------------------------------------------------
+
+
+def test_generate_calibration_plots_reports_no_reference(meop_config, monkeypatch, tmp_path: Path) -> None:
+    from meop_process.compare_cli import NoReferenceDataError, generate_calibration_plots
+
+    target_path = tmp_path / "DEP001-AAA_hr1_prof.nc"
+    _write_mock_meop_prof(target_path, n_prof=12, n_levels=80)
+    cfg = replace(meop_config, cora_dir=tmp_path / "cora")
+    monkeypatch.setattr(
+        "meop_process.compare_cli._select_calibration_target",
+        lambda smru_name, config: (target_path, "hr1"),
+    )
+    monkeypatch.setattr(
+        "meop_process.compare_cli.load_cora_track",
+        lambda *args, **kwargs: {
+            "lat": np.empty(0),
+            "lon": np.empty(0),
+            "juld": np.empty(0),
+            "temp": np.empty((0, 0)),
+            "psal": np.empty((0, 0)),
+            "pres": np.empty(0),
+        },
+    )
+
+    with pytest.raises(NoReferenceDataError, match="no CORA profiles found"):
+        generate_calibration_plots("DEP001-AAA", config=cfg)
 
 
 def test_compare_cli_plot1_no_cora_dir_error(tmp_path: Path, meop_config) -> None:

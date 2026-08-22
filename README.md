@@ -153,7 +153,20 @@ Then run:
 meop-compare --plot1 ct88-225-12
 ```
 
-This loads the CORA tiles that intersect the deployment bounding box (plus a 5° margin), and produces one PNG per 200-profile chunk under `data/plots_by_tags/<deployment>/`. Each figure shows a two-panel plot: a T/S diagram with the CORA background (grey), other tags in the deployment (blue), and the target tag coloured by time; and a salinity anomaly versus pressure panel.
+This filters invalid/null-island and minor disconnected target components, checks target support before CORA access, and loads selected reference rows only from cells along a 5° buffered track corridor. It produces one PNG per 200-profile chunk under `data/plots_by_tags/<deployment>/`. Each figure shows a two-panel plot: a T/S diagram with the CORA background (grey), other tags in the deployment (blue), and accepted target profiles coloured by time; and a salinity anomaly versus pressure panel.
+
+Tile selection is inventory-based and accepts both the minimally padded longitude names
+used by the installed archive (`lon40W`, `lon00E`) and zero-padded variants
+(`lon040W`, `lon000E`). Single-tag and batch runs distinguish `no_reference`,
+`insufficient_target`, `insufficient_reference`, and `invalid_target` from unexpected software `failed`
+outcomes. See [`docs/cora_local_archive_audit.md`](docs/cora_local_archive_audit.md)
+for the provenance and coverage audit of the configured local archive.
+
+The configured archive is the provenance-preserving CORA 202511 CTD/Argo preparation.
+To inventory/download and rebuild it, follow
+[`docs/cora_download_and_preparation.md`](docs/cora_download_and_preparation.md). The
+repository provides `meop-cora-download` and `meop-cora-prepare`; source downloads are
+kept separate from generated tiles and both stages write manifests.
 
 You can copy and adapt these templates to `configs.json` in the repository root, or provide them via `--config-file`.
 

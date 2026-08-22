@@ -80,6 +80,8 @@ def _open_any(path: Path):
 
 def _extract_profiles(
     path: Path,
+    *,
+    profile_indices: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Return (pres_grid, temp, psal, juld) from a MEOP lr0/lr1 prof file.
 
@@ -87,25 +89,31 @@ def _extract_profiles(
     ``temp`` / ``psal`` shape is (N_PROF, N_LEVELS), ``juld`` shape is (N_PROF,).
     """
     with _open_any(path) as ds:
+        def selected_values(name: str) -> np.ndarray:
+            data_array = ds[name]
+            if profile_indices is not None and "N_PROF" in data_array.dims:
+                data_array = data_array.isel(N_PROF=profile_indices)
+            return np.asarray(data_array.values, dtype=np.float64)
+
         pres = np.asarray(
-            ds["PRES_ADJUSTED"].values
+            selected_values("PRES_ADJUSTED")
             if "PRES_ADJUSTED" in ds
-            else ds["PRES"].values,
+            else selected_values("PRES"),
             dtype=np.float64,
         )
         temp = np.asarray(
-            ds["TEMP_ADJUSTED"].values
+            selected_values("TEMP_ADJUSTED")
             if "TEMP_ADJUSTED" in ds
-            else ds["TEMP"].values,
+            else selected_values("TEMP"),
             dtype=np.float64,
         )
         psal = np.asarray(
-            ds["PSAL_ADJUSTED"].values
+            selected_values("PSAL_ADJUSTED")
             if "PSAL_ADJUSTED" in ds
-            else ds["PSAL"].values,
+            else selected_values("PSAL"),
             dtype=np.float64,
         )
-        juld = np.asarray(ds["JULD"].values, dtype=np.float64)
+        juld = selected_values("JULD")
         # Replace fill values (≥9999) with NaN
         for arr in (pres, temp, psal):
             arr[arr >= 9999.0] = np.nan
@@ -601,6 +609,7 @@ def plot_ts_calibration(
     *,
     cora_data: dict[str, np.ndarray],
     target_path: Path,
+    target_profile_indices: np.ndarray | None = None,
     other_paths: Sequence[Path] = (),
     output_dir: Path,
     chunk_size: int = 200,
@@ -617,6 +626,9 @@ def plot_ts_calibration(
         ``lat``, ``lon``, ``temp``, ``psal``, ``pres``.
     target_path:
         Path to the target tag's lr0 or lr1 prof NetCDF file.
+    target_profile_indices:
+        Optional accepted ``N_PROF`` rows after position/component QC. Profiles
+        outside this selection do not contribute to figures or diagnostics.
     other_paths:
         Paths to other tags in the same deployment (used for context cloud).
     output_dir:
@@ -641,7 +653,9 @@ def plot_ts_calibration(
     except ImportError as exc:  # pragma: no cover
         raise ImportError("matplotlib is required for calibration plots") from exc
 
-    pres_grid, tgt_temp, tgt_psal, tgt_juld = _extract_profiles(target_path)
+    pres_grid, tgt_temp, tgt_psal, tgt_juld = _extract_profiles(
+        target_path, profile_indices=target_profile_indices
+    )
     n_tgt = tgt_temp.shape[0]
 
     # Build CORA median salinity per pressure level for anomaly panel

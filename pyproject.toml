@@ -26,6 +26,9 @@ dependencies = [
 dev = [
   "pytest>=7.4",
 ]
+cora = [
+  "copernicusmarine",
+]
 
 [project.scripts]
 meop-process = "meop_process.cli:main"
@@ -33,6 +36,8 @@ meop-process-batch = "meop_process.batch.runner:main"
 meop-compare = "meop_process.compare_cli:main"
 meop-compare-batch = "meop_process.compare_batch:main"
 meop-publish = "meop_process.publish_cli:main"
+meop-cora-download = "meop_process.reference.cora_download:main"
+meop-cora-prepare = "meop_process.reference.cora_prepare:main"
 
 [tool.setuptools.package-dir]
 "" = "src"

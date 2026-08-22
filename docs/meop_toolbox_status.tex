@@ -39,7 +39,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textcolor{meopmid}{MEOP Process renovation status}}
-\fancyhead[R]{\textcolor{meopmid}{April 23, 2026}}
+\fancyhead[R]{\textcolor{meopmid}{August 22, 2026}}
 \fancyfoot[C]{\textcolor{meopmid}{\thepage}}
 \setlength{\headheight}{15pt}
 
@@ -82,12 +82,12 @@
   \vspace{1.2cm}
 
   \begin{tabularx}{0.93\textwidth}{>{\bfseries}p{0.30\textwidth}X}
-    Snapshot date & April 23, 2026 \\
+    Snapshot date & August 22, 2026 \\
     Current objective & Reach a minimal, functional Python version of the MEOP processing chain that can be re-run over the available deployments with readable logs, resumable state, and updated summary tables \\
     Main regression examples & \pkg{ct88-225-12}, \pkg{ct78-465-12}, and the shortened \pkg{ct96-24-13} full-resolution reference set \\
-    Pipeline now covered in Python & Catalog discovery, raw ODV import (including FL sidecar merging), \pkg{lr0}, QC/filtering, \pkg{hr0}, \pkg{hr1/lr1}, \pkg{fr0}, \pkg{fr1}, \pkg{hr2}, standard diagnostics, CORA-based T/S calibration plots, and resumable batch processing \\
+    Pipeline now covered in Python & Catalog discovery, raw ODV import (including FL sidecar merging), \pkg{lr0}, QC/filtering, \pkg{hr0}, \pkg{hr1/lr1}, \pkg{fr0}, \pkg{fr1}, \pkg{hr2}, standard diagnostics, CORA acquisition/preparation, CORA-based T/S calibration plots and offset diagnostics, and resumable batch processing \\
     Execution model & Single Python execution path; no alternate runtime backend remains in the package \\
-    Tests in repository & 150 collected tests in the current snapshot \\
+    Tests in repository & 223 collected tests in the current snapshot \\
   \end{tabularx}
 
   \vfill
@@ -99,7 +99,7 @@
 
 \section{Executive summary}
 
-The toolbox has moved from an operator workspace to a Python package with explicit runtime ownership and a nearly complete processing path for the currently targeted products. The package can now bootstrap its runtime layout, discover deployments and tags from CSV and JSON metadata, import raw ODV files, generate the low-resolution and high-resolution profile products, generate full-resolution products from HR text files, produce standard diagnostics, and run through many deployments in sequence while logging failures without stopping the whole run.
+The toolbox has moved from an operator workspace to a Python package with explicit runtime ownership and a nearly complete processing path for the currently targeted products. The package can now bootstrap its runtime layout, discover deployments and tags from CSV and JSON metadata, import raw ODV files, generate the low-resolution and high-resolution profile products, generate full-resolution products from HR text files, produce standard diagnostics, acquire and prepare a traceable CORA reference archive, and run through many deployments in sequence while logging failures without stopping the whole run.
 
 The most important practical change in this phase is operational rather than architectural: there is now a resumable batch runner suitable for reprocessing all available deployments. It keeps a persistent per-deployment state file, skips deployments that already completed successfully only while their canonical outputs still exist unless forced, records one log file per deployment, generates readable Markdown and CSV run reports, reconciles stale successful state entries against the filesystem at startup, and refreshes \pkg{list\_tags.csv} and \pkg{list\_deployments.csv} incrementally at the end of the run.
 
@@ -145,11 +145,35 @@ Location adjustment & Python & Applies crawl/CLS/SMRU-based geographic correctio
 \pkg{fr1} & Python & Applies the same adjustment/TLC logic in the FR path. \\
 \pkg{hr2} & Python & Uses \pkg{fr1} when FR data exist and falls back to \pkg{hr1} otherwise. \\
 Standard diagnostics figures & Python & Per-tag section, T/S, map, profile, and flag panels; per-deployment recap; global overview. \\
-CORA-based T/S calibration plots & Python & Loaded via \pkg{meop-compare --plot1 <smru\_name>}; two-panel figure per 200-profile chunk (T/S diagram + PSAL anomaly). \\
+CORA source acquisition and tile preparation & Python & \pkg{meop-cora-download} creates a release-pinned CTD/Argo source archive; \pkg{meop-cora-prepare} applies documented type/QC/value policies and writes provenance-preserving tiles and a manifest. \\
+CORA-based T/S calibration plots & Python & \pkg{meop-compare --plot1 <smru\_name>} filters invalid/minor target components, checks target support before reference I/O, and loads indexed CORA rows along an anti-meridian-safe track corridor; it writes context plots plus per-tag T/S offset CSV and PNG diagnostics. \pkg{meop-compare-batch} runs method version 4 across deployments. \\
 Batch processing and summary-table refresh & Python & Resumable multi-deployment runner with logs and reports. \\
 High-end analyst diagnostics and publication redesign & Future work & Still to be designed in depth. \\
 \bottomrule
 \end{longtable}
+
+\subsection{Installed CORA reference archive}
+
+The configured reference archive is derived from Copernicus Marine product
+\path{INSITU_GLO_PHY_TS_DISCRETE_MY_013_001}, dataset version \pkg{202511}. The source
+download contains 34,556 NetCDF files selected from raw CORA \pkg{CT/OC/TE} candidates
+and EasyCORA \pkg{PF} files. The installed preparation contains 540 populated 10-degree
+tiles and 4,328,083 profiles: 1,722,428 CTD profiles selected with
+\pkg{PROBE\_TYPE=2} and 2,605,655 Argo profiles selected with \pkg{PROBE\_TYPE=5}.
+
+CTD observations cover 1953-04-09 through 2025-06-30, and Argo observations cover
+1995-09-07 through 2025-06-30. All tiles share a 10--1000 dbar pressure grid at 10-dbar
+spacing and a common \pkg{JULD} origin. Preparation accepts QC flags 1 and 2, uses an
+adjusted whole-profile parameter when available and raw values otherwise, and requires
+both temperature and salinity. The manifest reports 400,035 profiles excluded by the
+strict time/position policy and 543,873 with insufficient paired T/S support; no source
+file was skipped and no expected QC variable was missing.
+
+The source and preparation manifests are stored with the data. The configured tile root
+is \path{../REF_DATASETS/CORA_data/CORA_ctd_argo_202511_tiles/}. Structural validation
+confirmed the profile totals and type split, tile bounds, coordinates, pressure grid and
+date coverage. Calibration outputs must be rebuilt whenever this reference archive or
+its preparation policy changes.
 
 \subsection{Reference cases currently used}
 
@@ -204,7 +228,9 @@ The following steps are already owned by Python and exercised in tests:
   \item \pkg{fr1};
   \item \pkg{hr2};
   \item standard diagnostics figures;
-  \item CORA-based T/S calibration plots (\pkg{meop-compare --plot1}).
+  \item CORA source inventory/download and CTD/Argo tile preparation;
+  \item CORA-based T/S calibration plots and offset diagnostics
+  (\pkg{meop-compare --plot1} and \pkg{meop-compare-batch}).
 \end{itemize}
 
 \subsection{Operational batch runner}
@@ -224,10 +250,10 @@ A dedicated multi-deployment runner is now present. Its design goals are:
 
 \subsection{Editable install}
 
-The recommended installation remains a standard editable install:
+The recommended installation uses the repository's \pkg{uv} environment:
 
 \begin{lstlisting}[style=meopcode]
-python -m pip install -e .
+uv sync --extra dev --extra cora
 \end{lstlisting}
 
 \subsection{Expected Python dependencies}
@@ -259,6 +285,8 @@ If map backgrounds are desired in diagnostics, \pkg{cartopy} can be installed as
   \item \textbf{High-resolution raw inputs:} \pkg{data/data\_raw/raw\_smru\_hr\_data/<year>/}, containing files such as \pkg{<prefix><instr\_id>\_ctd.txt}.
   \item \textbf{Processed profile outputs:} \pkg{data/data\_prof/}, containing \pkg{lr0}, \pkg{lr1}, \pkg{hr0}, \pkg{hr1}, \pkg{hr2}, \pkg{fr0}, and \pkg{fr1} profile products.
   \item \textbf{Processed trajectory outputs:} \pkg{data/data\_traj/}.
+  \item \textbf{CORA 202511 source archive:} \path{../REF_DATASETS/CORA_data/CORA_ctd_argo_source_202511/}.
+  \item \textbf{Prepared CORA tiles:} \path{../REF_DATASETS/CORA_data/CORA_ctd_argo_202511_tiles/}.
   \item \textbf{Diagnostics by tag:} \pkg{data/plots\_by\_tags/}.
   \item \textbf{Deployment and overview plots:} \pkg{data/plots\_by\_deployments/} and \pkg{data/plots\_overview/}.
   \item \textbf{Maps:} \pkg{data/maps/}.
@@ -340,6 +368,53 @@ By default the runner writes under \pkg{data/batch/}:
 
 A deployment marked successful is skipped on the next batch run only while its canonical outputs still exist, unless a force option is used. At batch startup, stale successful entries whose outputs have disappeared are pruned from \pkg{latest/deployment\_status.json} before skip decisions are made.
 
+\subsection{Clean CORA calibration refresh}
+
+The configured \pkg{references.cora\_dir} points to the CORA 202511 tiles. A reference
+change requires regeneration of both the calibration figures and the per-tag offset
+diagnostics. The cleanup below is deliberately restricted to calibration PNG/CSV files
+and the calibration batch state; it leaves standard diagnostics and processed profile
+products untouched.
+
+\begin{lstlisting}[style=meopcode]
+cd /media/disk2/roquet/MEOP_process
+
+uv run meop-compare-batch --dry-run --include-disabled
+
+find data/plots_by_tags -type f \
+  \( -name '*_calibration*.png' -o \
+     -name '*_calibration_offsets.csv' \) \
+  -print -delete
+
+find data/batch/compare -depth -mindepth 1 -print -delete
+
+uv run meop-compare-batch --include-disabled --force -j 2
+\end{lstlisting}
+
+The unrestricted catalog selection currently contains 2,717 processed tags; without
+\pkg{--include-disabled}, 2,665 tags are selected. The batch report separates successful
+results from \pkg{no\_reference}, \pkg{insufficient\_target},
+\pkg{insufficient\_reference}, \pkg{invalid\_target} and unexpected \pkg{failed}
+outcomes. Method version 4 filters invalid/null-island and minor disconnected target
+components, checks support before CORA access, and loads indexed reference rows only
+from the union of buffered track cells. It classifies a result as successful only when both temperature and
+salinity have at least 10 contributing target profiles, at least three valid levels in
+400--600 dbar, finite band and linear estimates, and observed coverage spanning at least
+200--600 dbar. Incompatible success state is recomputed. Each successful tag has
+one \pkg{\_calibration\_offsets.csv}, one \pkg{\_calibration\_offsets.png}, and one or
+more chunked calibration context plots under \pkg{data/plots\_by\_tags/<deployment>/}.
+
+A read-only preflight benchmark over all 2,717 target files on August 22, 2026 classified
+1,220 as capable of meeting the target-only support gate, 1,386 as
+\pkg{insufficient\_target}, and 111 as \pkg{invalid\_target} because no valid deployment
+position remained. Eligible tracks requested a median of 10.5 tiles (90th percentile 19;
+maximum 31), instead of every tile in a track-spanning rectangle. On the current host, a
+dense-tile test selecting three reference profiles took 1.7 seconds and approximately
+501 MiB peak resident memory with indexed row loading, compared with 4.0 seconds and
+approximately 684 MiB when the full tile arrays were materialised before masking. These
+figures describe this archive and host; they are a regression baseline, not a general
+runtime guarantee.
+
 \subsection{Runtime configuration policy}
 
 Runtime configuration is loaded only from:
@@ -372,7 +447,7 @@ The current test suite is built around a small number of carefully chosen refere
 
 \subsection{Current test coverage}
 
-The repository currently contains 150 collected tests covering:
+The repository currently contains 223 collected tests covering:
 
 \begin{itemize}[leftmargin=1.5em]
   \item configuration loading and data-layout bootstrap;
@@ -384,8 +459,14 @@ The repository currently contains 150 collected tests covering:
   \item \pkg{ft11} CHLA via FL sidecar ODV;
   \item \pkg{ct153} LR-only \pkg{apply\_adjustments} path (no \pkg{hr2});
   \item \pkg{ct107} split-tag processing;
-  \item CORA tile loader (bounding-box filtering, multi-tile concatenation, empty-tile handling);
-  \item CORA-based T/S calibration plot generation, chunking, and \pkg{meop-compare --plot1} CLI;
+  \item CORA tile discovery and loading, including padded/unpadded tile names and
+  bounding-box filtering;
+  \item CORA source inventory selection, manifest handling, CTD/Argo preparation,
+  profile typing, QC, interpolation and provenance;
+  \item CORA-based T/S calibration plot generation, invalid/minor target-position
+  filtering, occupied-cell corridors, indexed reference-row loading, early target
+  rejection, offset CSV/PNG diagnostics, chunking, single-tag CLI and resumable
+  calibration batch statuses;
   \item diagnostics output generation;
   \item metadata summary refresh;
   \item resumable batch-run behavior.

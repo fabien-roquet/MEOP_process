@@ -33,7 +33,11 @@ The package resolves runtime data from package-managed roots under `data/` and f
 
 - `cora_dir` (set in `configs.json` under `defaults.references.cora_dir` or `configs.<machine>.references.cora_dir`)
   - directory of CORA 10°×10° tiled NetCDF files, e.g.
-    `/path/to/CORA_ncfiles/CORA_lon040W_lat70S.nc`
+    `/path/to/CORA_ncfiles/CORA_lon40W_lat70S.nc`
+
+  The CORA loader inventories existing filenames and accepts both minimally padded
+  longitude fields such as `lon40W`/`lon00E` and zero-padded variants such as
+  `lon040W`/`lon000E`.
   - used by `meop-compare --plot1` to generate CORA-based T/S calibration plots
   - not required for the core processing pipeline
 

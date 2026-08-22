@@ -1,0 +1,817 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.3cm]{geometry}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{pifont}
+
+\definecolor{meopblue}{HTML}{143C6B}
+\definecolor{meoplight}{HTML}{EAF1F8}
+\definecolor{meopmid}{HTML}{64748B}
+\definecolor{meopgreen}{HTML}{2E7D32}
+\definecolor{meopamber}{HTML}{B26A00}
+\definecolor{meopred}{HTML}{A3312B}
+\definecolor{codebg}{HTML}{F7F8FA}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=meopblue,
+  urlcolor=meopblue,
+  citecolor=meopblue,
+  pdftitle={MEOP temperature and salinity comparison and adjustment framework},
+  pdfauthor={MEOP project}
+}
+
+\titleformat{\section}{\Large\bfseries\color{meopblue}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{meopblue}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{meopblue}}{\thesubsubsection}{0.7em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{meopmid}{MEOP T/S comparison and adjustment}}
+\fancyhead[R]{\textcolor{meopmid}{August 22, 2026}}
+\fancyfoot[C]{\textcolor{meopmid}{\thepage}}
+\setlength{\headheight}{15pt}
+
+\lstdefinestyle{meopcode}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{black!10},
+  framerule=0.6pt,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true,
+  upquote=true
+}
+
+\newcommand{\done}{\textcolor{meopgreen}{\ding{51}}}
+\newcommand{\partdone}{\textcolor{meopamber}{\ding{108}}}
+\newcommand{\missing}{\textcolor{meopred}{\ding{55}}}
+\newcommand{\pkg}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\goodbox}[1]{%
+  \noindent\colorbox{meoplight}{\parbox{0.955\textwidth}{\vspace{0.2cm}#1\vspace{0.2cm}}}}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1.4cm}
+  {\Huge\bfseries\color{meopblue}From comparison to defensible\\[0.2em]
+  temperature and salinity adjustments\par}
+  \vspace{0.7cm}
+  {\Large A reusable scientific and software-development framework\par}
+  \vspace{1.1cm}
+
+  \goodbox{
+    \textbf{Recommended scope.} Build a systematic, profile-by-profile comparison of
+    unadjusted MEOP temperature and salinity with independent reference profiles.
+    Make the comparison reproducible, quality-controlled, uncertainty-aware, and
+    usable at the scale of the MEOP archive. Once that foundation is validated,
+    use it to produce \emph{candidate} adjustment coefficients for expert review.
+    Automatic modification of the operational coefficient tables is explicitly
+    outside the scope of this framework.
+  }
+
+  \vspace{1.1cm}
+  \begin{tabularx}{0.94\textwidth}{>{\bfseries}p{0.28\textwidth}X}
+    Primary objective & A tested space--time matchup and comparison workflow, with documented outputs and a pilot scientific assessment \\
+    Optional extension & Conservative T/S adjustment suggestions with uncertainty and explicit accept/review/reject reasons \\
+    Existing foundation & Processed MEOP profiles, the CORA 202511 CTD/Argo reference archive, manifest-based acquisition and preparation, explicit batch statuses, coefficient application, and plotting/batch machinery \\
+    Main scientific principle & Separate sensor bias from natural ocean variability, and never use an adjustment merely because a regression returns a number \\
+    Snapshot date & August 22, 2026 \\
+  \end{tabularx}
+
+  \vfill
+  {\large MEOP Process toolbox\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\section{The decision and the project goal}
+
+\subsection{Recommendation}
+
+The two possible work packages are not truly separate. A method that estimates
+temperature or salinity adjustments first needs a scientifically defensible comparison:
+which external profiles are relevant, which observations pass quality control, how the
+data are brought to a common vertical coordinate, and how much of a difference can be
+explained by normal spatial and temporal ocean variability.
+
+The recommended sequence is therefore:
+
+\begin{quote}
+\textbf{Primary goal:} develop and validate a systematic comparison framework.\\
+\textbf{Gated extension:} use the same framework to estimate candidate adjustments,
+but only after the comparison passes agreed scientific tests.
+\end{quote}
+
+This scope has a useful minimum result even if adjustment estimation proves too
+ambitious: the comparison archive, coverage report, diagnostics and tested matchup code
+will remain directly useful for future delayed-mode work. Conversely, starting with a
+coefficient estimator without fixing the comparison would risk fitting ocean variability,
+reference-data artefacts, or corrections that have already been applied.
+
+\begin{center}
+\begin{tabularx}{0.96\textwidth}{>{\bfseries}p{0.22\textwidth}XX}
+\toprule
+ & Systematic comparison & Adjustment estimation \\
+\midrule
+Scientific risk & Moderate; assumptions can be exposed and tested & Higher; natural variability can look like instrument drift \\
+Standalone value & High even if adjustment estimation is deferred & High only if validation is convincing \\
+Existing support & CORA loading, plots and batch runner & Coefficient format and coefficient application \\
+Main missing element & Profile-level space--time matchups & Validated estimator, uncertainty and decision rules \\
+Recommended role & Core work package & Gated extension after scientific review \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Scientific questions}
+
+The project should answer the following questions in order:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item For each usable MEOP profile, are there independent reference profiles close
+  enough in space and time to make a meaningful comparison?
+  \item After applying quality control and interpolating to a common pressure grid,
+  what are the robust MEOP-minus-reference temperature and salinity anomalies?
+  \item How do these anomalies vary with pressure, time, region, season, matching
+  radius and reference selection?
+  \item Are the observed patterns compatible with a constant offset, a pressure-dependent
+  offset, a time-varying salinity offset, or simply unresolved ocean variability?
+  \item When a correction is proposed, does it improve independent held-out comparisons
+  and remain stable under reasonable changes to the matching parameters?
+\end{enumerate}
+
+\subsection{Definition of success}
+
+The work is successful when it delivers all of the following core items:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item a documented and tested CORA inventory/QC reader that preserves profile identity,
+  location, time, quality flags and provenance;
+  \item an anti-meridian-safe, configurable space--time matchup method;
+  \item a stable comparison data product for each tag, containing raw and adjusted
+  anomalies, coverage and reference-spread estimates;
+  \item reproducible per-tag and multi-tag summaries and plots;
+  \item synthetic tests plus a scientifically diverse pilot evaluation;
+  \item a batch command that separates usable results, missing or insufficient
+  reference data, invalid targets and genuine software failures;
+  \item concise user and developer documentation, including known limitations.
+\end{itemize}
+
+Candidate adjustment coefficients are a useful extension, but not a condition for a
+successful comparison framework. They should only be produced after an explicit
+scientific review accepts the comparison results and uncertainty analysis.
+
+\section{Review of what is already in place}
+
+\subsection{Operational processing foundation}
+
+The renovated toolbox is a Python package under \pkg{src/meop_process/}. It already owns
+the main MEOP processing path: raw ODV import, location processing, quality control,
+low- and high-resolution products, thermal-lag processing, adjustment application,
+diagnostics, metadata summaries, publishing helpers and resumable batch execution.
+The package exposes installed commands including \pkg{meop-process},
+\pkg{meop-compare}, \pkg{meop-compare-batch} and \pkg{meop-publish}.
+
+The repository test suite contains 223 collected tests in this snapshot. Relevant
+regressions cover adjustment application, CORA tile loading, calibration-plot
+generation, batch resumption and NetCDF comparison. This is a strong software base:
+new work should extend it rather than create a disconnected notebook-only method.
+
+\subsection{Local data inventory at the review date}
+
+The working data tree is already large enough for development and retrospective
+validation. Counts below describe the local checkout on August 22, 2026; they are a
+snapshot rather than a property of the software.
+
+\begin{center}
+\begin{tabularx}{0.94\textwidth}{>{\raggedright\arraybackslash}p{0.34\textwidth}X}
+\toprule
+Item & Count \\
+\midrule
+Deployment directories under \pkg{data/data_prof/} & 310 \\
+Unique tags with processed profile files & 2,717 \\
+\pkg{lr0}, \pkg{lr1}, \pkg{hr0}, \pkg{hr1}, or \pkg{hr2} files & 2,717 of each \\
+\pkg{fr0} and \pkg{fr1} files & 182 of each \\
+Rows in \pkg{table_coeff.csv} & 2,789 \\
+Tags represented in \pkg{table_salinity_offsets.csv} & 77 \\
+CORA 202511 populated tile files & 540 \\
+CORA 202511 profiles & 4,328,083: 2,605,655 Argo and 1,722,428 CTD \\
+CORA 202511 coverage & CTD: 1953-04-09 to 2025-06-30; Argo: 1995-09-07 to 2025-06-30 \\
+Collected repository tests & 223 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Existing pieces directly relevant to the work}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.25\textwidth} >{\centering\arraybackslash}p{0.09\textwidth} >{\raggedright\arraybackslash}p{0.56\textwidth}}
+\toprule
+\textbf{Component} & \textbf{Status} & \textbf{What it does today} \\
+\midrule
+\endhead
+Processed profile products & \done & One NetCDF file per tag and processing level under \pkg{data/data_prof/<deployment>/}. \\
+Runtime reference configuration & \done & \pkg{configs.json} points \pkg{references.cora_dir} to \pkg{CORA_ctd_argo_202511_tiles}. \\
+CORA tile reader & \partdone & \pkg{reference/cora.py} inventories actual files, accepts padded and unpadded longitude names, and returns latitude, longitude, JULD, TEMP, PSAL and a shared pressure grid. Calibration loads the union of buffered cells along accepted positions, handles anti-meridian windows circularly, and indexes selected profile rows before materialising TEMP/PSAL. The reader does not yet expose the retained profile provenance required for auditable matchups. \\
+CORA source acquisition & \done & \pkg{meop-cora-download} produced a complete, release-pinned CORA 202511 source archive with exact hashed CTD and Argo file lists and a download manifest. \\
+CORA tile preparation & \done & \pkg{meop-cora-prepare} applied per-profile type/QC/value rules, normalised time and longitude, interpolated to the 10-dbar grid, retained source/type/branch metadata, and wrote the installed 540-tile archive and preparation manifest. \\
+Calibration figures & \partdone & \pkg{plotting/calibration.py} produces T/S context plots, salinity anomaly plots, pressure-band statistics and a linear pressure fit. \\
+Single-tag command & \done & \pkg{meop-compare --plot1 <tag>} selects a processed target file and writes calibration PNG/CSV outputs. \\
+Batch command & \done & \pkg{meop-compare-batch} discovers tags, resumes version-compatible successes, runs in parallel, logs each tag, distinguishes data-availability outcomes from failures, and writes CSV/Markdown summaries. \\
+Regression comparator & \done & \pkg{workflows/compare.py} and directory mode in \pkg{meop-compare} compare two NetCDF outputs for numerical/software regression. This is not an oceanographic matchup method. \\
+Coefficient application & \done & \pkg{processing/adjustments.py} reads operator tables, applies T/S corrections and writes adjusted variables, errors and calibration metadata. \\
+Coefficient estimation & \partdone & Existing calibration CSVs contain preliminary suggested coefficients, but the scientific comparison used to obtain them is not yet a valid basis for operational decisions. \\
+Time-varying salinity adjustment & \done & Existing table values are interpolated by profile index and applied. Their breakpoints are operator supplied; no estimator finds them. \\
+Expert-review workflow & \missing & No proposal table, confidence classification, before/after validation report or controlled approval/import step exists. \\
+\bottomrule
+\end{longtable}
+
+\subsection{What the current calibration workflow actually computes}
+
+For a target tag, the existing command prefers \pkg{hr1}, then \pkg{lr1},
+\pkg{hr2}, \pkg{hr0}, \pkg{lr0}, \pkg{fr1} and \pkg{fr0}. Target preflight removes
+non-finite/null-island positions and minor spatial components disconnected from a
+supported deployment component. It verifies target-only profile and depth support
+before opening CORA. The reader then loads only cells intersecting local 5-degree
+windows along accepted positions and indexes matching reference rows before
+materialising T/S arrays. It projects the retained CORA profiles to the target pressure
+grid and computes one CORA median at each pressure level. Every accepted target profile
+is compared with this same median profile.
+
+The diagnostic CSV reports robust summaries in fixed pressure bands and an ordinary
+linear fit over 200--1000 dbar. If
+
+\begin{equation}
+\Delta T(p) = T_{\mathrm{tag}}(p)-T_{\mathrm{CORA,median}}(p)
+             \simeq b_T + a_T p,
+\end{equation}
+
+the CSV writes candidate values \(T1=1000a_T\) and \(T2=b_T\), with analogous
+values for salinity. These are syntactically compatible with the coefficient table,
+but the reference median is not matched to each target profile in time or local space.
+The numerical compatibility must not be confused with scientific validation.
+
+\subsection{How adjustments are already represented and applied}
+
+The operational table \pkg{data/tables/table_coeff.csv} stores one row per tag with
+\pkg{T1}, \pkg{T2}, \pkg{S1}, \pkg{S2}, removal flags and a comment code. The Python
+implementation applies
+
+\begin{align}
+T_{\mathrm{adjusted}}(p) &= T(p) - 10^{-3}T1\,p - T2, \\
+S_{\mathrm{adjusted}}(p,i) &= S(p,i) - 10^{-3}S1\,p - S2 + \delta S(i),
+\end{align}
+
+where \(p\) is pressure in dbar, \(i\) is profile index, and \(\delta S(i)\) is an
+optional time-varying series interpolated from up to four index/offset pairs in
+\pkg{table_salinity_offsets.csv}. The code also updates adjusted-error variables and
+NetCDF calibration metadata.
+
+The local coefficient history is valuable validation material: 262 rows have non-zero
+\pkg{T2}, 285 have non-zero \pkg{S1}, 1,051 have non-zero \pkg{S2}, and 77 tags have
+time-varying salinity-offset records. These are expert decisions, not perfect ground
+truth. They can be used to form test strata and to investigate disagreement, but should
+not simply be learned and reproduced.
+
+The deprecated MATLAB code retained under \pkg{legacy/toolbox_legacy/} likewise applies
+pre-existing coefficients and interpolated salinity offsets. It does not provide the
+missing statistically validated estimator. The old external calibration plotting call
+is referenced by the legacy wrapper, but its full implementation is not present in this
+repository.
+
+\subsection{CORA 202511 reference archive}
+
+The configured reference is the prepared CTD/Argo archive from Copernicus Marine
+product \pkg{INSITU_GLO_PHY_TS_DISCRETE_MY_013_001}, dataset version \pkg{202511}.
+The download manifest records 34,556 source files: raw CORA \pkg{CT/OC/TE} candidates
+for CTD selection and EasyCORA \pkg{PF} files received from Argo DACs. The preparation
+manifest records 540 populated 10-degree tiles and 4,328,083 retained profiles:
+2,605,655 Argo profiles with \pkg{PROBE_TYPE=5} and 1,722,428 CTD profiles with
+\pkg{PROBE_TYPE=2}.
+
+CTD coverage is 1953-04-09 through 2025-06-30; Argo coverage is 1995-09-07 through
+2025-06-30. Every tile uses one standard time origin and a 100-level pressure grid from
+10 to 1000 dbar in 10-dbar increments. A complete structural audit found no retained
+profile with non-finite time or position, no profile outside its named tile, no
+unexpected probe type, no malformed pressure grid, no skipped source file, and no
+missing QC variable.
+
+The preparation accepts level, position and time QC flags 1 and 2, prefers an adjusted
+whole-profile parameter when available, otherwise uses the raw parameter, and requires
+both usable temperature and salinity on the target grid. Of 5,271,991 profiles matching
+the requested platform types, 400,035 were excluded by the strict time/position policy
+and 543,873 lacked sufficient paired T/S support. These exclusions are recorded in the
+manifest and should remain part of the scientific provenance.
+
+The acquisition and preparation workflow is reproducible:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \pkg{meop-cora-download plan|download} first saves the complete remote inventory,
+  then selects exact global file lists, records size, version and hashes, and downloads
+  source files without mixing them with generated tiles;
+  \item \pkg{meop-cora-prepare} writes MEOP-compatible 10-degree tiles and a generation
+  manifest while retaining \pkg{REFERENCE_KIND}, \pkg{PROBE_TYPE}, platform/reference
+  identifiers, source file/class/dataset and the selected raw/adjusted parameter branch.
+\end{itemize}
+
+EasyCORA provides best-estimate, vertically subsampled Argo values, which is suitable
+for the 10-dbar comparison tiles but must remain visible in provenance. Full commands,
+policies and manifest-review checks are in
+\pkg{docs/cora_download_and_preparation.md}.
+
+\subsection{Calibration batch status after the reference update}
+
+The calibration products must be regenerated after a reference archive changes. The
+current batch command discovers 2,665 tags in enabled deployments, or all 2,717 locally
+processed tags with \pkg{--include-disabled}. It writes per-tag context plots, an offset
+diagnostic PNG and a diagnostic CSV containing pressure-band summaries and preliminary
+\pkg{T1/T2/S1/S2} estimates. Batch method version 4 distinguishes \pkg{no_reference},
+\pkg{insufficient_target}, \pkg{insufficient_reference}, \pkg{invalid_target} and
+\pkg{failed} from successful results and refuses to reuse incompatible success state.
+Success requires, for both
+temperature and salinity, at least 10 contributing target profiles, at least three valid
+levels in the 400--600 dbar band, finite band and linear estimates, and actual comparison
+coverage spanning at least 200--600 dbar. A clean rebuild must remove calibration plots,
+offset CSVs and calibration batch state before running
+\pkg{meop-compare-batch --include-disabled --force}.
+
+\section{What still needs to be developed}
+
+\subsection{The central missing capability}
+
+The toolbox needs to move from a \emph{track-wide visual background} to an auditable
+\emph{profile-level comparison}. Each target profile must have its own reference
+neighbourhood, with explicit spatial distance, time separation, reference identity,
+quality-control decisions and uncertainty. All downstream summaries and coefficient
+suggestions must be traceable to those matchups.
+
+\subsection{Specific gaps found during the review}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.25\textwidth} >{\raggedright\arraybackslash}p{0.34\textwidth} >{\raggedright\arraybackslash}p{0.31\textwidth}}
+\toprule
+\textbf{Gap} & \textbf{Why it matters} & \textbf{Direction} \\
+\midrule
+\endhead
+No per-profile time/space matching & A broad regional median mixes seasons, fronts and water masses & Match every target profile separately with configurable distance/time limits \\
+Adjusted variables are preferred & Existing coefficients can leak into an estimator intended to discover those coefficients & Compare explicit raw \pkg{TEMP}/\pkg{PSAL}; carry adjusted values only as a separate evaluation branch \\
+Prepared CORA provenance is not exposed by the calibration loader & Source class, platform identity and raw/adjusted branch cannot yet be audited downstream & Return retained identifiers and branch metadata with the numerical arrays \\
+MEOP value and position/time QC are not applied in calibration & Fill-value removal alone is not sufficient & Centralise flag decoding and masks for target and reference data \\
+Reference identity is discarded & Self-matches, duplicated profiles and source dependence cannot be audited & Retain platform, cycle, data centre/reference, mode and source file/profile index \\
+Reference archive identity is not part of batch invalidation & A successful state can be reused after the reference data change & Include source/preparation manifest hashes in the method configuration and batch state \\
+Reference time is not used by the calibration method & A track-wide median mixes observations from different seasons and years & Decode the normalised \pkg{JULD} coordinate, match in time and test known dates \\
+One value per pressure level is treated as independent & Confidence becomes far too optimistic because levels within a profile are correlated & Bootstrap or split by profile/time block, not individual depth level \\
+No held-out validation & A fit can improve the same data used to create it and still be wrong & Reserve reference profiles or time blocks for evaluation \\
+No proposal/review boundary & A numerical output could accidentally become an operational correction & Write a separate immutable proposal artefact; never edit official tables automatically \\
+\bottomrule
+\end{longtable}
+
+\subsection{Out of scope}
+
+The following are outside the scope of this framework:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item fully automatic delayed-mode approval of corrections;
+  \item changing or reproducing the upstream CORA reanalysis/validation system;
+  \item redesigning the full MEOP processing and publication chain;
+  \item treating expert historical coefficients as unquestionable truth;
+  \item a sophisticated front-following ocean state estimate for every region;
+  \item correction of pressure, oxygen, chlorophyll or light sensors.
+\end{itemize}
+
+\section{Existing and proposed data structures}
+
+\subsection{MEOP target profiles}
+
+Processed files follow
+
+\begin{lstlisting}[style=meopcode]
+data/data_prof/<deployment>/<smru_name>_<qf>_prof.nc
+\end{lstlisting}
+
+For example, an \pkg{hr1} file has dimensions \pkg{N_PROF} and \pkg{N_LEVELS}, with
+one-dimensional profile metadata and two-dimensional hydrographic variables:
+
+\begin{center}
+\begin{tabularx}{0.96\textwidth}{>{\bfseries}p{0.25\textwidth}p{0.25\textwidth}X}
+\toprule
+Group & Typical variables & Use in this project \\
+\midrule
+Profile identity & \pkg{CYCLE_NUMBER}, platform metadata & Stable target-profile key \\
+Time and position & \pkg{JULD}, \pkg{LATITUDE}, \pkg{LONGITUDE} plus QC & Match centre and filters \\
+Raw hydrography & \pkg{PRES}, \pkg{TEMP}, \pkg{PSAL} plus QC & Primary data for bias estimation \\
+Adjusted hydrography & \pkg{PRES_ADJUSTED}, \pkg{TEMP_ADJUSTED}, \pkg{PSAL_ADJUSTED} plus QC/error & Before/after evaluation only \\
+Calibration metadata & Calibration-coefficient string array & Provenance and consistency checks \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Use \pkg{hr1} when available because thermal-lag and high-resolution processing are
+important upstream steps, but read the unadjusted \pkg{TEMP} and \pkg{PSAL} fields for
+coefficient estimation. The processing level, choice of raw/adjusted field and all QC
+rules must be stored in the output provenance.
+
+\subsection{CORA reference profiles}
+
+The CORA 202511 reference interface uses 540 populated 10-degree NetCDF tiles. The
+preparation command uses one time origin and preserves the following fields for later
+matchup work:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item profile identifiers: \pkg{PLATFORM_NUMBER}, \pkg{CYCLE_NUMBER} and
+  \pkg{DC_REFERENCE};
+  \item source identifiers: \pkg{SOURCE_FILE}, \pkg{SOURCE_FILE_CLASS},
+  \pkg{SOURCE_DATASET}, \pkg{REFERENCE_KIND} and \pkg{PROBE_TYPE};
+  \item normalised \pkg{JULD}, \pkg{LATITUDE} and \pkg{LONGITUDE};
+  \item \pkg{DATA_MODE}, \pkg{WMO_INST_TYPE}, and explicit
+  \pkg{TEMP_SOURCE}/\pkg{PSAL_SOURCE}/\pkg{PRES_SOURCE} branch metadata;
+  \item QC-masked, interpolated \pkg{TEMP} and \pkg{PSAL};
+  \item the shared \pkg{PRES_GRID} coordinate.
+\end{itemize}
+
+An extended reader should return an \pkg{xarray.Dataset} or a small typed object that keeps
+these fields together and decodes each tile's time before concatenation. A plain
+dictionary of six arrays is no longer sufficient once matchups must be audited. Results
+must record the CORA source download and preparation manifest hashes.
+
+\subsection{Recommended comparison products}
+
+Avoid making one enormous table with a row for every profile, reference neighbour and
+pressure level. A two-part structure is easier to understand and more compact.
+
+\subsubsection{Pair index: one row per target/reference pair}
+
+Write a CSV for each tag or batch partition containing:
+
+\begin{lstlisting}[style=meopcode]
+target_tag, target_cycle, target_time, target_lat, target_lon,
+reference_source, reference_platform, reference_cycle, reference_time,
+reference_lat, reference_lon, distance_km, time_days,
+space_weight, time_weight, combined_weight, accepted, rejection_reason
+\end{lstlisting}
+
+This table answers ``which observations influenced this comparison?'' without
+duplicating vertical profiles. CSV is deliberately suggested because it is already
+supported and can be inspected without a specialised stack. If scale becomes a problem,
+Parquet can be considered later with an explicit dependency decision.
+
+\subsubsection{Profile comparison NetCDF: one composite per target profile}
+
+Write one NetCDF per tag with dimensions \pkg{N_PROF} and \pkg{N_LEVELS}. Suggested
+variables are:
+
+\begin{center}
+\begin{tabularx}{0.96\textwidth}{>{\bfseries}p{0.31\textwidth}X}
+\toprule
+Variable/group & Meaning \\
+\midrule
+\pkg{PRES_GRID} & Common comparison pressure grid \\
+\pkg{TARGET_TEMP_RAW}, \pkg{TARGET_PSAL_RAW} & QC-masked target values used for estimation \\
+\pkg{TARGET_TEMP_ADJUSTED}, \pkg{TARGET_PSAL_ADJUSTED} & Optional operational values used only for evaluation \\
+\pkg{REFERENCE_TEMP}, \pkg{REFERENCE_PSAL} & Weighted robust reference composite for this target profile \\
+\pkg{REFERENCE_*_SPREAD} & Robust spread among reference neighbours, for example weighted MAD \\
+\pkg{ANOMALY_*_RAW} & Raw target minus reference \\
+\pkg{ANOMALY_*_ADJUSTED} & Adjusted target minus reference \\
+\pkg{N_REFERENCE} & Number of accepted reference profiles for each target \\
+\pkg{MEDIAN_DISTANCE_KM}, \pkg{MEDIAN_TIME_DAYS} & Matchup quality summaries \\
+\pkg{MATCHUP_QC} & Good, marginal, no reference, bad target metadata, or insufficient overlap \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Global attributes should include software version/commit, creation time, source file,
+reference archive, variable policy, QC policy, pressure grid, matching thresholds,
+weighting formula and a serialised configuration hash.
+
+\subsubsection{Tag summary and coefficient proposal}
+
+A batch-level summary CSV should contain coverage and robust anomalies by tag, variable,
+pressure band and time period. A separate proposal CSV may contain:
+
+\begin{lstlisting}[style=meopcode]
+smru_platform_code, variable, model, T1, T2, S1, S2,
+ci_low, ci_high, n_target_profiles, n_reference_profiles,
+coverage_fraction, validation_delta_mad, sensitivity_range,
+decision, decision_reason, method_version, created_at
+\end{lstlisting}
+
+The \pkg{decision} field should be one of \pkg{candidate}, \pkg{review},
+\pkg{insufficient_data} or \pkg{reject}. This file is evidence for an operator; it is
+not an alternative \pkg{table_coeff.csv}.
+
+\subsection{Suggested output location}
+
+Keep experimental products separate from standard plots until the method is approved:
+
+\begin{lstlisting}[style=meopcode]
+data/comparisons/cora/<method_version>/
+  by_tags/<deployment>/<tag>_pairs.csv
+  by_tags/<deployment>/<tag>_comparison.nc
+  by_tags/<deployment>/<tag>_summary.csv
+  runs/<timestamp>/summary.csv
+  runs/<timestamp>/summary.md
+  runs/<timestamp>/logs/<tag>.log
+  latest/status.json
+  proposals/coefficients_<timestamp>.csv
+\end{lstlisting}
+
+This mirrors the repository's existing resumable batch conventions without mixing
+experimental coefficient suggestions into operational tables.
+
+\section{General scientific methodology}
+
+\subsection{Step 1: define a representative pilot set}
+
+Begin with 6--10 tags, then expand to 30--50 before attempting the full archive. The
+pilot must deliberately include:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item zero-correction tags and tags with known constant corrections;
+  \item at least one pressure-dependent coefficient;
+  \item at least one time-varying salinity correction;
+  \item contrasting regions, seasons, track lengths and profile counts;
+  \item a missing-position or no-reference case to exercise failure reporting;
+  \item one or more tags excluded or flagged by historical expert review.
+\end{itemize}
+
+Useful starting examples already present locally are shown below. They are chosen to
+exercise code paths, not because historical coefficients are exact truth.
+
+\begin{center}
+\begin{tabularx}{0.98\textwidth}{>{\bfseries}p{0.24\textwidth}p{0.18\textwidth}X}
+\toprule
+Tag & Historical feature & Why useful \\
+\midrule
+\pkg{BM01-544-12} & All fixed coefficients zero & Negative-control case; 183 profiles \\
+\pkg{ct88-225-12} & \pkg{S2=-0.4} & Strong constant salinity correction; existing regression fixture; 306 profiles \\
+\pkg{ct62-01-10} & Non-zero T and S pressure terms & Exercises recovery of small slopes; 324 profiles \\
+\pkg{ct84-533-12} & Fixed coefficients plus time-varying salinity & Exercises separation of a tag-wide model from profile-index change; 321 profiles \\
+\pkg{ct153-Pendragon-19} & Non-zero \pkg{T2} and \pkg{S2} & Long 1,093-profile track; already an LR-only adjustment regression case \\
+\pkg{ct104-EF970-13} & Small constant T/S corrections & Long Southern Ocean track with 1,171 profiles \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Confirm the final pilot list after producing a concise inventory of reference coverage
+and historical decisions.
+
+\subsection{Step 2: choose explicit input policies}
+
+The comparison must make three choices explicit:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item \textbf{Target processing level.} Start with \pkg{hr1} where present, with a
+  documented fallback. Do not silently mix levels in one scientific result.
+  \item \textbf{Target variable branch.} Use raw \pkg{TEMP}/\pkg{PSAL} for estimating
+  calibration bias. Carry adjusted variables separately to measure whether existing
+  corrections improve external agreement.
+  \item \textbf{Reference variable branch.} Use the prepared CORA best-parameter policy:
+  adjusted whole-profile values when available, otherwise raw. Preserve
+  \pkg{TEMP_SOURCE}, \pkg{PSAL_SOURCE}, \pkg{PRES_SOURCE} and \pkg{DATA_MODE} in every
+  auditable result. A different branch policy requires a separately identified reference
+  build and sensitivity comparison.
+\end{enumerate}
+
+\subsection{Step 3: quality control and independence}
+
+Decode byte, character and object QC arrays through one tested helper. At minimum:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item reject invalid target time or position and apply target T/S QC level by level;
+  \item verify the reference manifest and enforce the prepared archive's accepted QC
+  policy, then reject any remaining non-finite reference values;
+  \item reject missing/fill values and non-physical pressure ordering;
+  \item require a minimum common pressure span and number of valid comparison levels;
+  \item retain the reason for every rejection;
+  \item exclude exact duplicates and verify that no MEOP observation is compared with
+  itself through the reference archive.
+\end{itemize}
+
+The local \pkg{list_wmo_numbers.csv} and CORA fields such as \pkg{PLATFORM_NUMBER} and
+\pkg{DC_REFERENCE} can help with independence checks. If complete self-source exclusion
+cannot be guaranteed, that limitation must be visible in the result and discussed with
+the scientific reviewer before coefficient estimation.
+
+\subsection{Step 4: create space--time neighbours}
+
+Convert longitudes to a consistent convention and positions to unit-sphere Cartesian
+coordinates. A \pkg{scipy.spatial.cKDTree} search on the sphere, followed by an exact
+haversine distance, is efficient and naturally handles the anti-meridian. Time should
+be normalised to UTC before matching.
+
+Reasonable \emph{initial values for sensitivity testing}, not final scientific constants,
+are:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item maximum distance: 150 km;
+  \item maximum absolute time difference: 30 days;
+  \item maximum neighbours retained per target: 20;
+  \item minimum accepted reference profiles per target: 3.
+\end{itemize}
+
+Repeat key results for 50/100/200 km and 10/30/60 days. A coefficient
+that changes substantially across these defensible settings should be marked for review,
+not reported as a confident adjustment.
+
+\subsection{Step 5: vertical interpolation and the reference composite}
+
+Use a documented common pressure grid and never extrapolate outside the observed range
+of a profile. Perform interpolation only after masking invalid values. Preserve a count
+and robust spread at every target profile and pressure level.
+
+A simple starting weight for accepted reference neighbour \(j\) is
+
+\begin{equation}
+w_j = \exp\left[-\frac{1}{2}\left(\frac{d_j}{L}\right)^2
+                 -\frac{1}{2}\left(\frac{\Delta t_j}{\tau}\right)^2\right],
+\end{equation}
+
+where \(d_j\) is distance, \(\Delta t_j\) is time separation, and \(L\), \(\tau\) are
+configurable scales. Compare a weighted mean with a weighted median or trimmed mean.
+The robust choice is preferable where enough profiles exist; the method should not
+pretend that a one-neighbour composite has well-determined reference uncertainty.
+
+\subsection{Step 6: compute and inspect anomalies}
+
+For each target profile \(i\), pressure \(p\), and variable \(X\), compute
+
+\begin{equation}
+\Delta X_i(p)=X_{\mathrm{MEOP},i}(p)-\widehat{X}_{\mathrm{ref},i}(p).
+\end{equation}
+
+Summaries should retain profile structure. Useful diagnostics include:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item anomaly versus pressure, with median and interquartile/reference-spread bands;
+  \item profile-median anomaly versus time/profile number;
+  \item anomaly versus distance, time separation and number of neighbours;
+  \item maps coloured by anomaly and matchup coverage;
+  \item raw-versus-adjusted residual comparison;
+  \item summaries by stable pressure bands and, where scientifically useful, by
+  potential-density or water-mass class;
+  \item results under each space/time sensitivity setting.
+\end{itemize}
+
+First explain visible structure as oceanography before labelling it
+sensor bias. Front crossings, seasonal cycles, shallow mixed layers, sea-ice regions and
+sparse reference coverage are all plausible causes of structured anomalies.
+
+\subsection{Step 7: optional robust coefficient estimation}
+
+Only after the comparison passes an explicit scientific review, fit the existing
+operational parameterisation to raw
+anomalies over agreed stable pressure ranges:
+
+\begin{align}
+\Delta T_i(p) &= 10^{-3}T1\,p + T2 + \epsilon_{i,p}, \\
+\Delta S_i(p) &= 10^{-3}S1\,p + S2 + \epsilon_{i,p}.
+\end{align}
+
+Use robust regression so a small number of water-mass mismatches cannot dominate the
+fit. \pkg{scipy.optimize.least_squares} with a robust loss, or a clearly implemented
+iteratively reweighted method, avoids adding a large machine-learning dependency.
+
+Do not treat all depth samples as independent. Estimate confidence by resampling target
+profiles or multi-day blocks. Store the full coefficient distribution or at least its
+percentile interval. Use separate training and validation profiles or time blocks.
+
+For time-varying salinity, first plot profile-level residuals after the fixed model. A
+piecewise constant/linear correction with very few change points may be investigated as
+a stretch task. Penalise extra breakpoints, require persistence, bootstrap breakpoint
+stability and respect the existing limit of four index/offset pairs if proposing an
+operationally compatible result.
+
+\subsection{Step 8: decision gates}
+
+A proposed coefficient should be labelled \pkg{candidate} only when all agreed gates
+pass. Starting gates to refine with the scientific review group are:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item enough matched target profiles and adequate deployment-time coverage;
+  \item more than one reference platform and reasonable spatial/time separations;
+  \item sufficient vertical overlap in the chosen pressure band;
+  \item a bootstrap interval narrow enough for the intended correction;
+  \item the sign and magnitude are stable across matching sensitivities;
+  \item held-out median bias and MAD improve, not just training fit;
+  \item no implausible T/S or density behaviour is introduced;
+  \item results are understandable on the diagnostic plots.
+\end{itemize}
+
+Failure of a gate is useful information. The correct output may be
+\pkg{insufficient_data} or \pkg{review}; the estimator must never force every tag to have
+a non-zero correction.
+
+\section{Validation plan}
+
+\subsection{Synthetic recovery tests}
+
+Create small synthetic MEOP/CORA fixtures with known offsets, pressure slopes, missing
+levels, bad QC, time offsets, longitude wrap and a known change point. Tests should show
+that the pipeline:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item selects exactly the expected neighbours;
+  \item handles 179 degrees east versus 179 degrees west correctly;
+  \item never extrapolates vertically;
+  \item recovers injected \pkg{T1/T2/S1/S2} within a stated tolerance;
+  \item does not infer a correction in the zero-bias case;
+  \item reports no-reference and insufficient-data cases honestly;
+  \item widens uncertainty when reference coverage is poor.
+\end{itemize}
+
+\subsection{Historical comparison}
+
+Stratify historical tags into zero coefficient, constant offset, pressure-dependent,
+time-varying, salinity removed and fully removed groups. For each stratum, compare
+candidate results with the operator tables, while recognising that disagreement can mean
+the new method is wrong, the reference is unsuitable, or the historical decision used
+evidence not available to the algorithm.
+
+Report at least coefficient sign agreement, robust difference, interval coverage,
+false-positive rate on zero-coefficient tags, and the fraction classified as
+insufficient. Review individual large disagreements rather than hiding them in one
+correlation coefficient.
+
+\subsection{Held-out and sensitivity validation}
+
+Fit on one part of the deployment and evaluate on another, or divide independent
+reference platforms between fit and evaluation. Compare before/after median anomaly and
+MAD. Repeat under several matching windows and reference-variable policies. The most
+important result is not the smallest residual; it is a correction that generalises and
+remains stable when defensible assumptions change.
+
+\subsection{Scientific review gate}
+
+Before coefficient estimation begins, review:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item corrected CORA coverage and explicit batch status counts;
+  \item pair maps and anomaly plots for the pilot tags;
+  \item results of matching-window sensitivity tests;
+  \item evidence that raw and adjusted branches are not mixed;
+  \item a recommendation to proceed with fixed coefficient estimation, limit the
+  project to comparison, or revise the reference strategy.
+\end{enumerate}
+
+Proceeding to estimation should be a scientific decision made at this review, not an
+automatic consequence of completing the comparison software.
+
+\section{Final perspective}
+
+Most of the engineering substrate is already present: processed MEOP profiles,
+coefficient application, CORA tiles, plotting, batch state and tests. The missing piece
+is the scientific middle layer that turns ``profiles in the same broad box'' into
+traceable, independent and uncertainty-aware comparisons.
+
+That layer is a coherent scientific development project spanning data handling,
+geospatial algorithms, oceanographic interpretation, statistics, testing and
+reproducible software development. The systematic comparison is useful in its own
+right and provides the evidence needed to decide how far defensible adjustment
+estimation can go.
+
+\begin{thebibliography}{9}
+
+\bibitem{roquet2011}
+Roquet, F., Charrassin, J.-B., Marchand, S., Boehme, L., Fedak, M., Reverdin, G., and
+Guinet, C. (2011).
+Validating hydrographic data obtained from seal-borne satellite-relayed data loggers.
+\emph{Journal of Atmospheric and Oceanic Technology}, 28, 787--801.
+\href{https://doi.org/10.1175/2010JTECHO801.1}{doi:10.1175/2010JTECHO801.1}.
+
+\bibitem{meopmanual}
+MEOP/Sea Mammal data-processing manual, version 1.2, available locally as
+\pkg{docs/seamammal_user_manual_version1.2.pdf}.
+
+\bibitem{toolboxstatus}
+MEOP Process renovation status and toolbox guide, available locally as
+\pkg{docs/meop_toolbox_status.tex}.
+
+\bibitem{corapum}
+Copernicus Marine Service, Product User Manual for
+\pkg{INSITU_GLO_PHY_TS_DISCRETE_MY_013_001}, issue 1.17 (November 2025).
+\href{https://documentation.marine.copernicus.eu/PUM/CMEMS-INS-PUM-013-001.pdf}{Official CORA user manual}.
+
+\bibitem{coradata}
+Copernicus Marine Service, Global Ocean CORA in-situ observations, delayed mode.
+\href{https://data.marine.copernicus.eu/product/INSITU_GLO_PHY_TS_DISCRETE_MY_013_001/services}{Product and data access page}.
+
+\end{thebibliography}
+
+\end{document}

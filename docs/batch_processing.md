@@ -104,9 +104,23 @@ meop-compare --plot1 ct88-225-12
 
 This command does not compare two output trees. Instead it:
 
-1. Reads the processed lr1 (or lr0) profile file for the tag.
-2. Loads the CORA 10°×10° tiles that intersect the deployment bounding box (with a 5° margin).
-3. Writes one PNG per 200-profile chunk to `data/plots_by_tags/<deployment>/`.
+1. Reads the processed profile file selected for the tag.
+2. Removes invalid/null-island positions and minor spatial components disconnected
+   from a supported deployment component.
+3. Rejects targets that cannot meet the profile/depth gate before opening CORA.
+4. Loads only the union of CORA cells intersecting local 5° windows along the accepted
+   track, with circular longitude handling at the anti-meridian.
+5. Reads tile coordinates first and materialises TEMP/PSAL only for selected profile rows.
+6. Writes one PNG per 200-profile chunk to `data/plots_by_tags/<deployment>/`.
+
+The tile loader inventories actual filenames and supports both `lon40W`/`lon00E` and
+`lon040W`/`lon000E` conventions. Batch summaries classify `no_reference`,
+`insufficient_target`, `insufficient_reference`, and `invalid_target` separately from
+unexpected `failed` outcomes. Calibration method version 4 invalidates incompatible
+success state. A tag is
+successful only when both temperature and salinity diagnostics contain at least 10
+target profiles, at least three valid levels in the 400--600 dbar band, finite band and
+linear coefficient estimates, and observed comparison coverage from 200 to 600 dbar.
 
 Each figure has two panels:
 - **Left** — T/S diagram with CORA background profiles (grey), other tags in the same deployment (blue), and the target tag coloured by time (viridis).

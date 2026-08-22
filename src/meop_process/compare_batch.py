@@ -16,13 +16,13 @@ from typing import Iterable
 
 from .catalog.deployments import load_deployment_catalog
 from .catalog.filenames import deployment_from_smru_name, list_fname_prof, smru_name_from_fname_prof
-from .compare_cli import generate_calibration_plots
+from .compare_cli import CalibrationStatusError, generate_calibration_plots
 from .config.loader import load_config
 from .models import MeopConfig
 
 
 STATE_FILE_NAME = "calibration_plot_status.json"
-SUCCESS_STATUSES = {"success", "skipped"}
+CALIBRATION_METHOD_VERSION = 4
 _PARALLEL_EXECUTOR_FACTORY = concurrent.futures.ProcessPoolExecutor
 
 
@@ -37,6 +37,7 @@ class CalibrationPlotRunResult:
     log_path: Path
     written_files: tuple[Path, ...] = ()
     message: str = ""
+    method_version: int = CALIBRATION_METHOD_VERSION
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -49,6 +50,7 @@ class CalibrationPlotRunResult:
             "log_path": str(self.log_path),
             "written_files": [str(path) for path in self.written_files],
             "message": self.message,
+            "method_version": self.method_version,
         }
 
 
@@ -74,6 +76,22 @@ class CompareBatchRunResult:
     def failed_count(self) -> int:
         return sum(item.status == "failed" for item in self.tag_results)
 
+    @property
+    def no_reference_count(self) -> int:
+        return sum(item.status == "no_reference" for item in self.tag_results)
+
+    @property
+    def insufficient_reference_count(self) -> int:
+        return sum(item.status == "insufficient_reference" for item in self.tag_results)
+
+    @property
+    def insufficient_target_count(self) -> int:
+        return sum(item.status == "insufficient_target" for item in self.tag_results)
+
+    @property
+    def invalid_target_count(self) -> int:
+        return sum(item.status == "invalid_target" for item in self.tag_results)
+
     def as_dict(self) -> dict[str, object]:
         return {
             "run_id": self.run_id,
@@ -85,6 +103,10 @@ class CompareBatchRunResult:
             "success_count": self.success_count,
             "skipped_count": self.skipped_count,
             "failed_count": self.failed_count,
+            "no_reference_count": self.no_reference_count,
+            "insufficient_reference_count": self.insufficient_reference_count,
+            "insufficient_target_count": self.insufficient_target_count,
+            "invalid_target_count": self.invalid_target_count,
             "tag_results": [item.as_dict() for item in self.tag_results],
         }
 
@@ -230,6 +252,8 @@ def _should_skip(
         return False, "not yet plotted"
     if str(entry.get("status", "")).strip().lower() != "success":
         return False, "previous run not successful"
+    if entry.get("method_version") != CALIBRATION_METHOD_VERSION:
+        return False, "success marker belongs to an older calibration method version"
     if not _expected_outputs_exist(config, smru_name):
         return False, "success marker exists but plot outputs are missing"
     return True, "already completed successfully"
@@ -250,6 +274,7 @@ def _write_csv(path: Path, results: Iterable[CalibrationPlotRunResult]) -> None:
                 "written_count",
                 "log_path",
                 "message",
+                "method_version",
             ]
         )
         for result in results:
@@ -264,6 +289,7 @@ def _write_csv(path: Path, results: Iterable[CalibrationPlotRunResult]) -> None:
                     len(result.written_files),
                     str(result.log_path),
                     result.message,
+                    result.method_version,
                 ]
             )
 
@@ -272,12 +298,21 @@ def _write_markdown(path: Path, run_id: str, results: Iterable[CalibrationPlotRu
     items = list(results)
     success = [item for item in items if item.status == "success"]
     skipped = [item for item in items if item.status == "skipped"]
+    no_reference = [item for item in items if item.status == "no_reference"]
+    insufficient_reference = [item for item in items if item.status == "insufficient_reference"]
+    insufficient_target = [item for item in items if item.status == "insufficient_target"]
+    invalid_target = [item for item in items if item.status == "invalid_target"]
     failed = [item for item in items if item.status == "failed"]
     lines = [
         f"# MEOP CORA calibration plot batch report ({run_id})",
         "",
+        f"Calibration method version: **{CALIBRATION_METHOD_VERSION}**  ",
         f"Success: **{len(success)}**  ",
         f"Skipped: **{len(skipped)}**  ",
+        f"No reference: **{len(no_reference)}**  ",
+        f"Insufficient reference: **{len(insufficient_reference)}**  ",
+        f"Insufficient target: **{len(insufficient_target)}**  ",
+        f"Invalid target: **{len(invalid_target)}**  ",
         f"Failed: **{len(failed)}**",
         "",
         "## Result table",
@@ -332,6 +367,14 @@ def _execute_tag(
                     print(f"wrote: {path}")
                 status = "success"
                 message = f"{len(written)} files"
+        except CalibrationStatusError as exc:
+            status = exc.status
+            written = exc.written_files
+            message = str(exc)
+            with contextlib.redirect_stdout(tee), contextlib.redirect_stderr(tee):
+                print(f"[{smru_name}] {status}: {message}")
+                for path in written:
+                    print(f"wrote: {path}")
         except Exception as exc:  # pragma: no cover - exercised by dedicated tests
             status = "failed"
             message = str(exc)
